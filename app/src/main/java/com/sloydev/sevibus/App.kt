@@ -25,7 +25,6 @@ import com.sloydev.sevibus.ui.SevNavigationBar
 import com.sloydev.sevibus.ui.SevTopAppBar
 import com.sloydev.sevibus.ui.theme.SevibusTheme
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun App() {
     val appState = rememberSevAppState()
