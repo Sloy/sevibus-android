@@ -1,6 +1,5 @@
 package com.sloydev.sevibus
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -48,22 +47,15 @@ fun App() {
                         ),
                     )
             ) {
-                val destination = appState.currentTopLevelDestination
-                if (destination != null) {
-                    SevTopAppBar(
-                        titleRes = destination.titleTextId,
-                    )
+                NavHost(
+                    navController = appState.navController,
+                    startDestination = FOR_YOU.route
+                ) {
+                    composable(FOR_YOU.route) { Text("home") }
+                    composable(LINES.route) { Text("lineas") }
+                    composable(MAP.route) { Text("mapa") }
+                    composable(CARDS.route) { Text("bonobus") }
                 }
-            }
-
-            NavHost(
-                navController = appState.navController,
-                startDestination = FOR_YOU.route
-            ) {
-                composable(FOR_YOU.route) { Text("home") }
-                composable(LINES.route) { Text("lineas") }
-                composable(MAP.route) { Text("mapa") }
-                composable(CARDS.route) { Text("bonobus") }
             }
         }
     }

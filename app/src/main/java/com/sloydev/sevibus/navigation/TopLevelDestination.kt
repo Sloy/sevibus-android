@@ -23,6 +23,11 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sloydev.sevibus.R
+import com.sloydev.sevibus.ui.icons.Bus
+import com.sloydev.sevibus.ui.icons.Card
+import com.sloydev.sevibus.ui.icons.Map
+import com.sloydev.sevibus.ui.icons.SevIcons
+import com.sloydev.sevibus.ui.icons.Shimmer
 
 /**
  * Type for the top level destinations in the application. Each of these destinations
@@ -38,29 +43,29 @@ enum class TopLevelDestination(
 ) {
     FOR_YOU(
         route = "/home",
-        selectedIcon = Icons.Default.Face,
-        unselectedIcon = Icons.Default.Face,
+        selectedIcon = SevIcons.Shimmer,
+        unselectedIcon = SevIcons.Shimmer,
         iconTextId = R.string.navigation_for_you,
         titleTextId = R.string.app_name,
     ),
     LINES(
         route = "/lines",
-        selectedIcon = Icons.Default.ShoppingCart,
-        unselectedIcon = Icons.Default.ShoppingCart,
+        selectedIcon = SevIcons.Bus,
+        unselectedIcon = SevIcons.Bus,
         iconTextId = R.string.navigation_lines,
         titleTextId = R.string.navigation_lines,
     ),
     MAP(
         route = "/map",
-        selectedIcon = Icons.Default.Email,
-        unselectedIcon = Icons.Default.Email,
+        selectedIcon = SevIcons.Map,
+        unselectedIcon = SevIcons.Map,
         iconTextId = R.string.navigation_map,
         titleTextId = R.string.navigation_map,
     ),
     CARDS(
         route = "/cards",
-        selectedIcon = Icons.Default.Delete,
-        unselectedIcon = Icons.Default.Delete,
+        selectedIcon = SevIcons.Card,
+        unselectedIcon = SevIcons.Card,
         iconTextId = R.string.navigation_cards,
         titleTextId = R.string.navigation_cards,
     ),
