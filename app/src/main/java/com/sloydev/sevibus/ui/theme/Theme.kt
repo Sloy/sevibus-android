@@ -38,7 +38,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun SevibusTheme(
+fun SevTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -67,4 +67,8 @@ fun SevibusTheme(
         typography = Typography,
         content = content
     )
+}
+
+object SevTheme {
+    val typography = Typography
 }

@@ -22,14 +22,13 @@ import com.sloydev.sevibus.navigation.TopLevelDestination.LINES
 import com.sloydev.sevibus.navigation.TopLevelDestination.MAP
 import com.sloydev.sevibus.navigation.rememberSevAppState
 import com.sloydev.sevibus.ui.SevNavigationBar
-import com.sloydev.sevibus.ui.SevTopAppBar
-import com.sloydev.sevibus.ui.theme.SevibusTheme
+import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
 fun App() {
     val appState = rememberSevAppState()
 
-    SevibusTheme {
+    SevTheme {
         Scaffold(bottomBar = {
             SevNavigationBar(
                 destinations = appState.topLevelDestinations,
