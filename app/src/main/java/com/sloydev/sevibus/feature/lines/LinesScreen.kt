@@ -1,12 +1,13 @@
 package com.sloydev.sevibus.feature.lines
 
-import android.graphics.ColorMatrix
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ListItem
@@ -17,18 +18,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
+import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.ui.SevTopAppBar
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
 fun LinesRoute() {
     //TODO inject viewmodel and subscribe to state
-    LinesScreen(LinesState.Content(listOf("01", "02", "05")))
+    LinesScreen(LinesState.Content(Stubs.lines))
 }
 
 @Composable
@@ -42,36 +43,55 @@ private fun LinesScreen(state: LinesState) {
             Column {
                 SevTopAppBar(titleRes = R.string.navigation_lines)
 
-                repeat(3) {
-                    Text("Transversales", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp))
-                    state.lines.forEach {
-                        Card(modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)) {
-                            ListItem(
-                                headlineContent = { Text("Plg. Norte H. Virgen del Rocio") },
-                                //overlineContent = { Text(text = "overline")},
-                                leadingContent = {
-                                    Box(
-                                        Modifier
-                                            .size(32.dp)
-                                            .clip(MaterialTheme.shapes.small)
-                                            .background(Color(0xfff54129)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            it, color = MaterialTheme.colorScheme.onPrimary,
-                                            style = MaterialTheme.typography.bodyLarge
-                                                .copy(fontWeight = FontWeight.ExtraBold)
-                                        )
-                                    }
-                                },
-                                tonalElevation = 8.dp
-                            )
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Stubs.lineTypes.forEach { lineType ->
+                        val lines = state.lines.filter { it.type == lineType }
+                        if (lines.isNotEmpty()) {
+                            LineTypeTitle(lineType)
+                            lines.forEach {
+                                LineItem(it)
+                            }
+                            Spacer(Modifier.size(8.dp))
                         }
                     }
-                    Spacer(Modifier.size(8.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LineTypeTitle(lineType: String) {
+    Text(lineType, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp))
+}
+
+@Composable
+private fun LineItem(it: Line) {
+    Card(
+        onClick = { /*TODO*/ },
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+    ) {
+        ListItem(
+            tonalElevation = 8.dp,
+            headlineContent = { Text(it.description) },
+            //overlineContent = { Text(text = "overline")},
+            leadingContent = {
+                Box(
+                    Modifier
+                        //.size(32.dp)
+                        .clip(MaterialTheme.shapes.small)
+                        .background(Color(it.colorHex))
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        it.label, color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyLarge
+                            .copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            },
+        )
     }
 }
 
@@ -79,6 +99,6 @@ private fun LinesScreen(state: LinesState) {
 @Composable
 private fun LinesScreenPreview() {
     SevTheme {
-        LinesScreen(state = LinesState.Content(listOf("01", "02", "05")))
+        LinesScreen(state = LinesState.Content(Stubs.lines))
     }
 }

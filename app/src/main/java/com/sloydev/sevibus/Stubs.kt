@@ -1,0 +1,71 @@
+package com.sloydev.sevibus
+
+import com.sloydev.sevibus.feature.lines.Line
+
+object Stubs {
+    val lines = listOf(
+        Line("01", "Plg. Norte H. Virgen del Rocio", 0xffF54129),
+        Line("02", "Puerta Triana - Heliopolis", 0xffF54129),
+        Line("03", "Bellavista-S. Jeronimo-Pino Montano", 0xffF7A800),
+        Line("05", "Puerta Triana - Santa Aurelia", 0xffF54129),
+        Line("06", "Gta. S. Lázaro - Hosp. V. Rocio", 0xffF54129),
+        Line("10", "Ponce de León - San Jerónimo", 0xff000D6F),
+        Line("11", "Ponce de León - Los Principes", 0xff000D6F),
+        Line("12", "Ponce de León -  Pino Montano", 0xff000D6F),
+        Line("13", "Plaza Duque Pino Montano", 0xff000D6F),
+        Line("14", "Plaza Duque - Poligono Norte - Las Golondrinas", 0xff000D6F),
+        Line("15", "Ponce de León - San Diego", 0xff000D6F),
+        Line("16", "Rialto - Valdezorras", 0xff000D6F),
+        Line("20", "Ponce de León - Polígono de San Pablo", 0xff000D6F),
+        Line("21", "Plaza de Armas - Polígono San Pablo", 0xff000D6F),
+        Line("22", "Prado San Sebastian - Sevilla Este", 0xff000D6F),
+        Line("24", "Ponce de León - Juan XXIII - Palmete", 0xff000D6F),
+        Line("25", "Prado - Rochelambert", 0xff000D6F),
+        Line("26", "Prado - Cerro del Aguila", 0xff000D6F),
+        Line("27", "Plaza Duque - Sevilla Este", 0xff000D6F),
+        Line("28", "Prado - Alcosa", 0xff000D6F),
+        Line("29", "Prado S. Sebastian - Torreblanca", 0xff000D6F),
+        Line("30", "Prado San Sebastián - La Paz", 0xff000D6F),
+        Line("31", "Prado San Sebastián - Polígono Sur", 0xff000D6F),
+        Line("32", "Plz. Duque - Plg. Sur", 0xff000D6F),
+        Line("34", "Prado San Sebastián - Los Bermejales", 0xff000D6F),
+        Line("37", "Pta. Jerez - Pedro Salvador - Bellavista", 0xff000D6F),
+        Line("38A", "Prado - Pitamo - Olavide", 0xff000D6F),
+        Line("39", "Los Arcos - Hac. S. Antonio", 0xff000D6F),
+        Line("40", "Reyes Catolicos - Triana", 0xff000D6F),
+        Line("41", "Reyes Catolicos - Tablada", 0xff000D6F),
+        Line("43", "San Pablo - El Tardon", 0xff000D6F),
+        Line("52", "S. Bernardo - Palmete", 0xff000D6F),
+        Line("B3", "Gran Plaza - Santa Clara", 0xff84C6E3),
+        Line("B4", "San Bernardo - Torreblanca", 0xff84C6E3),
+        Line("C1", "Circular Exterior 1", 0xff008431),
+        Line("C2", "Circular Exterior 2", 0xff008431),
+        Line("C3", "Circular Interior 1", 0xff008431),
+        Line("C4", "Circular Interior 2", 0xff008431),
+        Line("C6A", "Circular Macarena Norte Sentido A", 0xff008431),
+        Line("C6B", "Circular Macarena Norte Sentido B", 0xff008431),
+        Line("CJ", "San Bernardo - Ciudad de La Justicia", 0xffF7A800),
+        Line("EA", "Aeropuerto", 0xff84C6E3),
+        Line("EC", "Lanzadera Charco La Pava", 0xff84C6E3),
+        Line("LE", "Prado San Sebastián - Sevilla Este", 0xffF7A800),
+        Line("LN", "Line Norte", 0xffF7A800),
+        Line("LS", "Santa Justa - Bellavista", 0xffF7A800),
+        Line("T1", "Metrocentro", 0xffC60018)
+    )
+
+    val lineTypes = listOf(
+        "Circulares",
+        "Transversales",
+        "Radiales Norte",
+        "Radiales Este",
+        "Radiales Sur",
+        "Radiales Oeste",
+        "Periféricas",
+        "Barrios y Express",
+        "Especiales",
+        "Metroentro",
+        "Nocturnas",
+        "Otras",
+    )
+}
+
