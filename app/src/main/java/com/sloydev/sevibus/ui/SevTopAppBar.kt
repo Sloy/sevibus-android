@@ -18,6 +18,5 @@ fun SevTopAppBar(
 
     CenterAlignedTopAppBar(
         title = { Text(text = stringResource(id = titleRes)) },
-        modifier = modifier.testTag("niaTopAppBar"),
     )
 }

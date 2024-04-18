@@ -23,17 +23,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.SevTopAppBar
-import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
-fun LinesRoute() {
+fun LinesRoute(onLineClick: (Line)->Unit) {
     //TODO inject viewmodel and subscribe to state
-    LinesScreen(LinesState.Content(Stubs.lines))
+    LinesScreen(LinesState.Content(Stubs.lines), onLineClick)
 }
 
 @Composable
-private fun LinesScreen(state: LinesState) {
+private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
     when (state) {
         is LinesState.Loading -> {
             CircularProgressIndicator()
@@ -49,7 +49,7 @@ private fun LinesScreen(state: LinesState) {
                         if (lines.isNotEmpty()) {
                             LineTypeTitle(lineType)
                             lines.forEach {
-                                LineItem(it)
+                                LineItem(it, onLineClick)
                             }
                             Spacer(Modifier.size(8.dp))
                         }
@@ -66,9 +66,9 @@ private fun LineTypeTitle(lineType: String) {
 }
 
 @Composable
-private fun LineItem(it: Line) {
+private fun LineItem(it: Line, onLineClick: (Line)->Unit) {
     Card(
-        onClick = { /*TODO*/ },
+        onClick = { onLineClick(it) },
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
     ) {
         ListItem(
@@ -100,10 +100,10 @@ private fun LineIndicator(it: Line) {
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview
 @Composable
 private fun LinesScreenPreview() {
-    SevTheme {
+    ScreenPreview {
         LinesScreen(state = LinesState.Content(Stubs.lines))
     }
 }

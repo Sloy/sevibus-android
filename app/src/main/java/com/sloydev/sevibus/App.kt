@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.feature.lines.LinesRoute
+import com.sloydev.sevibus.feature.stops.StopsRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.CARDS
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
 import com.sloydev.sevibus.navigation.TopLevelDestination.LINES
@@ -52,9 +53,11 @@ fun App() {
                     startDestination = FOR_YOU.route
                 ) {
                     composable(FOR_YOU.route) { Text("home") }
-                    composable(LINES.route) { LinesRoute() }
+                    composable(LINES.route) { LinesRoute(onLineClick = { appState.navController.navigate(LINES.route + "/stops") }) }
                     composable(MAP.route) { Text("mapa") }
                     composable(CARDS.route) { Text("bonobus") }
+
+                    composable(LINES.route + "/stops") { StopsRoute() }
                 }
             }
         }
