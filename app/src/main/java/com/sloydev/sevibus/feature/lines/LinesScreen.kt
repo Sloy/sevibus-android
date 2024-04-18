@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ListItem
@@ -27,7 +27,7 @@ import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.SevTopAppBar
 
 @Composable
-fun LinesRoute(onLineClick: (Line)->Unit) {
+fun LinesRoute(onLineClick: (Line) -> Unit) {
     //TODO inject viewmodel and subscribe to state
     LinesScreen(LinesState.Content(Stubs.lines), onLineClick)
 }
@@ -42,16 +42,15 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
         is LinesState.Content -> {
             Column {
                 SevTopAppBar(titleRes = R.string.navigation_lines)
-
-                Column(Modifier.verticalScroll(rememberScrollState())) {
+                LazyColumn {
                     Stubs.lineTypes.forEach { lineType ->
-                        val lines = state.lines.filter { it.type == lineType }
-                        if (lines.isNotEmpty()) {
-                            LineTypeTitle(lineType)
-                            lines.forEach {
-                                LineItem(it, onLineClick)
+                        val linesOfType = state.lines.filter { it.type == lineType }
+                        if (linesOfType.isNotEmpty()) {
+                            item { LineTypeTitle(lineType) }
+                            items(linesOfType) { line ->
+                                LineItem(line, onLineClick)
                             }
-                            Spacer(Modifier.size(8.dp))
+                            item { Spacer(Modifier.size(16.dp)) }
                         }
                     }
                 }
@@ -62,11 +61,15 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
 
 @Composable
 private fun LineTypeTitle(lineType: String) {
-    Text(lineType, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 8.dp))
+    Text(
+        lineType,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(start = (16+8).dp)
+    )
 }
 
 @Composable
-private fun LineItem(it: Line, onLineClick: (Line)->Unit) {
+private fun LineItem(it: Line, onLineClick: (Line) -> Unit) {
     Card(
         onClick = { onLineClick(it) },
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
@@ -74,7 +77,6 @@ private fun LineItem(it: Line, onLineClick: (Line)->Unit) {
         ListItem(
             tonalElevation = 8.dp,
             headlineContent = { Text(it.description) },
-            //overlineContent = { Text(text = "overline")},
             leadingContent = {
                 LineIndicator(it)
             },
