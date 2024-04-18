@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.feature.stops
+package com.sloydev.sevibus.feature.linestops
 
 data class Stop(
     val code: Int,

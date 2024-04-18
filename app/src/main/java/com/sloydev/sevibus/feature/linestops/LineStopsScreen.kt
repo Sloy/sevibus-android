@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.feature.stops
+package com.sloydev.sevibus.feature.linestops
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +30,7 @@ import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 @Composable
 fun StopsRoute() {
     StopsScreen(
-        StopsScreenState(
+        LineStopsScreenState(
             line = Stubs.lines[2],
             directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
             stops = Stubs.stops,
@@ -40,7 +40,7 @@ fun StopsRoute() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopsScreen(state: StopsScreenState) {
+fun StopsScreen(state: LineStopsScreenState) {
     Column {
         TopAppBar(
             title = {
@@ -94,7 +94,7 @@ fun StopsScreen(state: StopsScreenState) {
 private fun StopsScreenPreview() {
     ScreenPreview {
         StopsScreen(
-            StopsScreenState(
+            LineStopsScreenState(
                 line = Stubs.lines[2],
                 directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
                 stops = Stubs.stops,

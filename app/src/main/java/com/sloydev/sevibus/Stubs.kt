@@ -1,7 +1,7 @@
 package com.sloydev.sevibus
 
 import com.sloydev.sevibus.feature.lines.Line
-import com.sloydev.sevibus.feature.stops.Stop
+import com.sloydev.sevibus.feature.linestops.Stop
 
 object Stubs {
     val lines = listOf(

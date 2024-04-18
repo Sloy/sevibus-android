@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.feature.stops
+package com.sloydev.sevibus.feature.linestops
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
@@ -22,9 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.feature.lines.Line
-import com.sloydev.sevibus.feature.stops.ListPosition.End
-import com.sloydev.sevibus.feature.stops.ListPosition.Middle
-import com.sloydev.sevibus.feature.stops.ListPosition.Start
+import com.sloydev.sevibus.feature.linestops.ListPosition.End
+import com.sloydev.sevibus.feature.linestops.ListPosition.Middle
+import com.sloydev.sevibus.feature.linestops.ListPosition.Start
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.theme.SevTheme
 
