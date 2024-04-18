@@ -74,7 +74,7 @@ fun StopsScreen(state: StopsScreenState) {
                 StopListItem(
                     number = stop.code,
                     name = stop.description,
-                    lines = Stubs.lines.take(3),
+                    lines = Stubs.lines.take(listOf(1, 1, 1, 1, 2, 2, 2, 3, 3, 4).random()),
                     listPosition = when (index) {
                         0 -> ListPosition.Start
                         state.stops.lastIndex -> ListPosition.End
