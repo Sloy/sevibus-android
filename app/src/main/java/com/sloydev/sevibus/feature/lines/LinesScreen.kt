@@ -76,21 +76,26 @@ private fun LineItem(it: Line) {
             headlineContent = { Text(it.description) },
             //overlineContent = { Text(text = "overline")},
             leadingContent = {
-                Box(
-                    Modifier
-                        //.size(32.dp)
-                        .clip(MaterialTheme.shapes.small)
-                        .background(Color(it.colorHex))
-                        .padding(4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        it.label, color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.bodyLarge
-                            .copy(fontWeight = FontWeight.ExtraBold)
-                    )
-                }
+                LineIndicator(it)
             },
+        )
+    }
+}
+
+@Composable
+private fun LineIndicator(it: Line) {
+    Box(
+        Modifier
+            //.size(32.dp)
+            .clip(MaterialTheme.shapes.small)
+            .background(Color(it.colorHex))
+            .padding(4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            it.label, color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.bodyLarge
+                .copy(fontWeight = FontWeight.ExtraBold)
         )
     }
 }
