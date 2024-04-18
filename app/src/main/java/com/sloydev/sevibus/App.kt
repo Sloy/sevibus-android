@@ -1,5 +1,8 @@
 package com.sloydev.sevibus
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -53,7 +56,9 @@ fun App() {
                 NavHost(
                     navController = appState.navController,
                     startDestination = FOR_YOU.route,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    enterTransition = { fadeIn(animationSpec = tween(100)) },
+                    exitTransition = { fadeOut(animationSpec = tween(100)) },
                 ) {
                     composable(FOR_YOU.route) { ForYouRoute() }
                     composable(LINES.route) { LinesRoute(onLineClick = { appState.navController.navigate(LINES.route + "/stops") }) }
