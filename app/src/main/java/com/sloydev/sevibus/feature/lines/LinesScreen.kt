@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,13 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.ui.ScreenPreview
-import com.sloydev.sevibus.ui.SevTopAppBar
 
 @Composable
 fun LinesRoute(onLineClick: (Line) -> Unit) {
@@ -32,6 +34,7 @@ fun LinesRoute(onLineClick: (Line) -> Unit) {
     LinesScreen(LinesState.Content(Stubs.lines), onLineClick)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
     when (state) {
@@ -41,7 +44,9 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
 
         is LinesState.Content -> {
             Column {
-                SevTopAppBar(titleRes = R.string.navigation_lines)
+                CenterAlignedTopAppBar(
+                    title = { Text(text = stringResource(id = R.string.navigation_lines)) },
+                )
                 LazyColumn {
                     Stubs.lineTypes.forEach { lineType ->
                         val linesOfType = state.lines.filter { it.type == lineType }
@@ -64,7 +69,7 @@ private fun LineTypeTitle(lineType: String) {
     Text(
         lineType,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(start = (16+8).dp)
+        modifier = Modifier.padding(start = (16 + 8).dp)
     )
 }
 
