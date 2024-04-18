@@ -3,8 +3,8 @@ package com.sloydev.sevibus.feature.stops
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,8 +69,9 @@ fun StopsScreen(state: StopsScreenState) {
                 text = { Text(text = state.directions[1], maxLines = 2, overflow = TextOverflow.Ellipsis) }
             )
         }
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            state.stops.forEachIndexed { index, stop ->
+
+        LazyColumn {
+            itemsIndexed(state.stops) { index, stop ->
                 StopListItem(
                     number = stop.code,
                     name = stop.description,
