@@ -21,6 +21,7 @@ import com.sloydev.sevibus.feature.cards.CardsRoute
 import com.sloydev.sevibus.feature.foryou.ForYouRoute
 import com.sloydev.sevibus.feature.lines.LinesRoute
 import com.sloydev.sevibus.feature.map.MapRoute
+import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloydev.sevibus.feature.stops.StopsRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.CARDS
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
@@ -60,12 +61,13 @@ fun App() {
                     enterTransition = { fadeIn(animationSpec = tween(100)) },
                     exitTransition = { fadeOut(animationSpec = tween(100)) },
                 ) {
-                    composable(FOR_YOU.route) { ForYouRoute() }
+                    composable(FOR_YOU.route) { ForYouRoute(appState.navController) }
                     composable(LINES.route) { LinesRoute(onLineClick = { appState.navController.navigate(LINES.route + "/stops") }) }
                     composable(MAP.route) { MapRoute() }
                     composable(CARDS.route) { CardsRoute() }
 
                     composable(LINES.route + "/stops") { StopsRoute() }
+                    stopDetailRoute()
                 }
             }
         }

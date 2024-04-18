@@ -1,6 +1,7 @@
-package com.sloydev.sevibus.feature.lines
+package com.sloydev.sevibus.feature.foryou
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,13 +26,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.feature.lines.Line
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.theme.SevTheme
 import kotlin.random.Random
 
 
 @Composable
-fun FavoritesCard() {
+fun FavoritesCard(onStopClicked: (code: Int) -> Unit) {
     Card(
         Modifier
             .padding(16.dp)
@@ -43,16 +45,16 @@ fun FavoritesCard() {
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp)
             )
 
-            FavoriteListItem("42", "Escuela", "Reina Mercedes - ETSII", Stubs.lines.take(2))
-            FavoriteListItem("238", "Casa", "San Juan de Ribera (Macarena)", Stubs.lines.slice(3..5))
-
+            FavoriteListItem(42, "Escuela", "Reina Mercedes - ETSII", Stubs.lines.take(2), onStopClicked)
+            FavoriteListItem(238, "Casa", "San Juan de Ribera (Macarena)", Stubs.lines.slice(3..5), onStopClicked)
         }
     }
 }
 
 @Composable
-private fun FavoriteListItem(code: String, name: String, description: String, lines: List<Line>) {
+private fun FavoriteListItem(code: Int, name: String, description: String, lines: List<Line>, onStopClicked: (code: Int) -> Unit) {
     ListItem(
+        modifier = Modifier.clickable { onStopClicked(code) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         headlineContent = { Text(name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         supportingContent = { Text(description, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -65,7 +67,7 @@ private fun FavoriteListItem(code: String, name: String, description: String, li
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    code,
+                    code.toString(),
                     color = MaterialTheme.colorScheme.onPrimary,
                     style = MaterialTheme.typography.bodyLarge
                         .copy(fontWeight = FontWeight.Medium)
@@ -96,6 +98,6 @@ private fun FavoriteLineTime(line: Line) {
 @Composable
 private fun FavoritesCardPreview() {
     SevTheme {
-        FavoritesCard()
+        FavoritesCard({})
     }
 }

@@ -7,21 +7,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.sloydev.sevibus.R
-import com.sloydev.sevibus.feature.lines.FavoritesCard
+import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.ui.ScreenPreview
 
 @Composable
-fun ForYouRoute() {
-    ForYouScreen()
+fun ForYouRoute(navController: NavHostController) {
+    ForYouScreen(onStopClicked = { code ->
+        navController.navigateToStopDetail(code)
+    })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForYouScreen() {
+fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
         CenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
-        FavoritesCard()
+        FavoritesCard(onStopClicked)
     }
 }
 
@@ -30,6 +33,6 @@ fun ForYouScreen() {
 @Composable
 private fun ForYouScreenPreview() {
     ScreenPreview {
-        ForYouScreen()
+        ForYouScreen({})
     }
 }

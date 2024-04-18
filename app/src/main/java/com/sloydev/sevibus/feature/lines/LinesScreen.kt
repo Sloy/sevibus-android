@@ -1,7 +1,5 @@
 package com.sloydev.sevibus.feature.lines
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -16,17 +14,14 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.ui.ScreenPreview
+import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 
 @Composable
 fun LinesRoute(onLineClick: (Line) -> Unit) {
@@ -83,29 +78,12 @@ private fun LineItem(it: Line, onLineClick: (Line) -> Unit) {
             tonalElevation = 8.dp,
             headlineContent = { Text(it.description) },
             leadingContent = {
-                LineIndicator(it)
+                LineIndicatorMedium(it)
             },
         )
     }
 }
 
-@Composable
-private fun LineIndicator(it: Line) {
-    Box(
-        Modifier
-            //.size(32.dp)
-            .clip(MaterialTheme.shapes.small)
-            .background(Color(it.colorHex))
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            it.label, color = MaterialTheme.colorScheme.onPrimary,
-            style = MaterialTheme.typography.bodyLarge
-                .copy(fontWeight = FontWeight.ExtraBold)
-        )
-    }
-}
 
 @Preview
 @Composable

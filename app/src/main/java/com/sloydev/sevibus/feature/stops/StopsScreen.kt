@@ -16,6 +16,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -75,7 +76,7 @@ fun StopsScreen(state: StopsScreenState) {
                 StopListItem(
                     number = stop.code,
                     name = stop.description,
-                    lines = Stubs.lines.take(listOf(1, 1, 1, 1, 2, 2, 2, 3, 3, 4).random()),
+                    lines = remember(stop) { Stubs.lines.take(listOf(1, 1, 1, 1, 2, 2, 2, 3, 3, 4).random()) },
                     listPosition = when (index) {
                         0 -> ListPosition.Start
                         state.stops.lastIndex -> ListPosition.End
