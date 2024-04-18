@@ -21,13 +21,30 @@ android {
         }
     }
 
+    signingConfigs {
+        register("release") {
+            storePassword = "banana"
+            keyAlias = "banana"
+            keyPassword = "banana"
+            storeFile = file("../certs/fakeRelease.keystore")
+        }
+        named("debug") {
+            storeFile = file("../certs/debug.keystore")
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs["release"]
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        named("debug") {
+//      applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs["debug"]
         }
     }
     compileOptions {
