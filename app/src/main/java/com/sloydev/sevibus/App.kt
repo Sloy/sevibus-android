@@ -10,13 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sloydev.sevibus.feature.cards.CardsRoute
 import com.sloydev.sevibus.feature.foryou.ForYouRoute
 import com.sloydev.sevibus.feature.lines.LinesRoute
+import com.sloydev.sevibus.feature.map.MapRoute
 import com.sloydev.sevibus.feature.stops.StopsRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.CARDS
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
@@ -51,12 +52,13 @@ fun App() {
             ) {
                 NavHost(
                     navController = appState.navController,
-                    startDestination = FOR_YOU.route
+                    startDestination = FOR_YOU.route,
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     composable(FOR_YOU.route) { ForYouRoute() }
                     composable(LINES.route) { LinesRoute(onLineClick = { appState.navController.navigate(LINES.route + "/stops") }) }
-                    composable(MAP.route) { Text("mapa") }
-                    composable(CARDS.route) { Text("bonobus") }
+                    composable(MAP.route) { MapRoute() }
+                    composable(CARDS.route) { CardsRoute() }
 
                     composable(LINES.route + "/stops") { StopsRoute() }
                 }
