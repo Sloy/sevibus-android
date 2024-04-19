@@ -1,7 +1,10 @@
 package com.sloydev.sevibus
 
+import com.sloydev.sevibus.feature.cards.CardInfo
+import com.sloydev.sevibus.feature.cards.CardTransaction
 import com.sloydev.sevibus.feature.lines.Line
 import com.sloydev.sevibus.feature.linestops.Stop
+import java.time.LocalDateTime
 
 object Stubs {
     val lines = listOf(
@@ -130,14 +133,10 @@ object Stubs {
             position = Stop.Position(latitude = 37.399669, longitude = -5.983595)
         ),
         Stop(
-            code = 25,
-            description = "Muñoz León (Sánchez Perrier)",
-            position = Stop.Position(latitude = 37.401397, longitude = -5.985486)
+            code = 25, description = "Muñoz León (Sánchez Perrier)", position = Stop.Position(latitude = 37.401397, longitude = -5.985486)
         ),
         Stop(
-            code = 238,
-            description = "San Juan de Ribera (Macarena)",
-            position = Stop.Position(latitude = 37.403549, longitude = -5.987237)
+            code = 238, description = "San Juan de Ribera (Macarena)", position = Stop.Position(latitude = 37.403549, longitude = -5.987237)
         ),
         Stop(
             code = 239,
@@ -161,5 +160,19 @@ object Stubs {
         )
     )
 
+    val cards = listOf(
+        CardInfo(30),
+        CardInfo(31),
+        CardInfo(155),
+        CardInfo(201),
+    )
+
+    val cardTransactions = listOf(
+        CardTransaction.Validation(350, LocalDateTime.now(), lines[4], people = 2),
+        CardTransaction.Validation(350, LocalDateTime.now(), lines[4]),
+        CardTransaction.TopUp(10000, LocalDateTime.now()),
+        CardTransaction.Validation(350, LocalDateTime.now(), lines[34], people = 2),
+        CardTransaction.Validation(350, LocalDateTime.now(), lines[34]),
+    )
 }
 
