@@ -70,8 +70,16 @@ fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
                 }
             )
         }
+        if (embedded) {
+            Text(
+                stop.code.toString(),
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
         Text(
-            stop.description, style = MaterialTheme.typography.headlineMedium,
+            stop.description,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(start = 16.dp)
         )
 
@@ -115,8 +123,16 @@ private fun BusArrival(line: Line, direction: String, minutes: Int) {
 
 @Preview
 @Composable
-private fun StopDetailScreenPreview() {
+private fun Preview() {
     ScreenPreview {
         StopDetailScreen(Stubs.stops.first())
+    }
+}
+
+@Preview
+@Composable
+private fun EmbeddedPreview() {
+    ScreenPreview {
+        StopDetailScreen(Stubs.stops.first(), embedded = true)
     }
 }

@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,18 +24,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
@@ -60,9 +61,10 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
         var showBottomSheet by remember { mutableStateOf(false) }
         val filters = remember { mutableStateListOf<SearchResult>(*previewFilters.toTypedArray()) }
         Map(
-            Modifier
-                .fillMaxSize()
-                .zIndex(0f), onStopClick = { showBottomSheet = true })
+            Modifier.fillMaxSize(),
+            onStopClick = { showBottomSheet = true },
+            onStopDismissed = { showBottomSheet = false },
+        )
         Column {
             SevSearchBar(
                 onSearchResultClicked = { filters.add(it) },
@@ -84,11 +86,16 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
         }
 
         if (showBottomSheet) {
+            val state = rememberBottomSheetScaffoldState()
             BottomSheetScaffold(
-                sheetPeekHeight = (96).dp,
+                sheetPeekHeight = (104).dp,
+                scaffoldState = state,
                 sheetContent = { StopDetailScreen(Stubs.stops[0], embedded = true) },
                 content = {}
             )
+            LaunchedEffect(showBottomSheet) {
+                state.bottomSheetState.expand()
+            }
         }
     }
 }
@@ -150,9 +157,14 @@ fun NearbyChip(modifier: Modifier) {
 }
 
 @Composable
-fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit) {
+fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
     //TODO real map
-    Box(modifier = modifier.background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier
+            .clickable { onStopDismissed() }
+            .background(MaterialTheme.colorScheme.primary),
+        contentAlignment = Alignment.Center
+    ) {
         IconButton(onClick = { onStopClick(154) }) {
             Icon(SevIcons.DirectionsBusFill, contentDescription = null)
         }
