@@ -32,22 +32,23 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
 fun StopListItem(
-    number: Int,
-    name: String,
+    stop: Stop,
     lines: List<Line>,
     listPosition: ListPosition,
     color: Color = Color.Blue,
+    onStopClick: (Stop) -> Unit,
 ) {
     TimelineNode(listPosition, color) {
         Card(
-            Modifier
+            onClick = { onStopClick(stop) },
+            modifier = Modifier
                 .padding(vertical = 4.dp)
                 .padding(end = 8.dp)
         ) {
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                headlineContent = { Text(name) },
-                overlineContent = { Text(text = number.toString()) },
+                headlineContent = { Text(stop.description) },
+                overlineContent = { Text(text = stop.code.toString()) },
                 supportingContent = { SupportingLines(lines) },
             )
         }
@@ -118,10 +119,15 @@ private fun StopListItemPreview() {
     SevTheme {
         Scaffold {
             Column(Modifier.fillMaxSize()) {
-                StopListItem(number = 512, name = "Avenida La Borbolla (Capitanía)", lines = Stubs.lines.take(3), Start)
-                StopListItem(number = 512, name = "Avenida La Borbolla (Capitanía)", lines = Stubs.lines.take(3), Middle)
-                StopListItem(number = 512, name = "Avenida La Borbolla (Capitanía)", lines = Stubs.lines.take(3), Middle)
-                StopListItem(number = 512, name = "Avenida La Borbolla (Capitanía)", lines = Stubs.lines.take(3), End)
+                Stubs.stops.take(4).forEach { stop ->
+                    StopListItem(
+                        stop,
+                        lines = Stubs.lines.take(3),
+                        Start,
+                        onStopClick = { }
+                    )
+
+                }
             }
         }
     }

@@ -16,31 +16,42 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
+import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 
-@Composable
-fun StopsRoute() {
-    StopsScreen(
-        LineStopsScreenState(
-            line = Stubs.lines[2],
-            directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
-            stops = Stubs.stops,
+fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
+    composable(TopLevelDestination.LINES.route + "/stops") {
+        StopsScreen(
+            LineStopsScreenState(
+                line = Stubs.lines[2],
+                directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
+                stops = Stubs.stops,
+            ),
+            onStopClick = { navController.navigateToStopDetail(it.code) }
         )
-    )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopsScreen(state: LineStopsScreenState) {
+fun StopsScreen(state: LineStopsScreenState, onStopClick: (Stop) -> Unit) {
     Column {
         TopAppBar(
             title = {
@@ -58,15 +69,16 @@ fun StopsScreen(state: LineStopsScreenState) {
                 }
             }
         )
-        TabRow(selectedTabIndex = 0) {
+        var tab by rememberSaveable { mutableStateOf(0) }
+        TabRow(selectedTabIndex = tab) {
             Tab(
-                selected = true,
-                onClick = { },
+                selected = tab == 0,
+                onClick = { tab = 0 },
                 text = { Text(text = state.directions[0], maxLines = 2, overflow = TextOverflow.Ellipsis) }
             )
             Tab(
-                selected = false,
-                onClick = { },
+                selected = tab == 1,
+                onClick = { tab = 1 },
                 text = { Text(text = state.directions[1], maxLines = 2, overflow = TextOverflow.Ellipsis) }
             )
         }
@@ -74,15 +86,15 @@ fun StopsScreen(state: LineStopsScreenState) {
         LazyColumn {
             itemsIndexed(state.stops) { index, stop ->
                 StopListItem(
-                    number = stop.code,
-                    name = stop.description,
+                    stop,
                     lines = remember(stop) { Stubs.lines.take(listOf(1, 1, 1, 1, 2, 2, 2, 3, 3, 4).random()) },
                     listPosition = when (index) {
                         0 -> ListPosition.Start
                         state.stops.lastIndex -> ListPosition.End
                         else -> ListPosition.Middle
                     },
-                    color = Color(state.line.colorHex)
+                    color = Color(state.line.colorHex),
+                    onStopClick = onStopClick,
                 )
             }
         }
@@ -98,7 +110,8 @@ private fun StopsScreenPreview() {
                 line = Stubs.lines[2],
                 directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
                 stops = Stubs.stops,
-            )
+            ),
+            onStopClick = {}
         )
     }
 }

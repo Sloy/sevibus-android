@@ -35,7 +35,7 @@ import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 fun NavGraphBuilder.stopDetailRoute() {
     composable("/stop/{code}") { stackEntry ->
         val code = stackEntry.arguments!!.getInt("code")
-        StopDetailScreen(remember { Stubs.stops.random() })
+        StopDetailScreen(Stubs.stops.find { it.code == code } ?: remember { Stubs.stops.random() })
     }
 }
 

@@ -22,7 +22,7 @@ import com.sloydev.sevibus.feature.foryou.ForYouRoute
 import com.sloydev.sevibus.feature.lines.LinesRoute
 import com.sloydev.sevibus.feature.map.MapRoute
 import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
-import com.sloydev.sevibus.feature.linestops.StopsRoute
+import com.sloydev.sevibus.feature.linestops.lineStopsRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.CARDS
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
 import com.sloydev.sevibus.navigation.TopLevelDestination.LINES
@@ -66,7 +66,7 @@ fun App() {
                     composable(MAP.route) { MapRoute() }
                     composable(CARDS.route) { CardsRoute() }
 
-                    composable(LINES.route + "/stops") { StopsRoute() }
+                    lineStopsRoute(appState.navController)
                     stopDetailRoute()
                 }
             }
