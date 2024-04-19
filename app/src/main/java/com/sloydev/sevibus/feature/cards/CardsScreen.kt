@@ -125,11 +125,11 @@ private fun NewCardDetail() {
 @Composable
 private fun ExistingCardDetail(currentCard: CardInfo) {
     CardBalanceItem(currentCard)
-    Spacer(Modifier.size(16.dp))
+    Spacer(Modifier.size(32.dp))
     CardInfoCard(currentCard)
-    Spacer(Modifier.size(16.dp))
+    Spacer(Modifier.size(32.dp))
     CardTransactionsCard(Stubs.cardTransactions)
-    Spacer(Modifier.size(16.dp))
+    Spacer(Modifier.size(32.dp))
 }
 
 @Composable
