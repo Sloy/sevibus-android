@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.SearchBarDefaults
@@ -49,6 +51,13 @@ fun SbSearchBar(defaultExpanded: Boolean = false, defaultText: String = "") {
                 onExpandedChange = { expanded = it },
                 placeholder = { Text("Busca líneas y paradas") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (expanded) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(Icons.Default.KeyboardAlt, contentDescription = "Numeric keyboard")
+                        }
+                    }
+                }
             )
         },
         expanded = expanded && text.isNotBlank(),
