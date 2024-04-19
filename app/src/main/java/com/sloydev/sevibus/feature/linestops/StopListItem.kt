@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,7 +45,7 @@ fun StopListItem(
                 .padding(end = 8.dp)
         ) {
             ListItem(
-                tonalElevation = 8.dp,
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 headlineContent = { Text(name) },
                 overlineContent = { Text(text = number.toString()) },
                 supportingContent = { SupportingLines(lines) },

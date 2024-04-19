@@ -3,6 +3,7 @@ package com.sloydev.sevibus
 import com.sloydev.sevibus.feature.cards.CardInfo
 import com.sloydev.sevibus.feature.cards.CardTransaction
 import com.sloydev.sevibus.feature.lines.Line
+import com.sloydev.sevibus.feature.lines.SearchResult
 import com.sloydev.sevibus.feature.linestops.Stop
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -174,10 +175,29 @@ object Stubs {
         extensionEnd = LocalDate.now()
     )
     val cards = listOf(
-        CardInfo(code = 31, title = "Saldo sin transbordo", customName = "Bono Laura", balanceMillis = 8450, serialNumber = randomCardSerial()),
+        CardInfo(
+            code = 31,
+            title = "Saldo sin transbordo",
+            customName = "Bono Laura",
+            balanceMillis = 8450,
+            serialNumber = randomCardSerial()
+        ),
         CardInfo(code = 70, title = "Hijo de empleado", customName = "La de paco", balanceTrips = 35, serialNumber = randomCardSerial()),
-        CardInfo(code = 116, title = "Estudiante mensual", customName = "Estudiante", validityEnd = LocalDate.now(), extensionEnd = LocalDate.now(), serialNumber = randomCardSerial()),
-        CardInfo(code = 30, title = "Saldo con transbordo", customName = "Números rojos", balanceMillis = -450, serialNumber = randomCardSerial()),
+        CardInfo(
+            code = 116,
+            title = "Estudiante mensual",
+            customName = "Estudiante",
+            validityEnd = LocalDate.now(),
+            extensionEnd = LocalDate.now(),
+            serialNumber = randomCardSerial()
+        ),
+        CardInfo(
+            code = 30,
+            title = "Saldo con transbordo",
+            customName = "Números rojos",
+            balanceMillis = -450,
+            serialNumber = randomCardSerial()
+        ),
     )
 
     private fun randomCardSerial() = Random.nextLong(100000000, 999999999)
@@ -189,5 +209,15 @@ object Stubs {
         CardTransaction.Validation(350, LocalDateTime.now(), lines[34], people = 2),
         CardTransaction.Validation(350, LocalDateTime.now(), lines[34]),
     )
+
+    val searchResults: List<SearchResult>
+        get() {
+            val stops = stops.shuffled().take(20)
+                .map { SearchResult.StopResult(it, lines.shuffled().take(Random.nextInt(1, 4))) }
+            val lines = lines.shuffled().take(10)
+                .map { SearchResult.LineResult(it) }
+            return (stops + lines).shuffled()
+        }
+
 }
 

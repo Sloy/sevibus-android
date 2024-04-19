@@ -105,6 +105,7 @@ private fun NewCardDetail() {
             leadingIcon = { Icon(Icons.Default.AddCard, contentDescription = null) },
             supportingText = { Text("El número de serie se encuentra en la parte trasera de la tarjeta. Suele ser de 12 dígitos.") },
             keyboardOptions = KeyboardOptions.Default.copy(
+                autoCorrectEnabled = false, //TODO added because of ambiguous copy function in alpha05, should be removed
                 keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
             ),
             onValueChange = { input = it },

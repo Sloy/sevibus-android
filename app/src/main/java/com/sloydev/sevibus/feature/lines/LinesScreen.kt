@@ -45,7 +45,10 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
                 CenterAlignedTopAppBar(
                     title = { Text(text = stringResource(id = R.string.navigation_lines)) },
                 )
+
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
+                    item { SbSearchBar() }
+                    item { Spacer(Modifier.size(32.dp)) }
                     Stubs.lineTypes.forEach { lineType ->
                         val linesOfType = state.lines.filter { it.type == lineType }
                         if (linesOfType.isNotEmpty()) {
@@ -60,13 +63,15 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
     }
 }
 
+
+
 @Composable
 fun LinesCard(lines: List<Line>, onLineClick: (Line) -> Unit) {
     Card {
         Column {
             lines.forEachIndexed { index, line ->
                 LineItem(line, onLineClick)
-                if(index < lines.lastIndex){
+                if (index < lines.lastIndex) {
                     HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                 }
             }
@@ -91,7 +96,7 @@ private fun LineTypeTitle(lineType: String) {
     Text(
         lineType,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(start = (16 + 8).dp, bottom = 8.dp)
+        modifier = Modifier.padding(start = (16).dp, bottom = 8.dp)
     )
 }
 
