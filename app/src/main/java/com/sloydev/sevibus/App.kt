@@ -16,17 +16,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.sloydev.sevibus.feature.cards.CardsRoute
-import com.sloydev.sevibus.feature.foryou.ForYouRoute
-import com.sloydev.sevibus.feature.lines.LinesRoute
-import com.sloydev.sevibus.feature.map.MapRoute
-import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
+import com.sloydev.sevibus.feature.cards.cardsRoute
+import com.sloydev.sevibus.feature.foryou.forYouRoute
+import com.sloydev.sevibus.feature.lines.linesRoute
 import com.sloydev.sevibus.feature.linestops.lineStopsRoute
-import com.sloydev.sevibus.navigation.TopLevelDestination.CARDS
+import com.sloydev.sevibus.feature.map.mapRoute
+import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
-import com.sloydev.sevibus.navigation.TopLevelDestination.LINES
-import com.sloydev.sevibus.navigation.TopLevelDestination.MAP
 import com.sloydev.sevibus.navigation.rememberSevAppState
 import com.sloydev.sevibus.ui.SevNavigationBar
 import com.sloydev.sevibus.ui.theme.SevTheme
@@ -61,10 +57,10 @@ fun App() {
                     enterTransition = { fadeIn(animationSpec = tween(100)) },
                     exitTransition = { fadeOut(animationSpec = tween(100)) },
                 ) {
-                    composable(FOR_YOU.route) { ForYouRoute(appState.navController) }
-                    composable(LINES.route) { LinesRoute(onLineClick = { appState.navController.navigate(LINES.route + "/stops") }) }
-                    composable(MAP.route) { MapRoute() }
-                    composable(CARDS.route) { CardsRoute() }
+                    forYouRoute(appState.navController)
+                    linesRoute(appState.navController)
+                    mapRoute()
+                    cardsRoute()
 
                     lineStopsRoute(appState.navController)
                     stopDetailRoute()

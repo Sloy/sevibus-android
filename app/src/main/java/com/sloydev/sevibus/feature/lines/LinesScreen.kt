@@ -21,15 +21,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.feature.linestops.navigateToLineStops
+import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 
-@Composable
-fun LinesRoute(onLineClick: (Line) -> Unit) {
-    //TODO inject viewmodel and subscribe to state
-    LinesScreen(LinesState.Content(Stubs.lines), onLineClick)
+fun NavGraphBuilder.linesRoute(navController: NavController) {
+    composable(TopLevelDestination.LINES.route) {
+        //TODO inject viewmodel and subscribe to state
+        val state = LinesState.Content(Stubs.lines)
+        LinesScreen(state, onLineClick = { navController.navigateToLineStops(it.label) })
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,7 +69,6 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
         }
     }
 }
-
 
 
 @Composable

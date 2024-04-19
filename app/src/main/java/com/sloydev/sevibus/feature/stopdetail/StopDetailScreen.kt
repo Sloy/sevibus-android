@@ -33,14 +33,14 @@ import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 
 fun NavGraphBuilder.stopDetailRoute() {
-    composable("/stop/{code}") { stackEntry ->
+    composable("/stop-detail/{code}") { stackEntry ->
         val code = stackEntry.arguments!!.getInt("code")
         StopDetailScreen(Stubs.stops.find { it.code == code } ?: remember { Stubs.stops.random() })
     }
 }
 
 fun NavController.navigateToStopDetail(code: Int) {
-    navigate("/stop/$code")
+    navigate("/stop-detail/$code")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -37,16 +37,21 @@ import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 
 fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
-    composable(TopLevelDestination.LINES.route + "/stops") {
+    composable(TopLevelDestination.LINES.route + "{line}/stops") { stackEntry ->
+        val line = stackEntry.arguments!!.getString("line")
         StopsScreen(
             LineStopsScreenState(
-                line = Stubs.lines[2],
+                line = Stubs.lines.first { it.label == line },
                 directions = listOf("HOSPITAL V.ROCIO", "POLIGONO NORTE"),
                 stops = Stubs.stops,
             ),
             onStopClick = { navController.navigateToStopDetail(it.code) }
         )
     }
+}
+
+fun NavController.navigateToLineStops(line: String) {
+    navigate(TopLevelDestination.LINES.route + "$line/stops")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

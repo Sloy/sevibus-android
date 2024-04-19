@@ -47,16 +47,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 
-@Composable
-fun CardsRoute() {
-    CardsScreen(Stubs.cards)
+fun NavGraphBuilder.cardsRoute() {
+    composable(TopLevelDestination.CARDS.route) {
+        CardsScreen(Stubs.cards)
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardsScreen(cards: List<CardInfo>) {
 

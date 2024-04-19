@@ -7,16 +7,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
+import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 
-@Composable
-fun ForYouRoute(navController: NavHostController) {
-    ForYouScreen(onStopClicked = { code ->
-        navController.navigateToStopDetail(code)
-    })
+
+fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
+    composable(TopLevelDestination.FOR_YOU.route) {
+        ForYouScreen(onStopClicked = { code ->
+            navController.navigateToStopDetail(code)
+        })
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
