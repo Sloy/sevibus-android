@@ -176,7 +176,7 @@ object Stubs {
     val cards = listOf(
         CardInfo(code = 31, title = "Saldo sin transbordo", customName = "Bono Laura", balanceMillis = 8450, serialNumber = randomCardSerial()),
         CardInfo(code = 70, title = "Hijo de empleado", customName = "La de paco", balanceTrips = 35, serialNumber = randomCardSerial()),
-        CardInfo(code = 116, title = "Estudiante mensual", customName = "Estudiante", serialNumber = randomCardSerial()),
+        CardInfo(code = 116, title = "Estudiante mensual", customName = "Estudiante", validityEnd = LocalDate.now(), extensionEnd = LocalDate.now(), serialNumber = randomCardSerial()),
         CardInfo(code = 30, title = "Saldo con transbordo", customName = "Números rojos", balanceMillis = -450, serialNumber = randomCardSerial()),
     )
 

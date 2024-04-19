@@ -2,27 +2,47 @@ package com.sloydev.sevibus.feature.cards
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCard
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
@@ -41,7 +61,7 @@ fun CardsScreen(cards: List<CardInfo>) {
     Column {
         CenterAlignedTopAppBar(title = { Text(stringResource(R.string.navigation_cards)) })
 
-        val state = rememberPagerState { cards.size }
+        val state = rememberPagerState { cards.size + 1 }
 
         Column(Modifier.verticalScroll(rememberScrollState())) {
 
@@ -53,19 +73,63 @@ fun CardsScreen(cards: List<CardInfo>) {
                     .wrapContentHeight()
                     .fillMaxWidth(),
             ) { page ->
-                CardPictureItem(cards[page])
+                if (page <= cards.lastIndex) {
+                    CardPictureItem(cards[page])
+                } else {
+                    CardAddMoreItem()
+                }
             }
 
-            val currentCard = cards[state.currentPage]
-
-            CardBalanceItem(currentCard)
-            Spacer(Modifier.size(16.dp))
-            CardInfoCard(currentCard)
-            Spacer(Modifier.size(16.dp))
-            CardTransactionsCard(Stubs.cardTransactions)
-            Spacer(Modifier.size(16.dp))
+            if (state.currentPage <= cards.lastIndex) {
+                val currentCard = cards[state.currentPage]
+                ExistingCardDetail(currentCard)
+            } else {
+                NewCardDetail()
+            }
         }
     }
+}
+
+@Composable
+private fun NewCardDetail() {
+    Column(Modifier.padding(16.dp)) {
+        Text("Añadir tarjeta", style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.size(16.dp))
+        var input by remember { mutableStateOf("") }
+        TextField(
+            value = input,
+            label = { Text("Número de serie") },
+            placeholder = { Text("1234 1234 1234") },
+            leadingIcon = { Icon(Icons.Default.AddCard, contentDescription = null) },
+            supportingText = { Text("El número de serie se encuentra en la parte trasera de la tarjeta. Suele ser de 12 dígitos.") },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+            ),
+            onValueChange = { input = it },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.size(32.dp))
+        Text("o bien", Modifier.align(Alignment.CenterHorizontally), style = MaterialTheme.typography.labelMedium)
+        Spacer(Modifier.size(32.dp))
+        ExtendedFloatingActionButton(
+            onClick = { /*TODO*/ },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Icon(Icons.Default.CameraAlt, contentDescription = null)
+            Spacer(Modifier.size(8.dp))
+            Text("Usar la cámara")
+        }
+    }
+}
+
+@Composable
+private fun ExistingCardDetail(currentCard: CardInfo) {
+    CardBalanceItem(currentCard)
+    Spacer(Modifier.size(16.dp))
+    CardInfoCard(currentCard)
+    Spacer(Modifier.size(16.dp))
+    CardTransactionsCard(Stubs.cardTransactions)
+    Spacer(Modifier.size(16.dp))
 }
 
 @Composable
@@ -80,6 +144,23 @@ private fun CardPictureItem(card: CardInfo) {
     )
 }
 
+@Composable
+private fun CardAddMoreItem() {
+    val tint = Color.Gray.copy(alpha = 0.5f)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .border(2.dp, tint, MaterialTheme.shapes.medium)
+            .aspectRatio(256f / 154f), contentAlignment = Alignment.Center
+    ) {
+        Column {
+            Icon(
+                Icons.Default.Add, contentDescription = "Añadir bonobús", tint = tint, modifier = Modifier.size(48.dp)
+            )
+        }
+    }
+}
 
 @Composable
 private fun codeToResource(code: Int): Int {
