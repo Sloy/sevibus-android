@@ -2,14 +2,11 @@ package com.sloydev.sevibus.feature.cards
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Money
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,21 +36,19 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
     ) {
-        LazyColumn {
-            item {
-                Text(
-                    "Actividad reciente", style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp)
-                )
+        Column {
+            Text(
+                "Actividad reciente", style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+            )
+        }
+        cardTransactions.forEachIndexed { index, transaction ->
+            when (transaction) {
+                is CardTransaction.TopUp -> TopUpItem(transaction)
+                is CardTransaction.Validation -> ValidationItem(transaction)
             }
-            itemsIndexed(cardTransactions) { index, transaction ->
-                when(transaction){
-                    is CardTransaction.TopUp -> TopUpItem(transaction)
-                    is CardTransaction.Validation -> ValidationItem(transaction)
-                }
-                if(index != cardTransactions.lastIndex){
-                    HorizontalDivider()
-                }
+            if (index != cardTransactions.lastIndex) {
+                HorizontalDivider()
             }
         }
     }
@@ -68,16 +63,18 @@ private fun formatDateTime(dateTime: LocalDateTime, locale: Locale): String {
 private fun ValidationItem(transaction: CardTransaction.Validation) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        leadingContent = { LeadingBox { LineIndicatorSmall(transaction.line) }},
+        leadingContent = { LeadingBox { LineIndicatorSmall(transaction.line) } },
         headlineContent = {
             Row {
                 Text("Validación de viaje")
             }
         },
-        overlineContent = { Text(formatDateTime(transaction.date, Locale.getDefault())) },
+        supportingContent = {
+            Text(formatDateTime(transaction.date, Locale.getDefault()))
+        },
         trailingContent = {
             Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
-        }
+        },
     )
 }
 
@@ -85,15 +82,17 @@ private fun ValidationItem(transaction: CardTransaction.Validation) {
 private fun TopUpItem(transaction: CardTransaction.TopUp) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        leadingContent = { LeadingBox{
-            Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
-        } },
+        leadingContent = {
+            LeadingBox {
+                Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
+            }
+        },
         headlineContent = {
             Row {
                 Text("Recarga")
             }
         },
-        overlineContent = { Text(formatDateTime(transaction.date, Locale.getDefault())) },
+        supportingContent = { Text(formatDateTime(transaction.date, Locale.getDefault())) },
         trailingContent = {
             Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
         }
@@ -101,8 +100,8 @@ private fun TopUpItem(transaction: CardTransaction.TopUp) {
 }
 
 @Composable
-private fun LeadingBox(content: @Composable BoxScope.()->Unit) {
-    Box(Modifier.size(24.dp), contentAlignment = Alignment.CenterStart){
+private fun LeadingBox(content: @Composable BoxScope.() -> Unit) {
+    Box(Modifier.size(24.dp), contentAlignment = Alignment.CenterStart) {
         content()
     }
 }
