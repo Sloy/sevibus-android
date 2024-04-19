@@ -4,7 +4,9 @@ import com.sloydev.sevibus.feature.cards.CardInfo
 import com.sloydev.sevibus.feature.cards.CardTransaction
 import com.sloydev.sevibus.feature.lines.Line
 import com.sloydev.sevibus.feature.linestops.Stop
+import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 object Stubs {
     val lines = listOf(
@@ -160,12 +162,25 @@ object Stubs {
         )
     )
 
-    val cards = listOf(
-        CardInfo(code = 30, title="Bonobús saldo sin transbordo", customName = "Mi tarjeta", balanceMillis = 8450),
-        CardInfo(code = 31, title="Hijo de empleado", customName = "La de paco", balanceTrips = 35),
-        CardInfo(code = 155, title="Bonobús", customName = "Mi tarjeta", balanceMillis = 8450),
-        CardInfo(code = 201, title="Bonobús", customName = "Mi tarjeta", balanceMillis = 8450),
+    val cardWithAllFields = CardInfo(
+        code = 30,
+        title = "Full test",
+        customName = "Completo",
+        balanceMillis = 8450,
+        balanceTrips = 42,
+        serialNumber = 794836666,
+        expiration = LocalDate.now(),
+        validityEnd = LocalDate.now(),
+        extensionEnd = LocalDate.now()
     )
+    val cards = listOf(
+        CardInfo(code = 31, title = "Saldo sin transbordo", customName = "Bono Laura", balanceMillis = 8450, serialNumber = randomCardSerial()),
+        CardInfo(code = 70, title = "Hijo de empleado", customName = "La de paco", balanceTrips = 35, serialNumber = randomCardSerial()),
+        CardInfo(code = 116, title = "Estudiante mensual", customName = "Estudiante", serialNumber = randomCardSerial()),
+        CardInfo(code = 30, title = "Saldo con transbordo", customName = "Números rojos", balanceMillis = -450, serialNumber = randomCardSerial()),
+    )
+
+    private fun randomCardSerial() = Random.nextLong(100000000, 999999999)
 
     val cardTransactions = listOf(
         CardTransaction.Validation(350, LocalDateTime.now(), lines[4], people = 2),

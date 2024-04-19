@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.cards
 
 import com.sloydev.sevibus.feature.lines.Line
+import com.sloydev.sevibus.ui.formatter.MoneyFormatter
 import java.time.LocalDateTime
 
 sealed class CardTransaction(open val amountMillis: Int, open val date: LocalDateTime) {

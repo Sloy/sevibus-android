@@ -43,10 +43,6 @@ fun CardsScreen(cards: List<CardInfo>) {
 
         val state = rememberPagerState { cards.size }
 
-        /*LaunchedEffect(state.pageCount) {
-            state.scrollToPage(1)
-        }*/
-
         Column(Modifier.verticalScroll(rememberScrollState())) {
 
             HorizontalPager(
@@ -64,7 +60,7 @@ fun CardsScreen(cards: List<CardInfo>) {
 
             CardBalanceItem(currentCard)
             Spacer(Modifier.size(16.dp))
-            CardInfoCard(cards[0])
+            CardInfoCard(currentCard)
             Spacer(Modifier.size(16.dp))
             CardTransactionsCard(Stubs.cardTransactions)
             Spacer(Modifier.size(16.dp))

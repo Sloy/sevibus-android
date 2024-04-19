@@ -13,6 +13,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.ui.formatter.MoneyFormatter
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable

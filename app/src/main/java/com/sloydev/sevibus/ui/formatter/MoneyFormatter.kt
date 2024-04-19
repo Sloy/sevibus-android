@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.feature.cards
+package com.sloydev.sevibus.ui.formatter
 
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols

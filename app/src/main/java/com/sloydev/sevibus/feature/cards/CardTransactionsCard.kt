@@ -24,10 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.formatter.DateFormatter
 import com.sloydev.sevibus.ui.theme.SevTheme
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Composable
 fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
@@ -38,8 +36,7 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
     ) {
         Column {
             Text(
-                "Actividad reciente", style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+                "Actividad reciente", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp, top = 16.dp)
             )
         }
         cardTransactions.forEachIndexed { index, transaction ->
@@ -54,10 +51,6 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
     }
 }
 
-private fun formatDateTime(dateTime: LocalDateTime, locale: Locale): String {
-    val formatter = DateTimeFormatter.ofPattern("EEEE d MMMM, HH:mm", locale)
-    return dateTime.format(formatter)
-}
 
 @Composable
 private fun ValidationItem(transaction: CardTransaction.Validation) {
@@ -70,7 +63,7 @@ private fun ValidationItem(transaction: CardTransaction.Validation) {
             }
         },
         supportingContent = {
-            Text(formatDateTime(transaction.date, Locale.getDefault()))
+            Text(DateFormatter.dayMonthTime(transaction.date))
         },
         trailingContent = {
             Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
@@ -80,23 +73,17 @@ private fun ValidationItem(transaction: CardTransaction.Validation) {
 
 @Composable
 private fun TopUpItem(transaction: CardTransaction.TopUp) {
-    ListItem(
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        leadingContent = {
-            LeadingBox {
-                Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
-            }
-        },
-        headlineContent = {
-            Row {
-                Text("Recarga")
-            }
-        },
-        supportingContent = { Text(formatDateTime(transaction.date, Locale.getDefault())) },
-        trailingContent = {
-            Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
+    ListItem(colors = ListItemDefaults.colors(containerColor = Color.Transparent), leadingContent = {
+        LeadingBox {
+            Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
         }
-    )
+    }, headlineContent = {
+        Row {
+            Text("Recarga")
+        }
+    }, supportingContent = { Text(DateFormatter.dayMonthTime(transaction.date)) }, trailingContent = {
+        Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
+    })
 }
 
 @Composable
