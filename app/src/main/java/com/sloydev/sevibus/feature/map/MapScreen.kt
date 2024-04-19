@@ -19,11 +19,6 @@ fun NavGraphBuilder.mapRoute() {
     }
 }
 
-@Composable
-fun MapRoute() {
-    MapScreen()
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen() {
