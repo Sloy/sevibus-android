@@ -161,10 +161,10 @@ object Stubs {
     )
 
     val cards = listOf(
-        CardInfo(code = 30, customName = "Mi tarjeta", balanceMillis = 8450, balanceTrips = null),
-        CardInfo(code = 31, customName = "Mi tarjeta", balanceMillis = 8450, balanceTrips = null),
-        CardInfo(code = 155, customName = "Mi tarjeta", balanceMillis = 8450, balanceTrips = null),
-        CardInfo(code = 201, customName = "Mi tarjeta", balanceMillis = 8450, balanceTrips = null),
+        CardInfo(code = 30, title="Bonobús saldo sin transbordo", customName = "Mi tarjeta", balanceMillis = 8450),
+        CardInfo(code = 31, title="Hijo de empleado", customName = "La de paco", balanceTrips = 35),
+        CardInfo(code = 155, title="Bonobús", customName = "Mi tarjeta", balanceMillis = 8450),
+        CardInfo(code = 201, title="Bonobús", customName = "Mi tarjeta", balanceMillis = 8450),
     )
 
     val cardTransactions = listOf(

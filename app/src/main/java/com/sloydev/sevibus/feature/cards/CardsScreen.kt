@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
@@ -62,7 +60,9 @@ fun CardsScreen(cards: List<CardInfo>) {
                 CardPictureItem(cards[page])
             }
 
-            CardBalanceItem()
+            val currentCard = cards[state.currentPage]
+
+            CardBalanceItem(currentCard)
             Spacer(Modifier.size(16.dp))
             CardInfoCard(cards[0])
             Spacer(Modifier.size(16.dp))
@@ -84,20 +84,6 @@ private fun CardPictureItem(card: CardInfo) {
     )
 }
 
-
-@Composable
-private fun CardBalanceItem() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text("Saldo disponible", style = MaterialTheme.typography.labelMedium)
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text("8", style = MaterialTheme.typography.displayMedium)
-            Text(",36 €", style = MaterialTheme.typography.displaySmall)
-        }
-    }
-}
 
 @Composable
 private fun codeToResource(code: Int): Int {
