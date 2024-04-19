@@ -60,7 +60,7 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
 }
 
 private fun formatDateTime(dateTime: LocalDateTime, locale: Locale): String {
-    val formatter = DateTimeFormatter.ofPattern("EEEE, d MMMM - HH:mm", locale)
+    val formatter = DateTimeFormatter.ofPattern("EEEE d MMMM, HH:mm", locale)
     return dateTime.format(formatter)
 }
 
