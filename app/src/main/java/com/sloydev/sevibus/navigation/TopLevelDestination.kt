@@ -18,7 +18,6 @@ package com.sloydev.sevibus.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sloydev.sevibus.R
-import com.sloydev.sevibus.ui.icons.CardFill
 import com.sloydev.sevibus.ui.icons.CardOutline
 import com.sloydev.sevibus.ui.icons.DirectionsBusFill
 import com.sloydev.sevibus.ui.icons.DirectionsBusOutline
@@ -63,7 +62,7 @@ enum class TopLevelDestination(
     ),
     CARDS(
         route = "/cards",
-        selectedIcon = SevIcons.CardFill,
+        selectedIcon = SevIcons.CardOutline,
         unselectedIcon = SevIcons.CardOutline,
         iconTextId = R.string.navigation_cards,
         titleTextId = R.string.navigation_cards,

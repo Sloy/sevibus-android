@@ -1,11 +1,11 @@
 package com.sloydev.sevibus.feature.cards
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,12 +22,16 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -53,6 +57,7 @@ import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
+import com.sloydev.sevibus.ui.theme.SevTheme
 
 fun NavGraphBuilder.cardsRoute() {
     composable(TopLevelDestination.CARDS.route) {
@@ -63,7 +68,6 @@ fun NavGraphBuilder.cardsRoute() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardsScreen(cards: List<CardInfo>) {
-
     Column {
         CenterAlignedTopAppBar(title = { Text(stringResource(R.string.navigation_cards)) })
 
@@ -73,7 +77,7 @@ fun CardsScreen(cards: List<CardInfo>) {
 
             HorizontalPager(
                 state = state,
-                contentPadding = PaddingValues(48.dp),
+                contentPadding = PaddingValues(horizontal = 48.dp, vertical = 36.dp),
                 pageSpacing = 16.dp,
                 modifier = Modifier
                     .wrapContentHeight()
@@ -131,6 +135,8 @@ private fun NewCardDetail() {
 
 @Composable
 private fun ExistingCardDetail(currentCard: CardInfo) {
+    WarningNotice()
+    Spacer(Modifier.size(16.dp))
     CardBalanceItem(currentCard)
     Spacer(Modifier.size(32.dp))
     CardInfoCard(currentCard)
@@ -139,6 +145,21 @@ private fun ExistingCardDetail(currentCard: CardInfo) {
     Spacer(Modifier.size(32.dp))
     DeleteButton()
     Spacer(Modifier.size(32.dp))
+}
+
+@Composable
+fun WarningNotice() {
+    OutlinedCard(Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.size(8.dp))
+            Text(
+                "Los datos pueden tardar 24h en actualizarse",
+                style = SevTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
 }
 
 @Composable
