@@ -45,30 +45,31 @@ fun NavController.navigateToStopDetail(code: Int) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StopDetailScreen(stop: Stop) {
+fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
     Column {
-        CenterAlignedTopAppBar(
-            title = {
-                Text("Parada 572", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            },
-            navigationIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
+        if (!embedded) {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text("Parada 572", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.Default.FavoriteBorder, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            },
-            actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        Icons.Default.FavoriteBorder, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-        )
-
+            )
+        }
         Text(
             stop.description, style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(start = 16.dp)

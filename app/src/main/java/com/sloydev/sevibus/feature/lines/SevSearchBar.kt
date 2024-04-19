@@ -36,11 +36,16 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SbSearchBar(defaultExpanded: Boolean = false, defaultText: String = "") {
+fun SevSearchBar(
+    onSearchResultClicked: (SearchResult) -> Unit,
+    modifier: Modifier = Modifier,
+    defaultExpanded: Boolean = false,
+    defaultText: String = ""
+) {
     var text by rememberSaveable { mutableStateOf(defaultText) }
     var expanded by rememberSaveable { mutableStateOf(defaultExpanded) }
     DockedSearchBar(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         inputField = {
             SearchBarDefaults.InputField(
@@ -65,18 +70,21 @@ fun SbSearchBar(defaultExpanded: Boolean = false, defaultText: String = "") {
     ) {
         if (text.isNotBlank()) {
             val results = Stubs.searchResults.take(9).drop(text.length)
-            SearchResultsContent(results)
+            SearchResultsContent(results, onSearchResultClicked = {
+                onSearchResultClicked(it)
+                expanded = false
+                text = ""
+            })
         }
     }
 }
 
 @Composable
-private fun SearchResultsContent(results: List<SearchResult>) {
-
+private fun SearchResultsContent(results: List<SearchResult>, onSearchResultClicked: (SearchResult) -> Unit) {
     results.forEachIndexed { index, item ->
         when (item) {
-            is SearchResult.LineResult -> LineResultItem(item.line, onLineClick = {})
-            is SearchResult.StopResult -> StopResultItem(item.stop, item.lines, onStopClick = {})
+            is SearchResult.LineResult -> LineResultItem(item.line, onLineClick = { onSearchResultClicked(item) })
+            is SearchResult.StopResult -> StopResultItem(item.stop, item.lines, onStopClick = { onSearchResultClicked(item) })
         }
         if (index < results.lastIndex) {
             HorizontalDivider()
@@ -122,9 +130,9 @@ private fun SupportingLines(lines: List<Line>) {
 private fun Preview() {
     SevTheme {
         Column {
-            SbSearchBar()
+            SevSearchBar(onSearchResultClicked = {})
             Spacer(Modifier.size(32.dp))
-            SbSearchBar(defaultExpanded = true, defaultText = "macar")
+            SevSearchBar(onSearchResultClicked = {}, defaultExpanded = true, defaultText = "macar")
 
         }
     }

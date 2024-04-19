@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
+import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
@@ -35,13 +36,21 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
     composable(TopLevelDestination.LINES.route) {
         //TODO inject viewmodel and subscribe to state
         val state = LinesState.Content(Stubs.lines)
-        LinesScreen(state, onLineClick = { navController.navigateToLineStops(it.label) })
+        LinesScreen(state,
+            onLineClick = { navController.navigateToLineStops(it.label) },
+            onSearchResultClicked = {
+                when (it) {
+                    is SearchResult.LineResult -> navController.navigateToLineStops(it.line.label)
+                    is SearchResult.StopResult -> navController.navigateToStopDetail(it.stop.code)
+                }
+            }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
+private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
     when (state) {
         is LinesState.Loading -> {
             CircularProgressIndicator()
@@ -54,7 +63,7 @@ private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit = {}) {
                 )
 
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
-                    item { SbSearchBar() }
+                    item { SevSearchBar(onSearchResultClicked = onSearchResultClicked) }
                     item { Spacer(Modifier.size(32.dp)) }
                     Stubs.lineTypes.forEach { lineType ->
                         val linesOfType = state.lines.filter { it.type == lineType }
@@ -111,6 +120,6 @@ private fun LineTypeTitle(lineType: String) {
 @Composable
 private fun LinesScreenPreview() {
     ScreenPreview {
-        LinesScreen(state = LinesState.Content(Stubs.lines))
+        LinesScreen(state = LinesState.Content(Stubs.lines), {}, {})
     }
 }
