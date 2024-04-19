@@ -10,16 +10,20 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-public val SevIcons.Card: ImageVector
+public val SevIcons.CardOutline: ImageVector
     get() {
-        if (_card != null) {
-            return _card!!
+        if (_cardOutline != null) {
+            return _cardOutline!!
         }
-        _card = Builder(name = "Card", defaultWidth = 24.0.dp, defaultHeight = 24.0.dp,
-                viewportWidth = 24.0f, viewportHeight = 24.0f).apply {
-            path(fill = SolidColor(Color(0xFF000000)), stroke = null, strokeLineWidth = 0.0f,
-                    strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                    pathFillType = NonZero) {
+        _cardOutline = Builder(
+            name = "CardOutline", defaultWidth = 24.0.dp, defaultHeight =
+            24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
+        ).apply {
+            path(
+                fill = SolidColor(Color(0xFF000000)), stroke = null, strokeLineWidth = 0.0f,
+                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
+                pathFillType = NonZero
+            ) {
                 moveTo(20.0f, 8.0f)
                 horizontalLineTo(4.0f)
                 verticalLineTo(6.0f)
@@ -40,8 +44,8 @@ public val SevIcons.Card: ImageVector
                 close()
             }
         }
-        .build()
-        return _card!!
+            .build()
+        return _cardOutline!!
     }
 
-private var _card: ImageVector? = null
+private var _cardOutline: ImageVector? = null

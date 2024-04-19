@@ -16,18 +16,17 @@
 
 package com.sloydev.sevibus.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sloydev.sevibus.R
-import com.sloydev.sevibus.ui.icons.Bus
-import com.sloydev.sevibus.ui.icons.Card
-import com.sloydev.sevibus.ui.icons.Map
+import com.sloydev.sevibus.ui.icons.CardFill
+import com.sloydev.sevibus.ui.icons.CardOutline
+import com.sloydev.sevibus.ui.icons.DirectionsBusFill
+import com.sloydev.sevibus.ui.icons.DirectionsBusOutline
+import com.sloydev.sevibus.ui.icons.MapFill
+import com.sloydev.sevibus.ui.icons.MapOutline
 import com.sloydev.sevibus.ui.icons.SevIcons
-import com.sloydev.sevibus.ui.icons.Shimmer
+import com.sloydev.sevibus.ui.icons.ShimmerFill
+import com.sloydev.sevibus.ui.icons.ShimmerOutline
 
 /**
  * Type for the top level destinations in the application. Each of these destinations
@@ -43,29 +42,29 @@ enum class TopLevelDestination(
 ) {
     FOR_YOU(
         route = "/home",
-        selectedIcon = SevIcons.Shimmer,
-        unselectedIcon = SevIcons.Shimmer,
+        selectedIcon = SevIcons.ShimmerFill,
+        unselectedIcon = SevIcons.ShimmerOutline,
         iconTextId = R.string.navigation_for_you,
         titleTextId = R.string.app_name,
     ),
     LINES(
         route = "/lines",
-        selectedIcon = SevIcons.Bus,
-        unselectedIcon = SevIcons.Bus,
+        selectedIcon = SevIcons.DirectionsBusFill,
+        unselectedIcon = SevIcons.DirectionsBusOutline,
         iconTextId = R.string.navigation_lines,
         titleTextId = R.string.navigation_lines,
     ),
     MAP(
         route = "/map",
-        selectedIcon = SevIcons.Map,
-        unselectedIcon = SevIcons.Map,
+        selectedIcon = SevIcons.MapFill,
+        unselectedIcon = SevIcons.MapOutline,
         iconTextId = R.string.navigation_map,
         titleTextId = R.string.navigation_map,
     ),
     CARDS(
         route = "/cards",
-        selectedIcon = SevIcons.Card,
-        unselectedIcon = SevIcons.Card,
+        selectedIcon = SevIcons.CardFill,
+        unselectedIcon = SevIcons.CardOutline,
         iconTextId = R.string.navigation_cards,
         titleTextId = R.string.navigation_cards,
     ),
