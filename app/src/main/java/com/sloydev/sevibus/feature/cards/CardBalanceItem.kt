@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,8 +41,7 @@ fun CardBalanceItem(card: CardInfo, modifier: Modifier = Modifier) {
 private fun ColumnScope.MoneyItem(balanceMillis: Int) {
     Text("Saldo disponible", style = MaterialTheme.typography.labelMedium)
     Row(verticalAlignment = Alignment.Bottom) {
-        val balance = MoneyFormatter.fromMillis(balanceMillis)
-        FormattedBalance(balance)
+        FormattedBalance(balanceMillis)
     }
     OutlinedButton(onClick = { /*TODO*/ }) {
         Text("Recargar")
@@ -57,7 +57,9 @@ private fun ColumnScope.TripsItem(balanceTrips: Int) {
 }
 
 @Composable
-private fun FormattedBalance(balance: String) {
+private fun FormattedBalance(balanceMillis: Int) {
+    val balance = MoneyFormatter.fromMillis(balanceMillis)
+    val textColor = if(balanceMillis<=0) Color.Red else Color.Unspecified
     balance.split(",").let { (part1, part2) ->
         Text(buildAnnotatedString {
             withStyle(style = MaterialTheme.typography.displayMedium.toSpanStyle()) {
@@ -67,7 +69,7 @@ private fun FormattedBalance(balance: String) {
                 append(",")
                 append(part2)
             }
-        })
+        },color = textColor)
 
     }
 }

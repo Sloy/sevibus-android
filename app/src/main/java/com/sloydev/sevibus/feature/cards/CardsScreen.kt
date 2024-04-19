@@ -21,11 +21,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -130,6 +132,22 @@ private fun ExistingCardDetail(currentCard: CardInfo) {
     Spacer(Modifier.size(32.dp))
     CardTransactionsCard(Stubs.cardTransactions)
     Spacer(Modifier.size(32.dp))
+    DeleteButton()
+    Spacer(Modifier.size(32.dp))
+}
+
+@Composable
+private fun DeleteButton() {
+    OutlinedButton(
+        onClick = { /*TODO*/ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Icon(Icons.Default.Delete, contentDescription = null)
+        Spacer(Modifier.size(8.dp))
+        Text("Eliminar")
+    }
 }
 
 @Composable
