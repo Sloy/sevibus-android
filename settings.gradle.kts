@@ -21,4 +21,9 @@ dependencyResolutionManagement {
 
 rootProject.name = "SeviBus4"
 include(":app")
- 
+
+
+val localSettings = file("local.settings.gradle.kts")
+if (localSettings.exists()) {
+    apply(from = localSettings)
+}
