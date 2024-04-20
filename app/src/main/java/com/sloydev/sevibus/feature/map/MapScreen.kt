@@ -1,5 +1,6 @@
 package com.sloydev.sevibus.feature.map
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -108,6 +109,9 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
             LaunchedEffect(showBottomSheet) {
                 //state.bottomSheetState.expand()
             }
+        }
+        BackHandler(showBottomSheet) {
+            showBottomSheet = false
         }
     }
 }
