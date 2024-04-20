@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import androidx.navigation.compose.composable
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -113,7 +115,6 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
 
 @Composable
 fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, modifier: Modifier = Modifier) {
-    //var selected by remember { mutableStateOf(true) }
     val label: @Composable () -> Unit = when (filter) {
         is SearchResult.LineResult -> {
             { LineIndicatorSmall(filter.line) }
@@ -125,18 +126,8 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
     }
     ElevatedAssistChip(
         modifier = modifier,
-//        selected = selected,
-        onClick = { /*selected = !selected*/ },
+        onClick = { /* TODO */ },
         label = { label() },
-        leadingIcon = {
-            /*if (selected) {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = null,
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }*/
-        },
         trailingIcon = {
             IconButton(
                 modifier = Modifier.size(FilterChipDefaults.IconSize),
@@ -146,7 +137,6 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
         }
     )
 }
-
 
 
 @Composable
@@ -159,8 +149,8 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
 
     Text(
         cameraPositionState.position.zoom.toString(), modifier = Modifier
-            .align(Alignment.Center)
-            .zIndex(5f)
+            .align(Alignment.BottomCenter)
+            .zIndex(1f)
     )
     val context = LocalContext.current
     var mapProperties by remember {
@@ -168,7 +158,7 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
             MapProperties(
                 minZoomPreference = 12f,
                 //isMyLocationEnabled = true,
-                //mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
+                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_retro)
             )
         )
     }
@@ -182,7 +172,6 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
     }
 
     val icon = SevIcons.MapIcon.stop.getRes(cameraPositionState.position.zoom)
-
     val stops = remember { Stubs.stops + Stubs.stops.map { it.copy(position = it.position + (0.0001 to 0.0001)) } }
 
     GoogleMap(
@@ -197,16 +186,12 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
             Marker(
                 state = MarkerState(position = stop.position.toLatLng()),
                 title = stop.code.toString(),
+                anchor=  Offset(0.5f, 0.5f),
                 onClick = {
                     onStopClick(stop.code)
                     false
                 },
                 icon = iconFactory,
-                //pinConfig = PinConfig.builder().
-//                collisionBehavior = AdvancedMarkerOptions.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
-//                iconView = ImageView(context).apply {
-//                    setImageResource(R.drawable.map_icon_stop_small)
-//                }
             )
         }
     }
