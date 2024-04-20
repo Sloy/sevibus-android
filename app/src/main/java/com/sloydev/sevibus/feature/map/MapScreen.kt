@@ -1,7 +1,9 @@
 package com.sloydev.sevibus.feature.map
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -32,16 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.google.android.gms.maps.model.AdvancedMarkerOptions
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.R
@@ -49,10 +51,12 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.feature.lines.SearchResult
 import com.sloydev.sevibus.feature.lines.SevSearchBar
 import com.sloydev.sevibus.feature.linestops.Stop
+import com.sloydev.sevibus.feature.linestops.plus
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.icons.SevIcons
 
 fun NavGraphBuilder.mapRoute() {
     composable(TopLevelDestination.MAP.route) {
@@ -143,21 +147,28 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
     )
 }
 
+
+
 @Composable
-fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
+fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
     val triana = LatLng(37.385222, -6.011210)
+    val recaredo = LatLng(37.389083, -5.984483)
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(triana, 15.5f)
+        position = CameraPosition.fromLatLngZoom(recaredo, 15.5f)
     }
 
+    Text(
+        cameraPositionState.position.zoom.toString(), modifier = Modifier
+            .align(Alignment.Center)
+            .zIndex(5f)
+    )
     val context = LocalContext.current
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(
                 minZoomPreference = 12f,
                 //isMyLocationEnabled = true,
-                isTrafficEnabled = true,
-                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_retro)
+                //mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
             )
         )
     }
@@ -170,8 +181,10 @@ fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: (
         )
     }
 
+    val icon = SevIcons.MapIcon.stop.getRes(cameraPositionState.position.zoom)
 
-    val stops = remember { Stubs.stops }
+    val stops = remember { Stubs.stops + Stubs.stops.map { it.copy(position = it.position + (0.0001 to 0.0001)) } }
+
     GoogleMap(
         modifier = modifier,
         uiSettings = mapUiSettings,
@@ -179,19 +192,21 @@ fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: (
         cameraPositionState = cameraPositionState,
         onMapClick = { onStopDismissed() }
     ) {
+        val iconFactory = remember(icon) { BitmapDescriptorFactory.fromResource(icon) }
         stops.forEach { stop ->
-            AdvancedMarker(
+            Marker(
                 state = MarkerState(position = stop.position.toLatLng()),
                 title = stop.code.toString(),
-                snippet = stop.code.toString(),
-                flat = true,
                 onClick = {
                     onStopClick(stop.code)
                     false
                 },
-                collisionBehavior = AdvancedMarkerOptions.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
-
-
+                icon = iconFactory,
+                //pinConfig = PinConfig.builder().
+//                collisionBehavior = AdvancedMarkerOptions.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY,
+//                iconView = ImageView(context).apply {
+//                    setImageResource(R.drawable.map_icon_stop_small)
+//                }
             )
         }
     }
