@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
@@ -36,13 +37,14 @@ import androidx.navigation.compose.composable
 import com.google.android.gms.maps.model.AdvancedMarkerOptions
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.feature.lines.SearchResult
 import com.sloydev.sevibus.feature.lines.SevSearchBar
@@ -148,23 +150,26 @@ fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: (
         position = CameraPosition.fromLatLngZoom(triana, 15.5f)
     }
 
+    val context = LocalContext.current
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(
                 minZoomPreference = 12f,
                 //isMyLocationEnabled = true,
-                isTrafficEnabled = true
+                isTrafficEnabled = true,
+                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_retro)
             )
         )
     }
     var mapUiSettings by remember {
         mutableStateOf(
             MapUiSettings(
-                mapToolbarEnabled = true,
+                mapToolbarEnabled = false,
                 compassEnabled = true
             )
         )
     }
+
 
     val stops = remember { Stubs.stops }
     GoogleMap(
