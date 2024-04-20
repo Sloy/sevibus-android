@@ -1,7 +1,5 @@
 package com.sloydev.sevibus.feature.map
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,15 +12,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ElevatedAssistChip
-import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -38,15 +33,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.android.gms.maps.model.AdvancedMarkerOptions
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.AdvancedMarker
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.feature.lines.SearchResult
 import com.sloydev.sevibus.feature.lines.SevSearchBar
+import com.sloydev.sevibus.feature.linestops.Stop
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
-import com.sloydev.sevibus.ui.icons.DirectionsBusFill
-import com.sloydev.sevibus.ui.icons.SevIcons
 
 fun NavGraphBuilder.mapRoute() {
     composable(TopLevelDestination.MAP.route) {
@@ -68,7 +72,9 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
         Column {
             SevSearchBar(
                 onSearchResultClicked = { filters.add(it) },
-                Modifier.padding(horizontal = 16.dp),
+                Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp),
             )
             FlowRow(
                 Modifier
@@ -77,7 +83,6 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
                     .wrapContentHeight(align = Alignment.Top),
                 horizontalArrangement = Arrangement.Start,
             ) {
-                //NearbyChip(Modifier.padding(end = 8.dp))
                 filters.forEach { filter ->
                     MapFilterChip(filter, onRemoveFilter = { assert(filters.remove(it)) }, modifier = Modifier.padding(end = 8.dp))
                 }
@@ -137,38 +142,58 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
 }
 
 @Composable
-fun NearbyChip(modifier: Modifier) {
-    var nearby by remember { mutableStateOf(true) }
-    ElevatedFilterChip(
-        modifier = modifier,
-        selected = nearby,
-        onClick = { nearby = !nearby },
-        label = { Text("Cercanas") },
-        leadingIcon = {
-            if (nearby) {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Localized Description",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        }
-    )
-}
-
-@Composable
 fun Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
-    //TODO real map
-    Box(
-        modifier = modifier
-            .clickable { onStopDismissed() }
-            .background(MaterialTheme.colorScheme.primary),
-        contentAlignment = Alignment.Center
+    val triana = LatLng(37.385222, -6.011210)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(triana, 15.5f)
+    }
+
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties(
+                minZoomPreference = 12f,
+                //isMyLocationEnabled = true,
+                isTrafficEnabled = true
+            )
+        )
+    }
+    var mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(
+                mapToolbarEnabled = true,
+                compassEnabled = true
+            )
+        )
+    }
+
+    val stops = remember { Stubs.stops }
+    GoogleMap(
+        modifier = modifier,
+        uiSettings = mapUiSettings,
+        properties = mapProperties,
+        cameraPositionState = cameraPositionState,
+        onMapClick = { onStopDismissed() }
     ) {
-        IconButton(onClick = { onStopClick(154) }) {
-            Icon(SevIcons.DirectionsBusFill, contentDescription = null)
+        stops.forEach { stop ->
+            AdvancedMarker(
+                state = MarkerState(position = stop.position.toLatLng()),
+                title = stop.code.toString(),
+                snippet = stop.code.toString(),
+                flat = true,
+                onClick = {
+                    onStopClick(stop.code)
+                    false
+                },
+                collisionBehavior = AdvancedMarkerOptions.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+
+
+            )
         }
     }
+}
+
+private fun Stop.Position.toLatLng(): LatLng {
+    return LatLng(latitude, longitude)
 }
 
 @Preview
