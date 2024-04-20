@@ -1,6 +1,5 @@
 package com.sloydev.sevibus.feature.map
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -38,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.android.gms.maps.CameraUpdate
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -107,7 +108,7 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
                 content = {}
             )
             LaunchedEffect(showBottomSheet) {
-                state.bottomSheetState.expand()
+                //state.bottomSheetState.expand()
             }
         }
     }
@@ -143,7 +144,7 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
 fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
     val triana = LatLng(37.385222, -6.011210)
     val recaredo = LatLng(37.389083, -5.984483)
-    val cameraPositionState = rememberCameraPositionState {
+    var cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(recaredo, 15.5f)
     }
 
@@ -173,25 +174,38 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
 
     val icon = SevIcons.MapIcon.stop.getRes(cameraPositionState.position.zoom)
     val stops = remember { Stubs.stops + Stubs.stops.map { it.copy(position = it.position + (0.0001 to 0.0001)) } }
+    var selectedMarker by remember { mutableStateOf<LatLng?>(null) }
 
     GoogleMap(
         modifier = modifier,
         uiSettings = mapUiSettings,
         properties = mapProperties,
         cameraPositionState = cameraPositionState,
-        onMapClick = { onStopDismissed() }
+        onMapClick = {
+            onStopDismissed()
+            selectedMarker = null
+        }
     ) {
         val iconFactory = remember(icon) { BitmapDescriptorFactory.fromResource(icon) }
         stops.forEach { stop ->
             Marker(
                 state = MarkerState(position = stop.position.toLatLng()),
                 title = stop.code.toString(),
-                anchor=  Offset(0.5f, 0.5f),
+                anchor = Offset(0.5f, 0.5f),
                 onClick = {
                     onStopClick(stop.code)
-                    false
+                    selectedMarker = it.position
+                    true
                 },
                 icon = iconFactory,
+            )
+        }
+
+        selectedMarker?.let {
+            Marker(
+                state = MarkerState(position = it),
+                onClick = { true },
+                zIndex = 100f
             )
         }
     }
