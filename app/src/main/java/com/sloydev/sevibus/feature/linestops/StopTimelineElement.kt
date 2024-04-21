@@ -22,8 +22,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.Line
-import com.sloydev.sevibus.domain.Stop
+import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.feature.linestops.ListPosition.End
 import com.sloydev.sevibus.feature.linestops.ListPosition.Middle
 import com.sloydev.sevibus.feature.linestops.ListPosition.Start

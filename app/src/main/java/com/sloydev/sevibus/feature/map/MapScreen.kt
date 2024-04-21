@@ -50,10 +50,10 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.SearchResult
+import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.feature.search.SevSearchBar
-import com.sloydev.sevibus.domain.plus
-import com.sloydev.sevibus.domain.toLatLng
+import com.sloydev.sevibus.domain.model.plus
+import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview

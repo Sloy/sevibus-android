@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.domain
+package com.sloydev.sevibus.domain.model
 
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -19,7 +19,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.TravelCard
+import com.sloydev.sevibus.domain.model.TravelCard
 import com.sloydev.sevibus.ui.formatter.MoneyFormatter
 import com.sloydev.sevibus.ui.theme.SevTheme
 

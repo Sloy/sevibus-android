@@ -1,9 +1,9 @@
 package com.sloydev.sevibus
 
-import com.sloydev.sevibus.domain.TravelCard
-import com.sloydev.sevibus.domain.Line
-import com.sloydev.sevibus.domain.SearchResult
-import com.sloydev.sevibus.domain.Stop
+import com.sloydev.sevibus.domain.model.TravelCard
+import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.SearchResult
+import com.sloydev.sevibus.domain.model.Stop
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random

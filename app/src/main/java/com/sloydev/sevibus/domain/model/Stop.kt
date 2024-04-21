@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.domain
+package com.sloydev.sevibus.domain.model
 
 import com.google.android.gms.maps.model.LatLng
 import java.time.LocalTime

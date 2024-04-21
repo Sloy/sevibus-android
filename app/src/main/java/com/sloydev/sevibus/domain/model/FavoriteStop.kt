@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.domain
+package com.sloydev.sevibus.domain.model
 
 data class FavoriteStop(
     val customName: String,

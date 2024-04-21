@@ -53,7 +53,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.TravelCard
+import com.sloydev.sevibus.domain.model.TravelCard
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.SevTheme

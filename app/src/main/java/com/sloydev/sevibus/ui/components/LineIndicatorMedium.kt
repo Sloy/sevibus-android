@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.model.Line
 
 @Composable
 fun LineIndicatorMedium(it: Line) {

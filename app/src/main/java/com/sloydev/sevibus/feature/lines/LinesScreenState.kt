@@ -1,6 +1,6 @@
 package com.sloydev.sevibus.feature.lines
 
-import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.model.Line
 
 sealed interface LinesScreenState {
     data object Loading : LinesScreenState

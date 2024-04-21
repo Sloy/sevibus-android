@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.domain
+package com.sloydev.sevibus.domain.model
 
 sealed interface SearchResult {
     data class LineResult(val line: Line) : SearchResult

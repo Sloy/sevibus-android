@@ -27,8 +27,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.Line
-import com.sloydev.sevibus.domain.Stop
+import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 

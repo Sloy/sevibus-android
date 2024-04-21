@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.domain
+package com.sloydev.sevibus.domain.model
 
 import com.sloydev.sevibus.Stubs
 import java.time.LocalTime

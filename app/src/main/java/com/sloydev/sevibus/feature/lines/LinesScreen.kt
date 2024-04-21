@@ -26,8 +26,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.Line
-import com.sloydev.sevibus.domain.SearchResult
+import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
 import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
