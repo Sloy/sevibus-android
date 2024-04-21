@@ -51,7 +51,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.SearchResult
-import com.sloydev.sevibus.feature.lines.SevSearchBar
+import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.domain.plus
 import com.sloydev.sevibus.domain.toLatLng
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen

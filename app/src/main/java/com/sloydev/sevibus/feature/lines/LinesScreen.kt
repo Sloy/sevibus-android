@@ -29,6 +29,7 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.Line
 import com.sloydev.sevibus.domain.SearchResult
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
+import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
