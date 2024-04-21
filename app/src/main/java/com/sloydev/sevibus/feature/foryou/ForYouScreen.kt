@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.ScreenPreview
+import com.sloydev.sevibus.ui.preview.ScreenPreview
 
 
 fun NavGraphBuilder.forYouRoute(navController: NavHostController) {

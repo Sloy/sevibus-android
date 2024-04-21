@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.ui
+package com.sloydev.sevibus.ui.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar

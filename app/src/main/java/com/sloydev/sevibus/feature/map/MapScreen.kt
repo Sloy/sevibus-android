@@ -52,12 +52,11 @@ import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.SearchResult
 import com.sloydev.sevibus.feature.lines.SevSearchBar
-import com.sloydev.sevibus.domain.Stop
 import com.sloydev.sevibus.domain.plus
 import com.sloydev.sevibus.domain.toLatLng
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.ScreenPreview
+import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.icons.SevIcons
 

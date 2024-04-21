@@ -24,7 +24,7 @@ import com.sloydev.sevibus.feature.map.mapRoute
 import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
 import com.sloydev.sevibus.navigation.rememberSevAppState
-import com.sloydev.sevibus.ui.SevNavigationBar
+import com.sloydev.sevibus.ui.components.SevNavigationBar
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable

@@ -31,7 +31,7 @@ import com.sloydev.sevibus.domain.SearchResult
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.ScreenPreview
+import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 
 fun NavGraphBuilder.linesRoute(navController: NavController) {

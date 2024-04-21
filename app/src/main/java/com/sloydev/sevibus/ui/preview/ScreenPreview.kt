@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.ui
+package com.sloydev.sevibus.ui.preview
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.sloydev.sevibus.navigation.TopLevelDestination
+import com.sloydev.sevibus.ui.components.SevNavigationBar
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
