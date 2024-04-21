@@ -10,7 +10,7 @@ data class Line(
     //TODO define colorScheme mapping
     val id: Int = 999,
     val destinations: List<Destination> = emptyList(),
-    val type: String = Stubs.typeFromLine(label),
+    val group: String = Stubs.groupFromLine(label),
 ) {
 
     data class Destination(

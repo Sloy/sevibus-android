@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -77,13 +76,13 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, on
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
                     item { SevSearchBar(onSearchResultClicked = onSearchResultClicked) }
                     item { Spacer(Modifier.size(32.dp)) }
-                    Stubs.lineTypes.forEach { lineType ->
-                        val linesOfType = state.lines.filter { it.type == lineType }
-                        if (linesOfType.isNotEmpty()) {
-                            item { LineTypeTitle(lineType) }
-                            item { LinesCard(linesOfType, onLineClick) }
+                    state.lineGroups.forEach { (group, lines)->
+                        if (lines.isNotEmpty()) {
+                            item { LineGroupTitle(group) }
+                            item { LinesCard(lines, onLineClick) }
                             item { Spacer(Modifier.size(32.dp)) }
                         }
+
                     }
                 }
             }
@@ -120,9 +119,9 @@ private fun LineItem(line: Line, onLineClick: (Line) -> Unit) {
 }
 
 @Composable
-private fun LineTypeTitle(lineType: String) {
+private fun LineGroupTitle(lineGroup: String) {
     Text(
-        lineType,
+        lineGroup,
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(start = (16).dp, bottom = 8.dp)
     )
@@ -133,6 +132,6 @@ private fun LineTypeTitle(lineType: String) {
 @Composable
 private fun LinesScreenPreview() {
     ScreenPreview {
-        LinesScreen(state = LinesScreenState.Content(Stubs.lines), {}, {})
+        LinesScreen(state = LinesScreenState.Content(Stubs.groupsOfLines), {}, {})
     }
 }

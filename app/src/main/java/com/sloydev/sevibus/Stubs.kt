@@ -4,6 +4,7 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.TravelCard
+import com.sloydev.sevibus.feature.lines.LinesScreenState
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -60,7 +61,11 @@ object Stubs {
         Line("T1", "Metrocentro", 0xffC60018)
     )
 
-    val lineTypes = listOf(
+    val groupsOfLines = lines
+        .groupBy { it.group }
+        .map { (group, linesForGroup) -> LinesScreenState.Content.GroupOfLines(group, linesForGroup) }
+
+    val lineGroups = listOf(
         "Circulares",
         "Transversales",
         "Radiales Norte",
@@ -225,7 +230,7 @@ object Stubs {
             return (stops + lines).shuffled()
         }
 
-    fun typeFromLine(label: String): String {
+    fun groupFromLine(label: String): String {
         return when (label) {
             "C1",
             "C2",
@@ -300,7 +305,7 @@ object Stubs {
         }
     }
 
-    suspend inline fun delayNetwork() = delay(2_000)
+    suspend inline fun delayNetwork() = delay(1_000)
 
 }
 
