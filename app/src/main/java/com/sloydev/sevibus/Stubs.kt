@@ -1,9 +1,10 @@
 package com.sloydev.sevibus
 
-import com.sloydev.sevibus.domain.model.TravelCard
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.TravelCard
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
@@ -298,6 +299,8 @@ object Stubs {
             else -> "Otras"
         }
     }
+
+    suspend inline fun delayNetwork() = delay(2_000)
 
 }
 

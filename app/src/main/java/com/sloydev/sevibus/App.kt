@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.sloydev.sevibus.feature.cards.travelCardsRoute
 import com.sloydev.sevibus.feature.foryou.forYouRoute
@@ -22,48 +23,57 @@ import com.sloydev.sevibus.feature.lines.linesRoute
 import com.sloydev.sevibus.feature.linestops.lineStopsRoute
 import com.sloydev.sevibus.feature.map.mapRoute
 import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
+import com.sloydev.sevibus.infrastructure.DI
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
 import com.sloydev.sevibus.navigation.rememberSevAppState
 import com.sloydev.sevibus.ui.components.SevNavigationBar
 import com.sloydev.sevibus.ui.theme.SevTheme
+import org.koin.android.ext.koin.androidContext
+import org.koin.compose.KoinApplication
 
 @Composable
 fun App() {
-    val appState = rememberSevAppState()
+    val context = LocalContext.current
+    KoinApplication(application = {
+        androidContext(context)
+        modules(DI.viewModelModule, DI.dataModule)
+    }) {
+        val appState = rememberSevAppState()
 
-    SevTheme {
-        Scaffold(bottomBar = {
-            SevNavigationBar(
-                destinations = appState.topLevelDestinations,
-                onNavigateToDestination = appState::navigateToTopLevelDestination,
-                currentDestination = appState.currentDestination,
-            )
-        }) { padding ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .consumeWindowInsets(padding)
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal,
-                        ),
-                    )
-            ) {
-                NavHost(
-                    navController = appState.navController,
-                    startDestination = FOR_YOU.route,
-                    modifier = Modifier.fillMaxSize(),
-                    enterTransition = { fadeIn(animationSpec = tween(100)) },
-                    exitTransition = { fadeOut(animationSpec = tween(100)) },
+        SevTheme {
+            Scaffold(bottomBar = {
+                SevNavigationBar(
+                    destinations = appState.topLevelDestinations,
+                    onNavigateToDestination = appState::navigateToTopLevelDestination,
+                    currentDestination = appState.currentDestination,
+                )
+            }) { padding ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .consumeWindowInsets(padding)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal,
+                            ),
+                        )
                 ) {
-                    forYouRoute(appState.navController)
-                    linesRoute(appState.navController)
-                    mapRoute()
-                    travelCardsRoute()
+                    NavHost(
+                        navController = appState.navController,
+                        startDestination = FOR_YOU.route,
+                        modifier = Modifier.fillMaxSize(),
+                        enterTransition = { fadeIn(animationSpec = tween(100)) },
+                        exitTransition = { fadeOut(animationSpec = tween(100)) },
+                    ) {
+                        forYouRoute(appState.navController)
+                        linesRoute(appState.navController)
+                        mapRoute()
+                        travelCardsRoute()
 
-                    lineStopsRoute(appState.navController)
-                    stopDetailRoute()
+                        lineStopsRoute(appState.navController)
+                        stopDetailRoute()
+                    }
                 }
             }
         }

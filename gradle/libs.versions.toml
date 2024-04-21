@@ -11,7 +11,7 @@ composeBom = "2024.04.01"
 navigationCompose = "2.7.7"
 coroutines = "1.6.4"
 lifecycle = "2.4.0"
-koin = "3.1.5"
+koinBom = "3.5.6"
 playServicesAuth = "21.1.0"
 room = "2.6.1"
 compose = "1.1.0"
@@ -46,14 +46,8 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
-koin-viewmodel = { module = "io.insert-koin:koin-android-viewmodel", version.ref = "koin" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
-koin-cokoin = "dev.burnoo:cokoin:0.3.3"
-koin-cokoinViewmodel = "dev.burnoo:cokoin-android-viewmodel:0.3.3"
-koin-cokoinNavigation = "dev.burnoo:cokoin-android-navigation:0.3.3"
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
+koin-compose = { module = "io.insert-koin:koin-androidx-compose" }
 
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

@@ -96,10 +96,8 @@ dependencies {
     //kapt(libs.room.compiler)
 
 
-    implementation(libs.koin.android)
+    implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)
-    implementation(libs.koin.cokoin)
-    implementation(libs.koin.cokoinViewmodel)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

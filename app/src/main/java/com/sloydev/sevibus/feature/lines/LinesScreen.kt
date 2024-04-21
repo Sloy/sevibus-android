@@ -16,6 +16,9 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -32,13 +35,14 @@ import com.sloydev.sevibus.feature.linestops.navigateToLineStops
 import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
+import com.sloydev.sevibus.ui.preview.ScreenPreview
+import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.linesRoute(navController: NavController) {
     composable(TopLevelDestination.LINES.route) {
-        //TODO inject viewmodel and subscribe to state
-        val state = LinesScreenState.Content(Stubs.lines)
+        val viewModel = koinViewModel<LinesViewModel>()
+        val state by viewModel.state.collectAsState()
         LinesScreen(state,
             onLineClick = { navController.navigateToLineStops(it.label) },
             onSearchResultClicked = {
@@ -54,17 +58,22 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
-    when (state) {
-        is LinesScreenState.Loading -> {
-            CircularProgressIndicator()
-        }
+    Column {
 
-        is LinesScreenState.Content -> {
-            Column {
-                CenterAlignedTopAppBar(
-                    title = { Text(text = stringResource(id = R.string.navigation_lines)) },
-                )
+        CenterAlignedTopAppBar(
+            title = { Text(text = stringResource(id = R.string.navigation_lines)) },
+        )
 
+        when (state) {
+            is LinesScreenState.Loading -> {
+                CircularProgressIndicator(Modifier.size(48.dp))
+            }
+
+            is LinesScreenState.Error -> {
+                Text("Error")
+            }
+
+            is LinesScreenState.Content -> {
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
                     item { SevSearchBar(onSearchResultClicked = onSearchResultClicked) }
                     item { Spacer(Modifier.size(32.dp)) }
@@ -78,6 +87,7 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, on
                     }
                 }
             }
+
         }
     }
 }
