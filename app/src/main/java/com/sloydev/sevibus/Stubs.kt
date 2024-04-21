@@ -305,7 +305,7 @@ object Stubs {
         }
     }
 
-    suspend inline fun delayNetwork() = delay(1_000)
+    suspend inline fun delayNetwork(): Unit = delay(1_000)
 
 }
 

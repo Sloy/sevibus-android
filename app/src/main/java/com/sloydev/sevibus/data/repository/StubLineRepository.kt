@@ -7,7 +7,9 @@ import com.sloydev.sevibus.domain.repository.LineRepository
 
 class StubLineRepository : LineRepository {
     override suspend fun obtainLines(): Result<List<Line>> {
-        delayNetwork()
-        return Result.success(Stubs.lines.sortedBy { Stubs.lineGroups.indexOf(it.group) })
+        return runCatching {
+            delayNetwork()
+            Stubs.lines.sortedBy { Stubs.lineGroups.indexOf(it.group) }
+        }
     }
 }
