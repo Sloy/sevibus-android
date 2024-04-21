@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.Stop
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
@@ -90,7 +91,7 @@ fun StopsScreen(state: LineStopsScreenState, onStopClick: (Stop) -> Unit) {
 
         LazyColumn {
             itemsIndexed(state.stops) { index, stop ->
-                StopListItem(
+                StopTimelineElement(
                     stop,
                     lines = remember(stop) { Stubs.lines.take(listOf(1, 1, 1, 1, 2, 2, 2, 3, 3, 4).random()) },
                     listPosition = when (index) {

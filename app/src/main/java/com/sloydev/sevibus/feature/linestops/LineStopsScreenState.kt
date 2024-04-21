@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.linestops
 
-import com.sloydev.sevibus.feature.lines.Line
+import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.Stop
 
 data class LineStopsScreenState(
     val line: Line,

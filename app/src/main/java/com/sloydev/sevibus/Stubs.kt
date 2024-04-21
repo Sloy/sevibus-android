@@ -1,10 +1,9 @@
 package com.sloydev.sevibus
 
-import com.sloydev.sevibus.feature.cards.CardInfo
-import com.sloydev.sevibus.feature.cards.CardTransaction
-import com.sloydev.sevibus.feature.lines.Line
-import com.sloydev.sevibus.feature.lines.SearchResult
-import com.sloydev.sevibus.feature.linestops.Stop
+import com.sloydev.sevibus.domain.TravelCard
+import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.SearchResult
+import com.sloydev.sevibus.domain.Stop
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
@@ -163,7 +162,7 @@ object Stubs {
         )
     )
 
-    val cardWithAllFields = CardInfo(
+    val cardWithAllFields = TravelCard(
         code = 30,
         title = "Full test",
         customName = "Completo",
@@ -175,15 +174,21 @@ object Stubs {
         extensionEnd = LocalDate.now()
     )
     val cards = listOf(
-        CardInfo(
+        TravelCard(
             code = 31,
             title = "Saldo sin transbordo",
             customName = "Bono Laura",
             balanceMillis = 8450,
             serialNumber = randomCardSerial()
         ),
-        CardInfo(code = 70, title = "Hijo de empleado", customName = "La de paco", balanceTrips = 35, serialNumber = randomCardSerial()),
-        CardInfo(
+        TravelCard(
+            code = 70,
+            title = "Hijo de empleado",
+            customName = "La de paco",
+            balanceTrips = 35,
+            serialNumber = randomCardSerial()
+        ),
+        TravelCard(
             code = 116,
             title = "Estudiante mensual",
             customName = "Estudiante",
@@ -191,7 +196,7 @@ object Stubs {
             extensionEnd = LocalDate.now(),
             serialNumber = randomCardSerial()
         ),
-        CardInfo(
+        TravelCard(
             code = 30,
             title = "Saldo con transbordo",
             customName = "Números rojos",
@@ -202,12 +207,12 @@ object Stubs {
 
     private fun randomCardSerial() = Random.nextLong(100000000, 999999999)
 
-    val cardTransactions = listOf(
-        CardTransaction.Validation(350, LocalDateTime.now(), lines[4], people = 2),
-        CardTransaction.Validation(350, LocalDateTime.now(), lines[4]),
-        CardTransaction.TopUp(10000, LocalDateTime.now()),
-        CardTransaction.Validation(350, LocalDateTime.now(), lines[34], people = 2),
-        CardTransaction.Validation(350, LocalDateTime.now(), lines[34]),
+    val travelCardTransactions = listOf(
+        TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[4], people = 2),
+        TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[4]),
+        TravelCard.Transaction.TopUp(10000, LocalDateTime.now()),
+        TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[34], people = 2),
+        TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[34]),
     )
 
     val searchResults: List<SearchResult>
@@ -218,6 +223,81 @@ object Stubs {
                 .map { SearchResult.LineResult(it) }
             return (stops + lines).shuffled()
         }
+
+    fun typeFromLine(label: String): String {
+        return when (label) {
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C6A",
+            "C6B" -> "Circulares"
+
+            "01",
+            "02",
+            "03",
+            "05",
+            "06" -> "Transversales"
+
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16" -> "Radiales Norte"
+
+            "20",
+            "21",
+            "22",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29" -> "Radiales Este"
+
+            "30",
+            "31",
+            "32",
+            "34",
+            "37",
+            "38",
+            "38A",
+            "39" -> "Radiales Sur"
+
+            "40",
+            "41",
+            "43" -> "Radiales Oeste"
+
+            "52",
+            "53" -> "Periféricas"
+
+            "B3",
+            "B4",
+            "CJ",
+            "EA",
+            "LE",
+            "LN",
+            "LS" -> "Barrios y Express"
+
+            "E0",
+            "EC" -> "Especiales"
+
+            "T1" -> "Metroentro"
+
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A6",
+            "A7",
+            "A8" -> "Nocturnas"
+
+            else -> "Otras"
+        }
+    }
 
 }
 

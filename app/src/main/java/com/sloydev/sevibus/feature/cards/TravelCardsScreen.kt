@@ -22,8 +22,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,19 +53,20 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.TravelCard
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.ScreenPreview
 import com.sloydev.sevibus.ui.theme.SevTheme
 
-fun NavGraphBuilder.cardsRoute() {
+fun NavGraphBuilder.travelCardsRoute() {
     composable(TopLevelDestination.CARDS.route) {
-        CardsScreen(Stubs.cards)
+        TravelCardsScreen(Stubs.cards)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardsScreen(cards: List<CardInfo>) {
+fun TravelCardsScreen(cards: List<TravelCard>) {
     Column {
         CenterAlignedTopAppBar(title = { Text(stringResource(R.string.navigation_cards)) })
 
@@ -134,14 +133,14 @@ private fun NewCardDetail() {
 }
 
 @Composable
-private fun ExistingCardDetail(currentCard: CardInfo) {
+private fun ExistingCardDetail(currentCard: TravelCard) {
     WarningNotice()
     Spacer(Modifier.size(16.dp))
     CardBalanceItem(currentCard)
     Spacer(Modifier.size(32.dp))
-    CardInfoCard(currentCard)
+    TravelCardInfoElement(currentCard)
     Spacer(Modifier.size(32.dp))
-    CardTransactionsCard(Stubs.cardTransactions)
+    TravelCardTransactionsElement(Stubs.travelCardTransactions)
     Spacer(Modifier.size(32.dp))
     DeleteButton()
     Spacer(Modifier.size(32.dp))
@@ -177,7 +176,7 @@ private fun DeleteButton() {
 }
 
 @Composable
-private fun CardPictureItem(card: CardInfo) {
+private fun CardPictureItem(card: TravelCard) {
     Image(
         painterResource(codeToResource(card.code)),
         modifier = Modifier
@@ -218,6 +217,6 @@ private fun codeToResource(code: Int): Int {
 @Composable
 private fun CardsScreenPreview() {
     ScreenPreview {
-        CardsScreen(Stubs.cards)
+        TravelCardsScreen(Stubs.cards)
     }
 }

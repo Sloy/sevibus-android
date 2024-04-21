@@ -16,7 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
-import com.sloydev.sevibus.feature.cards.cardsRoute
+import com.sloydev.sevibus.feature.cards.travelCardsRoute
 import com.sloydev.sevibus.feature.foryou.forYouRoute
 import com.sloydev.sevibus.feature.lines.linesRoute
 import com.sloydev.sevibus.feature.linestops.lineStopsRoute
@@ -60,7 +60,7 @@ fun App() {
                     forYouRoute(appState.navController)
                     linesRoute(appState.navController)
                     mapRoute()
-                    cardsRoute()
+                    travelCardsRoute()
 
                     lineStopsRoute(appState.navController)
                     stopDetailRoute()

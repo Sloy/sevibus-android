@@ -1,6 +1,4 @@
-package com.sloydev.sevibus.feature.lines
-
-import com.sloydev.sevibus.feature.linestops.Stop
+package com.sloydev.sevibus.domain
 
 sealed interface SearchResult {
     data class LineResult(val line: Line) : SearchResult

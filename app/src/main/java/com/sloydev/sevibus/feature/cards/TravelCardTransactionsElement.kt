@@ -1,12 +1,9 @@
 package com.sloydev.sevibus.feature.cards
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -15,7 +12,6 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -23,12 +19,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.TravelCard
+import com.sloydev.sevibus.ui.components.LeadingBoxLayout
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.formatter.DateFormatter
+import com.sloydev.sevibus.ui.formatter.MoneyFormatter
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
-fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
+fun TravelCardTransactionsElement(travelCardTransactions: List<TravelCard.Transaction>) {
     Card(
         Modifier
             .padding(horizontal = 16.dp)
@@ -39,12 +38,12 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
                 "Actividad reciente", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(start = 16.dp, top = 16.dp)
             )
         }
-        cardTransactions.forEachIndexed { index, transaction ->
+        travelCardTransactions.forEachIndexed { index, transaction ->
             when (transaction) {
-                is CardTransaction.TopUp -> TopUpItem(transaction)
-                is CardTransaction.Validation -> ValidationItem(transaction)
+                is TravelCard.Transaction.TopUp -> TopUpItem(transaction)
+                is TravelCard.Transaction.Trip -> ValidationItem(transaction)
             }
-            if (index != cardTransactions.lastIndex) {
+            if (index != travelCardTransactions.lastIndex) {
                 HorizontalDivider()
             }
         }
@@ -53,51 +52,57 @@ fun CardTransactionsCard(cardTransactions: List<CardTransaction>) {
 
 
 @Composable
-private fun ValidationItem(transaction: CardTransaction.Validation) {
+private fun ValidationItem(transaction: TravelCard.Transaction.Trip) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        leadingContent = { LeadingBox { LineIndicatorSmall(transaction.line) } },
+        leadingContent = { LeadingBoxLayout(24.dp) { LineIndicatorSmall(transaction.line) } },
         headlineContent = {
             Row {
-                Text("Validación de viaje")
+                Text("Viaje")
             }
         },
         supportingContent = {
             Text(DateFormatter.dayMonthTime(transaction.date))
         },
         trailingContent = {
-            Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
+            Text(
+                MoneyFormatter.fromMillis(transaction.amountMillis, showPlusWhenPositive = true),
+                style = MaterialTheme.typography.labelLarge
+            )
         },
     )
 }
 
 @Composable
-private fun TopUpItem(transaction: CardTransaction.TopUp) {
-    ListItem(colors = ListItemDefaults.colors(containerColor = Color.Transparent), leadingContent = {
-        LeadingBox {
-            Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
-        }
-    }, headlineContent = {
-        Row {
-            Text("Recarga")
-        }
-    }, supportingContent = { Text(DateFormatter.dayMonthTime(transaction.date)) }, trailingContent = {
-        Text(transaction.formattedAmount(), style = MaterialTheme.typography.labelLarge)
-    })
+private fun TopUpItem(transaction: TravelCard.Transaction.TopUp) {
+    ListItem(colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        leadingContent = {
+            LeadingBoxLayout(24.dp) {
+                Icon(painterResource(R.drawable.baseline_euro_24), contentDescription = null)
+            }
+        },
+        headlineContent = {
+            Row {
+                Text("Recarga")
+            }
+        },
+        supportingContent = {
+            Text(DateFormatter.dayMonthTime(transaction.date))
+        },
+        trailingContent = {
+            Text(
+                MoneyFormatter.fromMillis(transaction.amountMillis, showPlusWhenPositive = true),
+                style = MaterialTheme.typography.labelLarge
+            )
+        })
 }
 
-@Composable
-private fun LeadingBox(content: @Composable BoxScope.() -> Unit) {
-    Box(Modifier.size(24.dp), contentAlignment = Alignment.CenterStart) {
-        content()
-    }
-}
 
 
 @Preview
 @Composable
 private fun CardTransactionsCardPreview() {
     SevTheme {
-        CardTransactionsCard(Stubs.cardTransactions)
+        TravelCardTransactionsElement(Stubs.travelCardTransactions)
     }
 }

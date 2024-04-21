@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.feature.lines.Line
+import com.sloydev.sevibus.domain.Line
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.theme.SevTheme
 import kotlin.random.Random

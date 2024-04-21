@@ -22,7 +22,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.feature.lines.Line
+import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.Stop
 import com.sloydev.sevibus.feature.linestops.ListPosition.End
 import com.sloydev.sevibus.feature.linestops.ListPosition.Middle
 import com.sloydev.sevibus.feature.linestops.ListPosition.Start
@@ -31,7 +32,7 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 
 
 @Composable
-fun StopListItem(
+fun StopTimelineElement(
     stop: Stop,
     lines: List<Line>,
     listPosition: ListPosition,
@@ -120,7 +121,7 @@ private fun StopListItemPreview() {
         Scaffold {
             Column(Modifier.fillMaxSize()) {
                 Stubs.stops.take(4).forEach { stop ->
-                    StopListItem(
+                    StopTimelineElement(
                         stop,
                         lines = Stubs.lines.take(3),
                         Start,

@@ -19,11 +19,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.TravelCard
 import com.sloydev.sevibus.ui.formatter.MoneyFormatter
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
-fun CardBalanceItem(card: CardInfo, modifier: Modifier = Modifier) {
+fun CardBalanceItem(card: TravelCard, modifier: Modifier = Modifier) {
     if (card.balanceMillis == null && card.balanceTrips == null) return
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

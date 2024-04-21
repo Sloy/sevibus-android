@@ -26,6 +26,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.Line
+import com.sloydev.sevibus.domain.SearchResult
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
@@ -35,7 +37,7 @@ import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 fun NavGraphBuilder.linesRoute(navController: NavController) {
     composable(TopLevelDestination.LINES.route) {
         //TODO inject viewmodel and subscribe to state
-        val state = LinesState.Content(Stubs.lines)
+        val state = LinesScreenState.Content(Stubs.lines)
         LinesScreen(state,
             onLineClick = { navController.navigateToLineStops(it.label) },
             onSearchResultClicked = {
@@ -50,13 +52,13 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LinesScreen(state: LinesState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
+private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
     when (state) {
-        is LinesState.Loading -> {
+        is LinesScreenState.Loading -> {
             CircularProgressIndicator()
         }
 
-        is LinesState.Content -> {
+        is LinesScreenState.Content -> {
             Column {
                 CenterAlignedTopAppBar(
                     title = { Text(text = stringResource(id = R.string.navigation_lines)) },
@@ -120,6 +122,6 @@ private fun LineTypeTitle(lineType: String) {
 @Composable
 private fun LinesScreenPreview() {
     ScreenPreview {
-        LinesScreen(state = LinesState.Content(Stubs.lines), {}, {})
+        LinesScreen(state = LinesScreenState.Content(Stubs.lines), {}, {})
     }
 }
