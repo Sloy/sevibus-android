@@ -33,7 +33,7 @@ import kotlin.random.Random
 
 
 @Composable
-fun FavoritesCard(onStopClicked: (code: Int) -> Unit) {
+fun FavoritesCardElement(onStopClicked: (code: Int) -> Unit) {
     Card(
         Modifier
             .padding(16.dp)
@@ -98,6 +98,6 @@ private fun FavoriteLineTime(line: Line) {
 @Composable
 private fun FavoritesCardPreview() {
     SevTheme {
-        FavoritesCard({})
+        FavoritesCardElement({})
     }
 }

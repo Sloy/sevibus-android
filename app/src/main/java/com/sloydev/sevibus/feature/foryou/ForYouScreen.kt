@@ -29,7 +29,7 @@ fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
         CenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
-        FavoritesCard(onStopClicked)
+        FavoritesCardElement(onStopClicked)
     }
 }
 
