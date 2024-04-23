@@ -1,4 +1,4 @@
-package com.sloydev.sevibus.feature.linestops
+package com.sloydev.sevibus.feature.linestops.component
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.feature.linestops.ListPosition.End
-import com.sloydev.sevibus.feature.linestops.ListPosition.Middle
-import com.sloydev.sevibus.feature.linestops.ListPosition.Start
+import com.sloydev.sevibus.feature.linestops.component.ListPosition.End
+import com.sloydev.sevibus.feature.linestops.component.ListPosition.Middle
+import com.sloydev.sevibus.feature.linestops.component.ListPosition.Start
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.theme.SevTheme
 
@@ -34,7 +34,6 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 @Composable
 fun StopTimelineElement(
     stop: Stop,
-    lines: List<Line>,
     listPosition: ListPosition,
     color: Color = Color.Blue,
     onStopClick: (Stop) -> Unit,
@@ -50,7 +49,7 @@ fun StopTimelineElement(
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 headlineContent = { Text(stop.description) },
                 overlineContent = { Text(text = stop.code.toString()) },
-                supportingContent = { SupportingLines(lines) },
+                supportingContent = { SupportingLines(stop.lines) },
             )
         }
     }
@@ -120,15 +119,10 @@ private fun StopListItemPreview() {
     SevTheme {
         Scaffold {
             Column(Modifier.fillMaxSize()) {
-                Stubs.stops.take(4).forEach { stop ->
-                    StopTimelineElement(
-                        stop,
-                        lines = Stubs.lines.take(3),
-                        Start,
-                        onStopClick = { }
-                    )
-
-                }
+                StopTimelineElement(Stubs.stops[0], Start) { }
+                StopTimelineElement(Stubs.stops[1], Middle) { }
+                StopTimelineElement(Stubs.stops[2], Middle) { }
+                StopTimelineElement(Stubs.stops[3], End) { }
             }
         }
     }

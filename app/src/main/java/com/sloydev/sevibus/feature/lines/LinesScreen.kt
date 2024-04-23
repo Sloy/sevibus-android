@@ -43,10 +43,10 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
         val viewModel = koinViewModel<LinesViewModel>()
         val state by viewModel.state.collectAsState()
         LinesScreen(state,
-            onLineClick = { navController.navigateToLineStops(it.label) },
+            onLineClick = { navController.navigateToLineStops(it.id) },
             onSearchResultClicked = {
                 when (it) {
-                    is SearchResult.LineResult -> navController.navigateToLineStops(it.line.label)
+                    is SearchResult.LineResult -> navController.navigateToLineStops(it.line.id)
                     is SearchResult.StopResult -> navController.navigateToStopDetail(it.stop.code)
                 }
             }

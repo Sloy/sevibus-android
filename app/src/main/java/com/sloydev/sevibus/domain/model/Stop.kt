@@ -1,17 +1,17 @@
 package com.sloydev.sevibus.domain.model
 
 import com.google.android.gms.maps.model.LatLng
-import java.time.LocalTime
 
 data class Stop(
-    val code: Int,
+    val code: StopId,
     val description: String,
     val position: Position,
-    val startTime: LocalTime? = null,
-    val endTime: LocalTime? = null,
+    val lines: List<Line>,
 ) {
     data class Position(val latitude: Double, val longitude: Double)
 }
+
+typealias StopId = Int
 
 @Deprecated("Just for development")
 operator fun Stop.Position.plus(pos: Pair<Double, Double>): Stop.Position {

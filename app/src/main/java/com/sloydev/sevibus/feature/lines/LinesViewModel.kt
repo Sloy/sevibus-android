@@ -15,17 +15,16 @@ class LinesViewModel(
 
     init {
         viewModelScope.launch {
-            repository.obtainLines()
-                .onSuccess { lines ->
-                    val groupsOfLines = lines
-                        .groupBy { it.group }
-                        .map { (group, linesForGroup) -> LinesScreenState.Content.GroupOfLines(group, linesForGroup) }
-                    state.value = LinesScreenState.Content(groupsOfLines)
-                }
-                .onFailure {
-                    state.value = LinesScreenState.Error
-                    SevLogger.logW(it)
-                }
+            runCatching {
+                val lines = repository.obtainLines()
+                val groupsOfLines = lines
+                    .groupBy { it.group }
+                    .map { (group, linesForGroup) -> LinesScreenState.Content.GroupOfLines(group, linesForGroup) }
+                state.value = LinesScreenState.Content(groupsOfLines)
+            }.onFailure {
+                state.value = LinesScreenState.Error
+                SevLogger.logW(it)
+            }
         }
     }
 
