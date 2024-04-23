@@ -6,14 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloydev.sevibus.domain.model.LineId
+import com.sloydev.sevibus.domain.model.RouteWithStops
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
-import com.sloydev.sevibus.infrastructure.SevLogger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class LineStopsViewModel(
+class LineRouteViewModel(
     private val lineId: LineId,
     private val lineRepository: LineRepository,
     private val stopRepository: StopRepository,
@@ -25,11 +25,14 @@ class LineStopsViewModel(
     init {
         viewModelScope.launch {
             runCatching {
-                val line = async { lineRepository.obtainLine(lineId) }
-                val routeStops = async { stopRepository.obtainRouteStops(lineId) }
+                val line = lineRepository.obtainLine(lineId)
+                state.value = LineRouteScreenState.Content.Partial(line)
 
-                state.value = LineRouteScreenState.Content.Partial(line.await())
-                state.value = LineRouteScreenState.Content.Full(line.await(), routeStops.await())
+                val routes = line.routes.map { route ->
+                    RouteWithStops(route, stopRepository.obtainStops(route.stops))
+                }
+
+                state.value = LineRouteScreenState.Content.Full(line, routes)
             }.onFailure {
                 state.value = LineRouteScreenState.Error
             }

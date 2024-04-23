@@ -1,10 +1,10 @@
 package com.sloydev.sevibus.domain.repository
 
-import com.sloydev.sevibus.domain.model.LineId
-import com.sloydev.sevibus.domain.model.RouteWithStops
+import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.StopId
 
 interface StopRepository {
 
-    suspend fun obtainRouteStops(line: LineId): List<RouteWithStops>
+    suspend fun obtainStops(ids: List<StopId>): List<Stop>
 }
 

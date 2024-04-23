@@ -46,7 +46,7 @@ import org.koin.core.parameter.parametersOf
 fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
     composable(TopLevelDestination.LINES.route + "{line}/stops") { stackEntry ->
         val lineId: LineId = stackEntry.arguments!!.getString("line")!!.toInt()
-        val viewModel: LineStopsViewModel = koinViewModel { parametersOf(lineId) }
+        val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
         val state by viewModel.state.collectAsState()
         val selectedTab = viewModel.selectedTab
         LineRouteScreen(
