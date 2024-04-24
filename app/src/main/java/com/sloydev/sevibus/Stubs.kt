@@ -17,14 +17,16 @@ object Stubs {
 
     val routes: List<Route> = listOf(
         Route(
-            id = 1,
+            id = "1.1",
+            direction = 1,
             destination = "HOSPITAL V.ROCIO",
             line = 1,
             stops = listOf(1, 2, 3, 4, 5),
             schedule = null,
         ),
         Route(
-            id = 2,
+            id = "1.2",
+            direction = 2,
             destination = "POLIGONO NORTE",
             line = 1,
             stops = listOf(10, 9, 8, 7, 6),

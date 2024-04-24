@@ -4,6 +4,7 @@ import java.time.LocalTime
 
 data class Route(
     val id: RouteId,
+    val direction: Int,
     val destination: String,
     val line: LineId,
     val stops: List<StopId>,
@@ -14,6 +15,6 @@ data class Route(
         val endTime: LocalTime
     )
 }
-typealias RouteId = Int
+typealias RouteId = String
 
 data class RouteWithStops(val route: Route, val stops: List<Stop>)
