@@ -5,6 +5,7 @@ import com.sloydev.sevibus.data.api.SevibusApi
 import com.sloydev.sevibus.data.database.SevibusDatabase
 import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.repository.RemoteAndLocalLineRepository
+import com.sloydev.sevibus.data.repository.RemoteAndLocalStopRepository
 import com.sloydev.sevibus.data.repository.StubStopRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
@@ -27,7 +28,8 @@ object DI {
     val dataModule = module {
         //single<LineRepository> { StubLineRepository() }
         single<LineRepository> { RemoteAndLocalLineRepository(get(), get()) }
-        single<StopRepository> { StubStopRepository() }
+//        single<StopRepository> { StubStopRepository() }
+        single<StopRepository> { RemoteAndLocalStopRepository(get(), get()) }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(

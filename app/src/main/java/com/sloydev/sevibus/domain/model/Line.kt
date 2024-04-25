@@ -12,3 +12,11 @@ data class Line(
 )
 
 typealias LineId = Int
+
+data class LineSummary(
+    val id: LineId,
+    val label: String,
+    val colorHex: Long,
+)
+
+fun Line.toSummary() = LineSummary(id, label, colorHex)

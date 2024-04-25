@@ -13,9 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.LineSummary
+import com.sloydev.sevibus.domain.model.toSummary
 
 @Composable
 fun LineIndicatorSmall(line: Line, modifier: Modifier = Modifier) {
+    LineIndicatorSmall(line = line.toSummary(), modifier)
+}
+
+@Composable
+fun LineIndicatorSmall(line: LineSummary, modifier: Modifier = Modifier) {
     Box(
         modifier
             .clip(MaterialTheme.shapes.extraSmall)

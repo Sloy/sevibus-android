@@ -22,13 +22,13 @@ class RemoteAndLocalLineRepository(
         val lines: List<LineEntity> = dao.getLines()
             .ifEmpty {
                 val remote = api.getLines()
-                dao.putLines(remote.map { it.toEntity() })
+                dao.putLines(remote.map { it.fromEntity() })
                 dao.getLines()
             }
         val routes: List<RouteEntity> = dao.getRoutes()
             .ifEmpty {
                 val remote = api.getRoutes()
-                dao.putRoutes(remote.map { it.toEntity() })
+                dao.putRoutes(remote.map { it.fromEntity() })
                 dao.getRoutes()
             }
 
@@ -46,11 +46,11 @@ class RemoteAndLocalLineRepository(
     }
 }
 
-private fun RouteDto.toEntity(): RouteEntity {
+private fun RouteDto.fromEntity(): RouteEntity {
     return RouteEntity(id, direction, destination, line, schedule.fromDto(), stops)
 }
 
-private fun LineDto.toEntity(): LineEntity {
+private fun LineDto.fromEntity(): LineEntity {
     return LineEntity(id, label, description, colorHex, group, routes)
 }
 
@@ -60,3 +60,4 @@ private fun RouteDto.ScheduleDto.fromDto(): Route.Schedule {
         endTime = LocalTime.parse(this.endTime),
     )
 }
+

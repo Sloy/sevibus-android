@@ -6,7 +6,7 @@ data class Stop(
     val code: StopId,
     val description: String,
     val position: Position,
-    val lines: List<Line>,
+    val lines: List<LineSummary>,
 ) {
     data class Position(val latitude: Double, val longitude: Double)
 }

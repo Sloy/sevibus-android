@@ -6,6 +6,7 @@ import com.sloydev.sevibus.domain.model.RouteWithStops
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.TravelCard
+import com.sloydev.sevibus.domain.model.toSummary
 import com.sloydev.sevibus.feature.lines.LinesScreenState
 import kotlinx.coroutines.delay
 import java.time.LocalDate
@@ -86,127 +87,127 @@ object Stubs {
             code = 430,
             description = "Glorieta Plus Ultra",
             position = Stop.Position(latitude = 37.356990, longitude = -5.980317),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 566,
             description = "Manuel Siurot (Rafael Salgado)",
             position = Stop.Position(latitude = 37.359176, longitude = -5.980631),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 154,
             description = "Manuel Siurot (Hospital V.Rocio)",
             position = Stop.Position(latitude = 37.361072, longitude = -5.981739),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 64,
             description = "Manuel Siurot (Gustavo Gallardo)",
             position = Stop.Position(latitude = 37.365230, longitude = -5.983750),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 65,
             description = "Manuel Siurot (Edificio La Estrella)",
             position = Stop.Position(latitude = 37.367492, longitude = -5.985054),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 66,
             description = "Avenida La Borbolla (Felipe Ii)",
             position = Stop.Position(latitude = 37.372348, longitude = -5.985392),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 67,
             description = "Avenida La Borbolla (Montevideo)",
             position = Stop.Position(latitude = 37.374198, longitude = -5.985209),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 68,
             description = "Avda. La Borbolla (Dr. Pedro de Castro)",
             position = Stop.Position(latitude = 37.379100, longitude = -5.983300),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 472,
             description = "Menendez Pelayo (Juzgados)",
             position = Stop.Position(latitude = 37.381877, longitude = -5.987963),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 42,
             description = "Menéndez Pelayo (Puerta de La Carne)",
             position = Stop.Position(latitude = 37.386516, longitude = -5.985553),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 43,
             description = "Recaredo (Puerta Carmona)",
             position = Stop.Position(latitude = 37.389663, longitude = -5.984265),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 888,
             description = "Recaredo (San Roque)",
             position = Stop.Position(latitude = 37.391544, longitude = -5.984123),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 22,
             description = "María Auxiliadora (Puerta Osario)",
             position = Stop.Position(latitude = 37.394493, longitude = -5.983595),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 23,
             description = "Ronda de Capuchinos (Avenida Miraflores)",
             position = Stop.Position(latitude = 37.398807, longitude = -5.981822),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 24,
             description = "Ronda de Capuchinos (León XIII)",
             position = Stop.Position(latitude = 37.399669, longitude = -5.983595),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 25,
             description = "Muñoz León (Sánchez Perrier)",
             position = Stop.Position(latitude = 37.401397, longitude = -5.985486),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 238,
             description = "San Juan de Ribera (Macarena)",
             position = Stop.Position(latitude = 37.403549, longitude = -5.987237),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 239,
             description = "San Juan de Ribera (Policlínico)",
             position = Stop.Position(latitude = 37.405429, longitude = -5.986314),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 233,
             description = "Doctor Fedriani (Doctor Leal Castaños)",
             position = Stop.Position(latitude = 37.407817, longitude = -5.985156),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 251,
             description = "Doctor Fedriani (Plaza Isla Canela)",
             position = Stop.Position(latitude = 37.409427, longitude = -5.984575),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         ),
         Stop(
             code = 252,
             description = "Doctor Fedriani (Avda. San Lázaro)",
             position = Stop.Position(latitude = 37.411148, longitude = -5.983941),
-            lines = lines.shuffled().take(Random.nextInt(1, 4)),
+            lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary()},
         )
     )
 

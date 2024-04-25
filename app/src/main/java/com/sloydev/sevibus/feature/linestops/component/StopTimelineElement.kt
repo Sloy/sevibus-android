@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.LineSummary
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.End
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.Middle
@@ -99,7 +99,7 @@ private fun TimelineNode(listPosition: ListPosition, color: Color, content: @Com
 }
 
 @Composable
-private fun SupportingLines(lines: List<Line>) {
+private fun SupportingLines(lines: List<LineSummary>) {
     Row {
         lines.forEach { line ->
             LineIndicatorSmall(line = line)
