@@ -1,11 +1,15 @@
 package com.sloydev.sevibus.infrastructure
 
-import com.sloydev.sevibus.data.repository.StubLineRepository
+import androidx.room.Room
+import com.sloydev.sevibus.data.database.SevibusDatabase
+import com.sloydev.sevibus.data.database.TussamDao
+import com.sloydev.sevibus.data.repository.RemoteAndLocalLineRepository
 import com.sloydev.sevibus.data.repository.StubStopRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -16,7 +20,18 @@ object DI {
     }
 
     val dataModule = module {
-        single<LineRepository> { StubLineRepository() }
+        //single<LineRepository> { StubLineRepository() }
+        single<LineRepository> { RemoteAndLocalLineRepository(get()) }
         single<StopRepository> { StubStopRepository() }
+
+        single<SevibusDatabase> {
+            Room.databaseBuilder(
+                androidContext(),
+                SevibusDatabase::class.java,
+                "sevibus"
+            ).build()
+        }
+        single<TussamDao> { get<SevibusDatabase>().tussamDao() }
     }
+
 }

@@ -8,7 +8,7 @@ data class Route(
     val destination: String,
     val line: LineId,
     val stops: List<StopId>,
-    val schedule: Schedule? = null,
+    val schedule: Schedule = Schedule(LocalTime.now(), LocalTime.now()),
 ) {
     data class Schedule(
         val startTime: LocalTime,

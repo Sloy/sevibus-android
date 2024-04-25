@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
 }
 
 android {
@@ -91,9 +91,9 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.maps)
 
-    //implementation(libs.room.runtime)
-    //implementation(libs.room.ktx)
-    //kapt(libs.room.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
 
     implementation(platform(libs.koin.bom))
