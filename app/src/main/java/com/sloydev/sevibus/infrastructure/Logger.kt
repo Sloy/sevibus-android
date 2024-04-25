@@ -4,7 +4,7 @@ import android.util.Log
 
 object SevLogger {
     fun logW(t: Throwable) {
-        Log.w("SEVIBUS", "Error", t)
+        Log.e("SEVIBUS", "Error: ${t.message}", t)
     }
 
     @Deprecated("Don't commit this", ReplaceWith("", ""), DeprecationLevel.ERROR)

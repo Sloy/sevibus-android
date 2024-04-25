@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    kotlin("plugin.serialization") version "1.9.0"
+
 }
 
 android {
@@ -95,6 +97,10 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization)
+    implementation(libs.kotlinx.serialization)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)

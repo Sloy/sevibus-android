@@ -1,30 +1,33 @@
 package com.sloydev.sevibus.data.repository
 
-import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.data.api.SevibusApi
+import com.sloydev.sevibus.data.api.model.LineDto
+import com.sloydev.sevibus.data.api.model.RouteDto
 import com.sloydev.sevibus.data.database.LineEntity
 import com.sloydev.sevibus.data.database.RouteEntity
 import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.database.fromEntity
-import com.sloydev.sevibus.data.database.toEntity
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
+import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.repository.LineRepository
+import java.time.LocalTime
 
 class RemoteAndLocalLineRepository(
-    //private val api: SevibusApi,
+    private val api: SevibusApi,
     private val dao: TussamDao
 ) : LineRepository {
 
     override suspend fun obtainLines(): List<Line> {
         val lines: List<LineEntity> = dao.getLines()
             .ifEmpty {
-                val remote = Stubs.lines
+                val remote = api.getLines()
                 dao.putLines(remote.map { it.toEntity() })
                 dao.getLines()
             }
         val routes: List<RouteEntity> = dao.getRoutes()
             .ifEmpty {
-                val remote = Stubs.routes
+                val remote = api.getRoutes()
                 dao.putRoutes(remote.map { it.toEntity() })
                 dao.getRoutes()
             }
@@ -43,4 +46,17 @@ class RemoteAndLocalLineRepository(
     }
 }
 
+private fun RouteDto.toEntity(): RouteEntity {
+    return RouteEntity(id, direction, destination, line, schedule.fromDto(), stops)
+}
 
+private fun LineDto.toEntity(): LineEntity {
+    return LineEntity(id, label, description, colorHex, group, routes)
+}
+
+private fun RouteDto.ScheduleDto.fromDto(): Route.Schedule {
+    return Route.Schedule(
+        startTime = LocalTime.parse(this.startTime),
+        endTime = LocalTime.parse(this.endTime),
+    )
+}
