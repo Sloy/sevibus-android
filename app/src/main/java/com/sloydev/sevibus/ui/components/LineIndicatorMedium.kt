@@ -13,13 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.toUiColor
 
 @Composable
 fun LineIndicatorMedium(it: Line) {
     Box(
         Modifier
             .clip(MaterialTheme.shapes.small)
-            .background(Color(it.colorHex))
+            .background(it.color.toUiColor())
             .padding(4.dp),
         contentAlignment = Alignment.Center
     ) {

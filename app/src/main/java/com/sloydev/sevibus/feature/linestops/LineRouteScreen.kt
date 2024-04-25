@@ -34,6 +34,7 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.RouteWithStops
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.toUiColor
 import com.sloydev.sevibus.feature.linestops.component.ListPosition
 import com.sloydev.sevibus.feature.linestops.component.StopTimelineElement
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
@@ -126,7 +127,7 @@ private fun RouteContent(
                     stops.lastIndex -> ListPosition.End
                     else -> ListPosition.Middle
                 },
-                color = Color(line.colorHex),
+                color = line.color.toUiColor(),
                 onStopClick = onStopClick,
             )
         }

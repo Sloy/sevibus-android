@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.LineColor
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.LineSummary
 import com.sloydev.sevibus.domain.model.Route
@@ -27,7 +28,7 @@ data class LineEntity(
     val id: LineId,
     val label: String,
     val description: String,
-    val colorHex: Long,
+    val color: LineColor,
     val group: String,
     val routes: List<RouteId>,
 )
@@ -50,12 +51,12 @@ data class RouteEntity(
 }
 
 fun LineEntity.fromEntity(routes: List<Route>): Line {
-    return Line(label, description, colorHex, group, id = id, routes = routes)
+    return Line(label, description, color, group, id = id, routes = routes)
 }
 
-fun LineEntity.summaryFromEntity(): LineSummary = LineSummary(id, label, colorHex)
+fun LineEntity.summaryFromEntity(): LineSummary = LineSummary(id, label, color)
 fun Line.toEntity(): LineEntity {
-    return LineEntity(id, label, description, colorHex, group, routes.map { it.id })
+    return LineEntity(id, label, description, color, group, routes.map { it.id })
 }
 
 

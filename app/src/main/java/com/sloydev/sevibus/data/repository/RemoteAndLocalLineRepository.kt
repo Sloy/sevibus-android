@@ -51,7 +51,7 @@ private fun RouteDto.fromEntity(): RouteEntity {
 }
 
 private fun LineDto.fromEntity(): LineEntity {
-    return LineEntity(id, label, description, colorHex, group, routes)
+    return LineEntity(id, label, description, color, group, routes)
 }
 
 private fun RouteDto.ScheduleDto.fromDto(): Route.Schedule {
