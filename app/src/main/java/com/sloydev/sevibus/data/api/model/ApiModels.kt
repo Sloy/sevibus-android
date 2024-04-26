@@ -1,5 +1,6 @@
 package com.sloydev.sevibus.data.api.model
 
+import com.sloydev.sevibus.domain.model.BusId
 import com.sloydev.sevibus.domain.model.LineColor
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.RouteId
@@ -42,3 +43,11 @@ data class RouteDto(
         val endTime: String,
     )
 }
+
+@Serializable
+data class BusArrivalDto(
+    val bus: BusId,
+    val distance: Int,
+    val seconds: Int?,
+    val line: LineId,
+)

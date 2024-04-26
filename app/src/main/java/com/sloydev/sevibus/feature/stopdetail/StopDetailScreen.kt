@@ -1,9 +1,8 @@
 package com.sloydev.sevibus.feature.stopdetail
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -28,7 +27,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.BusArrival
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.model.description1
 import com.sloydev.sevibus.domain.model.description2
@@ -65,7 +64,7 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
     if (state is Error) {
         Text("Error")
     }
-    if (state is StopDetailScreenState.Loading) {
+    if (state is StopDetailScreenState.Initial) {
         CircularProgressIndicator()
     }
     if (state !is StopDetailScreenState.Content) {
@@ -122,33 +121,27 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
         )
 
 
-        Column(Modifier.padding(16.dp)) {
-            Text("Líneas", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.size(8.dp))
-            BusArrival(Stubs.lines[0], "Heliopolis", 0)
-            Spacer(Modifier.size(4.dp))
-            BusArrival(Stubs.lines[6], "Prado", 1)
-            Spacer(Modifier.size(4.dp))
-            BusArrival(Stubs.lines[0], "Heliopolis", 4)
-            Spacer(Modifier.size(4.dp))
-            BusArrival(Stubs.lines[34], "Sta Justa", 5)
-            Spacer(Modifier.size(4.dp))
-            BusArrival(Stubs.lines[6], "Prado", 7)
-            Spacer(Modifier.size(4.dp))
-            BusArrival(Stubs.lines[34], "Sta Justa", 15)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Líneas", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 4.dp))
+
+            if (state is StopDetailScreenState.Content.WithArrivals) {
+                state.arrivals.forEach {
+                    BusArrivalElement(it)
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun BusArrival(line: Line, direction: String, minutes: Int) {
+private fun BusArrivalElement(arrival: BusArrival) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
         modifier = Modifier.clip(MaterialTheme.shapes.medium),
-        headlineContent = { Text(direction) },
-        leadingContent = { LineIndicatorMedium(line) },
+        headlineContent = { Text(text = arrival.route.destination) },
+        leadingContent = { LineIndicatorMedium(line = arrival.line) },
         trailingContent = {
-            ArrivalElement(minutes)
+            ArrivalElement(arrival)
         }
     )
 }
@@ -157,7 +150,7 @@ private fun BusArrival(line: Line, direction: String, minutes: Int) {
 @Composable
 private fun Preview() {
     ScreenPreview {
-        StopDetailScreen(StopDetailScreenState.Content(Stubs.stops[1]))
+        StopDetailScreen(StopDetailScreenState.Content.WithArrivals(Stubs.stops[1], Stubs.arrivals))
     }
 }
 
@@ -165,6 +158,6 @@ private fun Preview() {
 @Composable
 private fun EmbeddedPreview() {
     ScreenPreview {
-        StopDetailScreen(StopDetailScreenState.Content(Stubs.stops[0]), embedded = true)
+        StopDetailScreen(StopDetailScreenState.Content.WithArrivals(Stubs.stops[0], Stubs.arrivals), embedded = true)
     }
 }

@@ -3,6 +3,7 @@ package com.sloydev.sevibus
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Work
+import com.sloydev.sevibus.domain.model.BusArrival
 import com.sloydev.sevibus.domain.model.FavoriteStop
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineColor
@@ -379,6 +380,15 @@ object Stubs {
             else -> "Otras"
         }
     }
+
+    val arrivals = listOf(
+        BusArrival(bus = 1, distance = 50, seconds = 0, line = lines.random().toSummary(), route = routes.random()),
+        BusArrival(bus = 6, distance = 50, seconds = 2 * 60, line = lines.random().toSummary(), route = routes.random()),
+        BusArrival(bus = 2, distance = 50, seconds = 5 * 60, line = lines.random().toSummary(), route = routes.random()),
+        BusArrival(bus = 3, distance = 100, seconds = 10 * 60, line = lines.random().toSummary(), route = routes.random()),
+        BusArrival(bus = 8, distance = 100, seconds = 15 * 60, line = lines.random().toSummary(), route = routes.random()),
+        BusArrival(bus = 4, distance = 500, seconds = null, line = lines.random().toSummary(), route = routes.random()),
+    )
 
     suspend inline fun delayNetwork(): Unit = delay(1_000)
 

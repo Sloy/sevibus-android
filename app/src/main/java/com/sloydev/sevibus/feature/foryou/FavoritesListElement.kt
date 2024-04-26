@@ -14,8 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,14 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.FavoriteStop
-import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.model.descriptionSeparator
 import com.sloydev.sevibus.ui.components.ArrivalElement
-import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
-import kotlin.random.Random
 
 
 @Composable
@@ -68,10 +63,13 @@ private fun FavoriteListItem(favorite: FavoriteStop, onStopClicked: (code: StopI
                     favorite.stop.descriptionSeparator(), maxLines = 1, overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium, color = AlexGreyIcons
                 )
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top=4.dp)) {
-                    favorite.stop.lines.forEach {line ->
-                        ArrivalElement(minutes = 1, line = line)
-                    }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
+                    favorite.stop.lines
+                        .map { Stubs.arrivals.random() }
+                        .sorted()
+                        .forEach {
+                            ArrivalElement(it, showLine = true)
+                        }
                 }
             }
         }

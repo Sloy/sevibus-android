@@ -16,35 +16,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.model.LineSummary
+import com.sloydev.sevibus.domain.model.BusArrival
 import com.sloydev.sevibus.domain.model.toSummary
 import com.sloydev.sevibus.ui.theme.AlexGreySurface2
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 
 @Composable
-fun ArrivalElement(minutes: Int, line: LineSummary? = null) {
+fun ArrivalElement(arrival: BusArrival, showLine: Boolean = false) {
     Box(
         Modifier
             .clip(MaterialTheme.shapes.small)
             .background(AlexGreySurface2)
     ) {
-        val text = if (minutes > 0) "$minutes min" else "Llegando..."
-        if (line != null) {
+        if (showLine) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LineIndicatorSmall(line, modifier = Modifier.padding(4.dp))
+                LineIndicatorSmall(arrival.line, modifier = Modifier.padding(4.dp))
                 Text(
-                    text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
+                    arrival.toText(), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(start = 2.dp, end = 6.dp)
                 )
             }
-        }else {
+        } else {
             Text(
-                text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
+                arrival.toText(), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             )
         }
     }
+}
+
+fun BusArrival.toText() = when (minutes) {
+    null -> "+30 min"
+    0 -> "Llegando..."
+    else -> "$minutes min"
 }
 
 @Preview
@@ -57,11 +62,13 @@ private fun Preview() {
                 .background(MaterialTheme.colorScheme.background)
                 .padding(32.dp)
         ) {
-            ArrivalElement(minutes = 15)
-            ArrivalElement(minutes = 0)
+            Stubs.arrivals.forEach {
+                ArrivalElement(it, showLine = false)
+            }
 
-            ArrivalElement(minutes = 15, line = Stubs.lines[0].toSummary())
-            ArrivalElement(minutes = 0, line = Stubs.lines[6].toSummary())
+            Stubs.arrivals.forEach {
+                ArrivalElement(it, showLine = true)
+            }
         }
     }
 }
