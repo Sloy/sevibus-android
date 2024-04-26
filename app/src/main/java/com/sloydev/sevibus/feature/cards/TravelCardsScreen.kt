@@ -23,8 +23,6 @@ import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +53,7 @@ import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.TravelCard
 import com.sloydev.sevibus.navigation.TopLevelDestination
+import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.SevTheme
 
@@ -64,11 +63,10 @@ fun NavGraphBuilder.travelCardsRoute() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TravelCardsScreen(cards: List<TravelCard>) {
     Column {
-        CenterAlignedTopAppBar(title = { Text(stringResource(R.string.navigation_cards)) })
+        SevCenterAlignedTopAppBar(title = { Text(stringResource(R.string.navigation_cards)) })
 
         val state = rememberPagerState { cards.size + 1 }
 
@@ -148,7 +146,10 @@ private fun ExistingCardDetail(currentCard: TravelCard) {
 
 @Composable
 fun WarningNotice() {
-    OutlinedCard(Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
+    OutlinedCard(
+        Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.size(8.dp))

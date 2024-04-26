@@ -6,8 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,8 +27,9 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
+import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
+import com.sloydev.sevibus.ui.preview.ScreenPreview
 
 fun NavGraphBuilder.stopDetailRoute() {
     composable("/stop-detail/{code}") { stackEntry ->
@@ -43,12 +42,11 @@ fun NavController.navigateToStopDetail(code: Int) {
     navigate("/stop-detail/$code")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
     Column {
         if (!embedded) {
-            CenterAlignedTopAppBar(
+            SevCenterAlignedTopAppBar(
                 title = {
                     Text("Parada 572", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },

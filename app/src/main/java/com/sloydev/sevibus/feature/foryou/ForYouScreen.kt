@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
+import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 
 
@@ -24,11 +25,10 @@ fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
-        CenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
+        SevCenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
         FavoritesCardElement(onStopClicked)
     }
 }

@@ -39,6 +39,7 @@ import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.components.RouteTabsSelector
+import com.sloydev.sevibus.ui.components.SevTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -61,7 +62,6 @@ fun NavController.navigateToLineStops(line: LineId) {
     navigate(TopLevelDestination.LINES.route + "$line/stops")
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LineRouteScreen(
     state: LineRouteScreenState,
@@ -70,7 +70,7 @@ fun LineRouteScreen(
     onStopClick: (Stop) -> Unit
 ) {
     Column {
-        TopAppBar(title = {
+        SevTopAppBar(title = {
             if (state is LineRouteScreenState.Content) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     LineIndicatorSmall(state.line, Modifier.padding(end = 8.dp))

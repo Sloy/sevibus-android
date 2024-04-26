@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -35,6 +33,7 @@ import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
+import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 
@@ -54,12 +53,11 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
     Column {
 
-        CenterAlignedTopAppBar(
+        SevCenterAlignedTopAppBar(
             title = { Text(text = stringResource(id = R.string.navigation_lines)) },
         )
 
@@ -76,7 +74,7 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, on
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
                     item { SevSearchBar(onSearchResultClicked = onSearchResultClicked) }
                     item { Spacer(Modifier.size(32.dp)) }
-                    state.lineGroups.forEach { (group, lines)->
+                    state.lineGroups.forEach { (group, lines) ->
                         if (lines.isNotEmpty()) {
                             item { LineGroupTitle(group) }
                             item { LinesCard(lines, onLineClick) }
