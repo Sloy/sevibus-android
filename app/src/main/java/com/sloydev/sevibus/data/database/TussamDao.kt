@@ -3,6 +3,7 @@ package com.sloydev.sevibus.data.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.sloydev.sevibus.domain.model.StopId
 
 @Dao
 interface TussamDao {
@@ -11,6 +12,9 @@ interface TussamDao {
 
     @Query("SELECT * FROM stops")
     suspend fun getStops(): List<StopEntity>
+
+    @Query("SELECT * FROM stops WHERE code == :id")
+    suspend fun getStop(id: StopId): StopEntity
 
     @Query("SELECT * FROM routes")
     suspend fun getRoutes(): List<RouteEntity>

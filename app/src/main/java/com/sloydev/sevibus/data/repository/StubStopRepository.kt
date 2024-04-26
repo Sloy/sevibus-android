@@ -12,4 +12,8 @@ class StubStopRepository : StopRepository {
         delay(500)
         return Stubs.stops.shuffled()
     }
+
+    override suspend fun obtainStop(id: StopId): Stop {
+        return Stubs.stops.random()
+    }
 }

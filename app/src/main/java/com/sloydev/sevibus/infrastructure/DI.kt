@@ -6,11 +6,11 @@ import com.sloydev.sevibus.data.database.SevibusDatabase
 import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.repository.RemoteAndLocalLineRepository
 import com.sloydev.sevibus.data.repository.RemoteAndLocalStopRepository
-import com.sloydev.sevibus.data.repository.StubStopRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
+import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import org.koin.android.ext.koin.androidContext
@@ -23,6 +23,7 @@ object DI {
     val viewModelModule = module {
         viewModel { LinesViewModel(get()) }
         viewModel { parameters -> LineRouteViewModel(parameters.get(), get(), get()) }
+        viewModel { parameters -> StopDetailViewModel(parameters.get(), get()) }
     }
 
     val dataModule = module {

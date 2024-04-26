@@ -30,6 +30,11 @@ class RemoteAndLocalStopRepository(
                     .fromEntity(lines.filter { it.id in entity.lines })
             }
     }
+
+    override suspend fun obtainStop(id: StopId): Stop {
+        val lines = dao.getLines().map { it.summaryFromEntity() }
+        return dao.getStop(id).fromEntity(lines)
+    }
 }
 
 private fun StopEntity.fromEntity(lines: List<LineSummary>): Stop {
