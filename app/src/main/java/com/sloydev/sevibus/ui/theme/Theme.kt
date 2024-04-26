@@ -31,7 +31,7 @@ private val LightColorScheme = lightColorScheme(
     surface = AlexGreySurface,
     surfaceContainerHighest = AlexGreySurface,
     surfaceContainer = AlexPinkSurface,
-    outlineVariant = Color(red = 245, green = 238, blue = 250)
+    outlineVariant = Color(red = 245, green = 238, blue = 250),
 
     /* Other default colors to override
     onPrimary = Color.White,

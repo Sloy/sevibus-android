@@ -12,8 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -21,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +29,7 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.Stubs.stops
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
+import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.RouteWithStops
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.toUiColor
@@ -40,6 +38,7 @@ import com.sloydev.sevibus.feature.linestops.component.StopTimelineElement
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.components.RouteTabsSelector
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -49,11 +48,11 @@ fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
         val lineId: LineId = stackEntry.arguments!!.getString("line")!!.toInt()
         val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
         val state by viewModel.state.collectAsState()
-        val selectedTab = viewModel.selectedTab
+        val selectedRoute = viewModel.selectedRoute
         LineRouteScreen(
             state,
-            selectedTab,
-            onTabSelected = viewModel::onTabSelected
+            selectedRoute,
+            onTabSelected = viewModel::onRouteSelected
         ) { navController.navigateToStopDetail(it.code) }
     }
 }
@@ -66,8 +65,8 @@ fun NavController.navigateToLineStops(line: LineId) {
 @Composable
 fun LineRouteScreen(
     state: LineRouteScreenState,
-    selectedTab: Int,
-    onTabSelected: (index: Int) -> Unit,
+    selectedRoute: RouteId,
+    onTabSelected: (index: RouteId) -> Unit,
     onStopClick: (Stop) -> Unit
 ) {
     Column {
@@ -89,14 +88,11 @@ fun LineRouteScreen(
             }
         )
         if (state is LineRouteScreenState.Content) {
-            TabRow(selectedTabIndex = selectedTab, contentColor = state.line.color.toUiColor()) {
-                state.line.routes.forEachIndexed { index, route ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { onTabSelected(index) },
-                        text = { Text(text = route.destination, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-                    )
-                }
+            if (state.line.routes.size > 1) {
+                RouteTabsSelector(route1 = state.line.routes[0], route2 = state.line.routes[1], selected = selectedRoute, onRouteClicked = {
+                    onTabSelected(it)
+                },
+                    modifier = Modifier.padding(16.dp))
             }
         }
 
@@ -104,7 +100,7 @@ fun LineRouteScreen(
             LineRouteScreenState.Error -> Text("Error")
             LineRouteScreenState.Loading -> CircularProgressIndicator()
             is LineRouteScreenState.Content.Full -> {
-                RouteContent(state.routes[selectedTab], state.line, onStopClick)
+                RouteContent(state.routes.first { it.route.id == selectedRoute }, state.line, onStopClick)
             }
 
             else -> {}
@@ -143,7 +139,7 @@ private fun Preview() {
                 line = Stubs.lines[2],
                 routes = Stubs.routesWithStops,
             ),
-            selectedTab = 0,
+            selectedRoute = Stubs.routesWithStops.first().route.id,
             onTabSelected = {},
             onStopClick = {},
         )
