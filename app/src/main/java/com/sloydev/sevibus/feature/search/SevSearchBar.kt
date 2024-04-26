@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +35,7 @@ import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.theme.AlexGreySurface
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -47,6 +49,9 @@ fun SevSearchBar(
     var text by rememberSaveable { mutableStateOf(defaultText) }
     var expanded by rememberSaveable { mutableStateOf(defaultExpanded) }
     DockedSearchBar(
+        colors = SearchBarDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
         modifier = modifier
             .fillMaxWidth(),
         inputField = {

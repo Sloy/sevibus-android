@@ -89,7 +89,7 @@ fun LineRouteScreen(
             }
         )
         if (state is LineRouteScreenState.Content) {
-            TabRow(selectedTabIndex = selectedTab) {
+            TabRow(selectedTabIndex = selectedTab, contentColor = state.line.color.toUiColor()) {
                 state.line.routes.forEachIndexed { index, route ->
                     Tab(
                         selected = selectedTab == index,

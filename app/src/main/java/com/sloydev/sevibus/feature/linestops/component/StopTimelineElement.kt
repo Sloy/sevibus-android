@@ -28,6 +28,8 @@ import com.sloydev.sevibus.feature.linestops.component.ListPosition.End
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.Middle
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.Start
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.theme.AlexGreen
+import com.sloydev.sevibus.ui.theme.AlexPurple
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 
@@ -35,7 +37,7 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 fun StopTimelineElement(
     stop: Stop,
     listPosition: ListPosition,
-    color: Color = Color.Blue,
+    color: Color = AlexGreen,
     onStopClick: (Stop) -> Unit,
 ) {
     TimelineNode(listPosition, color) {
@@ -57,13 +59,14 @@ fun StopTimelineElement(
 
 @Composable
 private fun TimelineNode(listPosition: ListPosition, color: Color, content: @Composable () -> Unit) {
-    val lineSize = 16.dp
+    val lineSize = 8.dp
     val linePadding = 16.dp
     val iconTopPadding = 42.dp
 
     val x = linePadding + lineSize / 2
 
     val iconSize = 8.dp
+    val outerIconSize = 24.dp
 
     Box(
         modifier = Modifier
@@ -79,6 +82,11 @@ private fun TimelineNode(listPosition: ListPosition, color: Color, content: @Com
                     start = Offset(x = x.toPx(), y = lineStartY),
                     end = Offset(x = x.toPx(), y = lineEndY),
                     strokeWidth = lineSize.toPx()
+                )
+                drawCircle(
+                    color,
+                    radius = outerIconSize.toPx() / 2,
+                    center = Offset(x = x.toPx(), y = iconTopPadding.toPx())
                 )
                 drawCircle(
                     Color.White,
