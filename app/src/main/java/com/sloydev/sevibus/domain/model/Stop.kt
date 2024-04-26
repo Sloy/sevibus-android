@@ -11,6 +11,16 @@ data class Stop(
     data class Position(val latitude: Double, val longitude: Double)
 }
 
+inline val Stop.description1: String
+    get() = description.substringBeforeLast("(").trim()
+
+val Stop.description2: String?
+    get() {
+        val description = description.substringAfterLast("(", "").substringBeforeLast(")", "").trim()
+        return description.ifEmpty { null }
+    }
+
+
 typealias StopId = Int
 
 @Deprecated("Just for development")

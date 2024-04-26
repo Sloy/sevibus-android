@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -29,11 +30,17 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.description1
+import com.sloydev.sevibus.domain.model.description2
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
-import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
+import com.sloydev.sevibus.ui.components.SevTopAppBar
+import com.sloydev.sevibus.ui.icons.DirectionsBusFill
+import com.sloydev.sevibus.ui.icons.SevIcons
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 import com.sloydev.sevibus.ui.theme.AlexGreySurface
 import com.sloydev.sevibus.ui.theme.AlexGreySurface2
+import com.sloydev.sevibus.ui.theme.AlexPink
 
 fun NavGraphBuilder.stopDetailRoute() {
     composable("/stop-detail/{code}") { stackEntry ->
@@ -49,53 +56,69 @@ fun NavController.navigateToStopDetail(code: Int) {
 @Composable
 fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
     Column {
-        if (!embedded) {
-            SevCenterAlignedTopAppBar(
-                title = {
-                    Text("Parada 572", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                },
-                navigationIcon = {
+        SevTopAppBar(
+            title = {
+                if (embedded) {
+                    Text(
+                        "Parada " + stop.code, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Medium
+                    )
+                } else {
+                    Text("Parada " + stop.code, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            },
+            navigationIcon = {
+                if (!embedded) {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Default.FavoriteBorder, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
                 }
-            )
-        }
-        if (embedded) {
-            Text(
-                stop.code.toString(),
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-        }
-        Text(
-            stop.description,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(start = 16.dp)
+            },
+            actions = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        Icons.Default.FavoriteBorder, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         )
 
-        Column(Modifier.padding(8.dp)) {
+        ListItem(
+            colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
+            modifier = Modifier
+                .padding(16.dp)
+                .clip(MaterialTheme.shapes.medium),
+            leadingContent = {
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = AlexPink)
+            },
+            headlineContent = {
+                Column {
+                    Text(stop.description1, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                    stop.description2?.let {
+                        Text(it, style = MaterialTheme.typography.bodyMedium, color = AlexGreyIcons)
+                    }
+                }
+            }
+        )
+
+
+        Column(Modifier.padding(16.dp)) {
+            Text("Líneas", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.size(8.dp))
             BusArrival(Stubs.lines[0], "Heliopolis", 0)
-            Spacer(Modifier.size(2.dp))
+            Spacer(Modifier.size(4.dp))
             BusArrival(Stubs.lines[6], "Prado", 1)
-            Spacer(Modifier.size(2.dp))
+            Spacer(Modifier.size(4.dp))
             BusArrival(Stubs.lines[0], "Heliopolis", 4)
-            Spacer(Modifier.size(2.dp))
+            Spacer(Modifier.size(4.dp))
             BusArrival(Stubs.lines[34], "Sta Justa", 5)
-            Spacer(Modifier.size(2.dp))
+            Spacer(Modifier.size(4.dp))
             BusArrival(Stubs.lines[6], "Prado", 7)
-            Spacer(Modifier.size(2.dp))
+            Spacer(Modifier.size(4.dp))
             BusArrival(Stubs.lines[34], "Sta Justa", 15)
         }
     }
@@ -126,7 +149,7 @@ private fun BusArrival(line: Line, direction: String, minutes: Int) {
 @Composable
 private fun Preview() {
     ScreenPreview {
-        StopDetailScreen(Stubs.stops.first())
+        StopDetailScreen(Stubs.stops[1])
     }
 }
 
@@ -134,6 +157,6 @@ private fun Preview() {
 @Composable
 private fun EmbeddedPreview() {
     ScreenPreview {
-        StopDetailScreen(Stubs.stops.first(), embedded = true)
+        StopDetailScreen(Stubs.stops[0], embedded = true)
     }
 }
