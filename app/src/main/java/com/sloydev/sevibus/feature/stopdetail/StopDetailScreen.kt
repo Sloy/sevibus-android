@@ -1,7 +1,5 @@
 package com.sloydev.sevibus.feature.stopdetail
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -34,12 +32,12 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.model.description1
 import com.sloydev.sevibus.domain.model.description2
+import com.sloydev.sevibus.ui.components.ArrivalElement
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 import com.sloydev.sevibus.ui.components.SevTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 import com.sloydev.sevibus.ui.theme.AlexGreySurface
-import com.sloydev.sevibus.ui.theme.AlexGreySurface2
 import com.sloydev.sevibus.ui.theme.AlexPink
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -67,7 +65,7 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
     if (state is Error) {
         Text("Error")
     }
-    if(state is StopDetailScreenState.Loading){
+    if (state is StopDetailScreenState.Loading) {
         CircularProgressIndicator()
     }
     if (state !is StopDetailScreenState.Content) {
@@ -150,15 +148,7 @@ private fun BusArrival(line: Line, direction: String, minutes: Int) {
         headlineContent = { Text(direction) },
         leadingContent = { LineIndicatorMedium(line) },
         trailingContent = {
-            Box(
-                Modifier
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(AlexGreySurface2)
-                    .padding(vertical = 4.dp, horizontal = 8.dp)
-            ) {
-                val text = if (minutes > 0) "$minutes min" else "Llegando..."
-                Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-            }
+            ArrivalElement(minutes)
         }
     )
 }

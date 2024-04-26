@@ -1,8 +1,9 @@
 package com.sloydev.sevibus.domain.model
 
+import androidx.compose.ui.graphics.vector.ImageVector
+
 data class FavoriteStop(
     val customName: String,
-    val code: Int,
-    val description: String,
-    val position: Stop.Position,
+    val icon: ImageVector,
+    val stop: Stop,
 )

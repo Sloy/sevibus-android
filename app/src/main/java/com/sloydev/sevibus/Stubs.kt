@@ -1,5 +1,9 @@
 package com.sloydev.sevibus
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Work
+import com.sloydev.sevibus.domain.model.FavoriteStop
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineColor
 import com.sloydev.sevibus.domain.model.Route
@@ -210,6 +214,10 @@ object Stubs {
             position = Stop.Position(latitude = 37.411148, longitude = -5.983941),
             lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary() },
         )
+    )
+    val favorites = listOf(
+        FavoriteStop(customName = "Casa", icon = Icons.Rounded.Home, stop = stops[0]),
+        FavoriteStop(customName = "Oficina", icon = Icons.Rounded.Work, stop = stops[1]),
     )
 
     val groupsOfLines = lines

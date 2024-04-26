@@ -20,6 +20,14 @@ val Stop.description2: String?
         return description.ifEmpty { null }
     }
 
+fun Stop.descriptionSeparator(separator: String = "•"): String {
+    return if (description2 != null) {
+        "$description1 $separator $description2"
+    } else {
+        description1
+    }
+}
+
 
 typealias StopId = Int
 

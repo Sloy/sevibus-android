@@ -1,8 +1,6 @@
 package com.sloydev.sevibus.feature.foryou
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -29,7 +27,7 @@ fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
         SevCenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
-        FavoritesCardElement(onStopClicked)
+        FavoritesListElement(onStopClicked)
     }
 }
 
