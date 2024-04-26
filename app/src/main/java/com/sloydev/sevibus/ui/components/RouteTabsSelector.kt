@@ -30,7 +30,7 @@ import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 
 @Composable
 fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteClicked: (RouteId) -> Unit, modifier: Modifier = Modifier) {
-    val rotation = if (route1.id == selected) 0f else 180f
+    val rotation = if (route2.id == selected) 180f else 0f
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         RouteTab(directionValue = route1.destination, route1.id == selected, { onRouteClicked(route1.id) }, Modifier.weight(1f))
         Icon(
