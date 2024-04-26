@@ -1,12 +1,14 @@
 package com.sloydev.sevibus.feature.stopdetail
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -15,9 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +32,8 @@ import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import com.sloydev.sevibus.ui.theme.AlexGreySurface
+import com.sloydev.sevibus.ui.theme.AlexGreySurface2
 
 fun NavGraphBuilder.stopDetailRoute() {
     composable("/stop-detail/{code}") { stackEntry ->
@@ -81,20 +85,18 @@ fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
             modifier = Modifier.padding(start = 16.dp)
         )
 
-        Card(Modifier.padding(16.dp)) {
-            Column(Modifier.padding(8.dp)) {
-                BusArrival(Stubs.lines[0], "HELIOPOLIS", 1)
-                HorizontalDivider()
-                BusArrival(Stubs.lines[6], "PRADO", 1)
-                HorizontalDivider()
-                BusArrival(Stubs.lines[0], "HELIOPOLIS", 4)
-                HorizontalDivider()
-                BusArrival(Stubs.lines[34], "STA JUSTA", 5)
-                HorizontalDivider()
-                BusArrival(Stubs.lines[6], "PRADO", 7)
-                HorizontalDivider()
-                BusArrival(Stubs.lines[34], "STA JUSTA", 15)
-            }
+        Column(Modifier.padding(8.dp)) {
+            BusArrival(Stubs.lines[0], "Heliopolis", 0)
+            Spacer(Modifier.size(2.dp))
+            BusArrival(Stubs.lines[6], "Prado", 1)
+            Spacer(Modifier.size(2.dp))
+            BusArrival(Stubs.lines[0], "Heliopolis", 4)
+            Spacer(Modifier.size(2.dp))
+            BusArrival(Stubs.lines[34], "Sta Justa", 5)
+            Spacer(Modifier.size(2.dp))
+            BusArrival(Stubs.lines[6], "Prado", 7)
+            Spacer(Modifier.size(2.dp))
+            BusArrival(Stubs.lines[34], "Sta Justa", 15)
         }
     }
 }
@@ -102,18 +104,19 @@ fun StopDetailScreen(stop: Stop, embedded: Boolean = false) {
 @Composable
 private fun BusArrival(line: Line, direction: String, minutes: Int) {
     ListItem(
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
+        modifier = Modifier.clip(MaterialTheme.shapes.medium),
         headlineContent = { Text(direction) },
         leadingContent = { LineIndicatorMedium(line) },
         trailingContent = {
-            /*Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.WatchLater, contentDescription = "clock")
-                Spacer(Modifier.size(4.dp))
-                Text("$minutes min", style = MaterialTheme.typography.labelLarge)
-            }*/
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("$minutes", style = MaterialTheme.typography.bodyLarge)
-                Text("min", style = MaterialTheme.typography.labelSmall)
+            Box(
+                Modifier
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(AlexGreySurface2)
+                    .padding(vertical = 4.dp, horizontal = 8.dp)
+            ) {
+                val text = if (minutes > 0) "$minutes min" else "Llegando..."
+                Text(text, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             }
         }
     )
