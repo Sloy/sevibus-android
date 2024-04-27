@@ -8,12 +8,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +24,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.Stubs.stops
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.RouteId
@@ -89,10 +86,12 @@ fun LineRouteScreen(
         )
         if (state is LineRouteScreenState.Content) {
             if (state.line.routes.size > 1) {
-                RouteTabsSelector(route1 = state.line.routes[0], route2 = state.line.routes[1], selected = selectedRoute, onRouteClicked = {
-                    onTabSelected(it)
-                },
-                    modifier = Modifier.padding(16.dp))
+                RouteTabsSelector(
+                    route1 = state.line.routes[0], route2 = state.line.routes[1], selected = selectedRoute, onRouteClicked = {
+                        onTabSelected(it)
+                    },
+                    modifier = Modifier.padding(16.dp)
+                )
             }
         }
 
@@ -120,7 +119,7 @@ private fun RouteContent(
                 stop,
                 listPosition = when (index) {
                     0 -> ListPosition.Start
-                    stops.lastIndex -> ListPosition.End
+                    routeWithStops.stops.lastIndex -> ListPosition.End
                     else -> ListPosition.Middle
                 },
                 color = line.color.toUiColor(),
