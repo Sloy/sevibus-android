@@ -7,9 +7,13 @@ import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.repository.FakeBusRepository
 import com.sloydev.sevibus.data.repository.RemoteAndLocalLineRepository
 import com.sloydev.sevibus.data.repository.RemoteAndLocalStopRepository
+import com.sloydev.sevibus.data.repository.RemoteBusRepository
+import com.sloydev.sevibus.data.repository.StubFavoriteStopsRepository
 import com.sloydev.sevibus.domain.repository.BusRepository
+import com.sloydev.sevibus.domain.repository.FavoriteStopsRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
+import com.sloydev.sevibus.feature.foryou.favorites.FavoritesViewModel
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
 import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
@@ -29,6 +33,7 @@ object DI {
         viewModel { LinesViewModel(get()) }
         viewModel { parameters -> LineRouteViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get()) }
+        viewModel { parameters -> FavoritesViewModel(get(), get()) }
     }
 
     val dataModule = module {
@@ -36,8 +41,9 @@ object DI {
         single<LineRepository> { RemoteAndLocalLineRepository(get(), get()) }
 //        single<StopRepository> { StubStopRepository() }
         single<StopRepository> { RemoteAndLocalStopRepository(get(), get()) }
-        single<BusRepository> { FakeBusRepository(get()) }
-        //single<BusRepository> { RemoteBusRepository(get(), get()) }
+//        single<BusRepository> { FakeBusRepository(get()) }
+        single<BusRepository> { RemoteBusRepository(get(), get()) }
+        single<FavoriteStopsRepository> { StubFavoriteStopsRepository() }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(
