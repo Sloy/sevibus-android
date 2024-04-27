@@ -19,9 +19,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
 
+@Deprecated("")
 object Stubs {
 
-
+    @Deprecated("")
     val routes: List<Route> = listOf(
         Route(
             id = "1.1",
@@ -39,6 +40,7 @@ object Stubs {
         ),
     )
 
+    @Deprecated("")
     val lines = listOf(
         Line("01", "Plg. Norte H. Virgen del Rocio", LineColor.Red, routes = routes, id = 1),
         Line("02", "Puerta Triana - Heliopolis", LineColor.Red, routes = routes, id = 2),
@@ -88,6 +90,7 @@ object Stubs {
         Line("T1", "Metrocentro", LineColor.Wine, routes = routes, id = 105),
     )
 
+    @Deprecated("")
     val stops = listOf(
         Stop(
             code = 430,
@@ -216,15 +219,19 @@ object Stubs {
             lines = lines.shuffled().take(Random.nextInt(1, 4)).map { it.toSummary() },
         )
     )
+
+    @Deprecated("")
     val favorites = listOf(
         FavoriteStop(customName = "Casa", icon = Icons.Rounded.Home, stop = stops[0]),
         FavoriteStop(customName = "Oficina", icon = Icons.Rounded.Work, stop = stops[1]),
     )
 
+    @Deprecated("")
     val groupsOfLines = lines
         .groupBy { it.group }
         .map { (group, linesForGroup) -> LinesScreenState.Content.GroupOfLines(group, linesForGroup) }
 
+    @Deprecated("")
     val lineGroups = listOf(
         "Circulares",
         "Transversales",
@@ -240,10 +247,12 @@ object Stubs {
         "Otras",
     )
 
+    @Deprecated("")
     val routesWithStops: List<RouteWithStops> = routes.map {
         RouteWithStops(it, stops.shuffled())
     }
 
+    @Deprecated("")
     val cardWithAllFields = TravelCard(
         code = 30,
         title = "Full test",
@@ -255,6 +264,8 @@ object Stubs {
         validityEnd = LocalDate.now(),
         extensionEnd = LocalDate.now()
     )
+
+    @Deprecated("")
     val cards = listOf(
         TravelCard(
             code = 31,
@@ -289,6 +300,7 @@ object Stubs {
 
     private fun randomCardSerial() = Random.nextLong(100000000, 999999999)
 
+    @Deprecated("")
     val travelCardTransactions = listOf(
         TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[4], people = 2),
         TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[4]),
@@ -297,6 +309,7 @@ object Stubs {
         TravelCard.Transaction.Trip(350, LocalDateTime.now(), lines[34]),
     )
 
+    @Deprecated("")
     val searchResults: List<SearchResult>
         get() {
             val stops = stops.shuffled().take(20)
@@ -306,6 +319,7 @@ object Stubs {
             return (stops + lines).shuffled()
         }
 
+    @Deprecated("")
     fun groupFromLine(label: String): String {
         return when (label) {
             "C1",
@@ -381,6 +395,7 @@ object Stubs {
         }
     }
 
+    @Deprecated("Be careful using Stubs")
     val arrivals = listOf(
         BusArrival(bus = 1, distance = 50, seconds = 0, line = lines.random().toSummary(), route = routes.random()),
         BusArrival(bus = 6, distance = 50, seconds = 2 * 60, line = lines.random().toSummary(), route = routes.random()),
