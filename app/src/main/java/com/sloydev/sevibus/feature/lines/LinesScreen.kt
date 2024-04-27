@@ -1,6 +1,5 @@
 package com.sloydev.sevibus.feature.lines
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -9,15 +8,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,7 +28,7 @@ import com.sloydev.sevibus.feature.linestops.navigateToLineStops
 import com.sloydev.sevibus.feature.search.SevSearchBar
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.components.LineIndicatorMedium
+import com.sloydev.sevibus.ui.components.LineElement
 import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
@@ -95,25 +91,13 @@ fun LinesCard(lines: List<Line>, onLineClick: (Line) -> Unit) {
     Card {
         Column {
             lines.forEachIndexed { index, line ->
-                LineItem(line, onLineClick)
+                LineElement(line, onLineClick)
                 if (index < lines.lastIndex) {
                     HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                 }
             }
         }
     }
-}
-
-@Composable
-private fun LineItem(line: Line, onLineClick: (Line) -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable { onLineClick(line) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = { Text(line.description) },
-        leadingContent = {
-            LineIndicatorMedium(line)
-        },
-    )
 }
 
 @Composable

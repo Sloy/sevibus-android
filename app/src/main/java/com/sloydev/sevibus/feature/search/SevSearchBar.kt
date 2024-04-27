@@ -1,17 +1,18 @@
 package com.sloydev.sevibus.feature.search
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardAlt
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -34,8 +35,7 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
-import com.sloydev.sevibus.ui.components.LineIndicatorSmall
-import com.sloydev.sevibus.ui.theme.AlexGreySurface
+import com.sloydev.sevibus.ui.components.StopCardElement
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -88,48 +88,35 @@ fun SevSearchBar(
 
 @Composable
 private fun SearchResultsContent(results: List<SearchResult>, onSearchResultClicked: (SearchResult) -> Unit) {
-    results.forEachIndexed { index, item ->
-        when (item) {
-            is SearchResult.LineResult -> LineResultItem(item.line, onLineClick = { onSearchResultClicked(item) })
-            is SearchResult.StopResult -> StopResultItem(item.stop, item.lines, onStopClick = { onSearchResultClicked(item) })
+    Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+        results.forEachIndexed { index, item ->
+            when (item) {
+                is SearchResult.LineResult -> LineResultItem(item.line, onLineClick = { onSearchResultClicked(item) })
+                is SearchResult.StopResult -> StopResultItem(item.stop) { onSearchResultClicked(item) }
+            }
         }
-        if (index < results.lastIndex) {
-            HorizontalDivider()
-        }
+
     }
 }
 
 @Composable
 private fun LineResultItem(line: Line, onLineClick: (Line) -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable { onLineClick(line) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = { Text(line.description) },
-        leadingContent = {
-            LineIndicatorMedium(line)
-        },
-    )
-}
-
-@Composable
-private fun StopResultItem(stop: Stop, lines: List<Line>, onStopClick: (Stop) -> Unit) {
-    ListItem(
-        modifier = Modifier.clickable { onStopClick(stop) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        headlineContent = { Text(stop.description) },
-        overlineContent = { Text(stop.code.toString()) },
-        supportingContent = { SupportingLines(lines) },
-    )
-}
-
-@Composable
-private fun SupportingLines(lines: List<Line>) {
-    Row {
-        lines.forEach { line ->
-            LineIndicatorSmall(line = line)
-            Spacer(Modifier.size(4.dp))
-        }
+    Card {
+        ListItem(
+            modifier = Modifier.clickable { onLineClick(line) },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            headlineContent = { Text(line.description) },
+            leadingContent = {
+                LineIndicatorMedium(line)
+            },
+        )
     }
+}
+
+@Composable
+private fun StopResultItem(stop: Stop, onStopClick: (Stop) -> Unit) {
+    StopCardElement(stop = stop, onStopClick = onStopClick)
 }
 
 @Preview
@@ -160,7 +147,7 @@ private fun LinePreview() {
 private fun StopPreview() {
     SevTheme {
         Surface {
-            StopResultItem(stop = Stubs.stops.random(), lines = Stubs.lines.shuffled().take(3), {})
+            StopResultItem(stop = Stubs.stops.random()) {}
         }
     }
 }

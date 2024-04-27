@@ -3,37 +3,24 @@ package com.sloydev.sevibus.feature.linestops.component
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Card
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
-import com.sloydev.sevibus.domain.model.LineSummary
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.domain.model.description1
-import com.sloydev.sevibus.domain.model.description2
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.End
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.Middle
 import com.sloydev.sevibus.feature.linestops.component.ListPosition.Start
-import com.sloydev.sevibus.ui.components.LineIndicatorSmall
+import com.sloydev.sevibus.ui.components.StopCardElement
 import com.sloydev.sevibus.ui.theme.AlexGreen
-import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 
@@ -45,29 +32,12 @@ fun StopTimelineElement(
     onStopClick: (Stop) -> Unit,
 ) {
     TimelineNode(listPosition, color) {
-        Card(
-            onClick = { onStopClick(stop) },
-            modifier = Modifier
+        StopCardElement(
+            stop, onStopClick,
+            Modifier
                 .padding(vertical = 4.dp)
                 .padding(end = 8.dp)
-        ) {
-            ListItem(
-                modifier = Modifier.padding(vertical = 8.dp),
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                headlineContent = {
-                    Column {
-                        Text(stop.description1, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        stop.description2?.let {
-                            Text(it, style = MaterialTheme.typography.bodyMedium, color = AlexGreyIcons)
-                        }
-                    }
-                },
-                supportingContent = {
-                    Text("Parada " + stop.code, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Light)
-                },
-                trailingContent = { SupportingLines(stop.lines) },
-            )
-        }
+        )
     }
 }
 
@@ -116,16 +86,6 @@ private fun TimelineNode(listPosition: ListPosition, color: Color, content: @Com
             )
         ) {
             content()
-        }
-    }
-}
-
-@Composable
-private fun SupportingLines(lines: List<LineSummary>) {
-    Row {
-        lines.forEach { line ->
-            LineIndicatorSmall(line = line)
-            Spacer(Modifier.size(4.dp))
         }
     }
 }
