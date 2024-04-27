@@ -24,7 +24,7 @@ class FavoritesViewModel(
                 state.value = FavoriteSubScreenState.Content.LoadingArrivals(favorites)
 
                 val allArrivals: Map<StopId, List<BusArrival>> =
-                    favorites.associate { favorite -> favorite.stop.code to busRepository.obtainBusArrivals(favorite.stop.code) }
+                    favorites.associate { favorite -> favorite.stop.code to busRepository.obtainBusArrivals(favorite.stop.code).onePerLine() }
 
                 state.value = FavoriteSubScreenState.Content.WithArrivals(favorites, allArrivals)
             }.onFailure { SevLogger.logW(it) }
@@ -32,3 +32,4 @@ class FavoritesViewModel(
     }
 }
 
+private fun List<BusArrival>.onePerLine(): List<BusArrival> = this.distinctBy { it.line }

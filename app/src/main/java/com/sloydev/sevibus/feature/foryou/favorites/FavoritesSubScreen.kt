@@ -95,21 +95,21 @@ private fun FavoriteListItem(favorite: FavoriteStop, arrivals: List<BusArrival>?
         }
     }
 }
-
-@Preview
-@Composable
-private fun WithoutArrivalsPreview() {
-    ScreenPreview {
-        FavoritesSubScreen(FavoriteSubScreenState.Content.LoadingArrivals(Stubs.favorites), {})
-
-    }
-}
 @Preview
 @Composable
 private fun WithArrivalsPreview() {
     ScreenPreview {
         val allArrivals = Stubs.favorites.associate { favorite -> favorite.stop.code to Stubs.arrivals.shuffled().take(3).sorted()}
         FavoritesSubScreen(FavoriteSubScreenState.Content.WithArrivals(Stubs.favorites, allArrivals), {})
+
+    }
+}
+
+@Preview
+@Composable
+private fun WithoutArrivalsPreview() {
+    ScreenPreview {
+        FavoritesSubScreen(FavoriteSubScreenState.Content.LoadingArrivals(Stubs.favorites), {})
 
     }
 }
