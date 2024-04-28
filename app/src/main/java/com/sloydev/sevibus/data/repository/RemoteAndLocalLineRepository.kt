@@ -11,6 +11,8 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.repository.LineRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalTime
 
 class RemoteAndLocalLineRepository(
@@ -18,7 +20,7 @@ class RemoteAndLocalLineRepository(
     private val dao: TussamDao
 ) : LineRepository {
 
-    override suspend fun obtainLines(): List<Line> {
+    override suspend fun obtainLines(): List<Line> = withContext(Dispatchers.Default){
         val lines: List<LineEntity> = dao.getLines()
             .ifEmpty {
                 val remote = api.getLines()
@@ -32,7 +34,7 @@ class RemoteAndLocalLineRepository(
                 dao.getRoutes()
             }
 
-        return lines.map { lineEntity ->
+        return@withContext lines.map { lineEntity ->
             lineEntity.fromEntity(routes
                 .filter { it.line == lineEntity.id }
                 .map { it.fromEntity() }
@@ -40,9 +42,9 @@ class RemoteAndLocalLineRepository(
         }
     }
 
-    override suspend fun obtainLine(line: LineId): Line {
+    override suspend fun obtainLine(line: LineId): Line = withContext(Dispatchers.Default){
         //TODO optimize to request 1 object to the DAO, or fallback to all lines
-        return obtainLines().first { it.id == line }
+        return@withContext obtainLines().first { it.id == line }
     }
 }
 
