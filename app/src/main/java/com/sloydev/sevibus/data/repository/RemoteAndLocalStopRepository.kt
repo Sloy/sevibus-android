@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.data.repository
 
 import com.sloydev.sevibus.data.api.SevibusApi
+import com.sloydev.sevibus.data.api.model.PositionDto
 import com.sloydev.sevibus.data.api.model.StopDto
 import com.sloydev.sevibus.data.database.StopEntity
 import com.sloydev.sevibus.data.database.TussamDao
@@ -16,7 +17,7 @@ class RemoteAndLocalStopRepository(
     private val api: SevibusApi,
     private val dao: TussamDao,
 ) : StopRepository {
-    override suspend fun obtainStops(): List<Stop> = withContext(Dispatchers.Default){
+    override suspend fun obtainStops(): List<Stop> = withContext(Dispatchers.Default) {
         val lines = dao.getLines().map { it.summaryFromEntity() }
         val stops = dao.getStops().ifEmpty {
             val remote = api.getStops()
@@ -28,7 +29,7 @@ class RemoteAndLocalStopRepository(
         }
     }
 
-    override suspend fun obtainStops(ids: List<StopId>): List<Stop> = withContext(Dispatchers.Default){
+    override suspend fun obtainStops(ids: List<StopId>): List<Stop> = withContext(Dispatchers.Default) {
         //TODO inefficient as fuck!!
         val lines = dao.getLines().map { it.summaryFromEntity() }
         val stops = dao.getStops().ifEmpty {
@@ -43,7 +44,7 @@ class RemoteAndLocalStopRepository(
             }
     }
 
-    override suspend fun obtainStop(id: StopId): Stop = withContext(Dispatchers.Default){
+    override suspend fun obtainStop(id: StopId): Stop = withContext(Dispatchers.Default) {
         val lines = dao.getLines().map { it.summaryFromEntity() }
         return@withContext dao.getStop(id).fromEntity(lines)
     }
@@ -57,6 +58,6 @@ private fun StopDto.fromEntity(): StopEntity {
     return StopEntity(code, description, position.fromDto(), lines)
 }
 
-fun StopDto.PositionDto.fromDto(): Stop.Position {
+fun PositionDto.fromDto(): Stop.Position {
     return Stop.Position(this.latitude, this.longitude)
 }

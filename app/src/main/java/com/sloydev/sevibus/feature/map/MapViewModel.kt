@@ -7,6 +7,7 @@ import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.RoutePath
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.repository.LineRepository
+import com.sloydev.sevibus.domain.repository.RoutePathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.flow.map
 
 class MapViewModel(
     private val lineRepository: LineRepository,
-    private val stopsRepository: StopRepository
+    private val stopsRepository: StopRepository,
+    private val pathRepository: RoutePathRepository,
 ) : ViewModel() {
 
     val selectedLine = MutableStateFlow<Line?>(null)
@@ -30,6 +32,8 @@ class MapViewModel(
     val stops: Flow<List<Stop>> = selectedRoute.filterNotNull().map { route ->
         stopsRepository.obtainStops(route.stops)
     }
+
+    val path: Flow<RoutePath?> = selectedRoute.filterNotNull().map { pathRepository.obtainPath(it.id) }
 
 
     fun onLineSelected(line: Line?) {

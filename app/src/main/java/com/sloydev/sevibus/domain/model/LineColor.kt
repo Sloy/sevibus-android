@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.domain.model
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.sloydev.sevibus.ui.theme.AlexGreen
 import com.sloydev.sevibus.ui.theme.AlexOrange
 import com.sloydev.sevibus.ui.theme.AlexPink
@@ -29,3 +30,5 @@ fun LineColor.toUiColor(): Color = when (this) {
     LineColor.Black -> Color(0xff000000)
     LineColor.Unknown -> Color(0xff000000)
 }
+
+fun LineColor.toArgb() = this.toUiColor().toArgb()

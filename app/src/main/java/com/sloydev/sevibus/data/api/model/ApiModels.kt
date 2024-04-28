@@ -4,6 +4,7 @@ import com.sloydev.sevibus.domain.model.BusId
 import com.sloydev.sevibus.domain.model.LineColor
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.RouteId
+import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.StopId
 import kotlinx.serialization.Serializable
 
@@ -13,10 +14,9 @@ data class StopDto(
     val description: String,
     val position: PositionDto,
     val lines: List<LineId>,
-) {
-    @Serializable
-    class PositionDto(val latitude: Double, val longitude: Double)
-}
+)
+@Serializable
+class PositionDto(val latitude: Double, val longitude: Double)
 
 @Serializable
 data class LineDto(
@@ -50,4 +50,10 @@ data class BusArrivalDto(
     val distance: Int,
     val seconds: Int?,
     val line: LineId,
+)
+
+@Serializable
+data class RoutePathDto(
+    val routeId: RouteId,
+    val points: List<PositionDto>
 )
