@@ -29,10 +29,10 @@ import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 
 @Composable
-fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteClicked: (RouteId) -> Unit, modifier: Modifier = Modifier) {
+fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteClicked: (Route) -> Unit, modifier: Modifier = Modifier) {
     val rotation = if (route2.id == selected) 180f else 0f
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        RouteTab(directionValue = route1.destination, route1.id == selected, { onRouteClicked(route1.id) }, Modifier.weight(1f))
+        RouteTab(directionValue = route1.destination, route1.id == selected, { onRouteClicked(route1) }, Modifier.weight(1f))
         Icon(
             Icons.AutoMirrored.Default.ArrowForward,
             contentDescription = null,
@@ -41,7 +41,7 @@ fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteCl
                 .rotate(rotation),
             tint = AlexGreyIcons
         )
-        RouteTab(directionValue = route2.destination, route2.id == selected, { onRouteClicked(route2.id) }, Modifier.weight(1f))
+        RouteTab(directionValue = route2.destination, route2.id == selected, { onRouteClicked(route2) }, Modifier.weight(1f))
     }
 }
 

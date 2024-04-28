@@ -26,8 +26,7 @@ import androidx.navigation.compose.composable
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
-import com.sloydev.sevibus.domain.model.RouteId
-import com.sloydev.sevibus.domain.model.RouteWithStops
+import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.toUiColor
 import com.sloydev.sevibus.feature.linestops.component.ListPosition
@@ -46,11 +45,9 @@ fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
         val lineId: LineId = stackEntry.arguments!!.getString("line")!!.toInt()
         val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
         val state by viewModel.state.collectAsState()
-        val selectedRoute = viewModel.selectedRoute
         LineRouteScreen(
             state,
-            selectedRoute,
-            onTabSelected = viewModel::onRouteSelected
+            onRouteSelected = viewModel::onRouteSelected
         ) { navController.navigateToStopDetail(it.code) }
     }
 }
@@ -62,8 +59,7 @@ fun NavController.navigateToLineStops(line: LineId) {
 @Composable
 fun LineRouteScreen(
     state: LineRouteScreenState,
-    selectedRoute: RouteId,
-    onTabSelected: (index: RouteId) -> Unit,
+    onRouteSelected: (route: Route) -> Unit,
     onStopClick: (Stop) -> Unit
 ) {
     Column {
@@ -87,8 +83,8 @@ fun LineRouteScreen(
         if (state is LineRouteScreenState.Content) {
             if (state.line.routes.size > 1) {
                 RouteTabsSelector(
-                    route1 = state.line.routes[0], route2 = state.line.routes[1], selected = selectedRoute, onRouteClicked = {
-                        onTabSelected(it)
+                    route1 = state.line.routes[0], route2 = state.line.routes[1], selected = state.selectedRoute.id, onRouteClicked = {
+                        onRouteSelected(it)
                     },
                     modifier = Modifier.padding(16.dp)
                 )
@@ -99,7 +95,7 @@ fun LineRouteScreen(
             LineRouteScreenState.Error -> Text("Error")
             LineRouteScreenState.Loading -> CircularProgressIndicator()
             is LineRouteScreenState.Content.Full -> {
-                RouteContent(state.routes.first { it.route.id == selectedRoute }, state.line, onStopClick)
+                RouteContent(state.stops, state.line, onStopClick)
             }
 
             else -> {}
@@ -109,17 +105,17 @@ fun LineRouteScreen(
 
 @Composable
 private fun RouteContent(
-    routeWithStops: RouteWithStops,
+    stops: List<Stop>,
     line: Line,
     onStopClick: (Stop) -> Unit
 ) {
     LazyColumn {
-        itemsIndexed(routeWithStops.stops) { index, stop ->
+        itemsIndexed(stops) { index, stop ->
             StopTimelineElement(
                 stop,
                 listPosition = when (index) {
                     0 -> ListPosition.Start
-                    routeWithStops.stops.lastIndex -> ListPosition.End
+                    stops.lastIndex -> ListPosition.End
                     else -> ListPosition.Middle
                 },
                 color = line.color.toUiColor(),
@@ -136,10 +132,10 @@ private fun Preview() {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
                 line = Stubs.lines[2],
-                routes = Stubs.routesWithStops,
+                stops = Stubs.stops.shuffled(),
+                selectedRoute = Stubs.lines[2].routes.first(),
             ),
-            selectedRoute = Stubs.routesWithStops.first().route.id,
-            onTabSelected = {},
+            onRouteSelected = {},
             onStopClick = {},
         )
     }
