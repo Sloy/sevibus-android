@@ -16,6 +16,7 @@ import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.feature.foryou.favorites.FavoritesViewModel
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
+import com.sloydev.sevibus.feature.search.SearchViewModel
 import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -34,6 +35,7 @@ object DI {
         viewModel { parameters -> LineRouteViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> FavoritesViewModel(get(), get()) }
+        viewModel { SearchViewModel(get(), get()) }
     }
 
     val dataModule = module {

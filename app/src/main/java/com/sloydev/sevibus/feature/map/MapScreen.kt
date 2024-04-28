@@ -52,7 +52,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.SearchResult
-import com.sloydev.sevibus.feature.search.SevSearchBar
+import com.sloydev.sevibus.feature.search.SearchWidget
 import com.sloydev.sevibus.domain.model.plus
 import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
@@ -79,7 +79,7 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
             onStopDismissed = { showBottomSheet = false },
         )
         Column {
-            SevSearchBar(
+            SearchWidget(
                 onSearchResultClicked = { filters.add(it) },
                 Modifier
                     .padding(horizontal = 16.dp)

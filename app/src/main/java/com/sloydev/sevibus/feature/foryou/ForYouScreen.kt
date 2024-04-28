@@ -9,7 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.sloydev.sevibus.R
-import com.sloydev.sevibus.feature.foryou.favorites.FavoritesSubScreen
+import com.sloydev.sevibus.feature.foryou.favorites.FavoritesWidget
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
@@ -28,7 +28,7 @@ fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
         SevCenterAlignedTopAppBar(title = { Text(stringResource(R.string.app_name)) })
-        FavoritesSubScreen(onStopClicked)
+        FavoritesWidget(onStopClicked)
     }
 }
 

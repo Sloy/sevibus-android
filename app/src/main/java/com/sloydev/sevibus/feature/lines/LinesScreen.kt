@@ -25,7 +25,7 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.feature.linestops.navigateToLineStops
-import com.sloydev.sevibus.feature.search.SevSearchBar
+import com.sloydev.sevibus.feature.search.SearchWidget
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.LineElement
@@ -68,7 +68,7 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, on
 
             is LinesScreenState.Content -> {
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
-                    item { SevSearchBar(onSearchResultClicked = onSearchResultClicked) }
+                    item { SearchWidget(onSearchResultClicked = onSearchResultClicked) }
                     item { Spacer(Modifier.size(32.dp)) }
                     state.lineGroups.forEach { (group, lines) ->
                         if (lines.isNotEmpty()) {

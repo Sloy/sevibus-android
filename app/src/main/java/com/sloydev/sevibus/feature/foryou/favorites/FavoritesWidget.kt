@@ -33,14 +33,14 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun FavoritesSubScreen(onStopClicked: (code: Int) -> Unit) {
+fun FavoritesWidget(onStopClicked: (code: Int) -> Unit) {
     val viewModel = koinViewModel<FavoritesViewModel>()
     val state by viewModel.state.collectAsState()
-    FavoritesSubScreen(state, onStopClicked)
+    FavoritesWidget(state, onStopClicked)
 }
 
 @Composable
-fun FavoritesSubScreen(state: FavoriteSubScreenState, onStopClicked: (code: Int) -> Unit) {
+fun FavoritesWidget(state: FavoriteSubScreenState, onStopClicked: (code: Int) -> Unit) {
     when (state) {
         is FavoriteSubScreenState.Initial -> return
         is FavoriteSubScreenState.Empty -> Text("Empty state favorites")
@@ -100,7 +100,7 @@ private fun FavoriteListItem(favorite: FavoriteStop, arrivals: List<BusArrival>?
 private fun WithArrivalsPreview() {
     ScreenPreview {
         val allArrivals = Stubs.favorites.associate { favorite -> favorite.stop.code to Stubs.arrivals.shuffled().take(3).sorted()}
-        FavoritesSubScreen(FavoriteSubScreenState.Content.WithArrivals(Stubs.favorites, allArrivals), {})
+        FavoritesWidget(FavoriteSubScreenState.Content.WithArrivals(Stubs.favorites, allArrivals), {})
 
     }
 }
@@ -109,7 +109,7 @@ private fun WithArrivalsPreview() {
 @Composable
 private fun WithoutArrivalsPreview() {
     ScreenPreview {
-        FavoritesSubScreen(FavoriteSubScreenState.Content.LoadingArrivals(Stubs.favorites), {})
+        FavoritesWidget(FavoriteSubScreenState.Content.LoadingArrivals(Stubs.favorites), {})
 
     }
 }

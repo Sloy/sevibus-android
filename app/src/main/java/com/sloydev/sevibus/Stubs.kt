@@ -313,7 +313,7 @@ object Stubs {
     val searchResults: List<SearchResult>
         get() {
             val stops = stops.shuffled().take(20)
-                .map { SearchResult.StopResult(it, lines.shuffled().take(Random.nextInt(1, 4))) }
+                .map { SearchResult.StopResult(it) }
             val lines = lines.shuffled().take(10)
                 .map { SearchResult.LineResult(it) }
             return (stops + lines).shuffled()

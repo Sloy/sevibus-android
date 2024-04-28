@@ -22,6 +22,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,16 +38,28 @@ import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
 import com.sloydev.sevibus.ui.components.StopCardElement
 import com.sloydev.sevibus.ui.theme.SevTheme
+import org.koin.androidx.compose.koinViewModel
+
+
+@Composable
+fun SearchWidget(onSearchResultClicked: (SearchResult) -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: SearchViewModel = koinViewModel()
+    val term by viewModel.searchTerm.collectAsState()
+    val results by viewModel.results.collectAsState(initial = emptyList())
+
+    SearchWidget(term, viewModel::onSearch, results, onSearchResultClicked, modifier)
+}
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SevSearchBar(
+fun SearchWidget(
+    term: String,
+    onSearch: (String) -> Unit,
+    results: List<SearchResult>,
     onSearchResultClicked: (SearchResult) -> Unit,
     modifier: Modifier = Modifier,
     defaultExpanded: Boolean = false,
-    defaultText: String = ""
 ) {
-    var text by rememberSaveable { mutableStateOf(defaultText) }
     var expanded by rememberSaveable { mutableStateOf(defaultExpanded) }
     DockedSearchBar(
         colors = SearchBarDefaults.colors(
@@ -56,8 +69,8 @@ fun SevSearchBar(
             .fillMaxWidth(),
         inputField = {
             SearchBarDefaults.InputField(
-                query = text,
-                onQueryChange = { text = it },
+                query = term,
+                onQueryChange = { onSearch(it) },
                 onSearch = { expanded = false },
                 expanded = expanded,
                 onExpandedChange = { expanded = it },
@@ -72,16 +85,16 @@ fun SevSearchBar(
                 }
             )
         },
-        expanded = expanded && text.isNotBlank(),
+        expanded = expanded && term.isNotBlank() && results.isNotEmpty(),
         onExpandedChange = { expanded = it },
     ) {
-        if (text.isNotBlank()) {
-            val results = Stubs.searchResults.take(9).drop(text.length)
-            SearchResultsContent(results, onSearchResultClicked = {
-                onSearchResultClicked(it)
-                expanded = false
-                text = ""
-            })
+        if (term.isNotBlank()) {
+            SearchResultsContent(
+                results,
+                onSearchResultClicked = {
+                    onSearchResultClicked(it)
+                    expanded = false
+                })
         }
     }
 }
@@ -124,9 +137,15 @@ private fun StopResultItem(stop: Stop, onStopClick: (Stop) -> Unit) {
 private fun Preview() {
     SevTheme {
         Column {
-            SevSearchBar(onSearchResultClicked = {})
+            SearchWidget(term = "", onSearchResultClicked = {}, onSearch = {}, results = emptyList())
             Spacer(Modifier.size(32.dp))
-            SevSearchBar(onSearchResultClicked = {}, defaultExpanded = true, defaultText = "macar")
+            SearchWidget(
+                term = "",
+                onSearchResultClicked = {},
+                onSearch = {},
+                results = emptyList(),
+                defaultExpanded = true,
+            )
 
         }
     }
