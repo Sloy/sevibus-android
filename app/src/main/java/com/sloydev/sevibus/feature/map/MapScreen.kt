@@ -1,6 +1,5 @@
 package com.sloydev.sevibus.feature.map
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -14,19 +13,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,36 +48,63 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.Stubs
+import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.SearchResult
-import com.sloydev.sevibus.feature.search.SearchWidget
-import com.sloydev.sevibus.domain.model.plus
+import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.toLatLng
-import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
+import com.sloydev.sevibus.feature.linestops.LineRouteScreen
+import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
+import com.sloydev.sevibus.feature.search.SearchWidget
 import com.sloydev.sevibus.navigation.TopLevelDestination
-import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.icons.SevIcons
+import com.sloydev.sevibus.ui.preview.ScreenPreview
+import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.mapRoute() {
     composable(TopLevelDestination.MAP.route) {
-        MapScreen(Stubs.searchResults.take(3))
+        MapScreen()
     }
 }
 
+@Composable
+fun MapScreen() {
+    val viewModel: MapViewModel = koinViewModel()
+    val line by viewModel.selectedLine.collectAsState()
+    val route by viewModel.selectedRoute.collectAsState()
+    val stops by viewModel.stops.collectAsState(initial = emptyList())
+
+    MapScreen(line, route, stops, onLineSelected = { viewModel.onLineSelected(it) }, onRouteSelected = { viewModel.onRouteSelected(it) })
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
+fun MapScreen(
+    selectedLine: Line?,
+    selectedRoute: Route?,
+    stops: List<Stop>,
+    onLineSelected: (Line?) -> Unit,
+    onRouteSelected: (Route) -> Unit
+) {
     Box(Modifier.fillMaxSize()) {
-        var showBottomSheet by remember { mutableStateOf(false) }
-        val filters = remember { mutableStateListOf<SearchResult>(*previewFilters.toTypedArray()) }
         Map(
             Modifier.fillMaxSize(),
-            onStopClick = { showBottomSheet = true },
-            onStopDismissed = { showBottomSheet = false },
+            stops,
+            onStopClick = { },
+            onStopDismissed = {
+                //TODO actually working?
+                onLineSelected(null)
+            },
         )
         Column {
             SearchWidget(
-                onSearchResultClicked = { filters.add(it) },
+                onSearchResultClicked = {
+                    if (it is SearchResult.LineResult) {
+                        onLineSelected(it.line)
+                    }
+                },
                 Modifier
                     .padding(horizontal = 16.dp)
                     .padding(top = 16.dp),
@@ -92,31 +116,23 @@ fun MapScreen(previewFilters: List<SearchResult> = emptyList()) {
                     .wrapContentHeight(align = Alignment.Top),
                 horizontalArrangement = Arrangement.Start,
             ) {
-                filters.forEach { filter ->
-                    MapFilterChip(filter, onRemoveFilter = { assert(filters.remove(it)) }, modifier = Modifier.padding(end = 8.dp))
+                if (selectedLine != null) {
+                    MapFilterChip(SearchResult.LineResult(selectedLine), onRemoveFilter = { }, modifier = Modifier.padding(end = 8.dp))
                 }
-
             }
         }
 
-        if (showBottomSheet) {
-            val state = rememberBottomSheetScaffoldState()
-            LaunchedEffect(key1 = showBottomSheet) {
-                state.bottomSheetState.expand()
+        val sheetState = rememberModalBottomSheetState()
+        if (selectedLine != null && selectedRoute != null && stops.isNotEmpty()) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    onLineSelected(null)
+                },
+                sheetState = sheetState
+            ) {
+                val state = LineRouteScreenState.Content.Full(selectedLine, selectedRoute, stops)
+                LineRouteScreen(state, onRouteSelected = onRouteSelected, onStopClick = { stop -> })
             }
-            BottomSheetScaffold(
-                sheetPeekHeight = (104).dp,
-                scaffoldState = state,
-                sheetContent = { StopDetailScreen(Stubs.stops[0].code, embedded = true) },
-                sheetContainerColor = MaterialTheme.colorScheme.background,
-                content = {}
-            )
-            LaunchedEffect(showBottomSheet) {
-                //state.bottomSheetState.expand()
-            }
-        }
-        BackHandler(showBottomSheet) {
-            showBottomSheet = false
         }
     }
 }
@@ -132,22 +148,15 @@ fun MapFilterChip(filter: SearchResult, onRemoveFilter: (SearchResult) -> Unit, 
             { Text(filter.stop.code.toString()) }
         }
     }
-    ElevatedAssistChip(
-        modifier = modifier,
-        onClick = { /* TODO */ },
-        label = { label() },
-        trailingIcon = {
-            IconButton(
-                modifier = Modifier.size(FilterChipDefaults.IconSize),
-                onClick = { onRemoveFilter(filter) }) {
-                Icon(Icons.Default.Close, contentDescription = "Remove")
-            }
+    ElevatedAssistChip(modifier = modifier, onClick = { /* TODO */ }, label = { label() }, trailingIcon = {
+        IconButton(modifier = Modifier.size(FilterChipDefaults.IconSize), onClick = { onRemoveFilter(filter) }) {
+            Icon(Icons.Default.Close, contentDescription = "Remove")
         }
-    )
+    })
 }
 
 @Composable
-fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
+fun BoxScope.Map(modifier: Modifier, stops: List<Stop>, onStopClick: (code: Int) -> Unit, onStopDismissed: () -> Unit) {
     val triana = LatLng(37.385222, -6.011210)
     val recaredo = LatLng(37.389083, -5.984483)
     var cameraPositionState = rememberCameraPositionState {
@@ -165,33 +174,29 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
             MapProperties(
                 minZoomPreference = 12f,
                 //isMyLocationEnabled = true,
-                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_retro)
+                mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
             )
         )
     }
     var mapUiSettings by remember {
         mutableStateOf(
             MapUiSettings(
-                mapToolbarEnabled = false,
-                compassEnabled = true
+                mapToolbarEnabled = false, compassEnabled = true
             )
         )
     }
 
     val icon = SevIcons.MapIcon.stop.getRes(cameraPositionState.position.zoom)
-    val stops = remember { Stubs.stops + Stubs.stops.map { it.copy(position = it.position + (0.0001 to 0.0001)) } }
     var selectedMarker by remember { mutableStateOf<LatLng?>(null) }
 
-    GoogleMap(
-        modifier = modifier,
+    GoogleMap(modifier = modifier,
         uiSettings = mapUiSettings,
         properties = mapProperties,
         cameraPositionState = cameraPositionState,
         onMapClick = {
             onStopDismissed()
             selectedMarker = null
-        }
-    ) {
+        }) {
         val iconFactory = remember(icon) { BitmapDescriptorFactory.fromResource(icon) }
         stops.forEach { stop ->
             Marker(
@@ -209,9 +214,7 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
 
         selectedMarker?.let {
             Marker(
-                state = MarkerState(position = it),
-                onClick = { true },
-                zIndex = 100f
+                state = MarkerState(position = it), onClick = { true }, zIndex = 100f
             )
         }
     }
@@ -221,6 +224,12 @@ fun BoxScope.Map(modifier: Modifier, onStopClick: (code: Int) -> Unit, onStopDis
 @Composable
 private fun MapScreenPreview() {
     ScreenPreview {
-        MapScreen(previewFilters = Stubs.searchResults.take(3))
+        MapScreen(
+            selectedLine = Stubs.lines[0],
+            selectedRoute = Stubs.lines[0].routes.first(),
+            stops = Stubs.stops,
+            onLineSelected = {},
+            onRouteSelected = {},
+        )
     }
 }
