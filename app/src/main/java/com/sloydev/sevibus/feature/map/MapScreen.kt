@@ -22,6 +22,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,10 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -51,8 +54,9 @@ import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Path
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Route
-import com.sloydev.sevibus.domain.model.RoutePath
 import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.toLatLng
@@ -97,7 +101,7 @@ fun MapScreen(
     selectedLine: Line?,
     selectedRoute: Route?,
     stops: List<Stop>,
-    path: RoutePath?,
+    path: Path?,
     onLineSelected: (Line?) -> Unit,
     onRouteSelected: (Route) -> Unit
 ) {
@@ -175,7 +179,7 @@ fun BoxScope.Map(
     modifier: Modifier,
     selectedLine: Line?,
     stops: List<Stop>,
-    path: RoutePath?,
+    path: Path?,
     onStopClick: (code: Int) -> Unit,
     onStopDismissed: () -> Unit
 ) {
@@ -183,6 +187,15 @@ fun BoxScope.Map(
     val recaredo = LatLng(37.389083, -5.984483)
     var cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(recaredo, 15.5f)
+    }
+    if (stops.isNotEmpty()) {
+        LaunchedEffect(stops) {
+            val bounds = LatLngBounds.Builder().apply {
+                stops.forEach { include(it.position.toLatLng()) }
+            }.build()
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 32)
+            cameraPositionState.animate(cameraUpdate, 200)
+        }
     }
 
     Text(
@@ -247,32 +260,40 @@ fun BoxScope.Map(
                     BitmapDescriptorFactory.fromBitmap(SevIcons.CircularStopMarker.bitmap(context, selectedLine.color))
                 }
 
+                val lineWidth = if (cameraPositionState.position.zoom < 14) {
+                    6.dp.toPx()
+                } else {
+                    8.dp.toPx()
+                }
+
                 Polyline(
                     points = path.points.map { it.toLatLng() },
                     color = selectedLine.color.toUiColor(),
                     jointType = JointType.ROUND,
-                    width = 8.dp.toPx(),
+                    width = lineWidth,
                 )
 
-                stops.map { stop -> stop.moveToPath(path) }
-                    .forEach { stop ->
-                        Marker(
-                            state = MarkerState(position = stop.position.toLatLng()),
-                            anchor = Offset(0.5f, 0.5f),
-                            icon = circularStopIcon,
-                        )
-                    }
+                if (cameraPositionState.position.zoom > 14) {
+                    stops.map { stop -> stop.moveToPath(path) }
+                        .forEach { stop ->
+                            Marker(
+                                state = MarkerState(position = stop.position.toLatLng()),
+                                anchor = Offset(0.5f, 0.5f),
+                                icon = circularStopIcon,
+                            )
+                        }
+                }
             }
         }
     }
 }
 
-private fun Stop.moveToPath(path: RoutePath): Stop {
+private fun Stop.moveToPath(path: Path): Stop {
     val snappedPoint = path.points.minBy { manhattanDistance(this.position, it) }
     return this.copy(position = snappedPoint)
 }
 
-private fun manhattanDistance(pos1: Stop.Position, pos2: Stop.Position): Double {
+private fun manhattanDistance(pos1: Position, pos2: Position): Double {
     val latDiff = Math.abs(pos1.latitude - pos2.latitude)
     val lonDiff = Math.abs(pos1.longitude - pos2.longitude)
     return latDiff + lonDiff
