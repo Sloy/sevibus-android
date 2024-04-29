@@ -3,13 +3,16 @@ package com.sloydev.sevibus.data.database
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.sloydev.sevibus.data.api.model.PositionDto
+import com.sloydev.sevibus.data.repository.fromDto
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineColor
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.LineSummary
+import com.sloydev.sevibus.domain.model.Path
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.RouteId
-import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.StopId
 
 @Entity(tableName = "stops")
@@ -18,7 +21,7 @@ data class StopEntity(
     val code: StopId,
     val description: String,
     @Embedded
-    val position: Stop.Position,
+    val position: Position,
     val lines: List<LineId>,
 )
 
@@ -43,12 +46,13 @@ data class RouteEntity(
     @Embedded
     val schedule: Route.Schedule,
     val stops: List<StopId>,
-) {
-    /* data class Schedule(
-         val startTime: LocalTime,
-         val endTime: LocalTime
-     )*/
-}
+)
+
+@Entity(tableName = "paths")
+data class PathEntity(
+    @PrimaryKey val routeId: RouteId,
+    val points: List<PositionDto>
+)
 
 fun LineEntity.fromEntity(routes: List<Route>): Line {
     return Line(label, description, color, group, id = id, routes = routes)
@@ -69,4 +73,8 @@ fun Route.toEntity(): RouteEntity {
 
 fun RouteEntity.fromEntity(): Route {
     return Route(id, direction, destination, line, stops, schedule)
+}
+
+fun PathEntity.fromEntity(): Path {
+    return Path(routeId, points.map { it.fromDto() })
 }

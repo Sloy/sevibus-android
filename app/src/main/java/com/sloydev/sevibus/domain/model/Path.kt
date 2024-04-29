@@ -1,6 +1,6 @@
 package com.sloydev.sevibus.domain.model
 
-data class RoutePath(
+data class Path(
     val routeId: RouteId,
-    val points: List<Stop.Position>
+    val points: List<Position>
 )

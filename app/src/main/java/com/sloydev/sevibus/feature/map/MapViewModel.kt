@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.RouteId
-import com.sloydev.sevibus.domain.model.RoutePath
+import com.sloydev.sevibus.domain.model.Path
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.repository.LineRepository
-import com.sloydev.sevibus.domain.repository.RoutePathRepository
+import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 class MapViewModel(
     private val lineRepository: LineRepository,
     private val stopsRepository: StopRepository,
-    private val pathRepository: RoutePathRepository,
+    private val pathRepository: PathRepository,
 ) : ViewModel() {
 
     val selectedLine = MutableStateFlow<Line?>(null)
@@ -33,7 +33,7 @@ class MapViewModel(
         stopsRepository.obtainStops(route.stops)
     }
 
-    val path: Flow<RoutePath?> = selectedRoute.filterNotNull().map { pathRepository.obtainPath(it.id) }
+    val path: Flow<Path?> = selectedRoute.filterNotNull().map { pathRepository.obtainPath(it.id) }
 
 
     fun onLineSelected(line: Line?) {
@@ -51,7 +51,7 @@ sealed interface MapScreenState {
     data class SelectedLine(
         val line: Line,
         val selectedRoute: RouteId,
-        val path: RoutePath,
+        val path: Path,
         val stops: List<Stop>
     ) : MapScreenState
 }

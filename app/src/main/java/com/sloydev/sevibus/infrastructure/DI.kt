@@ -4,22 +4,21 @@ import androidx.room.Room
 import com.sloydev.sevibus.data.api.SevibusApi
 import com.sloydev.sevibus.data.database.SevibusDatabase
 import com.sloydev.sevibus.data.database.TussamDao
-import com.sloydev.sevibus.data.repository.FakeBusRepository
 import com.sloydev.sevibus.data.repository.RemoteAndLocalLineRepository
+import com.sloydev.sevibus.data.repository.RemoteAndLocalPathRepository
 import com.sloydev.sevibus.data.repository.RemoteAndLocalStopRepository
 import com.sloydev.sevibus.data.repository.RemoteBusRepository
 import com.sloydev.sevibus.data.repository.StubFavoriteStopsRepository
-import com.sloydev.sevibus.data.repository.StubRoutePathRepository
 import com.sloydev.sevibus.domain.repository.BusRepository
 import com.sloydev.sevibus.domain.repository.FavoriteStopsRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
-import com.sloydev.sevibus.domain.repository.RoutePathRepository
+import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.feature.foryou.favorites.FavoritesViewModel
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
-import com.sloydev.sevibus.feature.search.SearchViewModel
 import com.sloydev.sevibus.feature.map.MapViewModel
+import com.sloydev.sevibus.feature.search.SearchViewModel
 import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -50,14 +49,16 @@ object DI {
 //        single<BusRepository> { FakeBusRepository(get()) }
         single<BusRepository> { RemoteBusRepository(get(), get()) }
         single<FavoriteStopsRepository> { StubFavoriteStopsRepository() }
-        single<RoutePathRepository> { StubRoutePathRepository() }
+        //single<PathRepository> { StubPathRepository() }
+        single<PathRepository> { RemoteAndLocalPathRepository(get(), get()) }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(
                 androidContext(),
                 SevibusDatabase::class.java,
                 "sevibus"
-            ).build()
+            ).fallbackToDestructiveMigration()
+                .build()
         }
         single<TussamDao> { get<SevibusDatabase>().tussamDao() }
 

@@ -7,6 +7,7 @@ import com.sloydev.sevibus.data.database.StopEntity
 import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.database.summaryFromEntity
 import com.sloydev.sevibus.domain.model.LineSummary
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.repository.StopRepository
@@ -58,6 +59,6 @@ private fun StopDto.fromEntity(): StopEntity {
     return StopEntity(code, description, position.fromDto(), lines)
 }
 
-fun PositionDto.fromDto(): Stop.Position {
-    return Stop.Position(this.latitude, this.longitude)
+fun PositionDto.fromDto(): Position {
+    return Position(this.latitude, this.longitude)
 }

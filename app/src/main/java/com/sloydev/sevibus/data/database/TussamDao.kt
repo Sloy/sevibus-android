@@ -3,6 +3,7 @@ package com.sloydev.sevibus.data.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.StopId
 
 @Dao
@@ -19,6 +20,9 @@ interface TussamDao {
     @Query("SELECT * FROM routes")
     suspend fun getRoutes(): List<RouteEntity>
 
+    @Query("SELECT * FROM paths WHERE routeId == :id")
+    suspend fun getPath(id: RouteId): PathEntity?
+
     @Insert
     suspend fun putLines(lines: List<LineEntity>)
 
@@ -27,4 +31,8 @@ interface TussamDao {
 
     @Insert
     suspend fun putRoutes(routes: List<RouteEntity>)
+
+    @Insert
+    suspend fun putPath(path: PathEntity)
+
 }

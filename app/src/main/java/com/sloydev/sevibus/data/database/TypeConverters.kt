@@ -1,6 +1,10 @@
 package com.sloydev.sevibus.data.database
 
 import androidx.room.TypeConverter
+import com.sloydev.sevibus.data.api.model.PositionDto
+import com.sloydev.sevibus.domain.model.Position
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -32,4 +36,12 @@ object IntListConverter {
 
     @TypeConverter
     fun deserialize(serialized: String): List<Int> = serialized.split(",").map { it.toInt() }
+}
+
+object PositionListConverter {
+    @TypeConverter
+    fun serialize(list: List<PositionDto>): String = Json.encodeToString(list)
+
+    @TypeConverter
+    fun deserialize(serialized: String): List<PositionDto> = Json.decodeFromString(serialized)
 }

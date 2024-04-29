@@ -1,16 +1,16 @@
 package com.sloydev.sevibus.data.repository
 
-import com.sloydev.sevibus.data.api.model.RoutePathDto
+import com.sloydev.sevibus.data.api.model.PathDto
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.RouteId
-import com.sloydev.sevibus.domain.model.RoutePath
-import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.domain.repository.RoutePathRepository
+import com.sloydev.sevibus.domain.model.Path
+import com.sloydev.sevibus.domain.repository.PathRepository
 import kotlinx.serialization.json.Json
 
-class StubRoutePathRepository : RoutePathRepository {
-    override suspend fun obtainPath(routeId: RouteId): RoutePath {
-        val dto = Json.decodeFromString<RoutePathDto>(json)
-        return RoutePath(routeId, dto.points.map { Stop.Position(it.latitude, it.longitude) })
+class StubPathRepository : PathRepository {
+    override suspend fun obtainPath(routeId: RouteId): Path {
+        val dto = Json.decodeFromString<PathDto>(json)
+        return Path(routeId, dto.points.map { Position(it.latitude, it.longitude) })
     }
 }
 
