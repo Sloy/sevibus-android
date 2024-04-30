@@ -21,5 +21,7 @@ sealed interface MapScreenAction {
     data object Init : MapScreenAction
     data class SelectStop(val stop: Stop) : MapScreenAction
     data object UnselectStop : MapScreenAction
+    data class SelectLine(val line: Line) : MapScreenAction
+    data object UnselectLine : MapScreenAction
 }
 

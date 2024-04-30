@@ -19,7 +19,7 @@ class MapViewModel(
 ) : ViewModel() {
 
     val state = MutableStateFlow<MapScreenState>(MapScreenState.Initial)
-    private val reducer = MapScreenStateReducer(stopsRepository)
+    private val reducer = MapScreenStateReducer(stopsRepository, pathRepository)
 
     init {
         dispatch(MapScreenAction.Init)
@@ -34,7 +34,10 @@ class MapViewModel(
     }
 
     fun onLineSelected(line: Line?) {
-        //TODO
+        if (line != null) {
+            dispatch(MapScreenAction.SelectLine(line))
+
+        }
     }
 
     fun onRouteSelected(route: Route) {

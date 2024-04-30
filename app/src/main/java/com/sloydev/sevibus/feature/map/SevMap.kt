@@ -1,5 +1,6 @@
 package com.sloydev.sevibus.feature.map
 
+import android.graphics.Paint
 import android.graphics.Point
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Cap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
@@ -146,7 +148,14 @@ fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel
             .map { stop -> stop.copy(position = stop.position.moveToPath(lineSelectedState.path)) }
             .forEach { stop ->
                 if (stop == selectedStop) {
-                    //TODO different marker icon
+                    Marker(
+                        state = MarkerState(position = stop.position.toLatLng()),
+                        onClick = {
+                            onStopSelected(stop)
+                            false
+                        },
+                        zIndex = 100f
+                    )
                 }
                 Marker(
                     state = MarkerState(position = stop.position.toLatLng()),
