@@ -1,7 +1,5 @@
 package com.sloydev.sevibus.domain.model
 
-import com.google.android.gms.maps.model.LatLng
-
 data class Stop(
     val code: StopId,
     val description: String,
@@ -23,6 +21,16 @@ fun Stop.descriptionSeparator(separator: String = "•"): String {
         "$description1 $separator $description2"
     } else {
         description1
+    }
+}
+
+fun List<Stop>.filterInBounds(bounds: PositionBounds?): List<Stop> {
+    if (bounds == null) return emptyList()
+    return filter { stop ->
+        stop.position.latitude <= bounds.northeast.latitude &&
+                stop.position.latitude >= bounds.southwest.latitude &&
+                stop.position.longitude <= bounds.northeast.longitude &&
+                stop.position.longitude >= bounds.southwest.longitude
     }
 }
 
