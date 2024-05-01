@@ -67,7 +67,6 @@ fun MapScreen(
 
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val scope = rememberCoroutineScope()
     val sheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.Hidden,
         skipHiddenState = false
@@ -77,6 +76,11 @@ fun MapScreen(
         when (state) {
             is MapScreenState.Initial, is MapScreenState.Idle -> sheetState.hide()
             else -> sheetState.partialExpand()
+        }
+    }
+    if (sheetState.currentValue == SheetValue.Hidden) {
+        LaunchedEffect(sheetState.currentValue) {
+            onStopSelected(null)
         }
     }
 
