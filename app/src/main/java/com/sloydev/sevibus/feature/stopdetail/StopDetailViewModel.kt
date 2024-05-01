@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.repository.BusRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class StopDetailViewModel(
@@ -15,17 +15,32 @@ class StopDetailViewModel(
     private val busRepository: BusRepository,
 ) : ViewModel() {
 
-    val state = MutableStateFlow<StopDetailScreenState>(StopDetailScreenState.Initial)
+    private val stopState = MutableStateFlow<StopState>(StopState.Loading)
+    private val arrivalsState = MutableStateFlow<ArrivalsState>(ArrivalsState.Loading)
+
+    val state = stopState.combine(arrivalsState) { stopState, arrivalsState -> StopDetailScreenState(stopState, arrivalsState) }
 
     init {
         viewModelScope.launch {
             runCatching {
-                val stop = async { stopRepository.obtainStop(stopId) }
-                val arrivals = async { busRepository.obtainBusArrivals(stopId) }
-
-                state.value = StopDetailScreenState.Content.LoadingArrivals(stop.await())
-                state.value = StopDetailScreenState.Content.WithArrivals(stop.await(), arrivals.await())
+                stopState.value = StopState.Loading
+                val stop = stopRepository.obtainStop(stopId)
+                stopState.value = StopState.Loaded(stop)
+            }.onFailure {
+                stopState.value = StopState.Failed(it)
             }
+        }
+        viewModelScope.launch {
+            refreshArrivals()
+        }
+    }
+
+    private suspend fun refreshArrivals() {
+        runCatching {
+            val arrivals = busRepository.obtainBusArrivals(stopId)
+            arrivalsState.value = ArrivalsState.Loaded(arrivals)
+        }.onFailure {
+            arrivalsState.value = ArrivalsState.Failed(it)
         }
     }
 
