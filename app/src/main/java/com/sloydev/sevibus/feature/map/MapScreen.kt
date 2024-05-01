@@ -1,14 +1,21 @@
 package com.sloydev.sevibus.feature.map
 
+import android.Manifest
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
@@ -26,10 +33,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
@@ -39,6 +50,7 @@ import com.sloydev.sevibus.feature.search.LineSelectorWidget
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import okhttp3.internal.format
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
@@ -102,14 +114,7 @@ fun MapScreen(
             BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
     ) { innerPadding ->
-        Box(Modifier.fillMaxSize()) {
-            MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected, onDismiss)
-            LineSelectorWidget(
-                selectedLine = state.selectedLine,
-                onLineSelected = { onLineSelected(it) },
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-        }
+        MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected, onLineSelected, onDismiss)
     }
 }
 
@@ -135,43 +140,80 @@ fun BottomSheetContent(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapContent(
     state: MapScreenState,
     contentPadding: PaddingValues?,
     onStopSelected: (stop: Stop) -> Unit,
+    onLineSelected: (Line) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val triana = LatLng(37.385222, -6.011210)
-    val recaredo = LatLng(37.389083, -5.984483)
+    val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(triana, 15.5f)
+        position = CameraPosition.fromLatLngZoom(Stubs.locationTriana, 15.5f)
     }
 
-    DebugInfo(state, cameraPositionState)
+    Box(Modifier.fillMaxSize()) {
+        DebugInfo(state, cameraPositionState, Modifier.zIndex(1f))
+        LineSelectorWidget(
+            selectedLine = state.selectedLine,
+            onLineSelected = { onLineSelected(it) },
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .zIndex(1f)
+        )
+        LocationButton(locationPermissionState, cameraPositionState, Modifier.zIndex(1f))
+        SevMap(
+            state = state,
+            cameraPositionState = cameraPositionState,
+            locationPermissionState = locationPermissionState,
+            onStopSelected = onStopSelected,
+            onMapClick = { onDismiss() },
+            contentPadding = contentPadding,
+            modifier = Modifier.zIndex(0f)
+        )
+    }
+}
 
-    SevMap(
-        state = state,
-        cameraPositionState = cameraPositionState,
-        onStopSelected = onStopSelected,
-        onMapClick = { onDismiss() },
-        contentPadding = contentPadding,
-    )
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun BoxScope.LocationButton(
+    locationPermissionState: PermissionState,
+    cameraPositionState: CameraPositionState,
+    modifier: Modifier = Modifier
+) {
+    FloatingActionButton(
+        onClick = {
+            if (!locationPermissionState.status.isGranted) {
+                locationPermissionState.launchPermissionRequest()
+            } else {
+                //cameraPositionState.animate()
+            }
+        },
+        modifier = modifier
+            .align(Alignment.BottomEnd)
+            .padding(16.dp),
+    ) {
+        Icon(Icons.Filled.MyLocation, "Floating action button.")
+    }
+
 }
 
 @Composable
 private fun DebugInfo(
     state: MapScreenState,
-    cameraPositionState: CameraPositionState
+    cameraPositionState: CameraPositionState,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.Bottom, horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .zIndex(1f)
     ) {
         Text(state::class.simpleName!!)
-        Text(cameraPositionState.position.zoom.toString())
+        Text(format("%.2f", cameraPositionState.position.zoom))
     }
 }
 

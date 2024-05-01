@@ -13,7 +13,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -28,6 +32,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
+import com.sloydev.sevibus.FakeLocationSource
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.domain.model.Path
 import com.sloydev.sevibus.domain.model.Position
@@ -43,21 +48,24 @@ import com.sloydev.sevibus.infrastructure.SevLogger
 import com.sloydev.sevibus.ui.icons.SevIcons
 import kotlin.math.abs
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SevMap(
     state: MapScreenState,
     cameraPositionState: CameraPositionState,
+    locationPermissionState: PermissionState,
     onStopSelected: (Stop) -> Unit,
     onMapClick: () -> Unit,
+    contentPadding: PaddingValues?,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues? = null,
 ) {
     val mapUiSettings by remember {
         mutableStateOf(
             MapUiSettings(
+                zoomControlsEnabled = false,
                 mapToolbarEnabled = false,
                 compassEnabled = true,
-                myLocationButtonEnabled = true
+                myLocationButtonEnabled = true,
             )
         )
     }
@@ -66,7 +74,7 @@ fun SevMap(
         mutableStateOf(
             MapProperties(
                 minZoomPreference = 13f,
-                //isMyLocationEnabled = true,
+                isMyLocationEnabled = locationPermissionState.status.isGranted,
                 mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
             )
         )
@@ -91,6 +99,8 @@ fun SevMap(
         }
     }
 
+    //val locationSource = remember { FakeLocationSource() }
+
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
@@ -98,6 +108,7 @@ fun SevMap(
         contentPadding = contentPadding ?: PaddingValues(1.dp),
         cameraPositionState = cameraPositionState,
         onMapClick = { onMapClick() },
+        //locationSource = locationSource
     ) {
         SparseStopsMarkers(state, onStopSelected, zoomLevel, cameraPositionState.bounds)
         LineMarkers(state, onStopSelected, zoomLevel)

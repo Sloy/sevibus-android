@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons)
 
+    implementation(libs.accompanist.permissions)
 
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.playServices)
@@ -90,7 +91,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.play.services.auth)
+    implementation(libs.playServices.auth)
+    implementation(libs.playServices.location)
     implementation(libs.maps)
 
     implementation(libs.room.runtime)

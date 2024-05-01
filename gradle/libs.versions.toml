@@ -12,7 +12,7 @@ navigationCompose = "2.7.7"
 coroutines = "1.6.4"
 lifecycle = "2.4.0"
 koinBom = "3.5.6"
-playServicesAuth = "21.1.0"
+playServices = "21.1.0"
 room = "2.6.1"
 compose = "1.1.0"
 lottie = "4.2.2"
@@ -24,6 +24,7 @@ mapsecrets = "2.0.1"
 okhttp = "4.12.0"
 retrofit = "2.11.0"
 serialization = "1.6.1"
+accompanist = "0.34.0"
 
 [libraries]
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -45,6 +46,8 @@ androidx-navigation = { group = "androidx.navigation", name = "navigation-compos
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref="accompanist"}
+
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
@@ -63,7 +66,8 @@ firebase-auth-ktx = { module = "com.google.firebase:firebase-auth" }
 maps = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose"}
 maps-secrets-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "mapsecrets" }
 
-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+playServices-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServices" }
+playServices-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServices" }
 
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }

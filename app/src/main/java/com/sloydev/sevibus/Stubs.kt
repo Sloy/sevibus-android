@@ -1,8 +1,11 @@
 package com.sloydev.sevibus
 
+import android.location.Location
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Work
+import com.google.android.gms.maps.LocationSource
+import com.google.android.gms.maps.model.LatLng
 import com.sloydev.sevibus.domain.model.BusArrival
 import com.sloydev.sevibus.domain.model.FavoriteStop
 import com.sloydev.sevibus.domain.model.Line
@@ -407,6 +410,32 @@ object Stubs {
     )
 
     suspend inline fun delayNetwork(): Unit = delay(1_000)
+
+    @Deprecated("Be careful using Stubs")
+    val locationTriana = LatLng(37.385222, -6.011210)
+
+    @Deprecated("Be careful using Stubs")
+    val locationRecaredo = LatLng(37.389083, -5.984483)
+
+    @Deprecated("Be careful using Stubs")
+    val locationSource = FakeLocationSource()
+}
+
+class FakeLocationSource : LocationSource {
+
+    private var listener: LocationSource.OnLocationChangedListener? = null
+
+    override fun activate(listener: LocationSource.OnLocationChangedListener) {
+        this.listener = listener
+        listener.onLocationChanged(Location("FakeLocationSource").apply {
+            latitude = Stubs.locationTriana.latitude
+            longitude = Stubs.locationTriana.longitude
+        })
+    }
+
+    override fun deactivate() {
+        listener = null
+    }
 
 }
 

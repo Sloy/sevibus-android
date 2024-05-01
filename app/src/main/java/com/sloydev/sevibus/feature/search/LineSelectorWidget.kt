@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,11 +45,14 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LineSelectorWidget(selectedLine: Line?, onLineSelected: (Line) -> Unit, modifier: Modifier = Modifier) {
-    val viewModel: LineSelectorViewModel = koinViewModel()
-    val lines by viewModel.lines.collectAsState()
-    LineSelectorWidget(lines, selectedLine, onLineSelected = {
-        onLineSelected(it)
-    }, modifier)
+    if (!LocalView.current.isInEditMode) {
+        val viewModel: LineSelectorViewModel = koinViewModel()
+        val lines by viewModel.lines.collectAsState()
+        LineSelectorWidget(lines, selectedLine, onLineSelected, modifier)
+    } else {
+        // Preview state
+        LineSelectorWidget(Stubs.lines, selectedLine, onLineSelected, modifier)
+    }
 }
 
 @Composable
