@@ -1,7 +1,7 @@
 package com.sloydev.sevibus.feature.map
 
-import android.graphics.Paint
 import android.graphics.Point
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.Cap
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
@@ -45,17 +44,22 @@ fun SevMap(
     onStopSelected: (Stop) -> Unit,
     onMapClick: () -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues? = null,
 ) {
     val mapUiSettings by remember {
         mutableStateOf(
-            MapUiSettings(mapToolbarEnabled = false, compassEnabled = true)
+            MapUiSettings(
+                mapToolbarEnabled = false,
+                compassEnabled = true,
+                myLocationButtonEnabled = true
+            )
         )
     }
     val context = LocalContext.current
     val mapProperties by remember {
         mutableStateOf(
             MapProperties(
-                minZoomPreference = 12f,
+                minZoomPreference = 13f,
                 //isMyLocationEnabled = true,
                 mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
             )
@@ -67,6 +71,7 @@ fun SevMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
         properties = mapProperties,
+        contentPadding = contentPadding ?: PaddingValues(1.dp),
         cameraPositionState = cameraPositionState,
         onMapClick = { onMapClick() },
     ) {
@@ -92,27 +97,27 @@ private fun SparseStopsMarkers(state: MapScreenState, onStopSelected: (Stop) -> 
     visibleStops
         .filterInBounds(bounds)
         .forEach { stop ->
-        if (stop != selectedStop) {
-            Marker(
-                state = MarkerState(position = stop.position.toLatLng()),
-                anchor = Offset(0.5f, 0.5f),
-                onClick = {
-                    onStopSelected(stop)
-                    false
-                },
-                icon = stopIcon,
-            )
-        } else {
-            Marker(
-                state = MarkerState(position = stop.position.toLatLng()),
-                onClick = {
-                    onStopSelected(stop)
-                    false
-                },
-                zIndex = 100f
-            )
+            if (stop != selectedStop) {
+                Marker(
+                    state = MarkerState(position = stop.position.toLatLng()),
+                    anchor = Offset(0.5f, 0.5f),
+                    onClick = {
+                        onStopSelected(stop)
+                        false
+                    },
+                    icon = stopIcon,
+                )
+            } else {
+                Marker(
+                    state = MarkerState(position = stop.position.toLatLng()),
+                    onClick = {
+                        onStopSelected(stop)
+                        false
+                    },
+                    zIndex = 100f
+                )
+            }
         }
-    }
 
 }
 

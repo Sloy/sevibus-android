@@ -3,14 +3,24 @@ package com.sloydev.sevibus.feature.map
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -22,9 +32,7 @@ import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
-import com.sloydev.sevibus.domain.model.SearchResult
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.feature.search.SearchWidget
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
@@ -48,6 +56,7 @@ fun MapScreen() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
     state: MapScreenState,
@@ -55,32 +64,52 @@ fun MapScreen(
     onLineSelected: (Line?) -> Unit = {},
     onRouteSelected: (Route) -> Unit = {},
 ) {
-    Box(Modifier.fillMaxSize()) {
-        Map(
-            state,
-            onStopSelected = onStopSelected,
-            onStopDismissed = { onStopSelected(null) },
-        )
-        Column {
-            SearchWidget(
-                onSearchResultClicked = {
-                    if (it is SearchResult.LineResult) {
-                        onLineSelected(it.line)
-                    }
-                },
-                Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp),
-            )
+
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberStandardBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        skipHiddenState = false
+    )
+
+    LaunchedEffect(state::class) {
+        when (state) {
+            is MapScreenState.Initial, is MapScreenState.Idle -> sheetState.hide()
+            else -> sheetState.partialExpand()
+        }
+    }
+
+    BottomSheetScaffold(
+        scaffoldState = rememberBottomSheetScaffoldState(sheetState),
+        sheetPeekHeight = screenHeight / 3,
+        sheetContent = {
+            BottomSheetContent(state)
+        },
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected = {
+                onStopSelected(it)
+            })
         }
     }
 }
 
 @Composable
-fun Map(
+fun BottomSheetContent(state: MapScreenState) {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Text(text = "This is the Bottom sheet for $state")
+    }
+}
+
+@Composable
+fun MapContent(
     state: MapScreenState,
-    onStopSelected: (stop: Stop) -> Unit,
-    onStopDismissed: () -> Unit,
+    contentPadding: PaddingValues?,
+    onStopSelected: (stop: Stop?) -> Unit,
 ) {
     val triana = LatLng(37.385222, -6.011210)
     val recaredo = LatLng(37.389083, -5.984483)
@@ -103,7 +132,8 @@ fun Map(
         state = state,
         cameraPositionState = cameraPositionState,
         onStopSelected = onStopSelected,
-        onMapClick = onStopDismissed
+        onMapClick = { onStopSelected(null) },
+        contentPadding = contentPadding,
     )
 }
 
