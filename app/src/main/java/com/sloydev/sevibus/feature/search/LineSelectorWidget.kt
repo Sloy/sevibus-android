@@ -43,18 +43,18 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LineSelectorWidget(onLineSelected: (Line) -> Unit, modifier: Modifier = Modifier) {
+fun LineSelectorWidget(selectedLine: Line?, onLineSelected: (Line) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: LineSelectorViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
-    LineSelectorWidget(state, onLineSelected = {
-        viewModel.onSelectLine(it)
+    val lines by viewModel.lines.collectAsState()
+    LineSelectorWidget(lines, selectedLine, onLineSelected = {
         onLineSelected(it)
     }, modifier)
 }
 
 @Composable
 private fun LineSelectorWidget(
-    state: LineSelectorState,
+    lines: List<Line>,
+    selectedLine: Line?,
     onLineSelected: (Line) -> Unit,
     modifier: Modifier = Modifier,
     defaultExpanded: Boolean = false
@@ -66,7 +66,7 @@ private fun LineSelectorWidget(
             expanded = dropdownExpanded,
             onDismissRequest = { dropdownExpanded = false }
         ) {
-            state.lines.forEach { line ->
+            lines.forEach { line ->
                 DropdownMenuItem(
                     text = { Text(line.description) },
                     onClick = {
@@ -89,14 +89,14 @@ private fun LineSelectorWidget(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (state.lineSelected == null) {
+                if (selectedLine == null) {
                     NoLineIndicator()
                     Text("Todas las líneas", fontWeight = FontWeight.Bold)
                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = AlexGreyIcons)
                 } else {
-                    LineIndicatorSmall(line = state.lineSelected)
+                    LineIndicatorSmall(line = selectedLine)
                     Text(
-                        state.lineSelected.description,
+                        selectedLine.description,
                         fontWeight = FontWeight.Bold,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
@@ -132,9 +132,9 @@ private fun Preview() {
     SevTheme {
         Surface {
             Column(Modifier.padding(32.dp)) {
-                LineSelectorWidget(LineSelectorState(Stubs.lines, null), {})
+                LineSelectorWidget(Stubs.lines, null, {})
                 Spacer(Modifier.size(32.dp))
-                LineSelectorWidget(LineSelectorState(Stubs.lines, Stubs.lines[2]), {})
+                LineSelectorWidget(Stubs.lines, Stubs.lines[2], {})
             }
         }
     }

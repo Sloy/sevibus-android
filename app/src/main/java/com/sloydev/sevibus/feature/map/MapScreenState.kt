@@ -17,6 +17,13 @@ sealed interface MapScreenState {
     data class StopSelected(val allStops: List<Stop>, val selectedStop: Stop) : MapScreenState
 }
 
+val MapScreenState.selectedLine: Line?
+    get() = when (this) {
+        is MapScreenState.LineSelected -> this.line
+        is MapScreenState.LineStopSelected -> this.lineSelectedState.line
+        else -> null
+    }
+
 sealed interface MapScreenAction {
     data object Init : MapScreenAction
     data class SelectStop(val stop: Stop) : MapScreenAction

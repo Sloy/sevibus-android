@@ -104,7 +104,11 @@ fun MapScreen(
     ) { innerPadding ->
         Box(Modifier.fillMaxSize()) {
             MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected, onDismiss)
-            LineSelectorWidget(onLineSelected = { onLineSelected(it) }, modifier = Modifier.align(Alignment.TopCenter))
+            LineSelectorWidget(
+                selectedLine = state.selectedLine,
+                onLineSelected = { onLineSelected(it) },
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }

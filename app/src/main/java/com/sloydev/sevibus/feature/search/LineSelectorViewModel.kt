@@ -5,24 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.repository.LineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LineSelectorViewModel(
     private val linesRepository: LineRepository,
 ) : ViewModel() {
 
-    val state = MutableStateFlow(LineSelectorState(emptyList(), null))
+    val lines = MutableStateFlow<List<Line>>(emptyList())
 
     init {
         viewModelScope.launch {
-            state.value = LineSelectorState(linesRepository.obtainLines(), null)
+            lines.value = linesRepository.obtainLines()
         }
     }
-
-    fun onSelectLine(line: Line) {
-        state.update { it.copy(lineSelected = line) }
-    }
 }
-
-data class LineSelectorState(val lines: List<Line>, val lineSelected: Line?)
