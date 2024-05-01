@@ -43,12 +43,7 @@ import org.koin.core.parameter.parametersOf
 fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
     composable(TopLevelDestination.LINES.route + "{line}/stops") { stackEntry ->
         val lineId: LineId = stackEntry.arguments!!.getString("line")!!.toInt()
-        val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
-        val state by viewModel.state.collectAsState()
-        LineRouteScreen(
-            state,
-            onRouteSelected = viewModel::onRouteSelected
-        ) { navController.navigateToStopDetail(it.code) }
+        LineRouteScreen(lineId, onStopClick = { navController.navigateToStopDetail(it.code) })
     }
 }
 
@@ -57,29 +52,44 @@ fun NavController.navigateToLineStops(line: LineId) {
 }
 
 @Composable
+private fun LineRouteScreen(lineId: LineId, onStopClick: (Stop) -> Unit) {
+    val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
+    val state by viewModel.state.collectAsState()
+    LineRouteScreen(
+        state,
+        onRouteSelected = viewModel::onRouteSelected,
+        onStopClick = onStopClick,
+        embedded = false,
+    )
+}
+
+@Composable
 fun LineRouteScreen(
     state: LineRouteScreenState,
     onRouteSelected: (route: Route) -> Unit,
-    onStopClick: (Stop) -> Unit
+    onStopClick: (Stop) -> Unit,
+    embedded: Boolean = false,
 ) {
     Column {
-        SevTopAppBar(title = {
-            if (state is LineRouteScreenState.Content) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    LineIndicatorSmall(state.line, Modifier.padding(end = 8.dp))
-                    Text(state.line.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        if (!embedded) {
+            SevTopAppBar(title = {
+                if (state is LineRouteScreenState.Content) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        LineIndicatorSmall(state.line, Modifier.padding(end = 8.dp))
+                        Text(state.line.description, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
-            }
-        },
-            navigationIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
+            },
+                navigationIcon = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            }
-        )
+            )
+        }
         if (state is LineRouteScreenState.Content) {
             if (state.line.routes.size > 1) {
                 RouteTabsSelector(

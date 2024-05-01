@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.map
 
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
@@ -20,6 +21,7 @@ class MapScreenStateReducer(
             is MapScreenAction.UnselectStop -> unselectStop(state)
             is MapScreenAction.SelectLine -> selectLine(state, action.line)
             is MapScreenAction.UnselectLine -> TODO()
+            is MapScreenAction.SelectRoute -> selectRoute(state, action.route)
         }.apply {
             SevLogger.logD("${state::class.simpleName} + ${action::class.simpleName} -> ${this::class.simpleName}")
         }
@@ -29,6 +31,13 @@ class MapScreenStateReducer(
     private suspend fun initIdleState(): MapScreenState.Idle {
         val stops = stopRepository.obtainStops()
         return MapScreenState.Idle(stops)
+    }
+
+    private suspend fun selectRoute(state: MapScreenState, route: Route): MapScreenState {
+        if (state !is MapScreenState.LineSelected) {
+            error("Not allowed")
+        }
+        return selectLine(state, state.line, route)
     }
 
     private fun selectStop(state: MapScreenState, stop: Stop): MapScreenState {
@@ -49,13 +58,12 @@ class MapScreenStateReducer(
         }
     }
 
-    private suspend fun selectLine(state: MapScreenState, line: Line): MapScreenState {
+    private suspend fun selectLine(state: MapScreenState, line: Line, route: Route = line.routes.first()): MapScreenState {
         return coroutineScope {
-            val defaultRoute = line.routes.first()
-            val stops = async { stopRepository.obtainStops(defaultRoute.stops) }
-            val path = async { pathRepository.obtainPath(defaultRoute.id) }
+            val stops = async { stopRepository.obtainStops(route.stops) }
+            val path = async { pathRepository.obtainPath(route.id) }
             MapScreenState.LineSelected(
-                line, defaultRoute, lineStops = stops.await(), path = path.await()
+                line, route, lineStops = stops.await(), path = path.await()
             )
         }
     }

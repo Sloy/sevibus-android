@@ -41,7 +41,7 @@ class MapViewModel(
     }
 
     fun onRouteSelected(route: Route) {
-        //TODO
+        dispatch(MapScreenAction.SelectRoute(route))
     }
 
     private fun dispatch(action: MapScreenAction) {

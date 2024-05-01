@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -32,7 +33,10 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.feature.linestops.LineRouteScreen
+import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
 import com.sloydev.sevibus.feature.search.LineSelectorWidget
+import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
@@ -60,8 +64,8 @@ fun MapScreen() {
 @Composable
 fun MapScreen(
     state: MapScreenState,
-    onStopSelected: (Stop?) -> Unit = {},
     onLineSelected: (Line?) -> Unit = {},
+    onStopSelected: (Stop?) -> Unit = {},
     onRouteSelected: (Route) -> Unit = {},
 ) {
 
@@ -87,8 +91,9 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = rememberBottomSheetScaffoldState(sheetState),
         sheetPeekHeight = screenHeight / 3,
+        sheetContainerColor = MaterialTheme.colorScheme.background,
         sheetContent = {
-            BottomSheetContent(state)
+            BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
     ) { innerPadding ->
         Box(
@@ -104,9 +109,24 @@ fun MapScreen(
 }
 
 @Composable
-fun BottomSheetContent(state: MapScreenState) {
-    Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text(text = "This is the Bottom sheet for $state")
+fun BottomSheetContent(
+    state: MapScreenState,
+    onStopSelected: (Stop?) -> Unit = {},
+    onRouteSelected: (Route) -> Unit = {}
+) {
+    when (state) {
+        is MapScreenState.StopSelected -> StopDetailScreen(state.selectedStop.code, embedded = true)
+        is MapScreenState.LineStopSelected -> StopDetailScreen(state.selectedStop.code, embedded = true)
+        is MapScreenState.LineSelected -> {
+            val routeState = LineRouteScreenState.Content.Full(state.line, state.selectedRoute, state.lineStops)
+            LineRouteScreen(routeState, onRouteSelected = onRouteSelected, onStopClick = onStopSelected, embedded = true)
+        }
+
+        else -> {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(text = "This is the Bottom sheet for $state")
+            }
+        }
     }
 }
 
