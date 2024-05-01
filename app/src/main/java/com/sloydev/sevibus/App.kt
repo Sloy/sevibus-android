@@ -1,8 +1,11 @@
 package com.sloydev.sevibus
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -24,6 +27,7 @@ import com.sloydev.sevibus.feature.linestops.lineStopsRoute
 import com.sloydev.sevibus.feature.map.mapRoute
 import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloydev.sevibus.infrastructure.DI
+import com.sloydev.sevibus.infrastructure.SevLogger
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
 import com.sloydev.sevibus.navigation.rememberSevAppState
 import com.sloydev.sevibus.ui.components.SevNavigationBar
@@ -42,11 +46,17 @@ fun App() {
 
         SevTheme {
             Scaffold(bottomBar = {
-                SevNavigationBar(
-                    destinations = appState.topLevelDestinations,
-                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                    currentDestination = appState.currentDestination,
-                )
+                AnimatedVisibility(
+                    visible = appState.navigationBarVisible,
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it }),
+                ) {
+                    SevNavigationBar(
+                        destinations = appState.topLevelDestinations,
+                        onNavigateToDestination = appState::navigateToTopLevelDestination,
+                        currentDestination = appState.currentDestination,
+                    )
+                }
             }) { padding ->
                 Column(
                     Modifier
@@ -68,7 +78,10 @@ fun App() {
                     ) {
                         forYouRoute(appState.navController)
                         linesRoute(appState.navController)
-                        mapRoute()
+                        mapRoute(setNavigationBarVisibility = { visible ->
+                            SevLogger.logD("setNavigationBarVisibility: $visible")
+                            appState.navigationBarVisible = visible
+                        })
                         travelCardsRoute()
 
                         lineStopsRoute(appState.navController)

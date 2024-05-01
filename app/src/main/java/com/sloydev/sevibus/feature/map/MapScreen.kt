@@ -26,17 +26,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.sloydev.sevibus.Stubs.stops
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.feature.linestops.LineRouteScreen
 import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
 import com.sloydev.sevibus.feature.search.LineSelectorWidget
@@ -45,19 +41,20 @@ import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 
-fun NavGraphBuilder.mapRoute() {
+fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
     composable(TopLevelDestination.MAP.route) {
-        MapScreen()
+        MapScreen(setNavigationBarVisibility)
     }
 }
 
 @Composable
-fun MapScreen() {
+fun MapScreen(setNavigationBarVisibility: (Boolean) -> Unit) {
     val viewModel: MapViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
 
     MapScreen(
         state,
+        setNavigationBarVisibility,
         onStopSelected = viewModel::onStopSelected,
         onLineSelected = { viewModel.onLineSelected(it) },
         onRouteSelected = { viewModel.onRouteSelected(it) },
@@ -68,6 +65,7 @@ fun MapScreen() {
 @Composable
 fun MapScreen(
     state: MapScreenState,
+    onNavigationBarVisibility: (Boolean) -> Unit = {},
     onLineSelected: (Line?) -> Unit = {},
     onStopSelected: (Stop?) -> Unit = {},
     onRouteSelected: (Route) -> Unit = {},
@@ -79,6 +77,8 @@ fun MapScreen(
         initialValue = SheetValue.Hidden,
         skipHiddenState = false
     )
+
+    onNavigationBarVisibility(sheetState.targetValue == SheetValue.Hidden)
 
     LaunchedEffect(state::class) {
         when (state) {

@@ -2,7 +2,10 @@ package com.sloydev.sevibus.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -21,6 +24,9 @@ fun rememberSevAppState(
 class SevAppState(
     val navController: NavHostController,
 ) {
+
+    var navigationBarVisible by mutableStateOf(true)
+
     val currentDestination: NavDestination?
         @Composable get() = navController.currentBackStackEntryAsState().value?.destination
 
