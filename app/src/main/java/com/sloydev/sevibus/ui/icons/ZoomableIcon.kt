@@ -6,9 +6,9 @@ class ZoomableIcon(
     @DrawableRes private val small: Int, @DrawableRes private val medium: Int, @DrawableRes private val large: Int
 ) {
     @DrawableRes
-    fun getRes(zoom: Float) = when {
-        zoom < 17.5f -> small
-        zoom > 19f -> large
+    fun getByZoom(zoom: Int) = when {
+        zoom < 17 -> small
+        zoom >= 19 -> large
         else -> medium
     }
 }

@@ -92,7 +92,8 @@ private fun SparseStopsMarkers(state: MapScreenState, onStopSelected: (Stop) -> 
     }
     val selectedStop = (state as? MapScreenState.StopSelected)?.selectedStop
 
-    val stopIcon = remember { BitmapDescriptorFactory.fromResource(R.drawable.map_icon_stop_large) }
+    val stopIconRes = SevIcons.SquareStopMarker.getByZoom(zoomLevel)
+    val stopIcon = remember(stopIconRes) { BitmapDescriptorFactory.fromResource(stopIconRes) }
 
     visibleStops
         .filterInBounds(bounds)

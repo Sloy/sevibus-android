@@ -10,9 +10,8 @@ import com.sloydev.sevibus.domain.model.LineColor
 
 
 object SevIcons {
-    object MapIcon {
-        val stop = ZoomableIcon(R.drawable.map_icon_stop_small, R.drawable.map_icon_stop_medium, R.drawable.map_icon_stop_large)
-    }
+    val SquareStopMarker = ZoomableIcon(R.drawable.map_icon_stop_small, R.drawable.map_icon_stop_medium, R.drawable.map_icon_stop_large)
+
 
     object CircularStopMarker {
 
