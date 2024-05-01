@@ -18,9 +18,8 @@ class MapScreenStateReducer(
         return when (action) {
             is MapScreenAction.Init -> initIdleState()
             is MapScreenAction.SelectStop -> selectStop(state, action.stop)
-            is MapScreenAction.UnselectStop -> unselectStop(state)
             is MapScreenAction.SelectLine -> selectLine(state, action.line)
-            is MapScreenAction.UnselectLine -> TODO()
+            is MapScreenAction.Dismiss -> dismiss(state)
             is MapScreenAction.SelectRoute -> selectRoute(state, action.route)
         }.apply {
             SevLogger.logD("${state::class.simpleName} + ${action::class.simpleName} -> ${this::class.simpleName}")
@@ -50,11 +49,13 @@ class MapScreenStateReducer(
         }
     }
 
-    private fun unselectStop(state: MapScreenState): MapScreenState {
+    private suspend fun dismiss(state: MapScreenState): MapScreenState {
         return when (state) {
             is MapScreenState.LineStopSelected -> state.lineSelectedState
             is MapScreenState.StopSelected -> MapScreenState.Idle(state.allStops)
-            else -> state
+            is MapScreenState.LineSelected -> MapScreenState.Idle(stopRepository.obtainStops())
+            is MapScreenState.Idle -> state
+            is MapScreenState.Initial -> state
         }
     }
 

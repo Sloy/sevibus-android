@@ -25,23 +25,20 @@ class MapViewModel(
         dispatch(MapScreenAction.Init)
     }
 
-    fun onStopSelected(stop: Stop?) {
-        if (stop != null) {
-            dispatch(MapScreenAction.SelectStop(stop))
-        } else {
-            dispatch(MapScreenAction.UnselectStop)
-        }
+    fun onStopSelected(stop: Stop) {
+        dispatch(MapScreenAction.SelectStop(stop))
     }
 
-    fun onLineSelected(line: Line?) {
-        if (line != null) {
-            dispatch(MapScreenAction.SelectLine(line))
-
-        }
+    fun onLineSelected(line: Line) {
+        dispatch(MapScreenAction.SelectLine(line))
     }
 
     fun onRouteSelected(route: Route) {
         dispatch(MapScreenAction.SelectRoute(route))
+    }
+
+    fun onDismiss(){
+        dispatch(MapScreenAction.Dismiss)
     }
 
     private fun dispatch(action: MapScreenAction) {

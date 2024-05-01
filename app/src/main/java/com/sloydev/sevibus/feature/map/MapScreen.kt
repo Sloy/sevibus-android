@@ -56,8 +56,9 @@ fun MapScreen(setNavigationBarVisibility: (Boolean) -> Unit) {
         state,
         setNavigationBarVisibility,
         onStopSelected = viewModel::onStopSelected,
-        onLineSelected = { viewModel.onLineSelected(it) },
-        onRouteSelected = { viewModel.onRouteSelected(it) },
+        onLineSelected = viewModel::onLineSelected,
+        onRouteSelected = viewModel::onRouteSelected,
+        onDismiss = viewModel::onDismiss,
     )
 }
 
@@ -66,9 +67,10 @@ fun MapScreen(setNavigationBarVisibility: (Boolean) -> Unit) {
 fun MapScreen(
     state: MapScreenState,
     onNavigationBarVisibility: (Boolean) -> Unit = {},
-    onLineSelected: (Line?) -> Unit = {},
-    onStopSelected: (Stop?) -> Unit = {},
+    onLineSelected: (Line) -> Unit = {},
+    onStopSelected: (Stop) -> Unit = {},
     onRouteSelected: (Route) -> Unit = {},
+    onDismiss: () -> Unit = {},
 ) {
 
 
@@ -88,7 +90,7 @@ fun MapScreen(
     }
     if (sheetState.currentValue == SheetValue.Hidden) {
         LaunchedEffect(sheetState.currentValue) {
-            onStopSelected(null)
+            onDismiss()
         }
     }
 
@@ -101,9 +103,7 @@ fun MapScreen(
         },
     ) { innerPadding ->
         Box(Modifier.fillMaxSize()) {
-            MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected = {
-                onStopSelected(it)
-            })
+            MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected, onDismiss)
             LineSelectorWidget(onLineSelected = { onLineSelected(it) }, modifier = Modifier.align(Alignment.TopCenter))
         }
     }
@@ -112,7 +112,7 @@ fun MapScreen(
 @Composable
 fun BottomSheetContent(
     state: MapScreenState,
-    onStopSelected: (Stop?) -> Unit = {},
+    onStopSelected: (Stop) -> Unit = {},
     onRouteSelected: (Route) -> Unit = {}
 ) {
     when (state) {
@@ -135,7 +135,8 @@ fun BottomSheetContent(
 fun MapContent(
     state: MapScreenState,
     contentPadding: PaddingValues?,
-    onStopSelected: (stop: Stop?) -> Unit,
+    onStopSelected: (stop: Stop) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val triana = LatLng(37.385222, -6.011210)
     val recaredo = LatLng(37.389083, -5.984483)
@@ -149,7 +150,7 @@ fun MapContent(
         state = state,
         cameraPositionState = cameraPositionState,
         onStopSelected = onStopSelected,
-        onMapClick = { onStopSelected(null) },
+        onMapClick = { onDismiss() },
         contentPadding = contentPadding,
     )
 }
