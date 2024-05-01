@@ -4,6 +4,7 @@ import android.graphics.Point
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,9 +13,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.Projection
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
@@ -25,6 +29,8 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.sloydev.sevibus.R
+import com.sloydev.sevibus.domain.model.Path
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.PositionBounds
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.StopId
@@ -67,6 +73,24 @@ fun SevMap(
     }
     val zoomLevel = cameraPositionState.position.zoom.toInt()
 
+    val selectedStop = when (state) {
+        is MapScreenState.LineStopSelected -> state.selectedStop
+        is MapScreenState.StopSelected -> state.selectedStop
+        else -> null
+    }
+    if (selectedStop != null) {
+        LaunchedEffect(selectedStop) {
+            cameraPositionState.zoomInto(selectedStop.position)
+        }
+    }
+
+    val path = (state as? MapScreenState.LineSelected)?.path
+    if (path != null) {
+        LaunchedEffect(path) {
+            cameraPositionState.centerInPath(path)
+        }
+    }
+
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
@@ -75,10 +99,20 @@ fun SevMap(
         cameraPositionState = cameraPositionState,
         onMapClick = { onMapClick() },
     ) {
-
         SparseStopsMarkers(state, onStopSelected, zoomLevel, cameraPositionState.bounds)
         LineMarkers(state, onStopSelected, zoomLevel)
     }
+}
+
+private suspend fun CameraPositionState.centerInPath(path: Path) {
+    val bounds = LatLngBounds.Builder().apply {
+        path.points.forEach { include(it.toLatLng()) }
+    }.build()
+    this.animate(CameraUpdateFactory.newLatLngBounds(bounds, 16))
+}
+
+private suspend fun CameraPositionState.zoomInto(position: Position) {
+    this.animate(CameraUpdateFactory.newCameraPosition(CameraPosition.fromLatLngZoom(position.toLatLng(), 17f)))
 }
 
 @Composable
@@ -107,6 +141,7 @@ private fun SparseStopsMarkers(state: MapScreenState, onStopSelected: (Stop) -> 
                         false
                     },
                     icon = stopIcon,
+                    zIndex = 0.1f,
                 )
             } else {
                 Marker(
@@ -115,7 +150,7 @@ private fun SparseStopsMarkers(state: MapScreenState, onStopSelected: (Stop) -> 
                         onStopSelected(stop)
                         false
                     },
-                    zIndex = 100f
+                    zIndex = 1f
                 )
             }
         }
@@ -131,6 +166,7 @@ fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel
         else -> return
     }
     val selectedStop = (state as? MapScreenState.LineStopSelected)?.selectedStop
+
     with(LocalDensity.current) {
         val lineWidth = if (zoomLevel < 14) {
             6.dp.toPx()

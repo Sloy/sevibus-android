@@ -26,13 +26,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.sloydev.sevibus.Stubs.stops
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.feature.linestops.LineRouteScreen
 import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
 import com.sloydev.sevibus.feature.search.LineSelectorWidget
@@ -96,10 +100,7 @@ fun MapScreen(
             BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
+        Box(Modifier.fillMaxSize()) {
             MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected = {
                 onStopSelected(it)
             })
@@ -141,15 +142,6 @@ fun MapContent(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(triana, 15.5f)
     }
-    /*if (stops.isNotEmpty()) {
-        LaunchedEffect(stops) {
-            val bounds = LatLngBounds.Builder().apply {
-                stops.forEach { include(it.position.toLatLng()) }
-            }.build()
-            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 32)
-            cameraPositionState.animate(cameraUpdate, 200)
-        }
-    }*/
 
     DebugInfo(state, cameraPositionState)
 
