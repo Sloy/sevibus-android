@@ -18,6 +18,7 @@ import com.sloydev.sevibus.feature.foryou.favorites.FavoritesViewModel
 import com.sloydev.sevibus.feature.lines.LinesViewModel
 import com.sloydev.sevibus.feature.linestops.LineRouteViewModel
 import com.sloydev.sevibus.feature.map.MapViewModel
+import com.sloydev.sevibus.feature.search.LineSelectorViewModel
 import com.sloydev.sevibus.feature.search.SearchViewModel
 import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
 import kotlinx.serialization.json.Json
@@ -39,6 +40,7 @@ object DI {
         viewModel { FavoritesViewModel(get(), get()) }
         viewModel { SearchViewModel(get(), get()) }
         viewModel { MapViewModel(get(), get(), get()) }
+        viewModel { LineSelectorViewModel(get()) }
     }
 
     val dataModule = module {

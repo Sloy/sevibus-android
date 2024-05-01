@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,6 +32,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.feature.search.LineSelectorWidget
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
@@ -98,6 +98,7 @@ fun MapScreen(
             MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected = {
                 onStopSelected(it)
             })
+            LineSelectorWidget(onLineSelected = { onLineSelected(it) }, modifier = Modifier.align(Alignment.TopCenter))
         }
     }
 }
