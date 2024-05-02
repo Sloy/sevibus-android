@@ -125,7 +125,7 @@ fun MapScreen(
             BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
     ) { innerPadding ->
-        MapContent(state, innerPadding.takeIf { sheetState.isVisible }, onStopSelected, onLineSelected, onDismiss)
+        MapContent(state, innerPadding.takeIf { sheetState.isVisible } ?: PaddingValues(), onStopSelected, onLineSelected, onDismiss)
     }
 }
 
@@ -159,7 +159,7 @@ fun BottomSheetContent(
 @Composable
 fun MapContent(
     state: MapScreenState,
-    contentPadding: PaddingValues?,
+    contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
     onLineSelected: (Line) -> Unit,
     onDismiss: () -> Unit,
@@ -184,7 +184,7 @@ fun MapContent(
                 .align(Alignment.TopCenter)
                 .zIndex(1f)
         )
-        LocationButton(locationPermissionState, cameraPositionState, locationService, Modifier.zIndex(1f))
+        LocationButton(locationPermissionState, cameraPositionState, locationService, Modifier.zIndex(1f).padding(contentPadding))
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,

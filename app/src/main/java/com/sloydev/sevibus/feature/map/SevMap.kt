@@ -56,7 +56,7 @@ fun SevMap(
     locationPermissionState: PermissionState,
     onStopSelected: (Stop) -> Unit,
     onMapClick: () -> Unit,
-    contentPadding: PaddingValues?,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val mapUiSettings by remember {
@@ -104,7 +104,7 @@ fun SevMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
         properties = mapProperties,
-        contentPadding = contentPadding ?: PaddingValues(1.dp),
+        contentPadding = contentPadding,
         cameraPositionState = cameraPositionState,
         onMapClick = { onMapClick() },
         locationSource = locationSource
