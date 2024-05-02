@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.sloydev.sevibus.feature.cards.travelCardsRoute
 import com.sloydev.sevibus.feature.debug.DebugMenu
+import com.sloydev.sevibus.feature.debug.debugModules
 import com.sloydev.sevibus.feature.debug.rememberDebugMenuState
 import com.sloydev.sevibus.feature.foryou.forYouRoute
 import com.sloydev.sevibus.feature.lines.linesRoute
@@ -61,7 +62,7 @@ fun App() {
                     )
                 }
             }) { padding ->
-                DebugMenu(debugMenuState, Modifier.padding(padding))
+                DebugMenu(debugMenuState, debugModules, Modifier.padding(padding))
                 Column(
                     Modifier
                         .fillMaxSize()
