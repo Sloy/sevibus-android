@@ -21,12 +21,6 @@ import com.sloydev.sevibus.infrastructure.SevLogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.Serializable
-
-interface DebugModule {
-    @Composable
-    fun Component()
-}
 
 class LocationDebugModule : DebugModule {
 
@@ -34,7 +28,6 @@ class LocationDebugModule : DebugModule {
         private val _locationState = MutableStateFlow(LocationDebugState())
         val locationState = _locationState as StateFlow<LocationDebugState>
     }
-
 
     @Composable
     override fun Component() {
@@ -66,6 +59,3 @@ class LocationDebugModule : DebugModule {
         }
     }
 }
-
-@Serializable
-data class LocationDebugState(val isFakeLocation: Boolean = false)

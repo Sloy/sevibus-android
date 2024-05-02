@@ -1,6 +1,8 @@
 package com.sloydev.sevibus.infrastructure
 
 import androidx.room.Room
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.LocationSource
 import com.sloydev.sevibus.data.api.SevibusApi
 import com.sloydev.sevibus.data.database.SevibusDatabase
 import com.sloydev.sevibus.data.database.TussamDao
@@ -21,6 +23,9 @@ import com.sloydev.sevibus.feature.map.MapViewModel
 import com.sloydev.sevibus.feature.search.LineSelectorViewModel
 import com.sloydev.sevibus.feature.search.SearchViewModel
 import com.sloydev.sevibus.feature.stopdetail.StopDetailViewModel
+import com.sloydev.sevibus.infrastructure.location.FusedLocationService
+import com.sloydev.sevibus.infrastructure.location.LocationService
+import com.sloydev.sevibus.infrastructure.location.LocationServiceSource
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -86,4 +91,14 @@ object DI {
         }
     }
 
+    val infrastructureModule = module {
+        single<FusedLocationService> {
+            FusedLocationService(
+                androidContext(),
+                LocationServices.getFusedLocationProviderClient(androidContext())
+            )
+        }
+        single<LocationService> { get<FusedLocationService>() }
+        single<LocationSource> { LocationServiceSource(get()) }
+    }
 }

@@ -22,13 +22,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.sloydev.sevibus.feature.cards.travelCardsRoute
 import com.sloydev.sevibus.feature.debug.DebugMenu
-import com.sloydev.sevibus.feature.debug.debugModules
 import com.sloydev.sevibus.feature.debug.rememberDebugMenuState
 import com.sloydev.sevibus.feature.foryou.forYouRoute
 import com.sloydev.sevibus.feature.lines.linesRoute
 import com.sloydev.sevibus.feature.linestops.lineStopsRoute
 import com.sloydev.sevibus.feature.map.mapRoute
 import com.sloydev.sevibus.feature.stopdetail.stopDetailRoute
+import com.sloydev.sevibus.infrastructure.BuildVariantDI
 import com.sloydev.sevibus.infrastructure.DI
 import com.sloydev.sevibus.infrastructure.SevLogger
 import com.sloydev.sevibus.navigation.TopLevelDestination.FOR_YOU
@@ -37,13 +37,14 @@ import com.sloydev.sevibus.ui.components.SevNavigationBar
 import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
 
 @Composable
 fun App() {
     val context = LocalContext.current
     KoinApplication(application = {
         androidContext(context)
-        modules(DI.viewModelModule, DI.dataModule)
+        modules(DI.viewModelModule, DI.dataModule, DI.infrastructureModule, BuildVariantDI.module)
     }) {
         val appState = rememberSevAppState()
         val debugMenuState = rememberDebugMenuState()
@@ -62,7 +63,7 @@ fun App() {
                     )
                 }
             }) { padding ->
-                DebugMenu(debugMenuState, debugModules, Modifier.padding(padding))
+                DebugMenu(debugMenuState, koinInject(), Modifier.padding(padding))
                 Column(
                     Modifier
                         .fillMaxSize()

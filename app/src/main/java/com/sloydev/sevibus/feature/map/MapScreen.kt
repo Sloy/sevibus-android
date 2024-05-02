@@ -44,6 +44,7 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.feature.linestops.LineRouteScreen
 import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
 import com.sloydev.sevibus.feature.search.LineSelectorWidget
@@ -152,7 +153,7 @@ fun MapContent(
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(Stubs.locationTriana, 15.5f)
+        position = CameraPosition.fromLatLngZoom(Stubs.locationTriana.toLatLng(), 15.5f)
     }
 
     Box(Modifier.fillMaxSize()) {

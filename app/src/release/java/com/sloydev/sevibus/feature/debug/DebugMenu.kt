@@ -6,6 +6,6 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DebugMenu(state: DebugMenuState, modifier: Modifier = Modifier) {
+fun DebugMenu(state: DebugMenuState, modules: List<DebugModule>, modifier: Modifier = Modifier) {
 
 }

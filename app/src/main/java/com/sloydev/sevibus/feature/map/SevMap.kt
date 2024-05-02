@@ -46,6 +46,7 @@ import com.sloydev.sevibus.domain.model.toLatLng
 import com.sloydev.sevibus.domain.model.toUiColor
 import com.sloydev.sevibus.infrastructure.SevLogger
 import com.sloydev.sevibus.ui.icons.SevIcons
+import org.koin.compose.koinInject
 import kotlin.math.abs
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -99,8 +100,7 @@ fun SevMap(
         }
     }
 
-    //val locationSource = remember { FakeLocationSource() }
-
+    val locationSource = koinInject<LocationSource>()
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
@@ -108,7 +108,7 @@ fun SevMap(
         contentPadding = contentPadding ?: PaddingValues(1.dp),
         cameraPositionState = cameraPositionState,
         onMapClick = { onMapClick() },
-        //locationSource = locationSource
+        locationSource = locationSource
     ) {
         SparseStopsMarkers(state, onStopSelected, zoomLevel, cameraPositionState.bounds)
         LineMarkers(state, onStopSelected, zoomLevel)

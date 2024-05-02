@@ -412,10 +412,10 @@ object Stubs {
     suspend inline fun delayNetwork(): Unit = delay(1_000)
 
     @Deprecated("Be careful using Stubs")
-    val locationTriana = LatLng(37.385222, -6.011210)
+    val locationTriana = Position(37.385222, -6.011210)
 
     @Deprecated("Be careful using Stubs")
-    val locationRecaredo = LatLng(37.389083, -5.984483)
+    val locationRecaredo = Position(37.389083, -5.984483)
 
     @Deprecated("Be careful using Stubs")
     val locationSource = FakeLocationSource()
