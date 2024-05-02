@@ -8,7 +8,11 @@ import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
+import com.sloydev.sevibus.infrastructure.ticker
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class MapViewModel(
@@ -22,6 +26,10 @@ class MapViewModel(
 
     init {
         dispatch(MapScreenAction.Init)
+        ticker(5000)
+            .filter { state.value is Tickable } // Emit only when state is State2
+            .onEach { dispatch(MapScreenAction.PeriodicTick) }
+            .launchIn(viewModelScope)
     }
 
     fun onStopSelected(stop: Stop) {

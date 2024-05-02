@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.map
 
 import com.sloydev.sevibus.domain.model.Line
+import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.repository.PathRepository
@@ -23,6 +24,7 @@ class MapScreenStateReducer(
             is MapScreenAction.SelectLine -> selectLine(state, action.line)
             is MapScreenAction.Dismiss -> dismiss(state)
             is MapScreenAction.SelectRoute -> selectRoute(state, action.route)
+            is MapScreenAction.PeriodicTick -> refresh(state)
         }
     }.onEach { out ->
         SevLogger.logD("${state::class.simpleName} + ${action::class.simpleName} -> ${out::class.simpleName}")
@@ -68,6 +70,21 @@ class MapScreenStateReducer(
         emit(newState.copy(lineStops = stops, path = path))
     }
 
+    private suspend fun FlowCollector<MapScreenState>.refresh(state: MapScreenState) {
+        if(state !is Tickable) return
+        val buses = refreshBuses()
+        when(state){
+            is MapScreenState.LineSelected -> state //TODO
+            is MapScreenState.LineStopSelected -> state //TODO
+        }
+    }
+
+    private suspend fun refreshBuses(): List<Position> {
+        SevLogger.logPotato("-- REFRESH BUSES --")
+        return emptyList()
+    }
+
+
 }
 
 sealed interface MapScreenAction {
@@ -76,5 +93,6 @@ sealed interface MapScreenAction {
     data class SelectLine(val line: Line) : MapScreenAction
     data class SelectRoute(val route: Route) : MapScreenAction
     data object Dismiss : MapScreenAction
+    data object PeriodicTick : MapScreenAction
 }
 
