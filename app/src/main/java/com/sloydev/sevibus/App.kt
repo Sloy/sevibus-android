@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.sloydev.sevibus.feature.cards.travelCardsRoute
+import com.sloydev.sevibus.feature.debug.DebugMenu
+import com.sloydev.sevibus.feature.debug.rememberDebugMenuState
 import com.sloydev.sevibus.feature.foryou.forYouRoute
 import com.sloydev.sevibus.feature.lines.linesRoute
 import com.sloydev.sevibus.feature.linestops.lineStopsRoute
@@ -43,6 +45,7 @@ fun App() {
         modules(DI.viewModelModule, DI.dataModule)
     }) {
         val appState = rememberSevAppState()
+        val debugMenuState = rememberDebugMenuState()
 
         SevTheme {
             Scaffold(bottomBar = {
@@ -58,6 +61,7 @@ fun App() {
                     )
                 }
             }) { padding ->
+                DebugMenu(debugMenuState, Modifier.padding(padding))
                 Column(
                     Modifier
                         .fillMaxSize()

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +35,15 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FavoritesWidget(onStopClicked: (code: Int) -> Unit) {
-    val viewModel = koinViewModel<FavoritesViewModel>()
-    val state by viewModel.state.collectAsState()
-    FavoritesWidget(state, onStopClicked)
+    if (!LocalView.current.isInEditMode) {
+        val viewModel = koinViewModel<FavoritesViewModel>()
+        val state by viewModel.state.collectAsState()
+        FavoritesWidget(state, onStopClicked)
+    } else {
+        FavoritesWidget(FavoriteSubScreenState.Content.WithArrivals(
+            Stubs.favorites, Stubs.favorites.associate { it.stop.code to Stubs.arrivals.take(2) }
+        ), onStopClicked)
+    }
 }
 
 @Composable
@@ -95,11 +102,12 @@ private fun FavoriteListItem(favorite: FavoriteStop, arrivals: List<BusArrival>?
         }
     }
 }
+
 @Preview
 @Composable
 private fun WithArrivalsPreview() {
     ScreenPreview {
-        val allArrivals = Stubs.favorites.associate { favorite -> favorite.stop.code to Stubs.arrivals.shuffled().take(3).sorted()}
+        val allArrivals = Stubs.favorites.associate { favorite -> favorite.stop.code to Stubs.arrivals.shuffled().take(3).sorted() }
         FavoritesWidget(FavoriteSubScreenState.Content.WithArrivals(Stubs.favorites, allArrivals), {})
 
     }
