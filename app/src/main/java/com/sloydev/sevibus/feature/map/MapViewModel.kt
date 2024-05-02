@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.repository.BusRepository
 import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
@@ -19,14 +20,15 @@ class MapViewModel(
     private val lineRepository: LineRepository,
     private val stopsRepository: StopRepository,
     private val pathRepository: PathRepository,
+    private val busRepository: BusRepository,
 ) : ViewModel() {
 
     val state = MutableStateFlow<MapScreenState>(MapScreenState.Initial)
-    private val reducer = MapScreenStateReducer(stopsRepository, pathRepository)
+    private val reducer = MapScreenStateReducer(stopsRepository, pathRepository, busRepository)
 
     init {
         dispatch(MapScreenAction.Init)
-        ticker(5000)
+        ticker(10_000)
             .filter { state.value is Tickable } // Emit only when state is State2
             .onEach { dispatch(MapScreenAction.PeriodicTick) }
             .launchIn(viewModelScope)

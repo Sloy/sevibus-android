@@ -1,9 +1,10 @@
 package com.sloydev.sevibus.data.api
 
 import com.sloydev.sevibus.data.api.model.BusArrivalDto
+import com.sloydev.sevibus.data.api.model.BusDto
 import com.sloydev.sevibus.data.api.model.LineDto
-import com.sloydev.sevibus.data.api.model.RouteDto
 import com.sloydev.sevibus.data.api.model.PathDto
+import com.sloydev.sevibus.data.api.model.RouteDto
 import com.sloydev.sevibus.data.api.model.StopDto
 import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.StopId
@@ -26,4 +27,6 @@ interface SevibusApi {
     @GET("path/{route}")
     suspend fun getPath(@Path("route") route: RouteId): PathDto
 
+    @GET("buses/{route}")
+    suspend fun getBuses(@Path("route") route: RouteId): List<BusDto>
 }

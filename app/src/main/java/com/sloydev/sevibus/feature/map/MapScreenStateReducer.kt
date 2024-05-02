@@ -1,9 +1,12 @@
 package com.sloydev.sevibus.feature.map
 
+import com.sloydev.sevibus.domain.model.Bus
 import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Route
+import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.Stop
+import com.sloydev.sevibus.domain.repository.BusRepository
 import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.infrastructure.SevLogger
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.onEach
 class MapScreenStateReducer(
     private val stopRepository: StopRepository,
     private val pathRepository: PathRepository,
+    private val busRepository: BusRepository,
 ) {
 
     suspend operator fun invoke(state: MapScreenState, action: MapScreenAction): Flow<MapScreenState> = flow {
@@ -62,26 +66,25 @@ class MapScreenStateReducer(
     }
 
     private suspend fun FlowCollector<MapScreenState>.selectLine(state: MapScreenState, line: Line, route: Route = line.routes.first()) {
-        val newState = MapScreenState.LineSelected(line, route, null, null)
+        val newState = MapScreenState.LineSelected(line, route, null, null, null)
         emit(newState)
         val stops = stopRepository.obtainStops(route.stops)
         emit(newState.copy(lineStops = stops))
         val path = pathRepository.obtainPath(route.id)
         emit(newState.copy(lineStops = stops, path = path))
+        refresh(newState.copy(lineStops = stops, path = path))
     }
 
     private suspend fun FlowCollector<MapScreenState>.refresh(state: MapScreenState) {
-        if(state !is Tickable) return
-        val buses = refreshBuses()
-        when(state){
-            is MapScreenState.LineSelected -> state //TODO
-            is MapScreenState.LineStopSelected -> state //TODO
-        }
+        if (state !is Tickable) return
+        when (state) {
+            is MapScreenState.LineSelected -> state.copy(buses = refreshBuses(state.selectedRoute.id))
+            is MapScreenState.LineStopSelected -> state.copy(lineSelectedState = state.lineSelectedState.copy(buses = refreshBuses(state.lineSelectedState.selectedRoute.id)))
+        }.let { emit(it) }
     }
 
-    private suspend fun refreshBuses(): List<Position> {
-        SevLogger.logPotato("-- REFRESH BUSES --")
-        return emptyList()
+    private suspend fun refreshBuses(routeId: RouteId): List<Bus> {
+        return busRepository.obtainBuses(routeId)
     }
 
 

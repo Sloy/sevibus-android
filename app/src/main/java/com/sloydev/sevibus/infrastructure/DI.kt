@@ -44,7 +44,7 @@ object DI {
         viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get()) }
         viewModel { FavoritesViewModel(get(), get()) }
         viewModel { SearchViewModel(get(), get()) }
-        viewModel { MapViewModel(get(), get(), get()) }
+        viewModel { MapViewModel(get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
     }
 

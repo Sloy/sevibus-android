@@ -14,6 +14,7 @@ data class StopDto(
     val position: PositionDto,
     val lines: List<LineId>,
 )
+
 @Serializable
 class PositionDto(val latitude: Double, val longitude: Double)
 
@@ -55,4 +56,12 @@ data class BusArrivalDto(
 data class PathDto(
     val routeId: RouteId,
     val points: List<PositionDto>
+)
+
+@Serializable
+data class BusDto(
+    val id: BusId,
+    val position: PositionDto,
+    val positionInLine: Int,
+    val direction: Int,
 )

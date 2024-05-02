@@ -3,7 +3,9 @@ package com.sloydev.sevibus.data.repository
 import com.sloydev.sevibus.data.database.TussamDao
 import com.sloydev.sevibus.data.database.fromEntity
 import com.sloydev.sevibus.data.database.summaryFromEntity
+import com.sloydev.sevibus.domain.model.Bus
 import com.sloydev.sevibus.domain.model.BusArrival
+import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.StopId
 import com.sloydev.sevibus.domain.repository.BusRepository
 import kotlinx.coroutines.delay
@@ -24,6 +26,10 @@ class FakeBusRepository(private val dao: TussamDao) : BusRepository {
                 route = routes.first { (line == it.line) and (stop in it.stops) }.fromEntity()
             )
         }.sorted()
+    }
+
+    override suspend fun obtainBuses(route: RouteId): List<Bus> {
+        return emptyList()
     }
 }
 

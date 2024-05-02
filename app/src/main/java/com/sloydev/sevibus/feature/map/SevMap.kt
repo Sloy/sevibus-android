@@ -197,6 +197,20 @@ fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel
     val circularStopIcon = remember(lineSelectedState.line.color) {
         BitmapDescriptorFactory.fromBitmap(SevIcons.CircularStopMarker.bitmap(context, lineSelectedState.line.color))
     }
+    val busIcon = remember {
+        BitmapDescriptorFactory.fromBitmap(SevIcons.BusMarker.bitmap(context))
+    }
+    if (lineSelectedState.buses != null) {
+        lineSelectedState.buses.forEach { bus ->
+            Marker(
+                state = MarkerState(position = bus.position.toLatLng()),
+                onClick = { true },
+                anchor = Offset(0.5f, 0.5f),
+                icon = busIcon,
+            )
+        }
+    }
+
     if (zoomLevel > 14 && lineSelectedState.path != null && lineSelectedState.lineStops != null) {
         lineSelectedState.lineStops
             .map { stop -> stop.copy(position = stop.position.moveToPath(lineSelectedState.path)) }

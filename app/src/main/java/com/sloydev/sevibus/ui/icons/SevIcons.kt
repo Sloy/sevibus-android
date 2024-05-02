@@ -41,4 +41,21 @@ object SevIcons {
             LineColor.Unknown -> R.drawable.stop_marker_black
         }
     }
+
+    object BusMarker {
+
+        fun bitmap(context: Context): Bitmap {
+            val vectorDrawable = ResourcesCompat.getDrawable(context.resources, R.drawable.bus_marker, null)!!
+            val bitmap = Bitmap.createBitmap(
+                vectorDrawable.intrinsicWidth,
+                vectorDrawable.intrinsicHeight,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
+            //DrawableCompat.setTint(vectorDrawable, color.toArgb())
+            vectorDrawable.draw(canvas)
+            return bitmap
+        }
+    }
 }
