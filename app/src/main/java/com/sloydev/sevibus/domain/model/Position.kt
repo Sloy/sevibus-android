@@ -1,5 +1,6 @@
 package com.sloydev.sevibus.domain.model
 
+import android.location.Location
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.abs
 
@@ -12,6 +13,10 @@ fun Position.toLatLng(): LatLng {
 
 fun LatLng.fromLatLng(): Position {
     return Position(latitude, longitude)
+}
+
+fun Location.toLatLng(): LatLng {
+    return LatLng(latitude, longitude)
 }
 
 fun Position.manhattanDistance(other: Position): Double {

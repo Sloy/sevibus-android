@@ -7,6 +7,8 @@ import android.location.Location
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Granularity
+import com.google.android.gms.location.LastLocationRequest
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -46,7 +48,10 @@ class FusedLocationService(
     }
 
     override suspend fun obtainCurrentLocation(): Location? {
-        return client.lastLocation.await()
+        if (!context.hasLocationPermission()) {
+            return null
+        }
+        return client.getLastLocation(LastLocationRequest.Builder().setGranularity(Granularity.GRANULARITY_FINE).build()).await()
     }
 }
 

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -37,6 +38,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -49,10 +51,13 @@ import com.sloydev.sevibus.feature.linestops.LineRouteScreen
 import com.sloydev.sevibus.feature.linestops.LineRouteScreenState
 import com.sloydev.sevibus.feature.search.LineSelectorWidget
 import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
+import com.sloydev.sevibus.infrastructure.location.LocationService
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import kotlinx.coroutines.launch
 import okhttp3.internal.format
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
     composable(TopLevelDestination.MAP.route) {
@@ -150,10 +155,15 @@ fun MapContent(
     onLineSelected: (Line) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val locationService: LocationService = koinInject()
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(Stubs.locationTriana.toLatLng(), 15.5f)
+        position = CameraPosition.fromLatLngZoom(Stubs.locationRecaredo.toLatLng(), 15.5f)
+    }
+    LaunchedEffect(locationPermissionState.status.isGranted) {
+        locationService.obtainCurrentLocation()?.toLatLng()?.let {
+            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(it, 18f))
+        }
     }
 
     Box(Modifier.fillMaxSize()) {
@@ -165,7 +175,7 @@ fun MapContent(
                 .align(Alignment.TopCenter)
                 .zIndex(1f)
         )
-        LocationButton(locationPermissionState, cameraPositionState, Modifier.zIndex(1f))
+        LocationButton(locationPermissionState, cameraPositionState, locationService, Modifier.zIndex(1f))
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,
@@ -183,16 +193,25 @@ fun MapContent(
 fun BoxScope.LocationButton(
     locationPermissionState: PermissionState,
     cameraPositionState: CameraPositionState,
+    locationService: LocationService,
     modifier: Modifier = Modifier
 ) {
+    val hasPermission = locationPermissionState.status.isGranted
+    val scope = rememberCoroutineScope()
     FloatingActionButton(
         onClick = {
-            if (!locationPermissionState.status.isGranted) {
+            if (!hasPermission) {
                 locationPermissionState.launchPermissionRequest()
             } else {
-                //cameraPositionState.animate()
+                scope.launch {
+                    locationService.obtainCurrentLocation()?.toLatLng()?.let {
+                        cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(it, 18f))
+                    }
+                }
             }
         },
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier
             .align(Alignment.BottomEnd)
             .padding(16.dp),
