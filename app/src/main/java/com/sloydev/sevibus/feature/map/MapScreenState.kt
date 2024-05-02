@@ -24,11 +24,3 @@ val MapScreenState.selectedLine: Line?
         else -> null
     }
 
-sealed interface MapScreenAction {
-    data object Init : MapScreenAction
-    data class SelectStop(val stop: Stop) : MapScreenAction
-    data class SelectLine(val line: Line) : MapScreenAction
-    data class SelectRoute(val route: Route) : MapScreenAction
-    data object Dismiss : MapScreenAction
-}
-
