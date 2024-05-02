@@ -70,7 +70,7 @@ fun SevMap(
         )
     }
     val context = LocalContext.current
-    val mapProperties by remember {
+    val mapProperties by remember(locationPermissionState.status.isGranted) {
         mutableStateOf(
             MapProperties(
                 minZoomPreference = 13f,
