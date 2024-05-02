@@ -1,6 +1,7 @@
 package com.sloydev.sevibus.feature.map
 
 import android.Manifest
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -110,6 +111,10 @@ fun MapScreen(
         LaunchedEffect(sheetState.currentValue) {
             onDismiss()
         }
+    }
+
+    BackHandler(enabled = state is Dismissable) {
+        onDismiss()
     }
 
     BottomSheetScaffold(
