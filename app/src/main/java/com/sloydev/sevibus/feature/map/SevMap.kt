@@ -32,7 +32,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
-import com.sloydev.sevibus.FakeLocationSource
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.domain.model.Path
 import com.sloydev.sevibus.domain.model.Position
@@ -178,25 +177,27 @@ fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel
     }
     val selectedStop = (state as? MapScreenState.LineStopSelected)?.selectedStop
 
-    with(LocalDensity.current) {
-        val lineWidth = if (zoomLevel < 14) {
-            6.dp.toPx()
-        } else {
-            8.dp.toPx()
+    if (lineSelectedState.path != null) {
+        with(LocalDensity.current) {
+            val lineWidth = if (zoomLevel < 14) {
+                6.dp.toPx()
+            } else {
+                8.dp.toPx()
+            }
+            Polyline(
+                points = lineSelectedState.path.points.map { it.toLatLng() },
+                color = lineSelectedState.line.color.toUiColor(),
+                jointType = JointType.ROUND,
+                width = lineWidth,
+            )
         }
-        Polyline(
-            points = lineSelectedState.path.points.map { it.toLatLng() },
-            color = lineSelectedState.line.color.toUiColor(),
-            jointType = JointType.ROUND,
-            width = lineWidth,
-        )
     }
 
     val context = LocalContext.current
     val circularStopIcon = remember(lineSelectedState.line.color) {
         BitmapDescriptorFactory.fromBitmap(SevIcons.CircularStopMarker.bitmap(context, lineSelectedState.line.color))
     }
-    if (zoomLevel > 14) {
+    if (zoomLevel > 14 && lineSelectedState.path != null && lineSelectedState.lineStops != null) {
         lineSelectedState.lineStops
             .map { stop -> stop.copy(position = stop.position.moveToPath(lineSelectedState.path)) }
             .forEach { stop ->

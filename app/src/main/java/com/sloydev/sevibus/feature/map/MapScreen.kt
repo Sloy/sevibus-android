@@ -134,7 +134,11 @@ fun BottomSheetContent(
         is MapScreenState.StopSelected -> StopDetailScreen(state.selectedStop.code, embedded = true)
         is MapScreenState.LineStopSelected -> StopDetailScreen(state.selectedStop.code, embedded = true)
         is MapScreenState.LineSelected -> {
-            val routeState = LineRouteScreenState.Content.Full(state.line, state.selectedRoute, state.lineStops)
+            val routeState = if (state.lineStops != null) {
+                LineRouteScreenState.Content.Full(state.line, state.selectedRoute, state.lineStops)
+            } else {
+                LineRouteScreenState.Content.Partial(state.line, state.selectedRoute)
+            }
             LineRouteScreen(routeState, onRouteSelected = onRouteSelected, onStopClick = onStopSelected, embedded = true)
         }
 

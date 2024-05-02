@@ -9,7 +9,6 @@ import com.sloydev.sevibus.domain.repository.LineRepository
 import com.sloydev.sevibus.domain.repository.PathRepository
 import com.sloydev.sevibus.domain.repository.StopRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MapViewModel(
@@ -37,13 +36,15 @@ class MapViewModel(
         dispatch(MapScreenAction.SelectRoute(route))
     }
 
-    fun onDismiss(){
+    fun onDismiss() {
         dispatch(MapScreenAction.Dismiss)
     }
 
     private fun dispatch(action: MapScreenAction) {
         viewModelScope.launch {
-            state.update { reducer(it, action) }
+            reducer(state.value, action).collect { newState ->
+                state.value = newState
+            }
         }
     }
 }
