@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -69,7 +70,8 @@ fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
 @Composable
 fun MapScreen(setNavigationBarVisibility: (Boolean) -> Unit) {
     val viewModel: MapViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.ticker.collectAsStateWithLifecycle(Unit)
 
     MapScreen(
         state,
@@ -184,7 +186,10 @@ fun MapContent(
                 .align(Alignment.TopCenter)
                 .zIndex(1f)
         )
-        LocationButton(locationPermissionState, cameraPositionState, locationService, Modifier.zIndex(1f).padding(contentPadding))
+        LocationButton(locationPermissionState, cameraPositionState, locationService,
+            Modifier
+                .zIndex(1f)
+                .padding(contentPadding))
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,

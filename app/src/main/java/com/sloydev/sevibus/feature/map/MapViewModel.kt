@@ -12,7 +12,6 @@ import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.infrastructure.ticker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
@@ -26,12 +25,12 @@ class MapViewModel(
     val state = MutableStateFlow<MapScreenState>(MapScreenState.Initial)
     private val reducer = MapScreenStateReducer(stopsRepository, pathRepository, busRepository)
 
+    val ticker = ticker(4_000)
+        .filter { state.value is Tickable } // Emit only when state is State2
+        .onEach { dispatch(MapScreenAction.PeriodicTick) }
+
     init {
         dispatch(MapScreenAction.Init)
-        ticker(10_000)
-            .filter { state.value is Tickable } // Emit only when state is State2
-            .onEach { dispatch(MapScreenAction.PeriodicTick) }
-            .launchIn(viewModelScope)
     }
 
     fun onStopSelected(stop: Stop) {
