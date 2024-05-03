@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import com.sloydev.sevibus.feature.cards.travelCardsRoute
 import com.sloydev.sevibus.feature.debug.DebugMenu
+import com.sloydev.sevibus.feature.debug.http.HttpOverlayLayout
 import com.sloydev.sevibus.feature.debug.rememberDebugMenuState
 import com.sloydev.sevibus.feature.foryou.forYouRoute
 import com.sloydev.sevibus.feature.lines.linesRoute
@@ -63,35 +64,37 @@ fun App() {
                     )
                 }
             }) { padding ->
-                DebugMenu(debugMenuState, koinInject(), Modifier.padding(padding))
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .consumeWindowInsets(padding)
-                        .windowInsetsPadding(
-                            WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Horizontal,
-                            ),
-                        )
-                ) {
-                    NavHost(
-                        navController = appState.navController,
-                        startDestination = FOR_YOU.route,
-                        modifier = Modifier.fillMaxSize(),
-                        enterTransition = { fadeIn(animationSpec = tween(100)) },
-                        exitTransition = { fadeOut(animationSpec = tween(100)) },
+                HttpOverlayLayout(Modifier.padding(padding)) {
+                    DebugMenu(debugMenuState, koinInject(), Modifier.padding(padding))
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .consumeWindowInsets(padding)
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal,
+                                ),
+                            )
                     ) {
-                        forYouRoute(appState.navController)
-                        linesRoute(appState.navController)
-                        mapRoute(setNavigationBarVisibility = { visible ->
-                            SevLogger.logD("setNavigationBarVisibility: $visible")
-                            appState.navigationBarVisible = visible
-                        })
-                        travelCardsRoute()
+                        NavHost(
+                            navController = appState.navController,
+                            startDestination = FOR_YOU.route,
+                            modifier = Modifier.fillMaxSize(),
+                            enterTransition = { fadeIn(animationSpec = tween(100)) },
+                            exitTransition = { fadeOut(animationSpec = tween(100)) },
+                        ) {
+                            forYouRoute(appState.navController)
+                            linesRoute(appState.navController)
+                            mapRoute(setNavigationBarVisibility = { visible ->
+                                SevLogger.logD("setNavigationBarVisibility: $visible")
+                                appState.navigationBarVisible = visible
+                            })
+                            travelCardsRoute()
 
-                        lineStopsRoute(appState.navController)
-                        stopDetailRoute()
+                            lineStopsRoute(appState.navController)
+                            stopDetailRoute()
+                        }
                     }
                 }
             }

@@ -27,9 +27,9 @@ import com.sloydev.sevibus.infrastructure.location.FusedLocationService
 import com.sloydev.sevibus.infrastructure.location.LocationService
 import com.sloydev.sevibus.infrastructure.location.LocationServiceSource
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -70,10 +70,9 @@ object DI {
         single<TussamDao> { get<SevibusDatabase>().tussamDao() }
 
         single<OkHttpClient> {
-            val logging = HttpLoggingInterceptor()
-            logging.setLevel(HttpLoggingInterceptor.Level.BASIC)
+            val interceptors: List<Interceptor> = get()
             OkHttpClient.Builder()
-                .addInterceptor(logging)
+                .addInterceptors(interceptors)
                 .build()
         }
 
@@ -86,7 +85,6 @@ object DI {
                     Json.asConverterFactory("application/json; charset=UTF8".toMediaType())
                 )
                 .build()
-
             retrofit.create(SevibusApi::class.java)
         }
     }
@@ -101,4 +99,12 @@ object DI {
         single<LocationService> { get<FusedLocationService>() }
         single<LocationSource> { LocationServiceSource(get()) }
     }
+
+    private fun OkHttpClient.Builder.addInterceptors(interceptors: List<Interceptor>): OkHttpClient.Builder {
+        interceptors.forEach {
+            addInterceptor(it)
+        }
+        return this
+    }
+
 }
