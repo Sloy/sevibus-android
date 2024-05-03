@@ -59,7 +59,7 @@ fun NavController.navigateToStopDetail(code: Int) {
 
 @Composable
 fun StopDetailScreen(code: StopId, embedded: Boolean = false) {
-    val viewModel = koinViewModel<StopDetailViewModel> { parametersOf(code) }
+    val viewModel = koinViewModel<StopDetailViewModel>(key = code.toString()) { parametersOf(code) }
     val state by viewModel.state.collectAsState(StopDetailScreenState())
     StopDetailScreen(state, embedded)
 }
