@@ -27,6 +27,7 @@ import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
+import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
 fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteClicked: (Route) -> Unit, modifier: Modifier = Modifier) {
@@ -48,7 +49,7 @@ fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteCl
 @Composable
 private fun RouteTab(directionValue: String, isSelected: Boolean, onRouteClicked: () -> Unit, modifier: Modifier = Modifier) {
     val colors = if (isSelected) {
-        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        CardDefaults.cardColors(containerColor = SevTheme.colorScheme.surfaceContainer)
     } else {
         CardDefaults.cardColors(containerColor = Color.Transparent)
     }

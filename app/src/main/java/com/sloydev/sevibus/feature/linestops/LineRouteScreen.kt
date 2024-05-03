@@ -10,7 +10,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +27,7 @@ import com.sloydev.sevibus.domain.model.Line
 import com.sloydev.sevibus.domain.model.LineId
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.Stop
-import com.sloydev.sevibus.domain.model.toUiColor
+import com.sloydev.sevibus.domain.model.primary
 import com.sloydev.sevibus.feature.linestops.component.ListPosition
 import com.sloydev.sevibus.feature.linestops.component.StopTimelineElement
 import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
@@ -37,6 +36,7 @@ import com.sloydev.sevibus.ui.components.LineIndicatorSmall
 import com.sloydev.sevibus.ui.components.RouteTabsSelector
 import com.sloydev.sevibus.ui.components.SevTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -84,7 +84,7 @@ fun LineRouteScreen(
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = SevTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -128,7 +128,7 @@ private fun RouteContent(
                     stops.lastIndex -> ListPosition.End
                     else -> ListPosition.Middle
                 },
-                color = line.color.toUiColor(),
+                color = line.color.primary(),
                 onStopClick = onStopClick,
             )
         }

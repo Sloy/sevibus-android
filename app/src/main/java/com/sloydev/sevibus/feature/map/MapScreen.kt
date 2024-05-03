@@ -17,14 +17,12 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -56,6 +54,7 @@ import com.sloydev.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloydev.sevibus.infrastructure.location.LocationService
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import com.sloydev.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 import okhttp3.internal.format
 import org.koin.androidx.compose.koinViewModel
@@ -122,7 +121,7 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = rememberBottomSheetScaffoldState(sheetState),
         sheetPeekHeight = screenHeight / 3,
-        sheetContainerColor = MaterialTheme.colorScheme.background,
+        sheetContainerColor = SevTheme.colorScheme.background,
         sheetContent = {
             BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
@@ -186,10 +185,12 @@ fun MapContent(
                 .align(Alignment.TopCenter)
                 .zIndex(1f)
         )
-        LocationButton(locationPermissionState, cameraPositionState, locationService,
+        LocationButton(
+            locationPermissionState, cameraPositionState, locationService,
             Modifier
                 .zIndex(1f)
-                .padding(contentPadding))
+                .padding(contentPadding)
+        )
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,
@@ -224,8 +225,8 @@ fun BoxScope.LocationButton(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = SevTheme.colorScheme.primary,
+        contentColor = SevTheme.colorScheme.onPrimary,
         modifier = modifier
             .align(Alignment.BottomEnd)
             .padding(16.dp),

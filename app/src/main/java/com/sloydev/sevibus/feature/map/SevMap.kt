@@ -42,7 +42,7 @@ import com.sloydev.sevibus.domain.model.filterInBounds
 import com.sloydev.sevibus.domain.model.fromLatLng
 import com.sloydev.sevibus.domain.model.moveToPath
 import com.sloydev.sevibus.domain.model.toLatLng
-import com.sloydev.sevibus.domain.model.toUiColor
+import com.sloydev.sevibus.domain.model.primary
 import com.sloydev.sevibus.infrastructure.SevLogger
 import com.sloydev.sevibus.ui.icons.SevIcons
 import org.koin.compose.koinInject
@@ -186,7 +186,7 @@ fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel
             }
             Polyline(
                 points = lineSelectedState.path.points.map { it.toLatLng() },
-                color = lineSelectedState.line.color.toUiColor(),
+                color = lineSelectedState.line.color.primary(),
                 jointType = JointType.ROUND,
                 width = lineWidth,
             )

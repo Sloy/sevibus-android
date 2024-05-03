@@ -122,7 +122,7 @@ fun NoLineIndicator(modifier: Modifier = Modifier) {
     Box(
         modifier
             .clip(MaterialTheme.shapes.extraSmall)
-            .background(MaterialTheme.colorScheme.primary)
+            .background(SevTheme.colorScheme.primary)
             .padding(2.dp),
         contentAlignment = Alignment.Center
     ) {

@@ -43,6 +43,7 @@ import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
 import com.sloydev.sevibus.ui.theme.AlexGreySurface
 import com.sloydev.sevibus.ui.theme.AlexPink
+import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -80,7 +81,7 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = SevTheme.colorScheme.onSurface,
                         )
                     }
                 },
@@ -88,7 +89,7 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.Default.FavoriteBorder, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = SevTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -103,7 +104,7 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
                                 Icons.Default.FavoriteBorder, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
+                                tint = SevTheme.colorScheme.onSurface,
                             )
                         }
                     }

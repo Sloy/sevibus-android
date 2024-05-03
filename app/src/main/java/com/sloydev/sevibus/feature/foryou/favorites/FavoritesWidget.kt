@@ -30,6 +30,7 @@ import com.sloydev.sevibus.domain.model.descriptionSeparator
 import com.sloydev.sevibus.ui.components.ArrivalElement
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
+import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -80,7 +81,7 @@ private fun FavoriteListItem(favorite: FavoriteStop, arrivals: List<BusArrival>?
             .fillMaxWidth()
     ) {
         Row(Modifier.padding(16.dp)) {
-            Icon(favorite.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(favorite.icon, contentDescription = null, tint = SevTheme.colorScheme.primary)
             Column(Modifier.padding(start = 16.dp)) {
                 Text(
                     favorite.customName, maxLines = 1, overflow = TextOverflow.Ellipsis,

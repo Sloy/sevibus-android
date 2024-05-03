@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -100,7 +99,7 @@ fun TravelCardsScreen(cards: List<TravelCard>) {
 @Composable
 private fun NewCardDetail() {
     Column(Modifier.padding(16.dp)) {
-        Text("Añadir tarjeta", style = MaterialTheme.typography.titleLarge)
+        Text("Añadir tarjeta", style = SevTheme.typography.titleLarge)
         Spacer(Modifier.size(16.dp))
         var input by remember { mutableStateOf("") }
         TextField(
@@ -117,7 +116,7 @@ private fun NewCardDetail() {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.size(32.dp))
-        Text("o bien", Modifier.align(Alignment.CenterHorizontally), style = MaterialTheme.typography.labelMedium)
+        Text("o bien", Modifier.align(Alignment.CenterHorizontally), style = SevTheme.typography.labelMedium)
         Spacer(Modifier.size(32.dp))
         ExtendedFloatingActionButton(
             onClick = { /*TODO*/ },
@@ -149,14 +148,15 @@ fun WarningNotice() {
     OutlinedCard(
         Modifier
             .padding(horizontal = 16.dp)
-            .fillMaxWidth()) {
+            .fillMaxWidth()
+    ) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Outlined.Info, contentDescription = null, tint = SevTheme.colorScheme.primary)
             Spacer(Modifier.size(8.dp))
             Text(
                 "Los datos pueden tardar 24h en actualizarse",
                 style = SevTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
+                color = SevTheme.colorScheme.primary
             )
         }
     }
@@ -183,7 +183,7 @@ private fun CardPictureItem(card: TravelCard) {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(256f / 154f)
-            .shadow(16.dp, MaterialTheme.shapes.medium),
+            .shadow(16.dp, SevTheme.shapes.medium),
         contentDescription = null
     )
 }
@@ -194,8 +194,8 @@ private fun CardAddMoreItem() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .border(2.dp, tint, MaterialTheme.shapes.medium)
+            .clip(SevTheme.shapes.medium)
+            .border(2.dp, tint, SevTheme.shapes.medium)
             .aspectRatio(256f / 154f), contentAlignment = Alignment.Center
     ) {
         Column {

@@ -17,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.BusArrival
-import com.sloydev.sevibus.domain.model.toSummary
 import com.sloydev.sevibus.ui.theme.AlexGreySurface2
 import com.sloydev.sevibus.ui.theme.SevTheme
 
@@ -59,7 +58,7 @@ private fun Preview() {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.background)
+                .background(SevTheme.colorScheme.background)
                 .padding(32.dp)
         ) {
             Stubs.arrivals.forEach {

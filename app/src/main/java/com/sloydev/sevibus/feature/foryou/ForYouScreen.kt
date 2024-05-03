@@ -5,7 +5,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -21,6 +20,7 @@ import com.sloydev.sevibus.feature.stopdetail.navigateToStopDetail
 import com.sloydev.sevibus.navigation.TopLevelDestination
 import com.sloydev.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
+import com.sloydev.sevibus.ui.theme.SevTheme
 
 
 fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
@@ -41,7 +41,7 @@ fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
                     IconButton(onClick = { DebugMenuState.openMenu() }) {
                         Icon(
                             Icons.Default.BugReport, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.surface,
+                            tint = SevTheme.colorScheme.surface,
                         )
                     }
                 }

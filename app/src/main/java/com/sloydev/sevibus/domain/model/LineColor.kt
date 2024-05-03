@@ -2,10 +2,7 @@ package com.sloydev.sevibus.domain.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.sloydev.sevibus.ui.theme.AlexGreen
-import com.sloydev.sevibus.ui.theme.AlexOrange
-import com.sloydev.sevibus.ui.theme.AlexPink
-import com.sloydev.sevibus.ui.theme.AlexPurple
+import com.sloydev.sevibus.ui.theme.SevColors
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,15 +17,26 @@ enum class LineColor {
     Unknown,
 }
 
-fun LineColor.toUiColor(): Color = when (this) {
-    LineColor.Red -> AlexPink// Color(0xfff54129)
-    LineColor.Orange -> AlexOrange// Color(0xfff7a800)
-    LineColor.Blue -> AlexPurple//Color(0xff000d6f)
-    LineColor.Cyan -> Color(0xff84c6e3)
-    LineColor.Green -> AlexGreen// Color(0xff008431)
-    LineColor.Wine -> Color(0xffc60018)
-    LineColor.Black -> Color(0xff000000)
+fun LineColor.primary(): Color = when (this) {
+    LineColor.Red -> SevColors.Red
+    LineColor.Orange -> SevColors.Yellow
+    LineColor.Blue -> SevColors.Blue
+    LineColor.Cyan -> SevColors.Cyan
+    LineColor.Green -> SevColors.Green
+    LineColor.Wine -> SevColors.Wine
+    LineColor.Black -> SevColors.Purple
     LineColor.Unknown -> Color(0xff000000)
 }
 
-fun LineColor.toArgb() = this.toUiColor().toArgb()
+fun LineColor.soft(): Color = when (this) {
+    LineColor.Red -> SevColors.RedSoft
+    LineColor.Orange -> SevColors.YellowSoft
+    LineColor.Blue -> SevColors.BlueSoft
+    LineColor.Cyan -> SevColors.CyanSoft
+    LineColor.Green -> SevColors.GreenSoft
+    LineColor.Wine -> SevColors.WineSoft
+    LineColor.Black -> SevColors.PurpleSoft
+    LineColor.Unknown -> SevColors.Neutral500
+}
+
+fun LineColor.toArgb() = this.primary().toArgb()
