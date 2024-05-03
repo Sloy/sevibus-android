@@ -20,6 +20,8 @@ import com.sloydev.sevibus.Stubs
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.description1
 import com.sloydev.sevibus.domain.model.description2
+import com.sloydev.sevibus.ui.icons.SevIcons
+import com.sloydev.sevibus.ui.icons.Stop
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -30,7 +32,7 @@ fun StopDetailInfoItem(
 ) {
     Surface(shape = SevTheme.shapes.medium, modifier = modifier.fillMaxWidth()) {
         Row(Modifier.padding(16.dp)) {
-            Icon(Icons.Default.LocationOn, contentDescription = null, tint = SevTheme.colorScheme.primary)
+            Icon(SevIcons.Stop, contentDescription = null, tint = SevTheme.colorScheme.primary)
             Spacer(Modifier.size(16.dp))
             Column {
                 Text(stop.description1, style = SevTheme.typography.bodyStandardBold)

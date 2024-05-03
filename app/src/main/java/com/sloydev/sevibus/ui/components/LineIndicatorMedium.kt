@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,25 +24,24 @@ import com.sloydev.sevibus.domain.model.toSummary
 import com.sloydev.sevibus.ui.theme.SevTheme
 
 @Composable
-fun LineIndicatorMedium(line: Line) {
-    LineIndicatorMedium(line.toSummary())
+fun LineIndicatorMedium(line: Line, modifier: Modifier = Modifier) {
+    LineIndicatorMedium(line.toSummary(), modifier)
 }
 
 @Composable
-fun LineIndicatorMedium(line: LineSummary) {
+fun LineIndicatorMedium(line: LineSummary, modifier: Modifier = Modifier) {
     SevTheme.WithLineColors(line.color) {
         Box(
-            Modifier
-                .clip(MaterialTheme.shapes.small)
-                .background(SevTheme.colorScheme.primary)
-                .padding(4.dp),
+            modifier
+                .defaultMinSize(24.dp, 24.dp)
+                .clip(MaterialTheme.shapes.extraSmall)
+                .background(SevTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 line.label,
                 color = SevTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.bodyLarge
-                    .copy(fontWeight = FontWeight.ExtraBold)
+                style = SevTheme.typography.bodySmallBold
             )
         }
     }

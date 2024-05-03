@@ -2,10 +2,8 @@ package com.sloydev.sevibus
 
 import android.location.Location
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Work
 import com.google.android.gms.maps.LocationSource
-import com.google.android.gms.maps.model.LatLng
 import com.sloydev.sevibus.domain.model.BusArrival
 import com.sloydev.sevibus.domain.model.FavoriteStop
 import com.sloydev.sevibus.domain.model.Line
@@ -18,6 +16,8 @@ import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.TravelCard
 import com.sloydev.sevibus.domain.model.toSummary
 import com.sloydev.sevibus.feature.lines.LinesScreenState
+import com.sloydev.sevibus.ui.icons.Home
+import com.sloydev.sevibus.ui.icons.SevIcons
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -226,7 +226,7 @@ object Stubs {
 
     @Deprecated("")
     val favorites = listOf(
-        FavoriteStop(customName = "Casa", icon = Icons.Rounded.Home, stop = stops[0]),
+        FavoriteStop(customName = "Casa", icon = SevIcons.Home, stop = stops[0]),
         FavoriteStop(customName = "Oficina", icon = Icons.Rounded.Work, stop = stops[1]),
     )
 

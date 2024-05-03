@@ -27,7 +27,7 @@ fun ArrivalElement(arrival: BusArrival, showLine: Boolean = false) {
     ) {
         if (showLine) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                LineIndicatorSmall(arrival.line, modifier = Modifier.padding(4.dp))
+                LineIndicatorMedium(arrival.line, modifier = Modifier.padding(4.dp))
                 Text(
                     arrival.toText(),
                     style = SevTheme.typography.bodySmallBold,
