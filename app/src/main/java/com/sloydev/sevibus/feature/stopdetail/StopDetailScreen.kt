@@ -38,6 +38,7 @@ import com.sloydev.sevibus.domain.model.description1
 import com.sloydev.sevibus.domain.model.description2
 import com.sloydev.sevibus.ui.components.ArrivalElement
 import com.sloydev.sevibus.ui.components.LineIndicatorMedium
+import com.sloydev.sevibus.ui.components.StopDetailInfoItem
 import com.sloydev.sevibus.ui.components.SevTopAppBar
 import com.sloydev.sevibus.ui.preview.ScreenPreview
 import com.sloydev.sevibus.ui.theme.AlexGreyIcons
@@ -69,67 +70,35 @@ fun StopDetailScreen(code: StopId, embedded: Boolean = false) {
 fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
     Column {
         val title = "Parada ${(state.stopState as? StopState.Loaded)?.stop?.code ?: ""}"
-        if (!embedded) {
-            SevTopAppBar(
-                title = {
-                    Text(
-                        title, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Medium
-                    )
-                },
-                navigationIcon = {
+        SevTopAppBar(
+            title = {
+                Text(
+                    title, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    style = SevTheme.typography.headingLarge
+                )
+            },
+            navigationIcon = {
+                if (!embedded) {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
                             tint = SevTheme.colorScheme.onSurface,
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Default.FavoriteBorder, contentDescription = null,
-                            tint = SevTheme.colorScheme.onSurface,
-                        )
-                    }
                 }
-            )
-        } else {
-            if (state.stopState is StopState.Loaded) {
-                SevTopAppBar(
-                    title = {
-                        Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    },
-                    actions = {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                Icons.Default.FavoriteBorder, contentDescription = null,
-                                tint = SevTheme.colorScheme.onSurface,
-                            )
-                        }
-                    }
-                )
+            },
+            actions = {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(
+                        Icons.Default.FavoriteBorder, contentDescription = null,
+                        tint = SevTheme.colorScheme.onSurface,
+                    )
+                }
             }
-        }
+        )
 
         if (state.stopState is StopState.Loaded) {
-            ListItem(
-                colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clip(MaterialTheme.shapes.medium),
-                leadingContent = {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = AlexPink)
-                },
-                headlineContent = {
-                    Column {
-                        Text(state.stopState.stop.description1, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        state.stopState.stop.description2?.let {
-                            Text(it, style = MaterialTheme.typography.bodyMedium, color = AlexGreyIcons)
-                        }
-                    }
-                }
-            )
+            StopDetailInfoItem(state.stopState.stop, modifier = Modifier.padding(16.dp), showStopCode = false)
 
         }
 
@@ -148,8 +117,9 @@ fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
 @Composable
 private fun BusArrivals(arrivals: List<BusArrival>) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Líneas", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 4.dp))
+        Text("Líneas", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
         arrivals.forEach { arrival ->
+
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
                 modifier = Modifier.clip(MaterialTheme.shapes.medium),

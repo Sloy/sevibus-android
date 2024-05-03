@@ -55,7 +55,7 @@ fun FavoritesWidget(state: FavoriteSubScreenState, onStopClicked: (code: Int) ->
         is FavoriteSubScreenState.Content -> {
             Column {
                 Text(
-                    "Paradas favoritas", style = MaterialTheme.typography.titleLarge,
+                    "Paradas favoritas", style = SevTheme.typography.headingSmall,
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
                 )
 
@@ -85,11 +85,11 @@ private fun FavoriteListItem(favorite: FavoriteStop, arrivals: List<BusArrival>?
             Column(Modifier.padding(start = 16.dp)) {
                 Text(
                     favorite.customName, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold
+                    style = SevTheme.typography.bodyStandardBold
                 )
                 Text(
                     favorite.stop.descriptionSeparator(), maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium, color = AlexGreyIcons
+                    style = SevTheme.typography.bodySmall, color = SevTheme.colorScheme.onSurfaceVariant
                 )
                 if (arrivals != null) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {

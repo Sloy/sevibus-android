@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -99,7 +100,7 @@ fun TravelCardsScreen(cards: List<TravelCard>) {
 @Composable
 private fun NewCardDetail() {
     Column(Modifier.padding(16.dp)) {
-        Text("Añadir tarjeta", style = SevTheme.typography.titleLarge)
+        Text("Añadir tarjeta", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.size(16.dp))
         var input by remember { mutableStateOf("") }
         TextField(
@@ -116,7 +117,7 @@ private fun NewCardDetail() {
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.size(32.dp))
-        Text("o bien", Modifier.align(Alignment.CenterHorizontally), style = SevTheme.typography.labelMedium)
+        Text("o bien", Modifier.align(Alignment.CenterHorizontally), style = MaterialTheme.typography.labelMedium)
         Spacer(Modifier.size(32.dp))
         ExtendedFloatingActionButton(
             onClick = { /*TODO*/ },

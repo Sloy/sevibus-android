@@ -73,7 +73,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainerLow = SevColors.Neutral50,
     surfaceContainer = SevColors.Neutral50,
     surfaceContainerHigh = SevColors.Neutral50,
-    surfaceContainerHighest = SevColors.Neutral50,
+    surfaceContainerHighest = SevColors.OpacitySoft,
 
     //surfaceBright = ,
     //surfaceDim = ,
@@ -106,7 +106,6 @@ fun SevTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
         content = content
     )
 }
@@ -117,17 +116,8 @@ object SevTheme {
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme
 
-    /**
-     * Retrieves the current [Typography] at the call site's position in the hierarchy.
-     */
-    val typography: Typography
-        @Composable
-        @ReadOnlyComposable
-        get() = MaterialTheme.typography
+    val typography: SevTypography = SevTypography
 
-    /**
-     * Retrieves the current [Shapes] at the call site's position in the hierarchy.
-     */
     val shapes: Shapes
         @Composable
         @ReadOnlyComposable
