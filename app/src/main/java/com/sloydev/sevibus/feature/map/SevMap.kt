@@ -9,19 +9,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.Projection
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
@@ -29,22 +24,16 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
-import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.Polyline
 import com.sloydev.sevibus.R
 import com.sloydev.sevibus.domain.model.Path
 import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.PositionBounds
 import com.sloydev.sevibus.domain.model.Stop
 import com.sloydev.sevibus.domain.model.StopId
-import com.sloydev.sevibus.domain.model.filterInBounds
 import com.sloydev.sevibus.domain.model.fromLatLng
-import com.sloydev.sevibus.domain.model.moveToPath
 import com.sloydev.sevibus.domain.model.toLatLng
-import com.sloydev.sevibus.domain.model.primary
 import com.sloydev.sevibus.infrastructure.SevLogger
-import com.sloydev.sevibus.ui.icons.SevIcons
+import com.sloydev.sevibus.ui.theme.SevTheme
 import org.koin.compose.koinInject
 import kotlin.math.abs
 
@@ -79,7 +68,6 @@ fun SevMap(
             )
         )
     }
-    val zoomLevel = cameraPositionState.position.zoom.toInt()
 
     val selectedStop = when (state) {
         is MapScreenState.LineStopSelected -> state.selectedStop
@@ -109,7 +97,8 @@ fun SevMap(
         onMapClick = { onMapClick() },
         locationSource = locationSource
     ) {
-        SparseStopsMarkers(state, onStopSelected, zoomLevel, cameraPositionState.bounds)
+        val zoomLevel = cameraPositionState.position.zoom.toInt()
+        SparseStopsMarkers(state, zoomLevel, cameraPositionState.bounds, onStopSelected)
         LineMarkers(state, onStopSelected, zoomLevel)
     }
 }
@@ -127,114 +116,36 @@ private suspend fun CameraPositionState.zoomInto(position: Position) {
 
 @Composable
 @GoogleMapComposable
-private fun SparseStopsMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel: Int, bounds: PositionBounds?) {
-    if (zoomLevel < 15) return
+private fun SparseStopsMarkers(state: MapScreenState, zoomLevel: Int, bounds: PositionBounds?, onStopSelected: (Stop) -> Unit) {
+    if (!ZoomLevelConfig.isSparseStopsVisible(zoomLevel)) return
     val visibleStops = when (state) {
         is MapScreenState.Idle -> state.allStops
         is MapScreenState.StopSelected -> state.allStops
         else -> return
     }
     val selectedStop = (state as? MapScreenState.StopSelected)?.selectedStop
-
-    val stopIconRes = SevIcons.SquareStopMarker.getByZoom(zoomLevel)
-    val stopIcon = remember(stopIconRes) { BitmapDescriptorFactory.fromResource(stopIconRes) }
-
-    visibleStops
-        .filterInBounds(bounds)
-        .forEach { stop ->
-            if (stop != selectedStop) {
-                Marker(
-                    state = MarkerState(position = stop.position.toLatLng()),
-                    anchor = Offset(0.5f, 0.5f),
-                    onClick = {
-                        onStopSelected(stop)
-                        false
-                    },
-                    icon = stopIcon,
-                    zIndex = 0.1f,
-                )
-            } else {
-                Marker(
-                    state = MarkerState(position = stop.position.toLatLng()),
-                    onClick = {
-                        onStopSelected(stop)
-                        false
-                    },
-                    zIndex = 1f
-                )
-            }
-        }
-
+    MapStops(visibleStops, bounds, selectedStop, onStopSelected)
 }
 
 @Composable
 @GoogleMapComposable
-fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel: Int) {
+private fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel: Int) {
     val lineSelectedState = when (state) {
         is MapScreenState.LineSelected -> state
         is MapScreenState.LineStopSelected -> state.lineSelectedState
         else -> return
     }
     val selectedStop = (state as? MapScreenState.LineStopSelected)?.selectedStop
-
-    if (lineSelectedState.path != null) {
-        with(LocalDensity.current) {
-            val lineWidth = if (zoomLevel < 14) {
-                6.dp.toPx()
-            } else {
-                8.dp.toPx()
-            }
-            Polyline(
-                points = lineSelectedState.path.points.map { it.toLatLng() },
-                color = lineSelectedState.line.color.primary(),
-                jointType = JointType.ROUND,
-                width = lineWidth,
-            )
+    SevTheme.WithLineColors(lineColor = lineSelectedState.line.color) {
+        lineSelectedState.path?.let {
+            MapLine(zoomLevel, it, selectedStop)
         }
-    }
-
-    val context = LocalContext.current
-    val circularStopIcon = remember(lineSelectedState.line.color) {
-        BitmapDescriptorFactory.fromBitmap(SevIcons.CircularStopMarker.bitmap(context, lineSelectedState.line.color))
-    }
-    val busIcon = remember {
-        BitmapDescriptorFactory.fromBitmap(SevIcons.BusMarker.bitmap(context))
-    }
-    if (lineSelectedState.buses != null) {
-        lineSelectedState.buses.forEach { bus ->
-            Marker(
-                state = MarkerState(position = bus.position.toLatLng()),
-                onClick = { true },
-                anchor = Offset(0.5f, 0.5f),
-                icon = busIcon,
-            )
+        lineSelectedState.lineStops?.let {
+            MapLineStops(it, selectedStop, lineSelectedState.path, zoomLevel, onStopSelected)
         }
-    }
-
-    if (zoomLevel > 14 && lineSelectedState.path != null && lineSelectedState.lineStops != null) {
-        lineSelectedState.lineStops
-            .map { stop -> stop.copy(position = stop.position.moveToPath(lineSelectedState.path)) }
-            .forEach { stop ->
-                if (stop == selectedStop) {
-                    Marker(
-                        state = MarkerState(position = stop.position.toLatLng()),
-                        onClick = {
-                            onStopSelected(stop)
-                            false
-                        },
-                        zIndex = 100f
-                    )
-                }
-                Marker(
-                    state = MarkerState(position = stop.position.toLatLng()),
-                    anchor = Offset(0.5f, 0.5f),
-                    icon = circularStopIcon,
-                    onClick = {
-                        onStopSelected(stop)
-                        false
-                    }
-                )
-            }
+        lineSelectedState.buses?.let {
+            MapBuses(it)
+        }
     }
 }
 
@@ -263,7 +174,6 @@ private fun List<Stop>.withoutCollisions(minDistancePx: Int, projection: Project
     }
     return this.filterNot { it.code in excludedIds }
 }
-
 
 private fun manhattanDistance(pos1: Point, pos2: Point): Int {
     val xDiff = abs(pos1.x - pos2.x)
