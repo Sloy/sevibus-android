@@ -25,7 +25,7 @@ class MapViewModel(
     val state = MutableStateFlow<MapScreenState>(MapScreenState.Initial)
     private val reducer = MapScreenStateReducer(stopsRepository, pathRepository, busRepository)
 
-    val ticker = ticker(4_000)
+    val ticker = ticker(10_000)
         .filter { state.value is Tickable } // Emit only when state is State2
         .onEach { dispatch(MapScreenAction.PeriodicTick) }
 

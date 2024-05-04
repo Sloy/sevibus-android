@@ -2,7 +2,6 @@ package com.sloydev.sevibus.feature.map
 
 import com.sloydev.sevibus.domain.model.Bus
 import com.sloydev.sevibus.domain.model.Line
-import com.sloydev.sevibus.domain.model.Position
 import com.sloydev.sevibus.domain.model.Route
 import com.sloydev.sevibus.domain.model.RouteId
 import com.sloydev.sevibus.domain.model.Stop
@@ -12,6 +11,7 @@ import com.sloydev.sevibus.domain.repository.StopRepository
 import com.sloydev.sevibus.infrastructure.SevLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 
@@ -32,7 +32,7 @@ class MapScreenStateReducer(
         }
     }.onEach { out ->
         SevLogger.logD("${state::class.simpleName} + ${action::class.simpleName} -> ${out::class.simpleName}")
-    }
+    }.catch { SevLogger.logE(it, "Error on MapScreenStateReducer: ${state::class.simpleName} + ${action::class.simpleName}") }
 
     private suspend fun FlowCollector<MapScreenState>.initIdleState() {
         val stops = stopRepository.obtainStops()
