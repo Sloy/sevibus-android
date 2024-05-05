@@ -66,7 +66,8 @@ class MapScreenStateReducer(
     }
 
     private suspend fun FlowCollector<MapScreenState>.selectLine(state: MapScreenState, line: Line, route: Route = line.routes.first()) {
-        val newState = MapScreenState.LineSelected(line, route, null, null, null)
+
+        val newState = MapScreenState.LineSelected(state.allStops, line, route, null, null, null)
         emit(newState)
         val stops = stopRepository.obtainStops(route.stops)
         emit(newState.copy(lineStops = stops))

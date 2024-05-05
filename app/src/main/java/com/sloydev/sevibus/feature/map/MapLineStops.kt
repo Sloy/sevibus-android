@@ -24,10 +24,8 @@ fun MapLineStops(
     lineStops: List<Stop>,
     selectedStop: Stop?,
     path: Path?,
-    zoomLevel: Int,
     onStopSelected: (Stop) -> Unit
 ) {
-    if(!ZoomLevelConfig.isLineStopsVisible(zoomLevel)) return
     val stopIconBitmap = layeredBitmap(
         SevIcons.StopOutline to SevTheme.colorScheme.background,
         SevIcons.Stop to SevTheme.colorScheme.primary

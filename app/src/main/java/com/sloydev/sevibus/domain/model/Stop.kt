@@ -24,7 +24,7 @@ fun Stop.descriptionSeparator(separator: String = "•"): String {
     }
 }
 
-fun List<Stop>.filterInBounds(bounds: PositionBounds?): List<Stop> {
+fun Collection<Stop>.filterInBounds(bounds: PositionBounds?): List<Stop> {
     if (bounds == null) return emptyList()
     return filter { stop ->
         stop.position.latitude <= bounds.northeast.latitude &&

@@ -9,7 +9,7 @@ import com.sloydev.sevibus.domain.model.Stop
 sealed interface MapScreenState {
     data object Initial : MapScreenState
     data class Idle(val allStops: List<Stop>) : MapScreenState
-    data class LineSelected(val line: Line, val selectedRoute: Route, val lineStops: List<Stop>?, val path: Path?, val buses: List<Bus>?) : MapScreenState, Dismissable, Tickable
+    data class LineSelected(val allStops: List<Stop>, val line: Line, val selectedRoute: Route, val lineStops: List<Stop>?, val path: Path?, val buses: List<Bus>?) : MapScreenState, Dismissable, Tickable
     data class LineStopSelected(
         val selectedStop: Stop,
         val lineSelectedState: LineSelected,
@@ -28,3 +28,12 @@ val MapScreenState.selectedLine: Line?
         else -> null
     }
 
+
+val MapScreenState.allStops: List<Stop>
+    get() = when(this){
+        is MapScreenState.Initial -> error("Map is still in Initial state")
+        is MapScreenState.Idle -> allStops
+        is MapScreenState.LineSelected -> allStops
+        is MapScreenState.LineStopSelected -> lineSelectedState.allStops
+        is MapScreenState.StopSelected -> allStops
+    }

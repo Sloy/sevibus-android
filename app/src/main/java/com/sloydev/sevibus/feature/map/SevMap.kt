@@ -99,7 +99,7 @@ fun SevMap(
     ) {
         val zoomLevel = cameraPositionState.position.zoom.toInt()
         SparseStopsMarkers(state, zoomLevel, cameraPositionState.bounds, onStopSelected)
-        LineMarkers(state, onStopSelected, zoomLevel)
+        LineMarkers(state, zoomLevel, cameraPositionState.bounds, onStopSelected)
     }
 }
 
@@ -117,19 +117,19 @@ private suspend fun CameraPositionState.zoomInto(position: Position) {
 @Composable
 @GoogleMapComposable
 private fun SparseStopsMarkers(state: MapScreenState, zoomLevel: Int, bounds: PositionBounds?, onStopSelected: (Stop) -> Unit) {
-    if (!ZoomLevelConfig.isSparseStopsVisible(zoomLevel)) return
+    if (!ZoomLevelConfig.showSparseStops(zoomLevel)) return
     val visibleStops = when (state) {
         is MapScreenState.Idle -> state.allStops
         is MapScreenState.StopSelected -> state.allStops
         else -> return
     }
     val selectedStop = (state as? MapScreenState.StopSelected)?.selectedStop
-    MapStops(visibleStops, bounds, selectedStop, onStopSelected)
+    MapStops(visibleStops, bounds, selectedStop, onStopSelected, SevTheme.colorScheme.primary)
 }
 
 @Composable
 @GoogleMapComposable
-private fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, zoomLevel: Int) {
+private fun LineMarkers(state: MapScreenState, zoomLevel: Int, bounds: PositionBounds?, onStopSelected: (Stop) -> Unit) {
     val lineSelectedState = when (state) {
         is MapScreenState.LineSelected -> state
         is MapScreenState.LineStopSelected -> state.lineSelectedState
@@ -140,8 +140,14 @@ private fun LineMarkers(state: MapScreenState, onStopSelected: (Stop) -> Unit, z
         lineSelectedState.path?.let {
             MapLine(zoomLevel, it, selectedStop)
         }
-        lineSelectedState.lineStops?.let {
-            MapLineStops(it, selectedStop, lineSelectedState.path, zoomLevel, onStopSelected)
+        if(ZoomLevelConfig.showLineStops(zoomLevel)) {
+            lineSelectedState.lineStops?.let {
+                MapLineStops(it, selectedStop, lineSelectedState.path, onStopSelected)
+                if(ZoomLevelConfig.showOtherStopsInLine(zoomLevel)) {
+                    val otherStops = state.allStops.subtract(it)
+                    MapStops(otherStops, bounds, selectedStop, onStopSelected, SevTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         }
         lineSelectedState.buses?.let {
             MapBuses(it)

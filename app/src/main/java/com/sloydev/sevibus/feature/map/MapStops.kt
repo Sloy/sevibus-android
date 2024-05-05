@@ -3,6 +3,7 @@ package com.sloydev.sevibus.feature.map
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Marker
@@ -21,17 +22,18 @@ import com.sloydev.sevibus.ui.theme.SevTheme
 @Composable
 @GoogleMapComposable
 fun MapStops(
-    visibleStops: List<Stop>,
+    visibleStops: Collection<Stop>,
     visibleBounds: PositionBounds?,
     selectedStop: Stop?,
     onStopSelected: (Stop) -> Unit,
+    stopColor: Color,
 ) {
     val stopIconBitmap = layeredBitmap(
         SevIcons.StopFilled to SevTheme.colorScheme.background,
-        SevIcons.Stop to SevTheme.colorScheme.primary
+        SevIcons.Stop to stopColor
     )
     val stopIcon = remember { BitmapDescriptorFactory.fromBitmap(stopIconBitmap) }
-    val selectedIconBitmap = selectedStopBitmap(SevTheme.colorScheme.primary)
+    val selectedIconBitmap = selectedStopBitmap(stopColor)
     val selectedIcon = remember { BitmapDescriptorFactory.fromBitmap(selectedIconBitmap) }
 
     visibleStops
