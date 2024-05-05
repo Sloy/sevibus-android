@@ -122,6 +122,7 @@ fun MapScreen(
         scaffoldState = rememberBottomSheetScaffoldState(sheetState),
         sheetPeekHeight = screenHeight / 3,
         sheetContainerColor = SevTheme.colorScheme.background,
+        sheetShadowElevation = 32.dp,
         sheetContent = {
             BottomSheetContent(state, onStopSelected, onRouteSelected)
         },
