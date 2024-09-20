@@ -79,7 +79,7 @@ object DI {
         single<SevibusApi> {
             val retrofit = Retrofit.Builder()
                 .client(get())
-                .baseUrl("https://api-vd4mgiw7ma-uc.a.run.app/api/")
+                .baseUrl("https://ldzu622p0l.execute-api.eu-south-2.amazonaws.com/prod/api/")
                 //.baseUrl("https://sevibus.app/api/")
                 .addConverterFactory(
                     Json.asConverterFactory("application/json; charset=UTF8".toMediaType())
