@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.sloydev.sevibus"
+    namespace = "com.sloy.sevibus"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.sloydev.sevibus"
+        applicationId = "com.sloy.sevibus"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
