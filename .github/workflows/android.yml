@@ -17,7 +17,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
-    - name: build release 
+    - name: assemble release
       run: ./gradlew :app:assembleRelease
     - name: upload release apk to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
@@ -26,7 +26,7 @@ jobs:
         serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
         groups: testers-release
         file: app/build/outputs/apk/release/app-release.apk
-  publish-firebase-release-bundle:
+  publish-firebase-debug-apk:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -36,12 +36,12 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
-    - name: bundle release
-      run: ./gradlew :app:bundleRelease
-    - name: upload release bundle to Firebase App Distribution
+    - name: assemble debug
+      run: ./gradlew :app:assembleDebug
+    - name: upload debug apk to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
-        appId: ${{secrets.FIREBASE_APP_ID}}
+        appId: ${{secrets.FIREBASE_APP_ID_DEBUG}}
         serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-        groups: testers-release
-        file: app/build/outputs/bundle/release/app-release.aab
+        groups: testers-debug
+        file: app/build/outputs/apk/debug/app-debug.apk
