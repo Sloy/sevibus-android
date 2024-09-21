@@ -32,7 +32,7 @@ import com.sloy.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloy.sevibus.infrastructure.BuildVariantDI
 import com.sloy.sevibus.infrastructure.DI
 import com.sloy.sevibus.infrastructure.SevLogger
-import com.sloy.sevibus.navigation.TopLevelDestination.FOR_YOU
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -58,9 +58,9 @@ fun App() {
                     exit = slideOutVertically(targetOffsetY = { it }),
                 ) {
                     SevNavigationBar(
-                        destinations = appState.topLevelDestinations,
+                        topLevelDestinations = appState.topLevelDestinations,
                         onNavigateToDestination = appState::navigateToTopLevelDestination,
-                        currentDestination = appState.currentDestination,
+                        currentNavDestination = appState.currentDestination,
                     )
                 }
             }) { padding ->
@@ -79,7 +79,7 @@ fun App() {
                     ) {
                         NavHost(
                             navController = appState.navController,
-                            startDestination = FOR_YOU.route,
+                            startDestination = NavigationDestination.ForYou,
                             modifier = Modifier.fillMaxSize(),
                             enterTransition = { fadeIn(animationSpec = tween(100)) },
                             exitTransition = { fadeOut(animationSpec = tween(100)) },

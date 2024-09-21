@@ -12,33 +12,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
 fun SevNavigationBar(
-    destinations: List<TopLevelDestination>,
-    onNavigateToDestination: (TopLevelDestination) -> Unit,
-    currentDestination: NavDestination?,
+    topLevelDestinations: List<TopLevelDestination>,
+    onNavigateToDestination: (NavigationDestination) -> Unit,
+    currentNavDestination: NavDestination?,
     modifier: Modifier = Modifier,
 ) {
     Column {
         HorizontalDivider()
-        NavigationBar(modifier,
-            containerColor = SevTheme.colorScheme.background) {
-            destinations.forEach { destination ->
-                val selected = currentDestination.isTopLevelDestinationInHierarchy(destination)
+        NavigationBar(
+            modifier,
+            containerColor = SevTheme.colorScheme.background
+        ) {
+            topLevelDestinations.forEach { topLevelDestination ->
+                val selected = currentNavDestination?.hierarchy?.any {
+                    it.hasRoute(topLevelDestination::class)
+                } == true
                 NavigationBarItem(
                     selected = selected,
-                    onClick = { onNavigateToDestination(destination) },
+                    onClick = { onNavigateToDestination(topLevelDestination) },
                     icon = {
                         Icon(
-                            imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                            imageVector = if (selected) topLevelDestination.selectedIcon else topLevelDestination.unselectedIcon,
                             contentDescription = null,
                         )
                     },
-                    label = { Text(stringResource(destination.iconTextId)) },
+                    label = { Text(stringResource(topLevelDestination.iconTextId)) },
                     modifier = modifier,
                     colors = NavigationBarItemDefaults.colors().copy(
                         selectedIconColor = SevTheme.colorScheme.primary,
@@ -51,17 +57,17 @@ fun SevNavigationBar(
     }
 }
 
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.route, true) ?: false
-    } ?: false
-
 @Preview
 @Composable
 private fun SevNavigationBarPreview() {
     SevNavigationBar(
-        TopLevelDestination.entries,
+        listOf(
+            NavigationDestination.ForYou,
+            NavigationDestination.Lines,
+            NavigationDestination.Map,
+            NavigationDestination.Cards,
+        ),
         onNavigateToDestination = { _ -> },
-        currentDestination = null
+        currentNavDestination = null
     )
 }

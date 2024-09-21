@@ -52,7 +52,7 @@ import com.sloy.sevibus.feature.linestops.LineRouteScreenState
 import com.sloy.sevibus.feature.search.LineSelectorWidget
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloy.sevibus.infrastructure.location.LocationService
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
@@ -61,7 +61,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
-    composable(TopLevelDestination.MAP.route) {
+    composable<NavigationDestination.Map> {
         MapScreen(setNavigationBarVisibility)
     }
 }

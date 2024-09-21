@@ -28,14 +28,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.ArrivalElement
 import com.sloy.sevibus.ui.components.LineIndicatorMedium
-import com.sloy.sevibus.ui.components.StopDetailInfoItem
 import com.sloy.sevibus.ui.components.SevTopAppBar
+import com.sloy.sevibus.ui.components.StopDetailInfoItem
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.AlexGreySurface
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -43,14 +45,10 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.stopDetailRoute() {
-    composable("/stop-detail/{code}") { stackEntry ->
-        val code = stackEntry.arguments!!.getString("code")!!
-        StopDetailScreen(code.toInt(), embedded = false)
+    composable<NavigationDestination.StopDetail> { stackEntry ->
+        val destination = stackEntry.toRoute<NavigationDestination.StopDetail>()
+        StopDetailScreen(destination.stopId, embedded = false)
     }
-}
-
-fun NavController.navigateToStopDetail(code: Int) {
-    navigate("/stop-detail/$code")
 }
 
 @Composable

@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.theme.SevTheme
 
@@ -21,9 +21,14 @@ fun ScreenPreview(content: @Composable () -> Unit) {
     SevTheme {
         Scaffold(bottomBar = {
             SevNavigationBar(
-                destinations = TopLevelDestination.entries,
+                topLevelDestinations = listOf(
+                    NavigationDestination.ForYou,
+                    NavigationDestination.Lines,
+                    NavigationDestination.Map,
+                    NavigationDestination.Cards,
+                ),
                 onNavigateToDestination = { },
-                currentDestination = null,
+                currentNavDestination = null,
             )
         }) { padding ->
             Column(

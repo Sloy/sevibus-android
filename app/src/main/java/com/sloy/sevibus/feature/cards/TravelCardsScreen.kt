@@ -52,13 +52,13 @@ import androidx.navigation.compose.composable
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.TravelCard
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 
 fun NavGraphBuilder.travelCardsRoute() {
-    composable(TopLevelDestination.CARDS.route) {
+    composable<NavigationDestination.Cards> {
         TravelCardsScreen(Stubs.cards)
     }
 }

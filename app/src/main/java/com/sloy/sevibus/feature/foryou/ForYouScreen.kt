@@ -16,17 +16,16 @@ import com.sloy.sevibus.R
 import com.sloy.sevibus.feature.debug.DebugMenuState
 import com.sloy.sevibus.feature.debug.DebugMenuVariant
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesWidget
-import com.sloy.sevibus.feature.stopdetail.navigateToStopDetail
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 
 
 fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
-    composable(TopLevelDestination.FOR_YOU.route) {
+    composable<NavigationDestination.ForYou> {
         ForYouScreen(onStopClicked = { code ->
-            navController.navigateToStopDetail(code)
+            navController.navigate(NavigationDestination.StopDetail(code))
         })
     }
 }

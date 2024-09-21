@@ -30,14 +30,16 @@ class SevAppState(
     val currentDestination: NavDestination?
         @Composable get() = navController.currentBackStackEntryAsState().value?.destination
 
-    val currentTopLevelDestination: TopLevelDestination?
-        @Composable get() = topLevelDestinations.find { it.route == currentDestination?.route }
-
     /**
      * Map of top level destinations to be used in the TopBar, BottomBar and NavRail. The key is the
      * route.
      */
-    val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
+    val topLevelDestinations: List<TopLevelDestination> = listOf(
+        NavigationDestination.ForYou,
+        NavigationDestination.Lines,
+        NavigationDestination.Map,
+        NavigationDestination.Cards,
+    )
 
 
     /**
@@ -45,9 +47,9 @@ class SevAppState(
      * only one copy of the destination of the back stack, and save and restore state whenever you
      * navigate to and from it.
      *
-     * @param topLevelDestination: The destination the app needs to navigate to.
+     * @param destination: The destination the app needs to navigate to.
      */
-    fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
+    fun navigateToTopLevelDestination(destination: NavigationDestination) {
         val topLevelNavOptions = navOptions {
             // Pop up to the start destination of the graph to
             // avoid building up a large stack of destinations
@@ -62,6 +64,6 @@ class SevAppState(
             restoreState = false
         }
 
-        navController.navigate(topLevelDestination.route, topLevelNavOptions)
+        navController.navigate(destination, topLevelNavOptions)
     }
 }

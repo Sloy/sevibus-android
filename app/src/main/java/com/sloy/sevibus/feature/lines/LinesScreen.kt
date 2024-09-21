@@ -24,25 +24,30 @@ import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.SearchResult
-import com.sloy.sevibus.feature.linestops.navigateToLineStops
 import com.sloy.sevibus.feature.search.SearchWidget
-import com.sloy.sevibus.feature.stopdetail.navigateToStopDetail
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 
 fun NavGraphBuilder.linesRoute(navController: NavController) {
-    composable(TopLevelDestination.LINES.route) {
+    composable<NavigationDestination.Lines> {
         val viewModel = koinViewModel<LinesViewModel>()
         val state by viewModel.state.collectAsState()
         LinesScreen(state,
-            onLineClick = { navController.navigateToLineStops(it.id) },
+            onLineClick = {
+                navController.navigate(NavigationDestination.LineStops(it.id))
+            },
             onSearchResultClicked = {
                 when (it) {
-                    is SearchResult.LineResult -> navController.navigateToLineStops(it.line.id)
-                    is SearchResult.StopResult -> navController.navigateToStopDetail(it.stop.code)
+                    is SearchResult.LineResult -> {
+                        navController.navigate(NavigationDestination.LineStops(it.line.id))
+                    }
+
+                    is SearchResult.StopResult -> {
+                        navController.navigate(NavigationDestination.StopDetail(it.stop.code))
+                    }
                 }
             }
         )

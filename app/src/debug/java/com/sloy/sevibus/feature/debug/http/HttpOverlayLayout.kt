@@ -15,6 +15,8 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HttpOverlayLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    content()
+    return
     val httpItems by HttpOverlayState.items.collectAsState()
     Box {
         content()

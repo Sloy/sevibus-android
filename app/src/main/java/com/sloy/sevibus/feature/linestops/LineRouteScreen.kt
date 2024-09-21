@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineId
@@ -30,8 +31,7 @@ import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.primary
 import com.sloy.sevibus.feature.linestops.component.ListPosition
 import com.sloy.sevibus.feature.linestops.component.StopTimelineElement
-import com.sloy.sevibus.feature.stopdetail.navigateToStopDetail
-import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineIndicatorSmall
 import com.sloy.sevibus.ui.components.RouteTabsSelector
 import com.sloy.sevibus.ui.components.SevTopAppBar
@@ -41,14 +41,12 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
-    composable(TopLevelDestination.LINES.route + "{line}/stops") { stackEntry ->
-        val lineId: LineId = stackEntry.arguments!!.getString("line")!!.toInt()
-        LineRouteScreen(lineId, onStopClick = { navController.navigateToStopDetail(it.code) })
+    composable<NavigationDestination.LineStops> { stackEntry ->
+        val destination = stackEntry.toRoute<NavigationDestination.LineStops>()
+        LineRouteScreen(destination.lineId, onStopClick = {
+            navController.navigate(NavigationDestination.StopDetail(it.code))
+        })
     }
-}
-
-fun NavController.navigateToLineStops(line: LineId) {
-    navigate(TopLevelDestination.LINES.route + "$line/stops")
 }
 
 @Composable
