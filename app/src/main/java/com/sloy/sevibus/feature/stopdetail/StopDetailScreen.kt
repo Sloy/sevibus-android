@@ -3,13 +3,18 @@ package com.sloy.sevibus.feature.stopdetail
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -22,22 +27,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.domain.model.description1
+import com.sloy.sevibus.domain.model.description2
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.ArrivalElement
 import com.sloy.sevibus.ui.components.LineIndicatorMedium
 import com.sloy.sevibus.ui.components.SevTopAppBar
 import com.sloy.sevibus.ui.components.StopDetailInfoItem
+import com.sloy.sevibus.ui.icons.SevIcons
+import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.AlexGreySurface
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -62,36 +72,81 @@ fun StopDetailScreen(code: StopId, embedded: Boolean = false) {
 fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
     Column {
         val title = "Parada ${(state.stopState as? StopState.Loaded)?.stop?.code ?: ""}"
-        SevTopAppBar(
-            title = {
-                Text(
-                    title, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    style = SevTheme.typography.headingLarge
-                )
-            },
-            navigationIcon = {
-                if (!embedded) {
+        if (!embedded) {
+            SevTopAppBar(
+                title = {
+                    Text(
+                        title, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        style = SevTheme.typography.headingLarge
+                    )
+                },
+                navigationIcon = {
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
                             tint = SevTheme.colorScheme.onSurface,
                         )
                     }
+                },
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.Default.FavoriteBorder, contentDescription = null,
+                            tint = SevTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            },
-            actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        Icons.Default.FavoriteBorder, contentDescription = null,
-                        tint = SevTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-        )
+            )
+        }
 
         if (state.stopState is StopState.Loaded) {
-            StopDetailInfoItem(state.stopState.stop, modifier = Modifier.padding(16.dp), showStopCode = false)
+            if (!embedded) {
+                StopDetailInfoItem(state.stopState.stop, modifier = Modifier.padding(16.dp), showStopCode = false)
+            }
+            if (embedded) {
+                Row(Modifier.padding(horizontal = 16.dp)) {
+                    Icon(
+                        SevIcons.Stop,
+                        contentDescription = null,
+                        tint = SevTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            state.stopState.stop.description1,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = SevTheme.typography.headingSmall
+                        )
+                        state.stopState.stop.description2?.let {
+                            Text(
+                                it,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = SevTheme.typography.bodySmall,
+                                color = SevTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            title,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = SevTheme.typography.bodyExtraSmall,
+                            color = SevTheme.colorScheme.onSurfaceVariant
+                        )
 
+                    }
+                    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 8.dp)) {
+                        Icon(
+                            Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.content_description_favorite_add),
+                            tint = SevTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                HorizontalDivider()
+            }
         }
 
         when (state.arrivalsState) {
