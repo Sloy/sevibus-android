@@ -46,7 +46,7 @@ private fun MapLineTwoColors(path: Path, selectedStop: Stop, zoomLevel: Int) {
     val splitPoint = selectedStop.position.moveToPath(path)
     val splitPointIndex = path.points.indexOf(splitPoint)
     val path1 = path.points.subList(0, splitPointIndex)
-    val path2 = listOf(path1.last()) + path.points.subList(splitPointIndex, path.points.lastIndex)
+    val path2 = listOfNotNull(path1.lastOrNull()) + path.points.subList(splitPointIndex, path.points.lastIndex)
 
     Polyline(
         points = path1.map { it.toLatLng() },
