@@ -33,19 +33,6 @@ fun NavGraphBuilder.forYouRoute(navController: NavHostController) {
 @Composable
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit) {
     Column {
-        SevCenterAlignedTopAppBar(
-            title = { Text(stringResource(R.string.app_name)) },
-            actions = {
-                if (DebugMenuVariant.isDebug) {
-                    IconButton(onClick = { DebugMenuState.openMenu() }) {
-                        Icon(
-                            Icons.Default.BugReport, contentDescription = null,
-                            tint = SevTheme.colorScheme.surface,
-                        )
-                    }
-                }
-            }
-        )
         FavoritesWidget(onStopClicked)
     }
 }

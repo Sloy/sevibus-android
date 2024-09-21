@@ -14,20 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.SearchResult
-import com.sloy.sevibus.feature.search.SearchWidget
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineElement
-import com.sloy.sevibus.ui.components.SevCenterAlignedTopAppBar
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import org.koin.androidx.compose.koinViewModel
 
@@ -57,11 +53,6 @@ fun NavGraphBuilder.linesRoute(navController: NavController) {
 @Composable
 private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, onSearchResultClicked: (SearchResult) -> Unit) {
     Column {
-
-        SevCenterAlignedTopAppBar(
-            title = { Text(text = stringResource(id = R.string.navigation_lines)) },
-        )
-
         when (state) {
             is LinesScreenState.Loading -> {
                 CircularProgressIndicator(Modifier.size(48.dp))
@@ -73,8 +64,6 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, on
 
             is LinesScreenState.Content -> {
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
-                    item { SearchWidget(onSearchResultClicked = onSearchResultClicked) }
-                    item { Spacer(Modifier.size(32.dp)) }
                     state.lineGroups.forEach { (group, lines) ->
                         if (lines.isNotEmpty()) {
                             item { LineGroupTitle(group) }

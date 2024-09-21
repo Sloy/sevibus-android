@@ -1,17 +1,18 @@
 package com.sloy.sevibus.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import androidx.navigation.toRoute
 
 @Composable
 fun rememberSevAppState(
@@ -25,10 +26,34 @@ class SevAppState(
     val navController: NavHostController,
 ) {
 
-    var navigationBarVisible by mutableStateOf(true)
 
     val currentDestination: NavDestination?
-        @Composable get() = navController.currentBackStackEntryAsState().value?.destination
+        @Composable get() {
+            val value = navController.currentBackStackEntryAsState().value
+            return value?.destination
+        }
+    val currentNavigationDestination: NavigationDestination?
+        @Composable get() {
+            val value = navController.currentBackStackEntryAsState().value
+            val route = value?.toNavigationDestination()
+            return route
+        }
+
+
+    @SuppressLint("RestrictedApi")
+    inline fun NavBackStackEntry.toNavigationDestination(): NavigationDestination? {
+
+        return if (this.destination.hasRoute(NavigationDestination.ForYou::class)) {
+            this.toRoute<NavigationDestination.ForYou>()
+        } else if (this.destination.hasRoute(NavigationDestination.Lines::class)) {
+            this.toRoute<NavigationDestination.Lines>()
+        } else if (this.destination.hasRoute(NavigationDestination.Cards::class)) {
+            this.toRoute<NavigationDestination.Cards>()
+        } else {
+            null
+        }
+
+    }
 
     /**
      * Map of top level destinations to be used in the TopBar, BottomBar and NavRail. The key is the
@@ -37,7 +62,7 @@ class SevAppState(
     val topLevelDestinations: List<TopLevelDestination> = listOf(
         NavigationDestination.ForYou,
         NavigationDestination.Lines,
-        NavigationDestination.Map,
+        //NavigationDestination.Map,
         NavigationDestination.Cards,
     )
 

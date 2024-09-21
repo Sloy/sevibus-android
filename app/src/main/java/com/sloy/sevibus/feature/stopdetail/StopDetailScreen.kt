@@ -57,12 +57,12 @@ import org.koin.core.parameter.parametersOf
 fun NavGraphBuilder.stopDetailRoute() {
     composable<NavigationDestination.StopDetail> { stackEntry ->
         val destination = stackEntry.toRoute<NavigationDestination.StopDetail>()
-        StopDetailScreen(destination.stopId, embedded = false)
+        StopDetailScreen(destination.stopId, embedded = true)
     }
 }
 
 @Composable
-fun StopDetailScreen(code: StopId, embedded: Boolean = false) {
+fun StopDetailScreen(code: StopId, embedded: Boolean = true) {
     val viewModel = koinViewModel<StopDetailViewModel>(key = code.toString()) { parametersOf(code) }
     val state by viewModel.state.collectAsState(StopDetailScreenState())
     StopDetailScreen(state, embedded)

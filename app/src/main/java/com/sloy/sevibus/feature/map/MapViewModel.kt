@@ -9,7 +9,9 @@ import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.LineRepository
 import com.sloy.sevibus.domain.repository.PathRepository
 import com.sloy.sevibus.domain.repository.StopRepository
+import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.ticker
+import com.sloy.sevibus.navigation.NavigationDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
@@ -33,6 +35,10 @@ class MapViewModel(
         dispatch(MapScreenAction.Init)
     }
 
+    fun setDestination(currentDestination: NavigationDestination) {
+        SevLogger.logD("setDestination($currentDestination)")
+    }
+
     fun onStopSelected(stop: Stop) {
         dispatch(MapScreenAction.SelectStop(stop))
     }
@@ -51,9 +57,9 @@ class MapViewModel(
 
     private fun dispatch(action: MapScreenAction) {
         viewModelScope.launch {
-            reducer(state.value, action).collect { newState ->
-                state.value = newState
-            }
+//            reducer(state.value, action).collect { newState ->
+//                state.value = newState
+//            }
         }
     }
 }

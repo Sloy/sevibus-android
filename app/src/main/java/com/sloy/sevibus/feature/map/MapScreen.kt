@@ -69,11 +69,11 @@ fun NavGraphBuilder.mapRoute(setNavigationBarVisibility: (Boolean) -> Unit) {
 @Composable
 fun MapScreen(setNavigationBarVisibility: (Boolean) -> Unit) {
     val viewModel: MapViewModel = koinViewModel()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val mapState by viewModel.state.collectAsStateWithLifecycle()
     viewModel.ticker.collectAsStateWithLifecycle(Unit)
 
     MapScreen(
-        state,
+        mapState,
         setNavigationBarVisibility,
         onStopSelected = viewModel::onStopSelected,
         onLineSelected = viewModel::onLineSelected,

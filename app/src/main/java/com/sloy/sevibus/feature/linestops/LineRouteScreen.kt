@@ -57,7 +57,7 @@ private fun LineRouteScreen(lineId: LineId, onStopClick: (Stop) -> Unit) {
         state,
         onRouteSelected = viewModel::onRouteSelected,
         onStopClick = onStopClick,
-        embedded = false,
+        embedded = true,
     )
 }
 
@@ -66,7 +66,7 @@ fun LineRouteScreen(
     state: LineRouteScreenState,
     onRouteSelected: (route: Route) -> Unit,
     onStopClick: (Stop) -> Unit,
-    embedded: Boolean = false,
+    embedded: Boolean = true,
 ) {
     Column {
         if (!embedded) {
