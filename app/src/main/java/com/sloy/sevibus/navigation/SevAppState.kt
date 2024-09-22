@@ -29,30 +29,31 @@ class SevAppState(
 
     val currentDestination: NavDestination?
         @Composable get() {
-            val value = navController.currentBackStackEntryAsState().value
-            return value?.destination
+            return navController.currentBackStackEntryAsState().value?.destination
         }
     val currentNavigationDestination: NavigationDestination?
         @Composable get() {
-            val value = navController.currentBackStackEntryAsState().value
-            val route = value?.toNavigationDestination()
-            return route
+            return navController.currentBackStackEntryAsState().value?.toNavigationDestination()
         }
 
-
+    /**
+     * TODO: Figure out a way to do this parsing in a generic way without manually adding logic for every subclass
+     */
     @SuppressLint("RestrictedApi")
-    inline fun NavBackStackEntry.toNavigationDestination(): NavigationDestination? {
-
+    private fun NavBackStackEntry.toNavigationDestination(): NavigationDestination? {
         return if (this.destination.hasRoute(NavigationDestination.ForYou::class)) {
             this.toRoute<NavigationDestination.ForYou>()
         } else if (this.destination.hasRoute(NavigationDestination.Lines::class)) {
             this.toRoute<NavigationDestination.Lines>()
         } else if (this.destination.hasRoute(NavigationDestination.Cards::class)) {
             this.toRoute<NavigationDestination.Cards>()
+        } else if (this.destination.hasRoute(NavigationDestination.LineStops::class)) {
+            this.toRoute<NavigationDestination.LineStops>()
+        } else if (this.destination.hasRoute(NavigationDestination.StopDetail::class)) {
+            this.toRoute<NavigationDestination.StopDetail>()
         } else {
             null
         }
-
     }
 
     /**
@@ -62,7 +63,6 @@ class SevAppState(
     val topLevelDestinations: List<TopLevelDestination> = listOf(
         NavigationDestination.ForYou,
         NavigationDestination.Lines,
-        //NavigationDestination.Map,
         NavigationDestination.Cards,
     )
 

@@ -55,8 +55,7 @@ fun App() {
                     currentNavDestination = appState.currentDestination,
                 )
             }) { padding ->
-                val currentDestination: NavigationDestination? = appState.currentNavigationDestination
-                val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+                val mapViewModel: MapViewModel = koinViewModel()
 
                 val sheetState = rememberStandardBottomSheetState(
                     initialValue = SheetValue.PartiallyExpanded,
@@ -64,7 +63,8 @@ fun App() {
                 )
                 BottomSheetScaffold(
                     scaffoldState = rememberBottomSheetScaffoldState(sheetState),
-                    sheetPeekHeight = screenHeight / 2,
+                    sheetPeekHeight = screenHeight() / 2,
+                    sheetContainerColor = SevTheme.colorScheme.background,
                     sheetContent = {
                         NavHost(
                             navController = appState.navController,
@@ -76,32 +76,33 @@ fun App() {
                             forYouRoute(appState.navController)
                             linesRoute(appState.navController)
                             travelCardsRoute()
-                            lineStopsRoute(appState.navController)
+                            lineStopsRoute(appState.navController, onRouteSelected = mapViewModel::onRouteSelected)
                             stopDetailRoute()
                         }
                     },
                     modifier = Modifier.padding(padding)
                 ) { contentPadding ->
-                    val viewModel: MapViewModel = koinViewModel()
-                    LaunchedEffect(currentDestination) {
-                        if (currentDestination != null) {
-                            viewModel.setDestination(currentDestination)
-                        }
-                    }
-                    val mapState by viewModel.state.collectAsStateWithLifecycle()
+                    val mapState by mapViewModel.state.collectAsStateWithLifecycle()
+                    mapViewModel.ticker.collectAsStateWithLifecycle(Unit)
                     MapScreen(
                         mapState,
-                        { },
-                        onStopSelected = { appState.navigateToTopLevelDestination(NavigationDestination.StopDetail(it.code)) },
-                        onLineSelected = viewModel::onLineSelected,
-                        onRouteSelected = viewModel::onRouteSelected,
-                        onDismiss = viewModel::onDismiss,
+                        onStopSelected = { appState.navController.navigate(NavigationDestination.StopDetail(it.code)) },
+                        onLineSelected = { appState.navController.navigate(NavigationDestination.LineStops(it.id)) },
                     )
+                }
+                val currentDestination: NavigationDestination? = appState.currentNavigationDestination
+                LaunchedEffect(currentDestination) {
+                    if (currentDestination != null) {
+                        mapViewModel.setDestination(currentDestination)
+                    }
                 }
             }
         }
     }
 
 }
+
+@Composable
+private fun screenHeight() = LocalConfiguration.current.screenHeightDp.dp
 
 

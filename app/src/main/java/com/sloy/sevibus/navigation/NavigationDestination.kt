@@ -31,13 +31,6 @@ sealed interface NavigationDestination {
     }
 
     @Serializable
-    data object Map : TopLevelDestination {
-        override val selectedIcon = SevIcons.MapFill
-        override val unselectedIcon = SevIcons.MapOutline
-        override val iconTextId = R.string.navigation_map
-    }
-
-    @Serializable
     data object Cards : TopLevelDestination {
         override val selectedIcon = SevIcons.CardOutline
         override val unselectedIcon = SevIcons.CardOutline

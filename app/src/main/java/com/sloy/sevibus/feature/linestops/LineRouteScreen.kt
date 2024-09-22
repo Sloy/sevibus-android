@@ -40,22 +40,27 @@ import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-fun NavGraphBuilder.lineStopsRoute(navController: NavController) {
+fun NavGraphBuilder.lineStopsRoute(navController: NavController, onRouteSelected: (route: Route) -> Unit) {
     composable<NavigationDestination.LineStops> { stackEntry ->
         val destination = stackEntry.toRoute<NavigationDestination.LineStops>()
-        LineRouteScreen(destination.lineId, onStopClick = {
-            navController.navigate(NavigationDestination.StopDetail(it.code))
-        })
+        LineRouteScreen(
+            destination.lineId,
+            onStopClick = { navController.navigate(NavigationDestination.StopDetail(it.code)) },
+            onRouteSelected = onRouteSelected
+        )
     }
 }
 
 @Composable
-private fun LineRouteScreen(lineId: LineId, onStopClick: (Stop) -> Unit) {
+private fun LineRouteScreen(lineId: LineId, onStopClick: (Stop) -> Unit, onRouteSelected: (route: Route) -> Unit) {
     val viewModel: LineRouteViewModel = koinViewModel { parametersOf(lineId) }
     val state by viewModel.state.collectAsState()
     LineRouteScreen(
         state,
-        onRouteSelected = viewModel::onRouteSelected,
+        onRouteSelected = {
+            viewModel.onRouteSelected(it)
+            onRouteSelected(it)
+        },
         onStopClick = onStopClick,
         embedded = true,
     )
