@@ -44,8 +44,8 @@ fun MapLineStops(
                     onStopSelected(stop)
                     false
                 },
-                icon = if (stop != selectedStop) stopIcon else selectedIcon,
-                zIndex = if (stop != selectedStop) 0.1f else 1f,
+                icon = if (stop.code != selectedStop?.code) stopIcon else selectedIcon,
+                zIndex = if (stop.code != selectedStop?.code) 0.1f else 1f,
             )
         }
 }
