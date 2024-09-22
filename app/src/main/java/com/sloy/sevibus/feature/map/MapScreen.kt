@@ -33,7 +33,6 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.toLatLng
-import com.sloy.sevibus.feature.search.LineSelectorWidget
 import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -72,13 +71,6 @@ fun MapContent(
 
     Box(Modifier.fillMaxSize()) {
         DebugInfo(state, cameraPositionState, Modifier.zIndex(1f))
-        LineSelectorWidget(
-            selectedLine = state.selectedLine,
-            onLineSelected = { onLineSelected(it) },
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .zIndex(1f)
-        )
         LocationButton(
             locationPermissionState, cameraPositionState, locationService,
             Modifier
