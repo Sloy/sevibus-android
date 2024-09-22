@@ -1,5 +1,6 @@
 package com.sloy.sevibus.feature.stopdetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
@@ -50,72 +52,35 @@ import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-fun NavGraphBuilder.stopDetailRoute() {
+fun NavGraphBuilder.stopDetailRoute(navController: NavController) {
     composable<NavigationDestination.StopDetail> { stackEntry ->
         val destination = stackEntry.toRoute<NavigationDestination.StopDetail>()
-        StopDetailScreen(destination.stopId)
+        StopDetailScreen(destination.stopId, onArrivalClick = {
+            navController.navigate(NavigationDestination.LineStops(it.line.id))
+        })
     }
 }
 
 @Composable
-fun StopDetailScreen(code: StopId) {
+fun StopDetailScreen(code: StopId, onArrivalClick: (BusArrival) -> Unit) {
     val viewModel = koinViewModel<StopDetailViewModel>(key = code.toString()) { parametersOf(code) }
     val state by viewModel.state.collectAsState(StopDetailScreenState())
-    StopDetailScreen(state)
+    StopDetailScreen(state, onArrivalClick)
 }
 
 @Composable
-fun StopDetailScreen(state: StopDetailScreenState) {
+fun StopDetailScreen(state: StopDetailScreenState, onArrivalClick: (BusArrival) -> Unit) {
     Column {
         val title = "Parada ${(state.stopState as? StopState.Loaded)?.stop?.code ?: ""}"
 
         if (state.stopState is StopState.Loaded) {
-            Row(Modifier.padding(horizontal = 16.dp)) {
-                Icon(
-                    SevIcons.Stop,
-                    contentDescription = null,
-                    tint = SevTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        state.stopState.stop.description1,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = SevTheme.typography.headingSmall
-                    )
-                    state.stopState.stop.description2?.let {
-                        Text(
-                            it,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = SevTheme.typography.bodySmall,
-                            color = SevTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = SevTheme.typography.bodyExtraSmall,
-                        color = SevTheme.colorScheme.onSurfaceVariant
-                    )
-
-                }
-                IconButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 8.dp)) {
-                    Icon(
-                        Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.content_description_favorite_add),
-                        tint = SevTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+            StopDetailsHeader(state.stopState, title)
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
         }
 
         when (state.arrivalsState) {
-            is ArrivalsState.Loaded -> BusArrivals(state.arrivalsState.arrivals)
+            is ArrivalsState.Loaded -> BusArrivals(state.arrivalsState.arrivals, onArrivalClick)
             is ArrivalsState.Failed -> BusArrivalsFailure(state.arrivalsState.throwable)
             is ArrivalsState.Loading -> if (state.stopState is StopState.Loaded) {
                 BusArrivalsLoading(lines = state.stopState.stop.lines)
@@ -127,14 +92,59 @@ fun StopDetailScreen(state: StopDetailScreenState) {
 }
 
 @Composable
-private fun BusArrivals(arrivals: List<BusArrival>) {
+private fun StopDetailsHeader(stopState: StopState.Loaded, title: String) {
+    Row(Modifier.padding(horizontal = 16.dp)) {
+        Icon(
+            SevIcons.Stop,
+            contentDescription = null,
+            tint = SevTheme.colorScheme.primary,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                stopState.stop.description1,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = SevTheme.typography.headingSmall
+            )
+            stopState.stop.description2?.let {
+                Text(
+                    it,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = SevTheme.typography.bodySmall,
+                    color = SevTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = SevTheme.typography.bodyExtraSmall,
+                color = SevTheme.colorScheme.onSurfaceVariant
+            )
+
+        }
+        IconButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 8.dp)) {
+            Icon(
+                Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.content_description_favorite_add),
+                tint = SevTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BusArrivals(arrivals: List<BusArrival>, onClick: (BusArrival) -> Unit) {
     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text("Líneas", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
         arrivals.forEach { arrival ->
-
             ListItem(
                 colors = ListItemDefaults.colors(containerColor = AlexGreySurface),
-                modifier = Modifier.clip(MaterialTheme.shapes.medium),
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable { onClick(arrival) },
                 headlineContent = { Text(text = arrival.route.destination) },
                 leadingContent = { LineIndicatorMedium(line = arrival.line) },
                 trailingContent = {
@@ -188,7 +198,8 @@ private fun Preview() {
             StopDetailScreenState(
                 stopState = StopState.Loaded(Stubs.stops[1]),
                 arrivalsState = ArrivalsState.Loaded(Stubs.arrivals)
-            )
+            ),
+            {}
         )
     }
 }
@@ -201,7 +212,8 @@ private fun LoadingPreview() {
             StopDetailScreenState(
                 stopState = StopState.Loading,
                 arrivalsState = ArrivalsState.Loading
-            )
+            ),
+            {}
         )
     }
 }
@@ -214,7 +226,8 @@ private fun LoadingWithStopPreview() {
             StopDetailScreenState(
                 stopState = StopState.Loaded(Stubs.stops[1]),
                 arrivalsState = ArrivalsState.Loading
-            )
+            ),
+            {}
         )
     }
 }
@@ -227,7 +240,8 @@ private fun AllFailedPreview() {
             StopDetailScreenState(
                 stopState = StopState.Failed(IllegalStateException("Stop error")),
                 arrivalsState = ArrivalsState.Failed(IllegalStateException("Arrival error"))
-            )
+            ),
+            {}
         )
     }
 }
@@ -240,7 +254,8 @@ private fun ArrivalFailedPreview() {
             StopDetailScreenState(
                 stopState = StopState.Loaded(Stubs.stops[1]),
                 arrivalsState = ArrivalsState.Failed(IllegalStateException("Arrival error"))
-            )
+            ),
+            {}
         )
     }
 }
@@ -254,7 +269,8 @@ private fun StopFailedPreview() {
             StopDetailScreenState(
                 stopState = StopState.Failed(IllegalStateException("Stop error")),
                 arrivalsState = ArrivalsState.Loaded(Stubs.arrivals)
-            )
+            ),
+            {}
         )
     }
 }

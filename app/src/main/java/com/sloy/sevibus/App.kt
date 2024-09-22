@@ -103,7 +103,7 @@ fun App() {
                             linesRoute(appState.navController)
                             travelCardsRoute()
                             lineStopsRoute(appState.navController, onRouteSelected = mapViewModel::onRouteSelected)
-                            stopDetailRoute()
+                            stopDetailRoute(appState.navController)
                         }
                     },
                 ) { contentPadding -> // ignored because we already use the bottom sheet height to offset the map content
