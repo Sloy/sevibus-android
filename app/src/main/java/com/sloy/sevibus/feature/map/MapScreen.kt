@@ -30,7 +30,6 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.Stubs
-import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.infrastructure.location.LocationService
@@ -44,10 +43,9 @@ import org.koin.compose.koinInject
 @Composable
 fun MapScreen(
     state: MapScreenState,
-    onLineSelected: (Line) -> Unit = {},
     onStopSelected: (Stop) -> Unit = {},
 ) {
-    MapContent(state, PaddingValues(), onStopSelected, onLineSelected)
+    MapContent(state, PaddingValues(), onStopSelected)
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -56,7 +54,6 @@ fun MapContent(
     state: MapScreenState,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
-    onLineSelected: (Line) -> Unit,
 ) {
     val locationService: LocationService = koinInject()
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)

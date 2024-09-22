@@ -1,8 +1,12 @@
 package com.sloy.sevibus
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
@@ -14,6 +18,8 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -24,12 +30,13 @@ import com.sloy.sevibus.feature.cards.travelCardsRoute
 import com.sloy.sevibus.feature.foryou.forYouRoute
 import com.sloy.sevibus.feature.lines.linesRoute
 import com.sloy.sevibus.feature.linestops.lineStopsRoute
-import com.sloy.sevibus.feature.map.MapScreen
+import com.sloy.sevibus.feature.map.MapContent
 import com.sloy.sevibus.feature.map.MapViewModel
 import com.sloy.sevibus.feature.stopdetail.stopDetailRoute
 import com.sloy.sevibus.infrastructure.BuildVariantDI
 import com.sloy.sevibus.infrastructure.DI
 import com.sloy.sevibus.navigation.NavigationDestination
+import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -46,13 +53,22 @@ fun App() {
         modules(DI.viewModelModule, DI.dataModule, DI.infrastructureModule, BuildVariantDI.module)
     }) {
         val appState = rememberSevAppState()
-
+        val currentDestination: NavigationDestination? = appState.currentNavigationDestination
+        val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+        bottomBarState.value = currentDestination is TopLevelDestination
         SevTheme {
             Scaffold(bottomBar = {
-                SevNavigationBar(
-                    topLevelDestinations = appState.topLevelDestinations,
-                    onNavigateToDestination = appState::navigateToTopLevelDestination,
-                    currentNavDestination = appState.currentDestination,
+                AnimatedVisibility(
+                    visible = bottomBarState.value,
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it }),
+                    content = {
+                        SevNavigationBar(
+                            topLevelDestinations = appState.topLevelDestinations,
+                            onNavigateToDestination = appState::navigateToTopLevelDestination,
+                            currentNavDestination = appState.currentDestination,
+                        )
+                    }
                 )
             }) { padding ->
                 val mapViewModel: MapViewModel = koinViewModel()
@@ -84,13 +100,12 @@ fun App() {
                 ) { contentPadding ->
                     val mapState by mapViewModel.state.collectAsStateWithLifecycle()
                     mapViewModel.ticker.collectAsStateWithLifecycle(Unit)
-                    MapScreen(
+                    MapContent(
                         mapState,
+                        PaddingValues(),
                         onStopSelected = { appState.navController.navigate(NavigationDestination.StopDetail(it.code)) },
-                        onLineSelected = { appState.navController.navigate(NavigationDestination.LineStops(it.id)) },
                     )
                 }
-                val currentDestination: NavigationDestination? = appState.currentNavigationDestination
                 LaunchedEffect(currentDestination) {
                     if (currentDestination != null) {
                         mapViewModel.setDestination(currentDestination)
