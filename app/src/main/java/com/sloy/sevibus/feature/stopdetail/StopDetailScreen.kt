@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -44,8 +42,6 @@ import com.sloy.sevibus.domain.model.description2
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.ArrivalElement
 import com.sloy.sevibus.ui.components.LineIndicatorMedium
-import com.sloy.sevibus.ui.components.SevTopAppBar
-import com.sloy.sevibus.ui.components.StopDetailInfoItem
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -57,96 +53,65 @@ import org.koin.core.parameter.parametersOf
 fun NavGraphBuilder.stopDetailRoute() {
     composable<NavigationDestination.StopDetail> { stackEntry ->
         val destination = stackEntry.toRoute<NavigationDestination.StopDetail>()
-        StopDetailScreen(destination.stopId, embedded = true)
+        StopDetailScreen(destination.stopId)
     }
 }
 
 @Composable
-fun StopDetailScreen(code: StopId, embedded: Boolean = true) {
+fun StopDetailScreen(code: StopId) {
     val viewModel = koinViewModel<StopDetailViewModel>(key = code.toString()) { parametersOf(code) }
     val state by viewModel.state.collectAsState(StopDetailScreenState())
-    StopDetailScreen(state, embedded)
+    StopDetailScreen(state)
 }
 
 @Composable
-fun StopDetailScreen(state: StopDetailScreenState, embedded: Boolean = false) {
+fun StopDetailScreen(state: StopDetailScreenState) {
     Column {
         val title = "Parada ${(state.stopState as? StopState.Loaded)?.stop?.code ?: ""}"
-        if (!embedded) {
-            SevTopAppBar(
-                title = {
-                    Text(
-                        title, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        style = SevTheme.typography.headingLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null,
-                            tint = SevTheme.colorScheme.onSurface,
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            Icons.Default.FavoriteBorder, contentDescription = null,
-                            tint = SevTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            )
-        }
 
         if (state.stopState is StopState.Loaded) {
-            if (!embedded) {
-                StopDetailInfoItem(state.stopState.stop, modifier = Modifier.padding(16.dp), showStopCode = false)
-            }
-            if (embedded) {
-                Row(Modifier.padding(horizontal = 16.dp)) {
-                    Icon(
-                        SevIcons.Stop,
-                        contentDescription = null,
-                        tint = SevTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp)
+            Row(Modifier.padding(horizontal = 16.dp)) {
+                Icon(
+                    SevIcons.Stop,
+                    contentDescription = null,
+                    tint = SevTheme.colorScheme.primary,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        state.stopState.stop.description1,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = SevTheme.typography.headingSmall
                     )
-                    Column(Modifier.weight(1f)) {
+                    state.stopState.stop.description2?.let {
                         Text(
-                            state.stopState.stop.description1,
+                            it,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = SevTheme.typography.headingSmall
-                        )
-                        state.stopState.stop.description2?.let {
-                            Text(
-                                it,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = SevTheme.typography.bodySmall,
-                                color = SevTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            title,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = SevTheme.typography.bodyExtraSmall,
+                            style = SevTheme.typography.bodySmall,
                             color = SevTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = SevTheme.typography.bodyExtraSmall,
+                        color = SevTheme.colorScheme.onSurfaceVariant
+                    )
 
-                    }
-                    IconButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 8.dp)) {
-                        Icon(
-                            Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.content_description_favorite_add),
-                            tint = SevTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
                 }
-                Spacer(Modifier.height(16.dp))
-                HorizontalDivider()
+                IconButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 8.dp)) {
+                    Icon(
+                        Icons.Outlined.FavoriteBorder, contentDescription = stringResource(R.string.content_description_favorite_add),
+                        tint = SevTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
+            Spacer(Modifier.height(16.dp))
+            HorizontalDivider()
         }
 
         when (state.arrivalsState) {
@@ -224,19 +189,6 @@ private fun Preview() {
                 stopState = StopState.Loaded(Stubs.stops[1]),
                 arrivalsState = ArrivalsState.Loaded(Stubs.arrivals)
             )
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun EmbeddedPreview() {
-    ScreenPreview {
-        StopDetailScreen(
-            StopDetailScreenState(
-                stopState = StopState.Loaded(Stubs.stops[1]),
-                arrivalsState = ArrivalsState.Loaded(Stubs.arrivals)
-            ), embedded = true
         )
     }
 }
