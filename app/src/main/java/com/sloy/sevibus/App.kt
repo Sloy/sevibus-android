@@ -6,22 +6,21 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
-import androidx.compose.material3.rememberBottomSheetScaffoldState
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,11 +39,15 @@ import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.theme.SevTheme
+import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
+import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
+import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
+import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun App() {
     val context = LocalContext.current
@@ -54,38 +57,45 @@ fun App() {
     }) {
         val appState = rememberSevAppState()
         val currentDestination: NavigationDestination? = appState.currentNavigationDestination
-        val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
-        bottomBarState.value = currentDestination is TopLevelDestination
+
+        var bottomBarVisibility by rememberSaveable { (mutableStateOf(true)) }
+        bottomBarVisibility = currentDestination is TopLevelDestination
+
         SevTheme {
             Scaffold(bottomBar = {
                 AnimatedVisibility(
-                    visible = bottomBarState.value,
+                    visible = bottomBarVisibility,
                     enter = slideInVertically(initialOffsetY = { it }),
                     exit = slideOutVertically(targetOffsetY = { it }),
-                    content = {
-                        SevNavigationBar(
-                            topLevelDestinations = appState.topLevelDestinations,
-                            onNavigateToDestination = appState::navigateToTopLevelDestination,
-                            currentNavDestination = appState.currentDestination,
-                        )
-                    }
-                )
-            }) { padding ->
+                ) {
+                    SevNavigationBar(
+                        topLevelDestinations = appState.topLevelDestinations,
+                        onNavigateToDestination = appState::navigateToTopLevelDestination,
+                        currentNavDestination = appState.currentDestination,
+                    )
+                }
+            }) { scaffoldInnerPadding ->
                 val mapViewModel: MapViewModel = koinViewModel()
 
-                val sheetState = rememberStandardBottomSheetState(
+                val sheetState = rememberBottomSheetState(
                     initialValue = SheetValue.PartiallyExpanded,
-                    skipHiddenState = true
+                    defineValues = {
+                        SheetValue.Collapsed at height(120.dp)
+                        SheetValue.PartiallyExpanded at height(percent = 40)
+                        SheetValue.Expanded at contentHeight
+                        //SheetValue.Expanded at height(percent = 100)
+                    }
                 )
                 BottomSheetScaffold(
                     scaffoldState = rememberBottomSheetScaffoldState(sheetState),
-                    sheetPeekHeight = screenHeight() / 2,
                     sheetContainerColor = SevTheme.colorScheme.background,
                     sheetContent = {
                         NavHost(
                             navController = appState.navController,
                             startDestination = NavigationDestination.ForYou,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(scaffoldInnerPadding),
                             enterTransition = { fadeIn(animationSpec = tween(100)) },
                             exitTransition = { fadeOut(animationSpec = tween(100)) },
                         ) {
@@ -96,28 +106,25 @@ fun App() {
                             stopDetailRoute()
                         }
                     },
-                    modifier = Modifier.padding(padding)
-                ) { contentPadding ->
+                ) { contentPadding -> // ignored because we already use the bottom sheet height to offset the map content
+                    val sheetHeight by remember { derivedStateOf { sheetState.requireSheetVisibleHeightDp() } }
                     val mapState by mapViewModel.state.collectAsStateWithLifecycle()
                     mapViewModel.ticker.collectAsStateWithLifecycle(Unit)
                     MapContent(
                         mapState,
-                        PaddingValues(),
+                        PaddingValues(bottom = sheetHeight),
                         onStopSelected = { appState.navController.navigate(NavigationDestination.StopDetail(it.code)) },
                     )
                 }
                 LaunchedEffect(currentDestination) {
                     if (currentDestination != null) {
                         mapViewModel.setDestination(currentDestination)
+                        sheetState.animateTo(SheetValue.PartiallyExpanded)
                     }
                 }
             }
         }
     }
-
 }
 
-@Composable
-private fun screenHeight() = LocalConfiguration.current.screenHeightDp.dp
-
-
+enum class SheetValue { Collapsed, PartiallyExpanded, Expanded }
