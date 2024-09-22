@@ -87,6 +87,7 @@ private fun LineSelectorWidget(
             onClick = { dropdownExpanded = true },
             elevation = CardDefaults.cardElevation(8.dp),
             shape = MaterialTheme.shapes.extraSmall,
+            colors = CardDefaults.cardColors(containerColor = SevTheme.colorScheme.background),
         ) {
             Row(
                 Modifier.padding(6.dp),
