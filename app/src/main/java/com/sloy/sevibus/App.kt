@@ -18,6 +18,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
+import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
@@ -56,10 +58,21 @@ fun App() {
         modules(DI.viewModelModule, DI.dataModule, DI.infrastructureModule, BuildVariantDI.module)
     }) {
         val appState = rememberSevAppState()
+        val coroutineScope = rememberCoroutineScope()
         val currentDestination: NavigationDestination? = appState.currentNavigationDestination
 
         var bottomBarVisibility by rememberSaveable { (mutableStateOf(true)) }
         bottomBarVisibility = currentDestination is TopLevelDestination
+
+        val sheetState = rememberBottomSheetState(
+            initialValue = SheetValue.PartiallyExpanded,
+            defineValues = {
+                SheetValue.Collapsed at height(120.dp)
+                SheetValue.PartiallyExpanded at height(percent = 40)
+                SheetValue.Expanded at contentHeight
+                //SheetValue.Expanded at height(percent = 100)
+            }
+        )
 
         SevTheme {
             Scaffold(bottomBar = {
@@ -70,22 +83,17 @@ fun App() {
                 ) {
                     SevNavigationBar(
                         topLevelDestinations = appState.topLevelDestinations,
-                        onNavigateToDestination = appState::navigateToTopLevelDestination,
+                        onNavigateToDestination = {
+                            appState.navigateToTopLevelDestination(it)
+                            coroutineScope.launch { sheetState.animateTo(SheetValue.PartiallyExpanded) }
+                        },
                         currentNavDestination = appState.currentDestination,
                     )
                 }
             }) { scaffoldInnerPadding ->
                 val mapViewModel: MapViewModel = koinViewModel()
 
-                val sheetState = rememberBottomSheetState(
-                    initialValue = SheetValue.PartiallyExpanded,
-                    defineValues = {
-                        SheetValue.Collapsed at height(120.dp)
-                        SheetValue.PartiallyExpanded at height(percent = 40)
-                        SheetValue.Expanded at contentHeight
-                        //SheetValue.Expanded at height(percent = 100)
-                    }
-                )
+
                 BottomSheetScaffold(
                     scaffoldState = rememberBottomSheetScaffoldState(sheetState),
                     sheetContainerColor = SevTheme.colorScheme.background,
