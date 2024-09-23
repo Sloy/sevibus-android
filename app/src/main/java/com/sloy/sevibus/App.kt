@@ -97,6 +97,7 @@ fun App() {
                 BottomSheetScaffold(
                     scaffoldState = rememberBottomSheetScaffoldState(sheetState),
                     sheetContainerColor = SevTheme.colorScheme.background,
+                    sheetShadowElevation = 8.dp,
                     sheetContent = {
                         NavHost(
                             navController = appState.navController,

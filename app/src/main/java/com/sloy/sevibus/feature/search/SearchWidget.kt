@@ -62,10 +62,11 @@ fun SearchWidget(
     var expanded by rememberSaveable { mutableStateOf(defaultExpanded) }
     DockedSearchBar(
         colors = SearchBarDefaults.colors(
-            containerColor = SevTheme.colorScheme.surfaceContainer
+            containerColor = SevTheme.colorScheme.background,
         ),
         modifier = modifier
             .fillMaxWidth(),
+        shadowElevation = 8.dp,
         inputField = {
             SearchBarDefaults.InputField(
                 query = term,
