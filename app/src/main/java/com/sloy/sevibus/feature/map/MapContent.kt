@@ -27,6 +27,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.Stubs
@@ -40,20 +41,13 @@ import okhttp3.internal.format
 import org.koin.compose.koinInject
 
 
-@Composable
-fun MapScreen(
-    state: MapScreenState,
-    onStopSelected: (Stop) -> Unit = {},
-) {
-    MapContent(state, PaddingValues(), onStopSelected)
-}
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapContent(
     state: MapScreenState,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
+    onMapClick: () -> Unit,
 ) {
     val locationService: LocationService = koinInject()
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -63,6 +57,11 @@ fun MapContent(
     LaunchedEffect(locationPermissionState.status.isGranted) {
         locationService.obtainCurrentLocation()?.toLatLng()?.let {
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(it, 18f))
+        }
+    }
+    LaunchedEffect(cameraPositionState.cameraMoveStartedReason) {
+        if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
+            onMapClick()
         }
     }
 
@@ -79,7 +78,7 @@ fun MapContent(
             cameraPositionState = cameraPositionState,
             locationPermissionState = locationPermissionState,
             onStopSelected = onStopSelected,
-            onMapClick = { /*onDismiss()*/ },
+            onMapClick = onMapClick,
             contentPadding = contentPadding,
             modifier = Modifier.zIndex(0f)
         )
@@ -140,8 +139,11 @@ private fun DebugInfo(
 @Composable
 private fun MapScreenPreview() {
     ScreenPreview {
-        MapScreen(
+        MapContent(
             state = MapScreenState.Initial,
+            contentPadding = PaddingValues(),
+            onStopSelected = {},
+            onMapClick = {},
         )
     }
 }

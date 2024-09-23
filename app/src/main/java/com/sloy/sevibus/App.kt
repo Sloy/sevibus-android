@@ -122,6 +122,9 @@ fun App() {
                         mapState,
                         PaddingValues(bottom = sheetHeight),
                         onStopSelected = { appState.navController.navigate(NavigationDestination.StopDetail(it.code)) },
+                        onMapClick = {
+                            coroutineScope.launch { sheetState.animateTo(SheetValue.Collapsed) }
+                        },
                     )
                 }
                 LaunchedEffect(currentDestination) {

@@ -69,6 +69,13 @@ fun SevMap(
         )
     }
 
+    val path = (state as? MapScreenState.LineSelected)?.path
+    if (path != null) {
+        LaunchedEffect(path) {
+            cameraPositionState.centerInPath(path)
+        }
+    }
+
     val selectedStop = when (state) {
         is MapScreenState.LineStopSelected -> state.selectedStop
         is MapScreenState.StopSelected -> state.selectedStop
@@ -77,13 +84,6 @@ fun SevMap(
     if (selectedStop != null) {
         LaunchedEffect(selectedStop) {
             cameraPositionState.zoomInto(selectedStop.position)
-        }
-    }
-
-    val path = (state as? MapScreenState.LineSelected)?.path
-    if (path != null) {
-        LaunchedEffect(path) {
-            cameraPositionState.centerInPath(path)
         }
     }
 
