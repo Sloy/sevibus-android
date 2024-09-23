@@ -33,6 +33,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.toLatLng
+import com.sloy.sevibus.feature.search.SearchWidget
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.infrastructure.location.NoopLocationService
@@ -81,13 +82,19 @@ private fun MapUI(
     onMapClick: () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
-        DebugInfo(state, cameraPositionState, Modifier.zIndex(1f))
+        DebugInfo(
+            state, cameraPositionState,
+            Modifier
+                .zIndex(1f)
+                .padding(contentPadding)
+        )
         LocationButton(
             locationPermissionState, cameraPositionState, locationService,
             Modifier
                 .zIndex(1f)
                 .padding(contentPadding)
         )
+        SearchWidget("", {}, emptyList(), { }, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,
