@@ -61,8 +61,8 @@ fun MapContent(
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(it, 18f))
         }
     }
-    LaunchedEffect(cameraPositionState.cameraMoveStartedReason) {
-        if (cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
+    LaunchedEffect(cameraPositionState.isMoving, cameraPositionState.cameraMoveStartedReason) {
+        if (cameraPositionState.isMoving && cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
             onMapClick()
         }
     }
