@@ -10,9 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.isGranted
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.Projection
@@ -33,16 +30,15 @@ import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.domain.model.fromLatLng
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.ui.theme.SevTheme
-import org.koin.compose.koinInject
 import kotlin.math.abs
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SevMap(
     state: MapScreenState,
     cameraPositionState: CameraPositionState,
-    locationPermissionState: PermissionState,
+    hasLocationPermission: Boolean,
     onStopSelected: (Stop) -> Unit,
     onMapClick: () -> Unit,
     contentPadding: PaddingValues,
@@ -59,11 +55,11 @@ fun SevMap(
         )
     }
     val context = LocalContext.current
-    val mapProperties by remember(locationPermissionState.status.isGranted) {
+    val mapProperties by remember(hasLocationPermission) {
         mutableStateOf(
             MapProperties(
                 minZoomPreference = 13f,
-                isMyLocationEnabled = locationPermissionState.status.isGranted,
+                isMyLocationEnabled = hasLocationPermission,
                 mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default)
             )
         )
@@ -87,7 +83,7 @@ fun SevMap(
         }
     }
 
-    val locationSource = koinInject<LocationSource>()
+    val locationSource = koinInjectOnUI<LocationSource>()
     GoogleMap(
         modifier = modifier.fillMaxSize(),
         uiSettings = mapUiSettings,
@@ -140,10 +136,10 @@ private fun LineMarkers(state: MapScreenState, zoomLevel: Int, bounds: PositionB
         lineSelectedState.path?.let {
             MapLine(zoomLevel, it, selectedStop)
         }
-        if(ZoomLevelConfig.showLineStops(zoomLevel)) {
+        if (ZoomLevelConfig.showLineStops(zoomLevel)) {
             lineSelectedState.lineStops?.let {
                 MapLineStops(it, selectedStop, lineSelectedState.path, onStopSelected)
-                if(ZoomLevelConfig.showOtherStopsInLine(zoomLevel)) {
+                if (ZoomLevelConfig.showOtherStopsInLine(zoomLevel)) {
                     val otherStops = state.allStops.subtract(it)
                     MapStops(otherStops, bounds, selectedStop, onStopSelected, SevTheme.colorScheme.onSurfaceVariant)
                 }

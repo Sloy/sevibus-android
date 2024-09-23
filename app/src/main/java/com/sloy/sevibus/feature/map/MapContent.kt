@@ -33,12 +33,13 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.toLatLng
+import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.location.LocationService
+import com.sloy.sevibus.infrastructure.location.NoopLocationService
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 import okhttp3.internal.format
-import org.koin.compose.koinInject
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -49,7 +50,7 @@ fun MapContent(
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
 ) {
-    val locationService: LocationService = koinInject()
+    val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
     val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(Stubs.locationRecaredo.toLatLng(), 15.5f)
@@ -65,6 +66,20 @@ fun MapContent(
         }
     }
 
+    MapUI(state, cameraPositionState, locationPermissionState, locationService, contentPadding, onStopSelected, onMapClick)
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun MapUI(
+    state: MapScreenState,
+    cameraPositionState: CameraPositionState,
+    locationPermissionState: PermissionState?,
+    locationService: LocationService,
+    contentPadding: PaddingValues,
+    onStopSelected: (stop: Stop) -> Unit,
+    onMapClick: () -> Unit
+) {
     Box(Modifier.fillMaxSize()) {
         DebugInfo(state, cameraPositionState, Modifier.zIndex(1f))
         LocationButton(
@@ -76,7 +91,7 @@ fun MapContent(
         SevMap(
             state = state,
             cameraPositionState = cameraPositionState,
-            locationPermissionState = locationPermissionState,
+            hasLocationPermission = locationPermissionState?.status?.isGranted ?: false,
             onStopSelected = onStopSelected,
             onMapClick = onMapClick,
             contentPadding = contentPadding,
@@ -87,18 +102,18 @@ fun MapContent(
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun BoxScope.LocationButton(
-    locationPermissionState: PermissionState,
+private fun BoxScope.LocationButton(
+    locationPermissionState: PermissionState?,
     cameraPositionState: CameraPositionState,
     locationService: LocationService,
     modifier: Modifier = Modifier
 ) {
-    val hasPermission = locationPermissionState.status.isGranted
+    val hasPermission = locationPermissionState?.status?.isGranted ?: false
     val scope = rememberCoroutineScope()
     FloatingActionButton(
         onClick = {
             if (!hasPermission) {
-                locationPermissionState.launchPermissionRequest()
+                locationPermissionState?.launchPermissionRequest()
             } else {
                 scope.launch {
                     locationService.obtainCurrentLocation()?.toLatLng()?.let {
@@ -135,13 +150,17 @@ private fun DebugInfo(
 }
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Preview
 @Composable
 private fun MapScreenPreview() {
     ScreenPreview {
-        MapContent(
+        MapUI(
             state = MapScreenState.Initial,
             contentPadding = PaddingValues(),
+            cameraPositionState = CameraPositionState(),
+            locationPermissionState = null,
+            locationService = NoopLocationService,
             onStopSelected = {},
             onMapClick = {},
         )
