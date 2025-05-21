@@ -1,33 +1,59 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    //id("kotlin-kapt")
+    alias(libs.plugins.googleServices)
+    alias(libs.plugins.firebaseCrashlytics)
+    alias(libs.plugins.firebasePerformance)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    kotlin("plugin.serialization") version "1.9.0"
+
 }
 
 android {
-    namespace = "com.sloydev.sevibus"
-    compileSdk = 34
+    namespace = "com.sloy.sevibus"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.sloydev.sevibus"
+        applicationId = "com.sloy.sevibus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 105
+        versionName = "5.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
+    signingConfigs {
+        register("release") {
+            storePassword = "banana"
+            keyAlias = "banana"
+            keyPassword = "banana"
+            storeFile = file("../certs/fakeRelease.keystore")
+        }
+        named("debug") {
+            storeFile = file("../certs/debug.keystore")
+        }
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs["release"]
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs["debug"]
         }
     }
     compileOptions {
@@ -61,7 +87,13 @@ dependencies {
     implementation(libs.androidx.navigation)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.icons)
+    implementation(libs.morfly.bottomsheet)
 
+    implementation(libs.accompanist.permissions)
+    implementation(libs.coil)
+    implementation(libs.lottie)
+    implementation(libs.reorderable)
 
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.playServices)
@@ -69,20 +101,37 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.play.services.auth)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.perf)
+    implementation(libs.playServices.location)
+    implementation(libs.maps)
+    implementation(libs.credentials)
+    implementation(libs.credentials.playServices)
+    implementation(libs.credentials.googleIdentity)
 
-    //implementation(libs.room.runtime)
-    //implementation(libs.room.ktx)
-    //kapt(libs.room.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.serialization)
+    implementation(libs.kotlinx.serialization)
 
-    implementation(libs.koin.android)
+    implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)
-    implementation(libs.koin.cokoin)
-    implementation(libs.koin.cokoinViewmodel)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
     testImplementation(libs.junit)
+    testImplementation(libs.strikt)
+    testImplementation(libs.coroutines.testing)
+}
+
+secrets {
+    propertiesFileName = "secret.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
 }

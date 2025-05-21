@@ -13,4 +13,9 @@
 /captures
 .externalNativeBuild
 .cxx
+local.settings.gradle.kts
 local.properties
+secret.properties
+/app/release/
+/app/google-services.json
+certs/release.keystore

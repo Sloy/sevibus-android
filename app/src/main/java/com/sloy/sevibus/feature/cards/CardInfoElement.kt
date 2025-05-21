@@ -1,0 +1,107 @@
+package com.sloy.sevibus.feature.cards
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.ui.theme.SevTheme
+
+@Composable
+fun CardInfoElement(card: CardInfo) {
+    val uriHandler = LocalUriHandler.current
+
+    Column {
+        Text("Datos", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
+        Card(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+        ) {
+
+            /*TitleSubtitleItem("Nombre", card.customName ?: card.type, endAccessory = {
+                IconButton(onClick = { *//*TODO*//* }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Editar nombre")
+                    }
+                })*/
+            //HorizontalDivider()
+
+            TitleSubtitleItem("Número de serie", card.formattedSerialNumber)
+            HorizontalDivider()
+
+            TitleSubtitleItem("Tipo de tarjeta", card.type)
+
+            if (card.balance != null) {
+                HorizontalDivider()
+                TitleSubtitleItem("Recarga", "Recarga tu tarjeta desde la web oficial",
+                    onClick = {
+                        uriHandler.openUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}")
+                    }, endAccessory = {
+                        Icon(
+                            Icons.AutoMirrored.Filled.OpenInNew,
+                            tint = SevTheme.colorScheme.onSurfaceVariant,
+                            contentDescription = "Recargar"
+                        )
+                    })
+
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun TitleSubtitleItem(
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    endAccessory: @Composable (() -> Unit)? = null,
+) {
+    val clickModifier = if (onClick != null) modifier.clickable(onClick = onClick, role = Role.Button) else modifier
+    Row(clickModifier, verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            Modifier
+                .weight(1f)
+                .padding(16.dp)
+        ) {
+            Text(title, style = SevTheme.typography.bodySmallBold)
+            Text(
+                subtitle,
+                style = SevTheme.typography.bodyStandard,
+                color = SevTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Box(Modifier.padding(horizontal = 16.dp)) {
+            CompositionLocalProvider(LocalContentColor provides SevTheme.colorScheme.onSurfaceVariant) {
+                endAccessory?.let { it() }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun CardInfoCardPreview() {
+    SevTheme {
+        CardInfoElement(Stubs.cardWithAllFields)
+    }
+}

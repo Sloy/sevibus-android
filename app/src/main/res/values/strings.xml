@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">SeviBus4</string>
+    <string name="app_name">SeviBus</string>
+
+    <string name="navigation_for_you">Para ti</string>
+    <string name="navigation_lines">Líneas</string>
+    <string name="navigation_map">Mapa</string>
+    <string name="navigation_cards">Bonobús</string>
+    <string name="navigation_settings">Ajustes</string>
+    <string name="navigation_edit_favorites">Editar favoritas</string>
+    <string name="navigation_cards_help">Preguntas frecuentes</string>
+
+    <string name="content_description_favorite_add">Guardar como favorito</string>
 </resources>
