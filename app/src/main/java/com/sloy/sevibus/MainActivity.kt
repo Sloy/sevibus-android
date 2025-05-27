@@ -5,29 +5,33 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NfcAdapter
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.sloy.sevibus.feature.cards.NfcDecoder
 import com.sloy.sevibus.infrastructure.nfc.ListenForNfcStateChanges
-import com.sloy.sevibus.infrastructure.nfc.NfcReadEvent
 import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
+import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.SevNavigator
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
-    val sevNavigator: SevNavigator by inject()
-    val nfcStateManager: NfcStateManager by inject()
+    private val sevNavigator: SevNavigator by inject()
+    private val nightModeDataSource: NightModeDataSource by inject()
+    private val nfcStateManager: NfcStateManager by inject()
     private val nfcAdapter: NfcAdapter? by lazy { NfcAdapter.getDefaultAdapter(this) }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val nightMode = runBlocking { nightModeDataSource.obtainCurrentNightMode() }
+        AppCompatDelegate.setDefaultNightMode(nightMode.systemUiMode)
         super.onCreate(savedInstanceState)
         onNewIntent(intent)
         enableEdgeToEdge()
@@ -37,9 +41,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if ("android.nfc.action.TECH_DISCOVERED" == intent?.action) {
+        if ("android.nfc.action.TECH_DISCOVERED" == intent.action) {
             val cardId = NfcDecoder.readCard(intent)
             if (cardId != null) {
                 sevNavigator.navigate(NavigationDestination.Cards)

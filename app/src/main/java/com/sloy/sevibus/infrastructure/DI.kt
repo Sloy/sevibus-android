@@ -49,6 +49,7 @@ import com.sloy.sevibus.infrastructure.location.FusedLocationService
 import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.infrastructure.location.LocationServiceSource
 import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
+import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.infrastructure.session.GoogleAuthService
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -79,7 +80,7 @@ object DI {
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
-        viewModel { SettingsViewModel(get()) }
+        viewModel { SettingsViewModel(get(), get()) }
         viewModel { CardViewModel(get(), get()) }
     }
 
@@ -96,6 +97,7 @@ object DI {
         single<PathRepository> { RemoteAndLocalPathRepository(get(), get(), get()) }
         single<RouteRepository> { RemoteAndLocalRouteRepository(get(), get()) }
         single<CardsRepository> { RemoteAndLocalCardsRepository(get(), get(), get(), get(), get()) }
+        single<NightModeDataSource> { NightModeDataSource(androidContext()) }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(

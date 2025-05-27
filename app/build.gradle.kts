@@ -123,6 +123,8 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)
 
+    implementation("androidx.core:core-splashscreen:${libs.versions.coreSplashScreen.get()}")
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 

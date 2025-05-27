@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.LoggedUser
+import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
+import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val sessionService: SessionService) : ViewModel() {
+class SettingsViewModel(private val sessionService: SessionService, private val nightModeDataSource: NightModeDataSource) : ViewModel() {
 
     private val isInProgress = MutableStateFlow(false)
 
@@ -23,6 +25,9 @@ class SettingsViewModel(private val sessionService: SessionService) : ViewModel(
                 else -> SettingsScreenState.LoggedIn(user)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), SettingsScreenState.LoggedOut(false))
+
+    val currentNightModeState: StateFlow<NightModeSetting> = nightModeDataSource.observeCurrentNightMode()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), NightModeSetting.FOLLOW_SYSTEM)
 
     fun onLoginClick(context: Context) {
         viewModelScope.launch {
@@ -36,6 +41,12 @@ class SettingsViewModel(private val sessionService: SessionService) : ViewModel(
     fun onLogoutClick(context: Context) {
         viewModelScope.launch {
             sessionService.signOut(context)
+        }
+    }
+
+    fun onNightModeChange(mode: NightModeSetting) {
+        viewModelScope.launch {
+            nightModeDataSource.setNightMode(mode)
         }
     }
 

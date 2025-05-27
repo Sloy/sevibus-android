@@ -1,6 +1,9 @@
 package com.sloy.sevibus.feature.login
 
+import android.content.res.Resources
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material3.Card
@@ -35,10 +39,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,6 +75,8 @@ import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.feature.debug.http.HttpOverlayState
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
+import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
+import com.sloy.sevibus.infrastructure.nightmode.NightModeSelectorBottomSheet
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.SurfaceButton
@@ -81,17 +91,25 @@ fun SettingsScreen() {
 
     val viewModel = koinViewModel<SettingsViewModel>()
     val state by viewModel.state.collectAsState()
+    val nightModeState by viewModel.currentNightModeState.collectAsState()
     SettingsScreen(
         state,
+        nightModeState,
         onLoginClick = { viewModel.onLoginClick(context) },
         onLogoutClick = { viewModel.onLogoutClick(context) },
+        onNightModeChange = { viewModel.onNightModeChange(it) }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogoutClick: () -> Unit) {
-    val context = LocalContext.current
+fun SettingsScreen(
+    state: SettingsScreenState,
+    currentNightMode: NightModeSetting,
+    onLoginClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onNightModeChange: (NightModeSetting) -> Unit = {}
+) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val scrollState = rememberScrollState()
@@ -101,6 +119,11 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
         animationSpec = tween(durationMillis = 300),
         label = "toolbar shadow animation"
     )
+
+    val activity = LocalActivity.current
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -124,6 +147,30 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
             )
         },
         content = { paddingValues ->
+            if (showBottomSheet) {
+                NightModeSelectorBottomSheet(
+                    sheetState = sheetState,
+                    currentMode = currentNightMode,
+                    onDismissRequest = { showBottomSheet = false },
+                    onModeSelected = { mode ->
+                        onNightModeChange(mode)
+                        activity?.splashScreen?.setSplashScreenTheme(
+                            when (mode) {
+                                NightModeSetting.LIGHT -> R.style.Theme_SeviBus4
+                                NightModeSetting.DARK -> R.style.Theme_SeviBus4_Dark
+                                NightModeSetting.FOLLOW_SYSTEM -> Resources.ID_NULL
+                            }
+                        )
+                        scope.launch {
+                            sheetState.hide()
+                        }.invokeOnCompletion {
+                            showBottomSheet = false
+                            AppCompatDelegate.setDefaultNightMode(mode.systemUiMode)
+                        }
+                    }
+                )
+            }
+
             Column(
                 Modifier
                     .verticalScroll(scrollState)
@@ -140,14 +187,52 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                 }
                 Spacer(Modifier.height(16.dp))
 
+                SectionTitle("Apariencia")
+                Card {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .clickable {
+                                showBottomSheet = true
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            Icons.Outlined.DarkMode,
+                            contentDescription = null,
+                            tint = SevTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .size(24.dp)
+                        )
+                        Column(Modifier.weight(1f)) {
+                            Text("Modo oscuro", style = SevTheme.typography.bodyStandardBold)
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                currentNightMode.title,
+                                style = SevTheme.typography.bodySmall,
+                                color = SevTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = SevTheme.colorScheme.outline,
+                            modifier = Modifier
+                                .size(24.dp)
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+
                 SectionTitle("Servicios")
                 Card {
                     val uriHandler = LocalUriHandler.current
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                        .clickable {
-                            uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog")
-                        }
-                        .padding(16.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .clickable {
+                                uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog")
+                            }
+                            .padding(16.dp)
                     ) {
                         Icon(
                             Icons.AutoMirrored.Outlined.ContactSupport,
@@ -183,11 +268,12 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
 
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                coroutineScope.launch { firebaseService?.signOut() }
-                            }
-                            .padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                .clickable {
+                                    coroutineScope.launch { firebaseService?.signOut() }
+                                }
+                                .padding(16.dp)) {
                             Icon(
                                 Icons.Outlined.LocalFireDepartment,
                                 contentDescription = null,
@@ -211,11 +297,12 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                         HorizontalDivider(Modifier.padding(horizontal = 16.dp))
 
                         val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                httpOverlayState?.setVisibility(!httpOverlayState.isVisible)
-                            }
-                            .padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                .clickable {
+                                    httpOverlayState?.setVisibility(!httpOverlayState.isVisible)
+                                }
+                                .padding(16.dp)) {
                             Icon(
                                 Icons.Outlined.Http,
                                 contentDescription = null,
@@ -401,7 +488,11 @@ private fun AccountContentLoggedIn(state: SettingsScreenState.LoggedIn, onLogout
 @Composable
 private fun LoggedInPreview() {
     SevTheme {
-        SettingsScreen(SettingsScreenState.LoggedIn(LoggedUser("Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)), {}, {})
+        SettingsScreen(
+            SettingsScreenState.LoggedIn(LoggedUser("Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
+            NightModeSetting.FOLLOW_SYSTEM,
+            {},
+            {})
     }
 }
 
@@ -409,7 +500,7 @@ private fun LoggedInPreview() {
 @Composable
 private fun LoggedOutPreview() {
     ScreenPreview {
-        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = false), {}, {})
+        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = false), NightModeSetting.FOLLOW_SYSTEM, {}, {})
     }
 }
 
@@ -417,6 +508,6 @@ private fun LoggedOutPreview() {
 @Composable
 private fun LoggedOutProgressPreview() {
     ScreenPreview {
-        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = true), {}, {})
+        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = true), NightModeSetting.FOLLOW_SYSTEM, {}, {})
     }
 }
