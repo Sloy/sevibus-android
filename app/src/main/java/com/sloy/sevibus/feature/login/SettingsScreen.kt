@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.login
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material3.Card
@@ -35,10 +37,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,6 +76,7 @@ import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.SurfaceButton
+import com.sloy.sevibus.ui.nightmode.NightModeSetting
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
@@ -91,7 +98,6 @@ fun SettingsScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogoutClick: () -> Unit) {
-    val context = LocalContext.current
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val scrollState = rememberScrollState()
@@ -101,6 +107,12 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
         animationSpec = tween(durationMillis = 300),
         label = "toolbar shadow animation"
     )
+
+
+    val currentThemeMode = NightModeSetting.currentThemeMode()
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+    var showThemeSelectorSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -124,6 +136,16 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
             )
         },
         content = { paddingValues ->
+            ThemeSelectorBottomSheet(
+                sheetState = sheetState,
+                currentMode = currentThemeMode,
+                onDismissRequest = { showThemeSelectorSheet = false },
+                onModeSelected = { mode ->
+                    AppCompatDelegate.setDefaultNightMode(mode.systemUiMode)
+                    showThemeSelectorSheet = false
+                }
+            )
+
             Column(
                 Modifier
                     .verticalScroll(scrollState)
@@ -140,14 +162,51 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                 }
                 Spacer(Modifier.height(16.dp))
 
+                SectionTitle("Apariencia")
+                Card {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .clickable {
+                                showThemeSelectorSheet = true
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Icon(
+                            Icons.Outlined.DarkMode,
+                            contentDescription = null,
+                            tint = SevTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .size(24.dp)
+                        )
+                        Column(Modifier.weight(1f)) {
+                            Text("Modo oscuro", style = SevTheme.typography.bodyStandardBold)
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                currentThemeMode.title,
+                                style = SevTheme.typography.bodySmall,
+                                color = SevTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = SevTheme.colorScheme.outline,
+                            modifier = Modifier
+                                .size(24.dp)
+                        )
+                    }
+                }
+
                 SectionTitle("Servicios")
                 Card {
                     val uriHandler = LocalUriHandler.current
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                        .clickable {
-                            uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog")
-                        }
-                        .padding(16.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .clickable {
+                                uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog")
+                            }
+                            .padding(16.dp)
                     ) {
                         Icon(
                             Icons.AutoMirrored.Outlined.ContactSupport,
@@ -183,11 +242,12 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
 
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                coroutineScope.launch { firebaseService?.signOut() }
-                            }
-                            .padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                .clickable {
+                                    coroutineScope.launch { firebaseService?.signOut() }
+                                }
+                                .padding(16.dp)) {
                             Icon(
                                 Icons.Outlined.LocalFireDepartment,
                                 contentDescription = null,
@@ -211,11 +271,12 @@ fun SettingsScreen(state: SettingsScreenState, onLoginClick: () -> Unit, onLogou
                         HorizontalDivider(Modifier.padding(horizontal = 16.dp))
 
                         val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                httpOverlayState?.setVisibility(!httpOverlayState.isVisible)
-                            }
-                            .padding(16.dp)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                                .clickable {
+                                    httpOverlayState?.setVisibility(!httpOverlayState.isVisible)
+                                }
+                                .padding(16.dp)) {
                             Icon(
                                 Icons.Outlined.Http,
                                 contentDescription = null,
