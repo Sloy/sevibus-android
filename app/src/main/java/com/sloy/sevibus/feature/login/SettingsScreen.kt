@@ -1,8 +1,10 @@
 package com.sloy.sevibus.feature.login
 
 import android.content.res.Resources
+import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
@@ -154,13 +156,15 @@ fun SettingsScreen(
                     onDismissRequest = { showBottomSheet = false },
                     onModeSelected = { mode ->
                         onNightModeChange(mode)
-                        activity?.splashScreen?.setSplashScreenTheme(
-                            when (mode) {
-                                NightModeSetting.LIGHT -> R.style.Theme_SeviBus4
-                                NightModeSetting.DARK -> R.style.Theme_SeviBus4_Dark
-                                NightModeSetting.FOLLOW_SYSTEM -> Resources.ID_NULL
-                            }
-                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            activity?.splashScreen?.setSplashScreenTheme(
+                                when (mode) {
+                                    NightModeSetting.LIGHT -> R.style.Theme_SeviBus4
+                                    NightModeSetting.DARK -> R.style.Theme_SeviBus4_Dark
+                                    NightModeSetting.FOLLOW_SYSTEM -> Resources.ID_NULL
+                                }
+                            )
+                        }
                         scope.launch {
                             sheetState.hide()
                         }.invokeOnCompletion {
