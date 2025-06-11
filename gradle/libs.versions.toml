@@ -1,6 +1,6 @@
 [versions]
 agp = "8.10.0"
-kotlin = "1.9.0"
+kotlin = "2.1.21"
 googleServicesPlugin = "4.4.2"
 crashlyticsPlugin = "3.0.2"
 performancePlugin = "1.4.2"
@@ -10,7 +10,7 @@ junit = "4.13.2"
 strikt = "0.34.0"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
+composeBom = "2025.06.00"
 navigationCompose = "2.8.1"
 coroutines = "1.8.0"
 koinBom = "3.5.6"
@@ -99,4 +99,6 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServicesPlugin" }
 firebaseCrashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin" }
 firebasePerformance = { id = "com.google.firebase.firebase-perf", version.ref = "performancePlugin" }
-
+ksp = { id = "com.google.devtools.ksp", version = "2.1.20-1.0.31" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

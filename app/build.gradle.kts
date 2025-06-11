@@ -4,10 +4,10 @@ plugins {
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.firebasePerformance)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.compose.compiler)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("com.google.devtools.ksp") version "1.9.0-1.0.13"
-    kotlin("plugin.serialization") version "1.9.0"
-
 }
 
 android {
