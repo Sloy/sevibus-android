@@ -27,11 +27,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.EditLocationAlt
 import androidx.compose.material.icons.outlined.Http
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Map
@@ -80,12 +78,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.LoggedUser
-import com.sloy.sevibus.feature.debug.LocationDebugModule
 import com.sloy.sevibus.feature.debug.http.HttpOverlayState
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
@@ -234,7 +230,6 @@ fun SettingsScreen(
                     SettingsSection("Debug \uD83D\uDC1E") {
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
-                        val debugLocationState by LocationDebugModule.locationState.collectAsStateWithLifecycle()
                         val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
                         SettingsItem(
                             title = "Firebase logout",
@@ -242,22 +237,7 @@ fun SettingsScreen(
                             leadingIcon = Icons.Outlined.LocalFireDepartment,
                             onClick = { coroutineScope.launch { firebaseService?.signOut() } },
                         )
-                        if (BuildVariant.isDebug()) {
-                            HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                            SettingsItem(
-                                title = "Ubicación falsa",
-                                subtitle = "Fuerza una ubicación falsa en Sevilla para facilitar el desarrollo",
-                                leadingIcon = Icons.Outlined.EditLocationAlt,
-                                onClick = { LocationDebugModule.setFakeLocation(!debugLocationState.isFakeLocation) },
-                                endComponent = {
-                                    Switch(
-                                        checked = debugLocationState.isFakeLocation,
-                                        onCheckedChange = { LocationDebugModule.setFakeLocation(it) },
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    )
-                                }
-                            )
-                        }
+                        DebugLocationSetting()
                         HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                         SettingsItem(
                             title = "Mostrar peticiones ",
@@ -282,7 +262,7 @@ fun SettingsScreen(
                             SettingsItem("Error", healthCheckState.message, Icons.Outlined.Warning)
                         }
                         if (healthCheckState is HealthCheckState.Success) {
-                            with(healthCheckState.data){
+                            with(healthCheckState.data) {
                                 timestamp?.let {
                                     SettingsItem("Timestamp", it, Icons.Outlined.AccessTime)
                                 }
