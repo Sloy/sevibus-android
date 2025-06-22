@@ -4,15 +4,14 @@ import android.content.res.Resources
 import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,9 +27,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
 import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Timeline
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,12 +80,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.sloy.sevibus.R
+import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.feature.debug.http.HttpOverlayState
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
-import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSelectorBottomSheet
+import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.SurfaceButton
@@ -93,9 +101,11 @@ fun SettingsScreen() {
 
     val viewModel = koinViewModel<SettingsViewModel>()
     val state by viewModel.state.collectAsState()
+    val healthCheckState by viewModel.healthCheckState.collectAsState()
     val nightModeState by viewModel.currentNightModeState.collectAsState()
     SettingsScreen(
         state,
+        healthCheckState,
         nightModeState,
         onLoginClick = { viewModel.onLoginClick(context) },
         onLogoutClick = { viewModel.onLogoutClick(context) },
@@ -107,6 +117,7 @@ fun SettingsScreen() {
 @Composable
 fun SettingsScreen(
     state: SettingsScreenState,
+    healthCheckState: HealthCheckState,
     currentNightMode: NightModeSetting,
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
@@ -182,227 +193,107 @@ fun SettingsScreen(
                     .safeDrawingPadding()
                     .padding(horizontal = 16.dp)
             ) {
-                SectionTitle("Tu perfil")
-                Card(Modifier.animateContentSize()) {
-                    when (state) {
-                        is SettingsScreenState.LoggedOut -> AccountContentLoggedOut(state, onLoginClick = onLoginClick)
-                        is SettingsScreenState.LoggedIn -> AccountContentLoggedIn(state, onLogoutClick = onLogoutClick)
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-
-                SectionTitle("Apariencia")
-                Card {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                showBottomSheet = true
-                            }
-                            .padding(16.dp)
-                    ) {
-                        Icon(
-                            Icons.Outlined.DarkMode,
-                            contentDescription = null,
-                            tint = SevTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .size(24.dp)
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text("Modo oscuro", style = SevTheme.typography.bodyStandardBold)
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                currentNightMode.title,
-                                style = SevTheme.typography.bodySmall,
-                                color = SevTheme.colorScheme.onSurfaceVariant
-                            )
+                SettingsSection("Tu perfil") {
+                    Card(Modifier.animateContentSize()) {
+                        when (state) {
+                            is SettingsScreenState.LoggedOut -> AccountContentLoggedOut(state, onLoginClick = onLoginClick)
+                            is SettingsScreenState.LoggedIn -> AccountContentLoggedIn(state, onLogoutClick = onLogoutClick)
                         }
-                        Icon(
-                            Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = SevTheme.colorScheme.outline,
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
                     }
                 }
-                Spacer(Modifier.height(16.dp))
 
-                SectionTitle("Servicios")
-                Card {
+                Spacer(Modifier.height(16.dp))
+                SettingsSection("Apariencia") {
+                    SettingsItem(
+                        title = "Modo oscuro",
+                        subtitle = currentNightMode.title,
+                        leadingIcon = Icons.Outlined.DarkMode,
+                        onClick = { showBottomSheet = true },
+                        endIcon = Icons.Default.ChevronRight
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+                SettingsSection("Servicios") {
                     val uriHandler = LocalUriHandler.current
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                            .clickable {
-                                uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog")
-                            }
-                            .padding(16.dp)
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Outlined.ContactSupport,
-                            contentDescription = null,
-                            tint = SevTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .size(24.dp)
-                        )
-                        Column(Modifier.weight(1f)) {
-                            Text("Danos tu opinión", style = SevTheme.typography.bodyStandardBold)
-                            Spacer(Modifier.height(4.dp))
-                            Text(
-                                "¿Tienes algún problema o sugerencia? ¡Ayúdanos a mejorar!",
-                                style = SevTheme.typography.bodySmall,
-                                color = SevTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Icon(
-                            Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = SevTheme.colorScheme.outline,
-                            modifier = Modifier
-                                .size(24.dp)
-                        )
-                    }
+                    SettingsItem(
+                        title = "Danos tu opinión",
+                        subtitle = "¿Tienes algún problemilla o sugerencia? ¡Ayúdanos a mejorar!",
+                        leadingIcon = Icons.AutoMirrored.Outlined.ContactSupport,
+                        onClick = { uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog") },
+                        endIcon = Icons.Default.ChevronRight
+                    )
                 }
+
                 if (BuildVariant.isDebug()) {
                     Spacer(Modifier.height(32.dp))
-                    SectionTitle("Debug")
-                    Card {
-                        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+                    SettingsSection("Debug \uD83D\uDC1E") {
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                .clickable {
-                                    coroutineScope.launch { firebaseService?.signOut() }
-                                }
-                                .padding(16.dp)) {
-                            Icon(
-                                Icons.Outlined.LocalFireDepartment,
-                                contentDescription = null,
-                                tint = SevTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(end = 16.dp)
-                                    .size(24.dp)
-                            )
-                            Column(Modifier.weight(1f)) {
-                                Text("Firebase logout \uD83D\uDC1E", style = SevTheme.typography.bodyStandardBold)
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "Cierra sesión en Firebase pero no en Google, para probar el auto-login.",
-                                    style = SevTheme.typography.bodySmall,
-                                    color = SevTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        DebugLocationSetting()
-
-                        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-
                         val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                                .clickable {
-                                    httpOverlayState?.setVisibility(!httpOverlayState.isVisible)
-                                }
-                                .padding(16.dp)) {
-                            Icon(
-                                Icons.Outlined.Http,
-                                contentDescription = null,
-                                tint = SevTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .padding(end = 16.dp)
-                                    .size(24.dp)
-                            )
-                            Column(Modifier.weight(1f)) {
-                                Text("Mostrar peticiones \uD83D\uDC1E", style = SevTheme.typography.bodyStandardBold)
-                                Spacer(Modifier.height(4.dp))
-                                Text(
-                                    "Muestra las peticiones HTTP en pantalla",
-                                    style = SevTheme.typography.bodySmall,
-                                    color = SevTheme.colorScheme.onSurfaceVariant
+                        SettingsItem(
+                            title = "Firebase logout",
+                            subtitle = "Cierra sesión en Firebase pero no en Google, para probar el auto-login.",
+                            leadingIcon = Icons.Outlined.LocalFireDepartment,
+                            onClick = { coroutineScope.launch { firebaseService?.signOut() } },
+                        )
+                        DebugLocationSetting()
+                        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+                        SettingsItem(
+                            title = "Mostrar peticiones ",
+                            subtitle = "Muestra las peticiones HTTP en pantalla",
+                            leadingIcon = Icons.Outlined.Http,
+                            onClick = { httpOverlayState?.setVisibility(!httpOverlayState.isVisible) },
+                            endComponent = {
+                                Switch(
+                                    checked = httpOverlayState?.isVisible == true,
+                                    onCheckedChange = { httpOverlayState?.setVisibility(it) },
+                                    modifier = Modifier.padding(start = 8.dp)
                                 )
                             }
-
-                            Switch(
-                                checked = httpOverlayState?.isVisible ?: false,
-                                onCheckedChange = { httpOverlayState?.setVisibility(it) },
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-
+                        )
                     }
                 }
+
+                if (healthCheckState !is HealthCheckState.NotAvailable) {
+                    Spacer(Modifier.height(32.dp))
+                    SettingsSection("Server Health Check") {
+                        if (healthCheckState is HealthCheckState.Error) {
+                            SettingsItem("Error", healthCheckState.message, Icons.Outlined.Warning)
+                        }
+                        if (healthCheckState is HealthCheckState.Success) {
+                            with(healthCheckState.data) {
+                                timestamp?.let {
+                                    SettingsItem("Timestamp", it, Icons.Outlined.AccessTime)
+                                }
+                                uptime?.let {
+                                    SettingsItem("Uptime", "${it}s", Icons.Outlined.Timer)
+                                }
+                                environment?.let {
+                                    SettingsItem("Environment", it, Icons.Outlined.Work)
+                                }
+                                deploymentTarget?.let {
+                                    SettingsItem("Deployment", it, Icons.Outlined.Cloud)
+                                }
+                                version?.let {
+                                    SettingsItem("Version", it, Icons.Outlined.Timeline)
+                                }
+                                clientVersion?.let {
+                                    SettingsItem("Client version", it, Icons.Outlined.PhoneAndroid)
+                                }
+                                host?.let {
+                                    SettingsItem("Host", it, Icons.Outlined.Http)
+                                }
+                                ip?.let {
+                                    SettingsItem("IP", it, Icons.Outlined.Map)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(32.dp))
-                Text(
-                    "SeviBus es una aplicación sin ánimo de lucro, independiente no oficial. No tiene ninguna relación con la empresa Tussam ni el ayuntamiento de Sevilla. Los datos mostrados podrían no ser exactos.",
-                    color = SevTheme.colorScheme.onSurfaceVariant,
-                    style = SevTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                )
-                HorizontalDivider(Modifier.padding(vertical = 24.dp))
-
-                Image(
-                    painter = painterResource(id = R.drawable.illustration_bus),
-                    contentDescription = "Drawing of a stop with a heart",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .padding(top = 32.dp, bottom = 16.dp)
-                        .height(100.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-                Text(
-                    buildAnnotatedString {
-                        append("Desarrollada por ")
-
-                        withLink(
-                            LinkAnnotation.Url(
-                                "https://x.com/sloydev",
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        fontWeight = FontWeight.SemiBold,
-                                        textDecoration = TextDecoration.Underline
-                                    ),
-                                    pressedStyle = SpanStyle(background = SevTheme.colorScheme.surfaceContainerHighest)
-                                )
-                            )
-                        ) {
-                            append("Rafa Vázquez ↗")
-                        }
-
-                        append(" en Sevilla y diseñada por ")
-                        withLink(
-                            LinkAnnotation.Url(
-                                "https://donbailon.com/2025",
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        fontWeight = FontWeight.SemiBold,
-                                        textDecoration = TextDecoration.Underline
-                                    ),
-                                    pressedStyle = SpanStyle(background = SevTheme.colorScheme.surfaceContainerHighest)
-                                )
-                            )
-                        ) {
-                            append("Alex Bailon ↗")
-                        }
-                        append(" en un pueblecito de la Costa Brava.")
-                        toAnnotatedString()
-                    },
-                    style = SevTheme.typography.bodySmall,
-                    color = SevTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-
-                Text(
-                    "Versión ${version()}",
-                    color = SevTheme.colorScheme.onSurfaceVariant,
-                    style = SevTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                )
+                Footer()
             }
 
         }
@@ -410,8 +301,75 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(text, style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp))
+private fun ColumnScope.Footer() {
+    Text(
+        "SeviBus es una aplicación sin ánimo de lucro, independiente no oficial. No tiene ninguna relación con la empresa Tussam ni el ayuntamiento de Sevilla. Los datos mostrados podrían no ser exactos.",
+        color = SevTheme.colorScheme.onSurfaceVariant,
+        style = SevTheme.typography.bodySmall,
+        textAlign = TextAlign.Center,
+    )
+    HorizontalDivider(Modifier.padding(vertical = 24.dp))
+
+    Image(
+        painter = painterResource(id = R.drawable.illustration_bus),
+        contentDescription = "Drawing of a stop with a heart",
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+            .padding(top = 32.dp, bottom = 16.dp)
+            .height(100.dp)
+            .align(Alignment.CenterHorizontally)
+    )
+    Text(
+        buildAnnotatedString {
+            append("Desarrollada por ")
+
+            withLink(
+                LinkAnnotation.Url(
+                    "https://x.com/sloydev",
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        pressedStyle = SpanStyle(background = SevTheme.colorScheme.surfaceContainerHighest)
+                    )
+                )
+            ) {
+                append("Rafa Vázquez ↗")
+            }
+
+            append(" en Sevilla y diseñada por ")
+            withLink(
+                LinkAnnotation.Url(
+                    "https://donbailon.com/2025",
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            textDecoration = TextDecoration.Underline
+                        ),
+                        pressedStyle = SpanStyle(background = SevTheme.colorScheme.surfaceContainerHighest)
+                    )
+                )
+            ) {
+                append("Alex Bailon ↗")
+            }
+            append(" en un pueblecito de la Costa Brava.")
+            toAnnotatedString()
+        },
+        style = SevTheme.typography.bodySmall,
+        color = SevTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+    )
+
+    Text(
+        "Versión ${version()}",
+        color = SevTheme.colorScheme.onSurfaceVariant,
+        style = SevTheme.typography.bodySmall,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp)
+    )
 }
 
 @Composable
@@ -494,6 +452,7 @@ private fun LoggedInPreview() {
     SevTheme {
         SettingsScreen(
             SettingsScreenState.LoggedIn(LoggedUser("Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
+            HealthCheckState.Success(Stubs.healthCheck),
             NightModeSetting.FOLLOW_SYSTEM,
             {},
             {})
@@ -504,7 +463,12 @@ private fun LoggedInPreview() {
 @Composable
 private fun LoggedOutPreview() {
     ScreenPreview {
-        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = false), NightModeSetting.FOLLOW_SYSTEM, {}, {})
+        SettingsScreen(
+            SettingsScreenState.LoggedOut(isInProgress = false),
+            HealthCheckState.Success(Stubs.healthCheck),
+            NightModeSetting.FOLLOW_SYSTEM,
+            {},
+            {})
     }
 }
 
@@ -512,6 +476,11 @@ private fun LoggedOutPreview() {
 @Composable
 private fun LoggedOutProgressPreview() {
     ScreenPreview {
-        SettingsScreen(SettingsScreenState.LoggedOut(isInProgress = true), NightModeSetting.FOLLOW_SYSTEM, {}, {})
+        SettingsScreen(
+            SettingsScreenState.LoggedOut(isInProgress = true),
+            HealthCheckState.Success(Stubs.healthCheck),
+            NightModeSetting.FOLLOW_SYSTEM,
+            {},
+            {})
     }
 }

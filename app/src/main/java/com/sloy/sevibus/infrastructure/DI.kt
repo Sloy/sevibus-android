@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.LocationSource
+import com.sloy.sevibus.data.api.AdminApi
 import com.sloy.sevibus.data.api.FirebaseAuthHeaderInterceptor
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
@@ -83,7 +84,7 @@ object DI {
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
-        viewModel { SettingsViewModel(get(), get()) }
+        viewModel { SettingsViewModel(get(), get(), get()) }
         viewModel { CardViewModel(get(), get()) }
     }
 
@@ -146,6 +147,18 @@ object DI {
                 )
                 .build()
             retrofit.create(SevibusUserApi::class.java)
+        }
+        single<AdminApi> {
+            val retrofit = Retrofit.Builder()
+                .client(get<OkHttpClient>().newBuilder().apply {
+                    interceptors().add(0, FirebaseAuthHeaderInterceptor())
+                }.build())
+                .baseUrl("https://base.url/admin/")
+                .addConverterFactory(
+                    json.asConverterFactory("application/json; charset=UTF-8".toMediaType())
+                )
+                .build()
+            retrofit.create(AdminApi::class.java)
         }
     }
 

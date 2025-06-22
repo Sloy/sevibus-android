@@ -3,7 +3,10 @@ package com.sloy.sevibus.feature.login
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sloy.sevibus.data.api.AdminApi
+import com.sloy.sevibus.data.api.model.HealthCheckDto
 import com.sloy.sevibus.domain.model.LoggedUser
+import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -11,12 +14,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(private val sessionService: SessionService, private val nightModeDataSource: NightModeDataSource) : ViewModel() {
+class SettingsViewModel(
+    private val sessionService: SessionService,
+    private val nightModeDataSource: NightModeDataSource,
+    private val adminApi: AdminApi,
+) : ViewModel() {
 
     private val isInProgress = MutableStateFlow(false)
+
+    val healthCheckState: StateFlow<HealthCheckState> = flow {
+        if (BuildVariant.isDebug()) {
+            val state: HealthCheckState = runCatching { adminApi.healthCheck() }
+                .map { HealthCheckState.Success(it) }
+                .getOrElse { HealthCheckState.Error(it.toString()) }
+            emit(state)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), HealthCheckState.NotAvailable)
 
     val state: StateFlow<SettingsScreenState> =
         combine(sessionService.observeCurrentUser(), isInProgress) { user, isInProgress ->
@@ -28,6 +45,7 @@ class SettingsViewModel(private val sessionService: SessionService, private val 
 
     val currentNightModeState: StateFlow<NightModeSetting> = nightModeDataSource.observeCurrentNightMode()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), NightModeSetting.FOLLOW_SYSTEM)
+
 
     fun onLoginClick(context: Context) {
         viewModelScope.launch {
@@ -56,3 +74,10 @@ sealed class SettingsScreenState {
     data class LoggedOut(val isInProgress: Boolean = false) : SettingsScreenState()
     data class LoggedIn(val user: LoggedUser) : SettingsScreenState()
 }
+
+sealed class HealthCheckState {
+    object NotAvailable : HealthCheckState()
+    data class Success(val data: HealthCheckDto) : HealthCheckState()
+    data class Error(val message: String) : HealthCheckState()
+}
+
