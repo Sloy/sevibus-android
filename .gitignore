@@ -19,3 +19,5 @@ secret.properties
 /app/release/
 /app/google-services.json
 certs/release.keystore
+.claude
+CLAUDE.md
