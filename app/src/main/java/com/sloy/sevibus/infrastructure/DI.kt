@@ -84,7 +84,7 @@ object DI {
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
-        viewModel { SettingsViewModel(get(), get()) }
+        viewModel { SettingsViewModel(get(), get(), get()) }
         viewModel { CardViewModel(get(), get()) }
     }
 

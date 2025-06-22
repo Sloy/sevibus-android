@@ -107,11 +107,12 @@ data class CardTransactionDto(
 
 @Serializable
 data class HealthCheckDto(
-    val timestamp: String,
-    val uptime: Double,
-    val environment: String,
-    val deploymentTarget: String,
-    val version: String,
-    val clientVersion: String,
-    val ip: String,
+    val timestamp: String? = null,
+    val uptime: Double? = null,
+    val environment: String? = null,
+    val deploymentTarget: String? = null,
+    val version: String? = null,
+    val clientVersion: String? = null,
+    val host: String? = null,
+    val ip: String? = null,
 )

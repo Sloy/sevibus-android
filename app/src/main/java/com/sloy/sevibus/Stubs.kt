@@ -1,5 +1,6 @@
 package com.sloy.sevibus
 
+import com.sloy.sevibus.data.api.model.HealthCheckDto
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
@@ -572,6 +573,17 @@ object Stubs {
         displayName = "Bonifacio Ramírez Alcántara",
         email = "boni@gmail.com",
         photoUrl = null,
+    )
+
+    val healthCheck = HealthCheckDto(
+        timestamp = "2025-06-22T17:17:39.957Z",
+        uptime = 6.649698565,
+        environment = "development",
+        deploymentTarget = "local",
+        version = "25.06.22-7e103da*",
+        clientVersion = "0.0.0",
+        host = "localhost:8080",
+        ip = "185.251.208.19"
     )
 }
 

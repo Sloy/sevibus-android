@@ -4,6 +4,6 @@ import com.sloy.sevibus.data.api.model.HealthCheckDto
 import retrofit2.http.GET
 
 interface AdminApi {
-    @GET("admin/health")
+    @GET("health")
     suspend fun healthCheck(): HealthCheckDto
 }
