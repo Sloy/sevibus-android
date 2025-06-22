@@ -128,7 +128,7 @@ object DI {
         single<SevibusApi> {
             val retrofit = Retrofit.Builder()
                 .client(get())
-                .baseUrl("https://base.url/api/")
+                .baseUrl("${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/")
                 .addConverterFactory(
                     json.asConverterFactory("application/json; charset=UTF-8".toMediaType())
                 )
@@ -140,7 +140,7 @@ object DI {
                 .client(get<OkHttpClient>().newBuilder().apply {
                     interceptors().add(0, FirebaseAuthHeaderInterceptor())
                 }.build())
-                .baseUrl("https://base.url/api/")
+                .baseUrl("${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/")
                 .addConverterFactory(
                     json.asConverterFactory("application/json; charset=UTF-8".toMediaType())
                 )

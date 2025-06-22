@@ -32,7 +32,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should replace base URL with configured API URL`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/api/"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/"
         val expectedUrl = "https://api.example.com/v1/api/"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -41,7 +41,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should replace URL and preserve endpoint path`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/admin/health"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}admin/health"
         val expectedUrl = "https://api.example.com/v1/admin/health"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -50,7 +50,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should replace URL and preserve nested endpoint paths`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/api/stops/123/arrivals"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/stops/123/arrivals"
         val expectedUrl = "https://api.example.com/v1/api/stops/123/arrivals"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -59,7 +59,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should preserve query parameters`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/api/search?q=test&limit=10"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/search?q=test&limit=10"
         val expectedUrl = "https://api.example.com/v1/api/search?q=test&limit=10"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -68,7 +68,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should handle different configured URL schemes`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/test"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}test"
         val expectedUrl = "https://api.example.com/v1/test"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -77,7 +77,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should handle different configured URL ports`() {
         val substituteUrl = "https://api.example.com:8080/v2/"
-        val originalUrl = "https://base.url/endpoint"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}endpoint"
         val expectedUrl = "https://api.example.com:8080/v2/endpoint"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -86,7 +86,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should handle configured URL without trailing slash`() {
         val substituteUrl = "https://api.example.com/v1"
-        val originalUrl = "https://base.url/health"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}health"
         val expectedUrl = "https://api.example.com/v1/health"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -95,7 +95,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should handle configured URL with multiple path segments`() {
         val substituteUrl = "https://api.example.com/v1/api/sevibus/"
-        val originalUrl = "https://base.url/lines"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}lines"
         val expectedUrl = "https://api.example.com/v1/api/sevibus/lines"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -104,7 +104,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should handle request to root path`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}"
         val expectedUrl = "https://api.example.com/v1/"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
@@ -113,7 +113,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should preserve headers and method`() {
         val substituteUrl = "https://api.example.com/v1/"
-        val originalUrl = "https://base.url/data"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}data"
         val expectedUrl = "https://api.example.com/v1/data"
 
         // Given
@@ -146,7 +146,7 @@ class DynamicApiUrlInterceptorTest {
     @Test
     fun `should work with real AWS API Gateway URLs`() {
         val substituteUrl = "https://abc123.execute-api.eu-west-1.amazonaws.com/prod/"
-        val originalUrl = "https://base.url/api/stops/456"
+        val originalUrl = "${DynamicApiUrlInterceptor.BASE_URL_PLACEHOLDER}api/stops/456"
         val expectedUrl = "https://abc123.execute-api.eu-west-1.amazonaws.com/prod/api/stops/456"
 
         testUrlReplacement(substituteUrl, originalUrl, expectedUrl)
