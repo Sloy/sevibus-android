@@ -18,33 +18,7 @@ jobs:
     - name: Create secret.properties
       run: echo "MAPS_API_KEY=dummy_key" > secret.properties
     - name: Create google-services.json
-      run: |
-        cat > app/google-services.json << 'EOF'
-        {
-          "project_info": {
-            "project_number": "123456789",
-            "project_id": "dummy-project"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:123456789:android:dummy1",
-                "android_client_info": {
-                  "package_name": "com.sloy.sevibus"
-                }
-              }
-            },
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:123456789:android:dummy2", 
-                "android_client_info": {
-                  "package_name": "com.sloy.sevibus.debug"
-                }
-              }
-            }
-          ]
-        }
-        EOF
+      run: echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
