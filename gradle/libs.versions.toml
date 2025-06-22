@@ -8,6 +8,7 @@ coreKtx = "1.16.0"
 firebaseBom = "33.15.0"
 junit = "4.13.2"
 strikt = "0.35.1"
+mockito = "5.4.0"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.06.00"
@@ -67,6 +68,7 @@ firebase-auth-ktx = { module = "com.google.firebase:firebase-auth" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
+firebase-config = { module = "com.google.firebase:firebase-config" }
 
 maps = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-secrets-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "mapsecrets" }
@@ -91,6 +93,7 @@ reorderable = { module = "sh.calvin.reorderable:reorderable", version = "2.5.1" 
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 strikt = { module = "io.strikt:strikt-core", version.ref = "strikt" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashScreen" }
 

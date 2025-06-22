@@ -57,11 +57,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.perf)
+    implementation(libs.firebase.config)
     implementation(libs.playServices.location)
     implementation(libs.maps)
     implementation(libs.credentials)
@@ -132,6 +133,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.strikt)
     testImplementation(libs.coroutines.testing)
+    testImplementation(libs.mockito.kotlin)
 }
 
 secrets {

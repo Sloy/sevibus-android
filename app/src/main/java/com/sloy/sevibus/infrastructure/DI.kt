@@ -45,6 +45,9 @@ import com.sloy.sevibus.feature.map.states.OnStopSelectedState
 import com.sloy.sevibus.feature.search.LineSelectorViewModel
 import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.stopdetail.StopDetailViewModel
+import com.sloy.sevibus.infrastructure.config.ApiConfigurationManager
+import com.sloy.sevibus.infrastructure.config.DynamicApiUrlInterceptor
+import com.sloy.sevibus.infrastructure.config.RemoteConfigService
 import com.sloy.sevibus.infrastructure.location.FusedLocationService
 import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.infrastructure.location.LocationServiceSource
@@ -116,6 +119,7 @@ object DI {
             val interceptors: List<Interceptor> = get()
             OkHttpClient.Builder()
                 .cache(okHttpCache(androidContext()))
+                .addInterceptor(DynamicApiUrlInterceptor(get()))
                 .addInterceptors(interceptors)
                 .build()
         }
@@ -124,13 +128,7 @@ object DI {
         single<SevibusApi> {
             val retrofit = Retrofit.Builder()
                 .client(get())
-                .baseUrl(
-                    when (BuildVariant.current()) {
-                        BuildVariant.DEBUG -> "https://ui6647hi28.execute-api.eu-south-2.amazonaws.com/dev/api/"
-                        BuildVariant.RELEASE -> "https://ldzu622p0l.execute-api.eu-south-2.amazonaws.com/prod/api/"
-                    }
-                )
-                //.baseUrl("https://sevibus.app/api/")
+                .baseUrl("https://base.url/api/")
                 .addConverterFactory(
                     json.asConverterFactory("application/json; charset=UTF-8".toMediaType())
                 )
@@ -142,13 +140,7 @@ object DI {
                 .client(get<OkHttpClient>().newBuilder().apply {
                     interceptors().add(0, FirebaseAuthHeaderInterceptor())
                 }.build())
-                .baseUrl(
-                    when (BuildVariant.current()) {
-                        BuildVariant.DEBUG -> "https://ui6647hi28.execute-api.eu-south-2.amazonaws.com/dev/api/"
-                        BuildVariant.RELEASE -> "https://ldzu622p0l.execute-api.eu-south-2.amazonaws.com/prod/api/"
-                    }
-                )
-                //.baseUrl("http://10.117.145.97:8080/api/")
+                .baseUrl("https://base.url/api/")
                 .addConverterFactory(
                     json.asConverterFactory("application/json; charset=UTF-8".toMediaType())
                 )
@@ -165,6 +157,8 @@ object DI {
     }
 
     val infrastructureModule = module {
+        single<ApiConfigurationManager> { ApiConfigurationManager() }
+        single<RemoteConfigService> { RemoteConfigService(get()) }
         single<FusedLocationService> {
             FusedLocationService(
                 androidContext(),
