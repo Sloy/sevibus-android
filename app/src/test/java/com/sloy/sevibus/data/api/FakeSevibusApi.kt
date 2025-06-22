@@ -2,10 +2,13 @@ package com.sloy.sevibus.data.api
 
 import com.sloy.sevibus.data.api.model.BusArrivalDto
 import com.sloy.sevibus.data.api.model.BusDto
+import com.sloy.sevibus.data.api.model.CardInfoDto
+import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
+import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
 import kotlinx.coroutines.CompletableDeferred
@@ -22,6 +25,8 @@ class FakeSevibusApi : SevibusApi {
     var arrivalsResponse: List<BusArrivalDto> = emptyList()
     var pathResponse: PathDto? = null
     var busesResponse: List<BusDto> = emptyList()
+    var cardInfoResponse: CardInfoDto? = null
+    var cardTransactionsResponse: List<CardTransactionDto> = emptyList()
 
     private var waitForResponses = false
     private var latch = CompletableDeferred<Unit>()
@@ -100,5 +105,15 @@ class FakeSevibusApi : SevibusApi {
         getBusesCount++
         awaitLatch()
         return@withContext busesResponse
+    }
+
+    override suspend fun getCardInfo(card: CardId): CardInfoDto = withContext(Dispatchers.IO) {
+        awaitLatch()
+        return@withContext cardInfoResponse!!
+    }
+
+    override suspend fun getCardTransactions(card: CardId): List<CardTransactionDto> = withContext(Dispatchers.IO) {
+        awaitLatch()
+        return@withContext cardTransactionsResponse
     }
 }
