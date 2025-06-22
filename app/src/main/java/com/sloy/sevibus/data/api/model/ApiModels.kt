@@ -104,3 +104,14 @@ data class CardTransactionDto(
     val busId: BusId? = null,
     val people: Int? = null,
 )
+
+@Serializable
+data class HealthCheckDto(
+    val timestamp: String,
+    val uptime: Double,
+    val environment: String,
+    val deploymentTarget: String,
+    val version: String,
+    val clientVersion: String,
+    val ip: String,
+)
