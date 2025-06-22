@@ -3,8 +3,6 @@ name: Build & upload to Firebase App Distribution
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
   publish-firebase-release-apk:
