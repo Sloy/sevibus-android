@@ -172,15 +172,7 @@ private fun BoxScope.LocationButton(
     val location by locationService.requestLocationUpdates().collectAsStateWithLifecycle(null, lifecycle)
     val isCameraInCurrentPosition = location?.toLatLng()?.isApproximatelyEqualTo(cameraPositionState.position.target) == true
 
-    val outsideSevillaPhrases = listOf(
-        "¿Tú ande vá? Estás fuera de Sevilla",
-        "¿Pero tú estás en Sevilla ni ná?",
-        "SeviBus sólo funciona en Sevilla y en Triana",
-        "Papá, qué está más cerca, ¿Sevilla o la Luna?",
-        "Anda anda, si estás en el quinto carajo",
-        "Vente pa Sevilla que se está más calentito",
-        "No, mejor ven tú a Sevilla que es el mismo camino"
-    )
+    val outsideSevillaMessenger = remember { OutsideSevillaMessenger() }
 
     CustomFab(
         onClick = {
@@ -195,7 +187,7 @@ private fun BoxScope.LocationButton(
                             view.performHapticReject()
                             launch {
                                 snackbarState.currentSnackbarData?.dismiss()
-                                snackbarState.showSnackbar(outsideSevillaPhrases.random())
+                                snackbarState.showSnackbar(outsideSevillaMessenger.getNextMessage())
                             }
                             launch { onReject() }
                         }
