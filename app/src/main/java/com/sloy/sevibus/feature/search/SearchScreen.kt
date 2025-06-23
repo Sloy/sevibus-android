@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.SearchResult
@@ -58,7 +60,7 @@ private fun SearchResultsContent(
         // Lines
         val lines = results.filterIsInstance<SearchResult.LineResult>()
         if (lines.isNotEmpty()) {
-            item { Text("Líneas", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)) }
+            item { Text(stringResource(R.string.search_lines_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)) }
         }
         item {
             Column(
@@ -81,7 +83,7 @@ private fun SearchResultsContent(
         // Stops
         val stops = results.filterIsInstance<SearchResult.StopResult>()
         if (stops.isNotEmpty()) {
-            item { Text("Paradas", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) }
+            item { Text(stringResource(R.string.search_stops_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)) }
         }
         item {
             Column(
@@ -143,7 +145,7 @@ private fun StopResultItem(stop: Stop, onStopClick: (Stop) -> Unit) {
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                "Parada ${stop.code}",
+                stringResource(R.string.common_stop_with_code, stop.code),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = SevTheme.typography.bodyExtraSmall,

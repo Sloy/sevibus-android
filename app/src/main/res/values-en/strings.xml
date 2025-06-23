@@ -1,0 +1,191 @@
+<resources>
+    <!-- ================== -->
+    <!-- App Core -->
+    <!-- ================== -->
+    <string name="app_name">SeviBus</string>
+
+    <!-- ================== -->
+    <!-- Navigation -->
+    <!-- ================== -->
+    <string name="navigation_for_you">For You</string>
+    <string name="navigation_lines">Lines</string>
+    <string name="navigation_map">Map</string>
+    <string name="navigation_cards">Travel Card</string>
+    <string name="navigation_settings">Settings</string>
+    <string name="navigation_edit_favorites">Edit favorites</string>
+    <string name="navigation_cards_help">Frequently asked questions</string>
+
+    <!-- ================== -->
+    <!-- Common/General -->
+    <!-- ================== -->
+    <string name="common_error">Error</string>
+    <string name="common_lines">Lines</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_login">Sign in</string>
+    <string name="common_stop_with_code">Stop %1$s</string>
+    <string name="common_distance_meters">%1$s m</string>
+    <string name="common_version_text">Version %1$s</string>
+
+    <!-- ================== -->
+    <!-- For You Screen -->
+    <!-- ================== -->
+    <string name="foryou_title">For You</string>
+    <string name="foryou_tab_favorites">Favorites</string>
+    <string name="foryou_tab_nearby">Nearby</string>
+    <string name="foryou_favorites_header">Favorite stops</string>
+    <string name="foryou_favorites_description">Save your regular stops to always have them visible.</string>
+    <string name="foryou_nearby_header">Nearby stops</string>
+    <string name="foryou_nearby_no_stops">No stops near your location.\nAre you even in Seville?</string>
+    <string name="foryou_location_permission_message">Enable location services to see the stops closest to your position.</string>
+    <string name="foryou_activate_location">Activate location</string>
+    <string name="foryou_login_with_google">Sign in with Google</string>
+
+    <!-- ================== -->
+    <!-- Lines Screen -->
+    <!-- ================== -->
+    <string name="lines_title">Lines</string>
+    <string name="lines_error">Error</string>
+
+    <!-- ================== -->
+    <!-- Search Screen -->
+    <!-- ================== -->
+    <string name="search_lines_section">Lines</string>
+    <string name="search_stops_section">Stops</string>
+    <string name="search_placeholder">Search lines and stops</string>
+
+    <!-- ================== -->
+    <!-- Stop Detail Screen -->
+    <!-- ================== -->
+    <string name="stopdetail_lines_section">Lines</string>
+    <string name="stopdetail_login_required">You must sign in to save favorite stops</string>
+    <string name="stopdetail_error_loading_arrivals">An error occurred while loading arrival times, check your connection</string>
+
+    <!-- ================== -->
+    <!-- Bus Arrivals -->
+    <!-- ================== -->
+    <string name="arrivals_last_bus">Last bus</string>
+
+    <!-- ================== -->
+    <!-- Cards/Travel Card Screen -->
+    <!-- ================== -->
+    <string name="cards_add_card">Add card</string>
+    <string name="cards_serial_number">Serial number</string>
+    <string name="cards_serial_help">The serial number is located on the back of the card. It\'s usually 12 digits.</string>
+    <string name="cards_activate_nfc">Activate NFC</string>
+    <string name="cards_nfc_instruction_1">Activate NFC to easily read the card by bringing it close to your phone</string>
+    <string name="cards_nfc_instruction_2">Or tap the card on the back of your phone</string>
+    <string name="cards_recent_activity">Recent activity</string>
+    <string name="cards_no_recent_activity">No recent activity</string>
+    <string name="cards_today_operations_notice">Today\'s transactions won\'t be reflected until tomorrow</string>
+    <string name="cards_error_loading">There was an error loading your cards</string>
+    <string name="cards_error_loading_recent_activity">Couldn\'t load recent activity, try again later</string>
+    <string name="cards_data_section">Data</string>
+    <string name="cards_serial_number_label">Serial number</string>
+    <string name="cards_type_label">Card type</string>
+    <string name="cards_top_up">Top up</string>
+    <string name="cards_top_up_description">Top up your card from the official website</string>
+    <string name="cards_validation">Validation</string>
+    <string name="cards_transfer">Transfer</string>
+    <string name="cards_top_up_transaction">Top up</string>
+    <string name="cards_error_not_found">Card not found or invalid number</string>
+    <string name="cards_error_search">There was an error searching for the card, try again later</string>
+    <string name="cards_error_already_saved">You already have that card saved</string>
+    <string name="cards_error_delete">There was an error deleting the card, try again later</string>
+    <string name="cards_error_reorder">There was an error reordering the cards, try again later</string>
+    
+    <!-- Cards Help / FAQ -->
+    <string name="cards_help_no_update_title">Card information doesn\'t update</string>
+    <string name="cards_help_no_update_answer">Card information is updated within &lt;b&gt;24h&lt;/b&gt;. Therefore you will only see the balance and activity from the previous day.</string>
+    <string name="cards_help_validate_title">Can I validate my trip with the app on the bus?</string>
+    <string name="cards_help_validate_answer">I wish, but no. SeviBus only shows card information but doesn\'t replace it. You must continue using your physical card when boarding the bus or tram.</string>
+    <string name="cards_help_recharge_title">I recharged the card but the money doesn\'t appear</string>
+    <string name="cards_help_recharge_answer">Online recharges will be effective within &lt;b&gt;24h&lt;/b&gt;, and after validating the card on a bus or tram. Until then, the previous balance will continue to appear.</string>
+    <string name="cards_help_missing_trip_title">I used the card but the last trip doesn\'t appear</string>
+    <string name="cards_help_missing_trip_answer">Card balance is updated within &lt;b&gt;24h&lt;/b&gt;. Therefore you will only see the balance and activity from the previous day.</string>
+    <string name="cards_help_invalid_number_title">Card number is not valid</string>
+    <string name="cards_help_invalid_number_answer">If your card is new, it might not be activated. You must validate it on a bus or tram, try again within 24 hours. If you\'ve already validated it and it still doesn\'t work, contact &lt;a href=\'mailto:sevibus@sloydev.com\'&gt;us&lt;/a&gt;.</string>
+    <string name="cards_help_24h_delay_title">Why doesn\'t the information update until after 24 hours?</string>
+    <string name="cards_help_24h_delay_answer">It\'s a technical limitation of Tussam, and there\'s nothing we can do from SeviBus. Remember that SeviBus is an independent app not related to Tussam.</string>
+    <string name="cards_help_card_error_title">When I use my card on the bus or tram I get an error</string>
+    <string name="cards_help_card_error_answer">From SeviBus we can\'t help you with problems using the card. Contact &lt;a href=\'https://www.tussam.es/contacto/\'&gt;Tussam&lt;/a&gt;.</string>
+
+    <!-- ================== -->
+    <!-- Error Messages -->
+    <!-- ================== -->
+    <string name="error_connection">It seems there\'s a connection error</string>
+
+    <!-- ================== -->
+    <!-- Settings Screen -->
+    <!-- ================== -->
+    <string name="settings_your_profile">Your profile</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_services">Services</string>
+    <string name="settings_give_feedback">Give us feedback</string>
+    <string name="settings_feedback_description">Have any issues or suggestions? Help us improve!</string>
+    <string name="settings_login_to_save_favorites">Sign in to save your favorite stops and travel cards.</string>
+    <string name="settings_login_with_google">Sign in with Google</string>
+    <string name="settings_profile_description">Your profile is used to store your favorite stops and travel cards. This way you can always switch phones without losing anything.</string>
+    <string name="settings_logout">Sign out</string>
+    <string name="settings_app_disclaimer">SeviBus is a non-profit, independent unofficial application. It has no relationship with the Tussam company or the Seville city council. The data shown might not be accurate.</string>
+    <string name="settings_developed_by">Developed by</string>
+    <string name="settings_rafa_vazquez">Rafa Vázquez ↗</string>
+    <string name="settings_in_sevilla_designed_by">in Seville and designed by</string>
+    <string name="settings_alex_bailon">Alex Bailon ↗</string>
+    <string name="settings_costa_brava">in a small town on the Costa Brava.</string>
+
+    <!-- Debug Settings -->
+    <string name="settings_debug_menu">Debug 🐞</string>
+    <string name="settings_firebase_logout">Firebase logout</string>
+    <string name="settings_firebase_logout_description">Sign out from Firebase but not Google, to test auto-login.</string>
+    <string name="settings_show_requests">Show requests</string>
+    <string name="settings_show_requests_description">Show HTTP requests on screen</string>
+
+    <!-- Health Check -->
+    <string name="settings_server_health_check">Server Health Check</string>
+    <string name="settings_timestamp">Timestamp</string>
+    <string name="settings_uptime">Uptime</string>
+    <string name="settings_uptime_seconds">%1$ss</string>
+    <string name="settings_environment">Environment</string>
+    <string name="settings_deployment">Deployment</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_client_version">Client version</string>
+    <string name="settings_host">Host</string>
+    <string name="settings_ip">IP</string>
+    <string name="settings_night_mode_system">System default</string>
+    <string name="settings_night_mode_never">Never</string>
+    <string name="settings_night_mode_always">Always</string>
+    <string name="settings_night_mode_auto">Automatic dark mode</string>
+
+    <!-- ================== -->
+    <!-- Content Descriptions -->
+    <!-- ================== -->
+    <string name="cd_favorite_add">Save as favorite</string>
+    <string name="cd_apply_order">Apply order</string>
+    <string name="cd_reorder_cards">Reorder cards</string>
+    <string name="cd_drag_reorder">Drag to reorder</string>
+    <string name="cd_add_bonobus">Add travel card</string>
+    <string name="cd_close_screen">Close screen</string>
+    <string name="cd_google_logo">Google logo</string>
+    <string name="cd_profile_image">Profile image</string>
+    <string name="cd_stop_heart">Drawing of a stop with a heart</string>
+    <string name="cd_drag_reorder_favorites">Drag to reorder</string>
+
+    <!-- ================== -->
+    <!-- Map Screen -->
+    <!-- ================== -->
+    <string name="map_outside_seville_1">Where are you going? You\'re outside of Seville</string>
+    <string name="map_outside_seville_2">But are you even in Seville?</string>
+    <string name="map_outside_seville_3">SeviBus only works in Seville and Triana</string>
+    <string name="map_outside_seville_4">Dad, what\'s closer, Seville or the Moon?</string>
+    <string name="map_outside_seville_5">Come on, you\'re in the middle of nowhere</string>
+    <string name="map_outside_seville_6">Come to Seville, it\'s warmer here</string>
+    <string name="map_outside_seville_7">No, better you come to Seville, it\'s the same way</string>
+    <string name="map_connection_error">It seems there\'s a connection error</string>
+
+    <!-- ================== -->
+    <!-- Info Messages -->
+    <!-- ================== -->
+    <string name="info_select_destination_stop">Select the destination stop to see the estimated arrival time.</string>
+    <string name="info_select_destination_stop_short">Select the destination stop.</string>
+</resources>

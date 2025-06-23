@@ -63,12 +63,14 @@ fun StopDetailScreen(code: StopId, highlighedLine: LineId?, onArrivalClick: (Bus
     val snackbarHost = LocalSnackbarHostState.current
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val loginRequiredMessage = stringResource(R.string.stopdetail_login_required)
+    val loginButtonText = stringResource(R.string.common_login)
     EventCollector(viewModel.events) { event ->
         when (event) {
             is StopDetailScreenEvent.LoginRequired -> {
                 if (snackbarHost.showSnackbar(
-                        "Debes iniciar sesión para guardar paradas favoritas",
-                        "Iniciar sesión",
+                        loginRequiredMessage,
+                        loginButtonText,
                         duration = SnackbarDuration.Long
                     ) == SnackbarResult.ActionPerformed
                 ) {
@@ -95,7 +97,7 @@ fun StopDetailScreen(
     Column {
 
         if (state is StopDetailScreenState.Loaded) {
-            val title = "Parada ${(state as? StopDetailScreenState.Loaded)?.stop?.code ?: ""}"
+            val title = stringResource(R.string.common_stop_with_code, (state as? StopDetailScreenState.Loaded)?.stop?.code ?: "")
             StopDetailsHeader(state, title, onFavoriteClick)
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
@@ -103,7 +105,7 @@ fun StopDetailScreen(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             when (state) {
                 is StopDetailScreenState.Loaded -> {
-                    Text("Líneas", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
+                    Text(stringResource(R.string.stopdetail_lines_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
                     when (state.arrivalsState) {
                         is ArrivalsState.Loaded -> {
                             state.arrivalsState.arrivals.forEach {
@@ -186,7 +188,7 @@ private fun StopDetailsHeader(stopState: StopDetailScreenState.Loaded, title: St
                 }
                 Icon(
                     icon,
-                    contentDescription = stringResource(R.string.content_description_favorite_add),
+                    contentDescription = stringResource(R.string.cd_favorite_add),
                     tint = color,
                 )
             }
@@ -218,7 +220,7 @@ private fun BusArrivalsLoadingWithStop(stop: Stop) {
 @Composable
 fun ArrivalsFailureBanner(throwable: Throwable) {
     InfoBannerComponent(
-        text = "Ocurrió un error al cargar los tiempos, comprueba tu conexión",
+        text = stringResource(R.string.stopdetail_error_loading_arrivals),
         icon = Icons.Filled.CloudOff,
     )
     val view = LocalView.current

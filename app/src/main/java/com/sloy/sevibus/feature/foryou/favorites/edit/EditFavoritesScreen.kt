@@ -69,6 +69,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
@@ -317,7 +318,7 @@ fun LazyItemScope.EditFavoriteListItem(
                         // Drag handle
                         Icon(
                             Icons.Filled.DragIndicator,
-                            contentDescription = "Arrastrar para reordenar",
+                            contentDescription = stringResource(R.string.cd_drag_reorder_favorites),
                             tint = SevTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
                                 .padding(8.dp)

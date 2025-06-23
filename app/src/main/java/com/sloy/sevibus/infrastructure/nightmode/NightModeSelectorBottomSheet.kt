@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -38,7 +40,7 @@ fun NightModeSelectorBottomSheet(
     ) {
         Column(Modifier.padding(bottom = 24.dp)) {
             Text(
-                "Modo oscuro automático",
+                stringResource(R.string.settings_night_mode_auto),
                 style = SevTheme.typography.headingSmall,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -58,7 +60,7 @@ fun NightModeSelectorBottomSheet(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        mode.title,
+                        stringResource(mode.titleRes),
                         style = SevTheme.typography.bodyStandard
                     )
                 }

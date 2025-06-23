@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesWidget
 import com.sloy.sevibus.feature.foryou.nearby.NearbyWidget
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
@@ -32,7 +34,7 @@ import com.sloy.sevibus.ui.theme.SevTheme
 @Composable
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () -> Unit) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("Para ti", style = SevTheme.typography.headingLarge, modifier = Modifier.padding(start = 16.dp))
+        Text(stringResource(R.string.foryou_title), style = SevTheme.typography.headingLarge, modifier = Modifier.padding(start = 16.dp))
 
         val view = LocalView.current
         var selectedIndex by remember { mutableStateOf(0) }
@@ -41,7 +43,7 @@ fun ForYouScreen(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () 
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 .padding(16.dp),
-            options = listOf("Favoritas", "Cercanas"),
+            options = listOf(stringResource(R.string.foryou_tab_favorites), stringResource(R.string.foryou_tab_nearby)),
             selectedIndex = selectedIndex,
             onOptionSelected = {
                 selectedIndex = it

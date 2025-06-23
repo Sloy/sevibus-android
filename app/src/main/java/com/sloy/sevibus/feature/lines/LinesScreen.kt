@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloy.sevibus.Stubs
@@ -61,12 +63,12 @@ private fun LinesScreen(state: LinesScreenState, onLineClick: (Line) -> Unit, mo
             }
 
             is LinesScreenState.Error -> {
-                Text("Error")
+                Text(stringResource(R.string.lines_error))
             }
 
             is LinesScreenState.Content -> {
                 LazyColumn(Modifier.padding(horizontal = 16.dp)) {
-                    item { Text("Líneas", style = SevTheme.typography.headingLarge, modifier = Modifier.padding(bottom = 24.dp)) }
+                    item { Text(stringResource(R.string.lines_title), style = SevTheme.typography.headingLarge, modifier = Modifier.padding(bottom = 24.dp)) }
                     state.lineGroups.forEach { (group, lines) ->
                         if (lines.isNotEmpty()) {
                             item { LineGroupTitle(group) }

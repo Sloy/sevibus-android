@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
@@ -84,7 +85,7 @@ fun FavoritesWidget(
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                     FavoritesEmptyState()
                     Spacer(Modifier.height(16.dp))
-                    SurfaceButton("Inicia sesión con Google", icon = {
+                    SurfaceButton(stringResource(R.string.foryou_login_with_google), icon = {
                         if (isLoginLoading) {
                             CircularProgressIndicator(Modifier.size(18.dp))
                         } else {
@@ -115,10 +116,10 @@ private fun FavoritesEmptyState() {
                 .height(90.dp)
         )
         Spacer(Modifier.height(16.dp))
-        Text("Paradas favoritas", style = SevTheme.typography.headingStandard)
+        Text(stringResource(R.string.foryou_favorites_header), style = SevTheme.typography.headingStandard)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Guarda tus paradas habituales para tenerlas siempre visibles.",
+            stringResource(R.string.foryou_favorites_description),
             style = SevTheme.typography.bodyStandard,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp)

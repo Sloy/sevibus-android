@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -30,7 +32,7 @@ fun CardInfoElement(card: CardInfo) {
     val uriHandler = LocalUriHandler.current
 
     Column {
-        Text("Datos", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
+        Text(stringResource(R.string.cards_data_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
         Card(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -44,14 +46,14 @@ fun CardInfoElement(card: CardInfo) {
                 })*/
             //HorizontalDivider()
 
-            TitleSubtitleItem("Número de serie", card.formattedSerialNumber)
+            TitleSubtitleItem(stringResource(R.string.cards_serial_number_label), card.formattedSerialNumber)
             HorizontalDivider()
 
-            TitleSubtitleItem("Tipo de tarjeta", card.type)
+            TitleSubtitleItem(stringResource(R.string.cards_type_label), card.type)
 
             if (card.balance != null) {
                 HorizontalDivider()
-                TitleSubtitleItem("Recarga", "Recarga tu tarjeta desde la web oficial",
+                TitleSubtitleItem(stringResource(R.string.cards_top_up), stringResource(R.string.cards_top_up_description),
                     onClick = {
                         uriHandler.openUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}")
                     }, endAccessory = {

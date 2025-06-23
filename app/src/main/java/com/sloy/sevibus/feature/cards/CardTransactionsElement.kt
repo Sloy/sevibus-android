@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.ui.components.LineIndicator
@@ -142,7 +144,7 @@ private fun TitleSubtitleShimmer() {
 
 @Composable
 private fun ValidationItem(transaction: CardTransaction.Validation) {
-    TitleSubtitleItem("Validación", DateFormatter.dayMonthTime(transaction.date),
+    TitleSubtitleItem(stringResource(R.string.cards_validation), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
             LineIndicator(transaction.line)
         },
@@ -157,7 +159,7 @@ private fun ValidationItem(transaction: CardTransaction.Validation) {
 
 @Composable
 private fun TransferItem(transaction: CardTransaction.Transfer) {
-    TitleSubtitleItem("Transbordo", DateFormatter.dayMonthTime(transaction.date),
+    TitleSubtitleItem(stringResource(R.string.cards_transfer), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
             LineIndicator(transaction.line)
         }
@@ -166,7 +168,7 @@ private fun TransferItem(transaction: CardTransaction.Transfer) {
 
 @Composable
 private fun TopUpItem(transaction: CardTransaction.TopUp) {
-    TitleSubtitleItem("Recarga", DateFormatter.dayMonthTime(transaction.date),
+    TitleSubtitleItem(stringResource(R.string.cards_top_up_transaction), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
             Icon(Icons.Filled.Euro, contentDescription = "Euro")
         },

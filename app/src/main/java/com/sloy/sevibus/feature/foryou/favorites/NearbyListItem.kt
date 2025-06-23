@@ -22,6 +22,8 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
@@ -108,7 +110,7 @@ fun NearbyListItem(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Text(
-                    " ${nearby.distance} m",
+                    stringResource(R.string.common_distance_meters, nearby.distance),
                     style = SevTheme.typography.bodyExtraSmall,
                     color = SevTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 4.dp)

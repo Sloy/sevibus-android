@@ -83,6 +83,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -190,7 +191,7 @@ fun CardsScreen(
                     Icon(
                         Icons.AutoMirrored.Outlined.HelpOutline,
                         tint = SevTheme.colorScheme.onSurfaceVariant,
-                        contentDescription = "Apply order"
+                        contentDescription = stringResource(R.string.cd_apply_order)
                     )
                 }
             }
@@ -205,9 +206,9 @@ fun CardsScreen(
                     }
                 }) {
                     if (isReordering) {
-                        Icon(Icons.Default.Done, contentDescription = "Apply order")
+                        Icon(Icons.Default.Done, contentDescription = stringResource(R.string.cd_apply_order))
                     } else {
-                        Icon(Icons.Default.SwapVert, tint = SevTheme.colorScheme.onSurfaceVariant, contentDescription = "Reorder cards")
+                        Icon(Icons.Default.SwapVert, tint = SevTheme.colorScheme.onSurfaceVariant, contentDescription = stringResource(R.string.cd_reorder_cards))
                     }
                 }
             }
@@ -328,7 +329,7 @@ private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: Transa
         Spacer(Modifier.size(16.dp))
         CardInfoElement(currentCard)
         Spacer(Modifier.size(32.dp))
-        Text("Actividad reciente", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
+        Text(stringResource(R.string.cards_recent_activity), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
         when (transactionsState) {
             is TransactionsState.Loaded -> {
                 CardTransactionsElement(transactionsState.transactions)
@@ -340,7 +341,7 @@ private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: Transa
 
             is TransactionsState.Error -> {
                 InfoBannerComponent(
-                    text = "No se pudo cargar la actividad reciente, inténtalo más tarde",
+                    text = stringResource(R.string.cards_error_loading_recent_activity),
                     icon = Icons.Filled.CloudOff,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
@@ -348,7 +349,7 @@ private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: Transa
 
             is TransactionsState.Empty -> {
                 Text(
-                    "No hay actividad reciente",
+                    stringResource(R.string.cards_no_recent_activity),
                     style = SevTheme.typography.bodySmall,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = SevTheme.colorScheme.onSurfaceVariant
@@ -365,7 +366,7 @@ private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: Transa
 @Composable
 private fun NewCardDetail(nfcState: NfcState, newCardState: CardsScreenNewCardState, onNewCardNumber: (String) -> Unit) {
     Column(Modifier.padding(horizontal = 16.dp)) {
-        Text("Añadir tarjeta", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 16.dp))
+        Text(stringResource(R.string.cards_add_card), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 16.dp))
 
         Surface(
             color = SevTheme.colorScheme.surface,
@@ -375,7 +376,7 @@ private fun NewCardDetail(nfcState: NfcState, newCardState: CardsScreenNewCardSt
             Column {
 
                 Text(
-                    "El número de serie se encuentra en la parte trasera de la tarjeta. Suele ser de 12 dígitos.",
+                    stringResource(R.string.cards_serial_help),
                     style = SevTheme.typography.bodySmall,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -414,7 +415,7 @@ private fun NewCardDetail(nfcState: NfcState, newCardState: CardsScreenNewCardSt
                                     innerTextField()
                                     if (newCardState.serialNumber.isEmpty()) {
                                         Text(
-                                            "Número de serie",
+                                            stringResource(R.string.cards_serial_number),
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             color = SevTheme.colorScheme.onSurfaceVariant
@@ -435,14 +436,14 @@ private fun NewCardDetail(nfcState: NfcState, newCardState: CardsScreenNewCardSt
                 NfcState.DISABLED -> {
                     val context = LocalContext.current
                     Text(
-                        "Activa NFC para leer la tarjeta fácilmente acercándola al teléfono",
+                        stringResource(R.string.cards_nfc_instruction_1),
                         style = SevTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(bottom = 16.dp)
                             .align(Alignment.CenterHorizontally)
                     )
-                    SurfaceButton("Activar NFC", onClick = {
+                    SurfaceButton(stringResource(R.string.cards_activate_nfc), onClick = {
                         //TODO activity might not exist
                         context.startActivity(Intent(Settings.ACTION_NFC_SETTINGS))
                     }, icon = {
@@ -452,7 +453,7 @@ private fun NewCardDetail(nfcState: NfcState, newCardState: CardsScreenNewCardSt
 
                 NfcState.ENABLED -> {
                     Text(
-                        "O pasa la tarjeta por detrás del móvil", style = SevTheme.typography.bodySmall,
+                        stringResource(R.string.cards_nfc_instruction_2), style = SevTheme.typography.bodySmall,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                     )
@@ -522,7 +523,7 @@ fun SharedTransitionScope.CardsReorderingState(
 
                     Icon(
                         Icons.Filled.DragIndicator,
-                        contentDescription = "Arrastrar para reordenar",
+                        contentDescription = stringResource(R.string.cd_drag_reorder),
                         tint = SevTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .padding(16.dp)
@@ -545,7 +546,7 @@ fun SharedTransitionScope.CardsReorderingState(
 @Composable
 private fun CardsErrorState(state: CardsScreenState.Error) {
     InfoBannerComponent(
-        "Hubo un error cargando tus tarjetas",
+        stringResource(R.string.cards_error_loading),
         icon = Icons.Outlined.CloudOff,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
@@ -571,7 +572,7 @@ private fun CardsEmptyState(nfcState: NfcState, newCardState: CardsScreenNewCard
 @Composable
 private fun WarningNotice() {
     InfoBannerComponent(
-        text = "Las operaciones de hoy no se verán reflejadas hasta mañana",
+        text = stringResource(R.string.cards_today_operations_notice),
         icon = Icons.Outlined.Info,
         containerColor = SevTheme.colorScheme.surfaceContainer,
         contentColor = SevTheme.colorScheme.onSurface,
@@ -589,7 +590,7 @@ private fun DeleteButton(onClick: () -> Unit) {
     ) {
         Icon(Icons.Default.Delete, contentDescription = null)
         Spacer(Modifier.size(8.dp))
-        Text("Eliminar")
+        Text(stringResource(R.string.common_delete))
     }
 }
 
@@ -694,7 +695,7 @@ private fun CardAddMoreItem(newCardState: CardsScreenNewCardState) {
             ) {
                 Column {
                     Icon(
-                        Icons.Default.Add, contentDescription = "Añadir bonobús", tint = tint, modifier = Modifier.size(48.dp)
+                        Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_bonobus), tint = tint, modifier = Modifier.size(48.dp)
                     )
                 }
             }

@@ -1,6 +1,12 @@
 <resources>
+    <!-- ================== -->
+    <!-- App Core -->
+    <!-- ================== -->
     <string name="app_name">SeviBus</string>
 
+    <!-- ================== -->
+    <!-- Navigation -->
+    <!-- ================== -->
     <string name="navigation_for_you">Para ti</string>
     <string name="navigation_lines">Líneas</string>
     <string name="navigation_map">Mapa</string>
@@ -9,5 +15,178 @@
     <string name="navigation_edit_favorites">Editar favoritas</string>
     <string name="navigation_cards_help">Preguntas frecuentes</string>
 
-    <string name="content_description_favorite_add">Guardar como favorito</string>
+    <!-- ================== -->
+    <!-- Common/General -->
+    <!-- ================== -->
+    <string name="common_error">Error</string>
+    <string name="common_lines">Líneas</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_login">Iniciar sesión</string>
+    <string name="common_stop_with_code">Parada %1$s</string>
+    <string name="common_distance_meters">%1$s m</string>
+    <string name="common_version_text">Versión %1$s</string>
+
+    <!-- ================== -->
+    <!-- For You Screen -->
+    <!-- ================== -->
+    <string name="foryou_title">Para ti</string>
+    <string name="foryou_tab_favorites">Favoritas</string>
+    <string name="foryou_tab_nearby">Cercanas</string>
+    <string name="foryou_favorites_header">Paradas favoritas</string>
+    <string name="foryou_favorites_description">Guarda tus paradas habituales para tenerlas siempre visibles.</string>
+    <string name="foryou_nearby_header">Paradas cercanas</string>
+    <string name="foryou_nearby_no_stops">No hay paradas cercanas a tu posición.\n¿Tú estás en Sevilla ni ná?</string>
+    <string name="foryou_location_permission_message">Activa los servicios de localización para ver las paradas más cercanas a tu posición.</string>
+    <string name="foryou_activate_location">Activar localización</string>
+    <string name="foryou_login_with_google">Inicia sesión con Google</string>
+
+    <!-- ================== -->
+    <!-- Lines Screen -->
+    <!-- ================== -->
+    <string name="lines_title">Líneas</string>
+    <string name="lines_error">Error</string>
+
+    <!-- ================== -->
+    <!-- Search Screen -->
+    <!-- ================== -->
+    <string name="search_lines_section">Líneas</string>
+    <string name="search_stops_section">Paradas</string>
+    <string name="search_placeholder">Busca líneas y paradas</string>
+
+    <!-- ================== -->
+    <!-- Stop Detail Screen -->
+    <!-- ================== -->
+    <string name="stopdetail_lines_section">Líneas</string>
+    <string name="stopdetail_login_required">Debes iniciar sesión para guardar paradas favoritas</string>
+    <string name="stopdetail_error_loading_arrivals">Ocurrió un error al cargar los tiempos, comprueba tu conexión</string>
+
+    <!-- ================== -->
+    <!-- Bus Arrivals -->
+    <!-- ================== -->
+    <string name="arrivals_last_bus">Último bus</string>
+
+    <!-- ================== -->
+    <!-- Cards/Bonobús Screen -->
+    <!-- ================== -->
+    <string name="cards_add_card">Añadir tarjeta</string>
+    <string name="cards_serial_number">Número de serie</string>
+    <string name="cards_serial_help">El número de serie se encuentra en la parte trasera de la tarjeta. Suele ser de 12 dígitos.</string>
+    <string name="cards_activate_nfc">Activar NFC</string>
+    <string name="cards_nfc_instruction_1">Activa NFC para leer la tarjeta fácilmente acercándola al teléfono</string>
+    <string name="cards_nfc_instruction_2">O pasa la tarjeta por detrás del móvil</string>
+    <string name="cards_recent_activity">Actividad reciente</string>
+    <string name="cards_no_recent_activity">No hay actividad reciente</string>
+    <string name="cards_today_operations_notice">Las operaciones de hoy no se verán reflejadas hasta mañana</string>
+    <string name="cards_error_loading">Hubo un error cargando tus tarjetas</string>
+    <string name="cards_error_loading_recent_activity">No se pudo cargar la actividad reciente, inténtalo más tarde</string>
+    <string name="cards_data_section">Datos</string>
+    <string name="cards_serial_number_label">Número de serie</string>
+    <string name="cards_type_label">Tipo de tarjeta</string>
+    <string name="cards_top_up">Recarga</string>
+    <string name="cards_top_up_description">Recarga tu tarjeta desde la web oficial</string>
+    <string name="cards_validation">Validación</string>
+    <string name="cards_transfer">Transbordo</string>
+    <string name="cards_top_up_transaction">Recarga</string>
+    <string name="cards_error_not_found">Tarjeta no encontrada o número inválido</string>
+    <string name="cards_error_search">Hubo un error al buscar la tarjeta, inténtalo más tarde</string>
+    <string name="cards_error_already_saved">Ya tienes guardada esa tarjeta</string>
+    <string name="cards_error_delete">Hubo un error al eliminar la tarjeta, inténtalo más tarde</string>
+    <string name="cards_error_reorder">Hubo un error al reordenar las tarjetas, inténtalo más tarde</string>
+    
+    <!-- Cards Help / FAQ -->
+    <string name="cards_help_no_update_title">La información de la tarjeta no se actualiza</string>
+    <string name="cards_help_no_update_answer">La información de la tarjeta se actualiza en un plazo de &lt;b&gt;24h&lt;/b&gt;. Por lo tanto sólo verás el saldo y la actividad del día anterior.</string>
+    <string name="cards_help_validate_title">¿Puedo validar mi viaje con la aplicación en el bus?</string>
+    <string name="cards_help_validate_answer">Ojalá, pero no. SeviBus sólo muestra la información de la tarjeta pero no la reemplaza. Debes seguir pasando tu tarjeta física al subirte al bus o tranvía.</string>
+    <string name="cards_help_recharge_title">He recargado la tarjeta pero no me aparece el dinero</string>
+    <string name="cards_help_recharge_answer">La recaga online será efectiva en un plazo de &lt;b&gt;24h&lt;/b&gt;, y después de validar la tarjeta en un bus o tranvía. Hasta entonces, seguriá apareciendo el saldo anterior.</string>
+    <string name="cards_help_missing_trip_title">He utilizado la tarjeta pero no me aparece el último viaje</string>
+    <string name="cards_help_missing_trip_answer">El saldo de la tarjeta se actualiza en un plazo de &lt;b&gt;24h&lt;/b&gt;. Por lo tanto sólo verás el saldo y la actividad del día anterior.</string>
+    <string name="cards_help_invalid_number_title">Número de tarjeta no es válido</string>
+    <string name="cards_help_invalid_number_answer">Si tu tarjeta es nueva, puede que no esté activada. Debes validarla en un bus o tranvía, vuelve a probar en un plazo de 24 horas. Si ya la has validado y sigue sin funcionar, ponte en contacto con &lt;a href=\'mailto:sevibus@sloydev.com\'&gt;nosotros&lt;/a&gt;.</string>
+    <string name="cards_help_24h_delay_title">¿Por qué no se actualiza la información hasta pasadas 24 horas?</string>
+    <string name="cards_help_24h_delay_answer">Es una limitación técnica de Tussam, y no hay nada que podamos hacer desde SeviBus. Recuerda que SeviBus es una app independiente y no relacionada con Tussam.</string>
+    <string name="cards_help_card_error_title">Al pasar mi tarjeta en el bus o tranvía me da error</string>
+    <string name="cards_help_card_error_answer">Desde SeviBus no podemos ayudarte con problemas al usar la tarjeta. Ponte en contacto con &lt;a href=\'https://www.tussam.es/contacto/\'&gt;Tussam&lt;/a&gt;.</string>
+
+    <!-- ================== -->
+    <!-- Error Messages -->
+    <!-- ================== -->
+    <string name="error_connection">Parece que hay algún error de conexión</string>
+
+    <!-- ================== -->
+    <!-- Settings Screen -->
+    <!-- ================== -->
+    <string name="settings_your_profile">Tu perfil</string>
+    <string name="settings_appearance">Apariencia</string>
+    <string name="settings_dark_mode">Modo oscuro</string>
+    <string name="settings_services">Servicios</string>
+    <string name="settings_give_feedback">Danos tu opinión</string>
+    <string name="settings_feedback_description">¿Tienes algún problemilla o sugerencia? ¡Ayúdanos a mejorar!</string>
+    <string name="settings_login_to_save_favorites">Inicia sesión para guardar tus paradas favoritas y tus tarjetas de bonobús.</string>
+    <string name="settings_login_with_google">Inicia sesión con Google</string>
+    <string name="settings_profile_description">Tu perfil se usa para almacenar tus paradas favoritas y tus tarjetas de bonobús. Así siempre podras cambiar de móvil sin perder nada.</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_app_disclaimer">SeviBus es una aplicación sin ánimo de lucro, independiente no oficial. No tiene ninguna relación con la empresa Tussam ni el ayuntamiento de Sevilla. Los datos mostrados podrían no ser exactos.</string>
+    <string name="settings_developed_by">Desarrollada por</string>
+    <string name="settings_rafa_vazquez">Rafa Vázquez ↗</string>
+    <string name="settings_in_sevilla_designed_by">en Sevilla y diseñada por</string>
+    <string name="settings_alex_bailon">Alex Bailon ↗</string>
+    <string name="settings_costa_brava">en un pueblecito de la Costa Brava.</string>
+
+    <!-- Debug Settings -->
+    <string name="settings_debug_menu">Debug 🐞</string>
+    <string name="settings_firebase_logout">Firebase logout</string>
+    <string name="settings_firebase_logout_description">Cierra sesión en Firebase pero no en Google, para probar el auto-login.</string>
+    <string name="settings_show_requests">Mostrar peticiones</string>
+    <string name="settings_show_requests_description">Muestra las peticiones HTTP en pantalla</string>
+
+    <!-- Health Check -->
+    <string name="settings_server_health_check">Server Health Check</string>
+    <string name="settings_timestamp">Timestamp</string>
+    <string name="settings_uptime">Uptime</string>
+    <string name="settings_uptime_seconds">%1$ss</string>
+    <string name="settings_environment">Environment</string>
+    <string name="settings_deployment">Deployment</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_client_version">Client version</string>
+    <string name="settings_host">Host</string>
+    <string name="settings_ip">IP</string>
+    <string name="settings_night_mode_system">Predeterminado del sistema</string>
+    <string name="settings_night_mode_never">Nunca</string>
+    <string name="settings_night_mode_always">Siempre</string>
+    <string name="settings_night_mode_auto">Modo oscuro automático</string>
+
+    <!-- ================== -->
+    <!-- Content Descriptions -->
+    <!-- ================== -->
+    <string name="cd_favorite_add">Guardar como favorito</string>
+    <string name="cd_apply_order">Apply order</string>
+    <string name="cd_reorder_cards">Reorder cards</string>
+    <string name="cd_drag_reorder">Arrastrar para reordenar</string>
+    <string name="cd_add_bonobus">Añadir bonobús</string>
+    <string name="cd_close_screen">Close screen</string>
+    <string name="cd_google_logo">Google logo</string>
+    <string name="cd_profile_image">Profile image</string>
+    <string name="cd_stop_heart">Drawing of a stop with a heart</string>
+    <string name="cd_drag_reorder_favorites">Arrastrar para reordenar</string>
+
+    <!-- ================== -->
+    <!-- Map Screen -->
+    <!-- ================== -->
+    <string name="map_outside_seville_1">¿Tú ande vá? Estás fuera de Sevilla</string>
+    <string name="map_outside_seville_2">¿Pero tú estás en Sevilla ni ná?</string>
+    <string name="map_outside_seville_3">SeviBus sólo funciona en Sevilla y en Triana</string>
+    <string name="map_outside_seville_4">Papá, qué está más cerca, ¿Sevilla o la Luna?</string>
+    <string name="map_outside_seville_5">Anda anda, si estás en el quinto carajo</string>
+    <string name="map_outside_seville_6">Vente pa Sevilla que se está más calentito</string>
+    <string name="map_outside_seville_7">No, mejor ven tú a Sevilla que es el mismo camino</string>
+    <string name="map_connection_error">Parece que hay algún error de conexión</string>
+
+    <!-- ================== -->
+    <!-- Info Messages -->
+    <!-- ================== -->
+    <string name="info_select_destination_stop">Selecciona la parada de destino para ver la hora prevista de llegada.</string>
+    <string name="info_select_destination_stop_short">Selecciona la parada de destino.</string>
+
 </resources>

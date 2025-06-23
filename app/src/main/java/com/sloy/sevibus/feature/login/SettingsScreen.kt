@@ -148,7 +148,7 @@ fun SettingsScreen(
                         onClick = { onBackPressedDispatcher?.onBackPressed() },
                         modifier = Modifier.padding(start = 16.dp, end = 8.dp)
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "Close screen")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_close_screen))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -193,7 +193,7 @@ fun SettingsScreen(
                     .safeDrawingPadding()
                     .padding(horizontal = 16.dp)
             ) {
-                SettingsSection("Tu perfil") {
+                SettingsSection(stringResource(R.string.settings_your_profile)) {
                     Card(Modifier.animateContentSize()) {
                         when (state) {
                             is SettingsScreenState.LoggedOut -> AccountContentLoggedOut(state, onLoginClick = onLoginClick)
@@ -203,10 +203,10 @@ fun SettingsScreen(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                SettingsSection("Apariencia") {
+                SettingsSection(stringResource(R.string.settings_appearance)) {
                     SettingsItem(
-                        title = "Modo oscuro",
-                        subtitle = currentNightMode.title,
+                        title = stringResource(R.string.settings_dark_mode),
+                        subtitle = stringResource(currentNightMode.titleRes),
                         leadingIcon = Icons.Outlined.DarkMode,
                         onClick = { showBottomSheet = true },
                         endIcon = Icons.Default.ChevronRight
@@ -214,11 +214,11 @@ fun SettingsScreen(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                SettingsSection("Servicios") {
+                SettingsSection(stringResource(R.string.settings_services)) {
                     val uriHandler = LocalUriHandler.current
                     SettingsItem(
-                        title = "Danos tu opinión",
-                        subtitle = "¿Tienes algún problemilla o sugerencia? ¡Ayúdanos a mejorar!",
+                        title = stringResource(R.string.settings_give_feedback),
+                        subtitle = stringResource(R.string.settings_feedback_description),
                         leadingIcon = Icons.AutoMirrored.Outlined.ContactSupport,
                         onClick = { uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog") },
                         endIcon = Icons.Default.ChevronRight
@@ -227,21 +227,21 @@ fun SettingsScreen(
 
                 if (BuildVariant.isDebug()) {
                     Spacer(Modifier.height(32.dp))
-                    SettingsSection("Debug \uD83D\uDC1E") {
+                    SettingsSection(stringResource(R.string.settings_debug_menu)) {
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
                         val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
                         SettingsItem(
-                            title = "Firebase logout",
-                            subtitle = "Cierra sesión en Firebase pero no en Google, para probar el auto-login.",
+                            title = stringResource(R.string.settings_firebase_logout),
+                            subtitle = stringResource(R.string.settings_firebase_logout_description),
                             leadingIcon = Icons.Outlined.LocalFireDepartment,
                             onClick = { coroutineScope.launch { firebaseService?.signOut() } },
                         )
                         DebugLocationSetting()
                         HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                         SettingsItem(
-                            title = "Mostrar peticiones ",
-                            subtitle = "Muestra las peticiones HTTP en pantalla",
+                            title = stringResource(R.string.settings_show_requests),
+                            subtitle = stringResource(R.string.settings_show_requests_description),
                             leadingIcon = Icons.Outlined.Http,
                             onClick = { httpOverlayState?.setVisibility(!httpOverlayState.isVisible) },
                             endComponent = {
@@ -257,35 +257,35 @@ fun SettingsScreen(
 
                 if (healthCheckState !is HealthCheckState.NotAvailable) {
                     Spacer(Modifier.height(32.dp))
-                    SettingsSection("Server Health Check") {
+                    SettingsSection(stringResource(R.string.settings_server_health_check)) {
                         if (healthCheckState is HealthCheckState.Error) {
-                            SettingsItem("Error", healthCheckState.message, Icons.Outlined.Warning)
+                            SettingsItem(stringResource(R.string.common_error), healthCheckState.message, Icons.Outlined.Warning)
                         }
                         if (healthCheckState is HealthCheckState.Success) {
                             with(healthCheckState.data) {
                                 timestamp?.let {
-                                    SettingsItem("Timestamp", it, Icons.Outlined.AccessTime)
+                                    SettingsItem(stringResource(R.string.settings_timestamp), it, Icons.Outlined.AccessTime)
                                 }
                                 uptime?.let {
-                                    SettingsItem("Uptime", "${it}s", Icons.Outlined.Timer)
+                                    SettingsItem(stringResource(R.string.settings_uptime), stringResource(R.string.settings_uptime_seconds, it), Icons.Outlined.Timer)
                                 }
                                 environment?.let {
-                                    SettingsItem("Environment", it, Icons.Outlined.Work)
+                                    SettingsItem(stringResource(R.string.settings_environment), it, Icons.Outlined.Work)
                                 }
                                 deploymentTarget?.let {
-                                    SettingsItem("Deployment", it, Icons.Outlined.Cloud)
+                                    SettingsItem(stringResource(R.string.settings_deployment), it, Icons.Outlined.Cloud)
                                 }
                                 version?.let {
-                                    SettingsItem("Version", it, Icons.Outlined.Timeline)
+                                    SettingsItem(stringResource(R.string.settings_version), it, Icons.Outlined.Timeline)
                                 }
                                 clientVersion?.let {
-                                    SettingsItem("Client version", it, Icons.Outlined.PhoneAndroid)
+                                    SettingsItem(stringResource(R.string.settings_client_version), it, Icons.Outlined.PhoneAndroid)
                                 }
                                 host?.let {
-                                    SettingsItem("Host", it, Icons.Outlined.Http)
+                                    SettingsItem(stringResource(R.string.settings_host), it, Icons.Outlined.Http)
                                 }
                                 ip?.let {
-                                    SettingsItem("IP", it, Icons.Outlined.Map)
+                                    SettingsItem(stringResource(R.string.settings_ip), it, Icons.Outlined.Map)
                                 }
                             }
                         }
@@ -303,7 +303,7 @@ fun SettingsScreen(
 @Composable
 private fun ColumnScope.Footer() {
     Text(
-        "SeviBus es una aplicación sin ánimo de lucro, independiente no oficial. No tiene ninguna relación con la empresa Tussam ni el ayuntamiento de Sevilla. Los datos mostrados podrían no ser exactos.",
+        stringResource(R.string.settings_app_disclaimer),
         color = SevTheme.colorScheme.onSurfaceVariant,
         style = SevTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
@@ -312,7 +312,7 @@ private fun ColumnScope.Footer() {
 
     Image(
         painter = painterResource(id = R.drawable.illustration_bus),
-        contentDescription = "Drawing of a stop with a heart",
+        contentDescription = stringResource(R.string.cd_stop_heart),
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .padding(top = 32.dp, bottom = 16.dp)
@@ -321,7 +321,7 @@ private fun ColumnScope.Footer() {
     )
     Text(
         buildAnnotatedString {
-            append("Desarrollada por ")
+            append(stringResource(R.string.settings_developed_by) + " ")
 
             withLink(
                 LinkAnnotation.Url(
@@ -335,10 +335,10 @@ private fun ColumnScope.Footer() {
                     )
                 )
             ) {
-                append("Rafa Vázquez ↗")
+                append(stringResource(R.string.settings_rafa_vazquez))
             }
 
-            append(" en Sevilla y diseñada por ")
+            append(" " + stringResource(R.string.settings_in_sevilla_designed_by) + " ")
             withLink(
                 LinkAnnotation.Url(
                     "https://donbailon.com/2025",
@@ -351,9 +351,9 @@ private fun ColumnScope.Footer() {
                     )
                 )
             ) {
-                append("Alex Bailon ↗")
+                append(stringResource(R.string.settings_alex_bailon))
             }
-            append(" en un pueblecito de la Costa Brava.")
+            append(" " + stringResource(R.string.settings_costa_brava))
             toAnnotatedString()
         },
         style = SevTheme.typography.bodySmall,
@@ -362,7 +362,7 @@ private fun ColumnScope.Footer() {
     )
 
     Text(
-        "Versión ${version()}",
+        stringResource(R.string.common_version_text, version()),
         color = SevTheme.colorScheme.onSurfaceVariant,
         style = SevTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
@@ -386,19 +386,19 @@ private fun version(): String {
 private fun AccountContentLoggedOut(state: SettingsScreenState.LoggedOut, onLoginClick: () -> Unit) {
     Column(Modifier.padding(16.dp)) {
         Text(
-            "Inicia sesión para guardar tus paradas favoritas y tus tarjetas de bonobús.",
+            stringResource(R.string.settings_login_to_save_favorites),
             style = SevTheme.typography.bodyExtraSmall,
             color = SevTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(16.dp))
-        SurfaceButton("Inicia sesión con Google", icon = {
+        SurfaceButton(stringResource(R.string.settings_login_with_google), icon = {
             if (state.isInProgress) {
                 CircularProgressIndicator(Modifier.size(18.dp))
             } else {
                 Icon(
                     tint = Color.Unspecified,
                     painter = painterResource(id = com.google.android.gms.base.R.drawable.googleg_standard_color_18),
-                    contentDescription = "Google logo",
+                    contentDescription = stringResource(R.string.cd_google_logo),
                     modifier = Modifier.size(18.dp),
                 )
 
@@ -422,7 +422,7 @@ private fun AccountContentLoggedIn(state: SettingsScreenState.LoggedIn, onLogout
                     .padding(4.dp)
                     .clip(CircleShape)
                     .size(40.dp),
-                contentDescription = "Profile image",
+                contentDescription = stringResource(R.string.cd_profile_image),
             )
             Spacer(Modifier.width(16.dp))
             Column {
@@ -437,12 +437,12 @@ private fun AccountContentLoggedIn(state: SettingsScreenState.LoggedIn, onLogout
         }
         Spacer(Modifier.height(16.dp))
         Text(
-            "Tu perfil se usa para almacenar tus paradas favoritas y tus tarjetas de bonobús. Así siempre podras cambiar de móvil sin perder nada.",
+            stringResource(R.string.settings_profile_description),
             style = SevTheme.typography.bodyExtraSmall,
             color = SevTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(16.dp))
-        SurfaceButton("Cerrar sesión", onClick = onLogoutClick, modifier = Modifier.fillMaxWidth())
+        SurfaceButton(stringResource(R.string.settings_logout), onClick = onLogoutClick, modifier = Modifier.fillMaxWidth())
     }
 }
 

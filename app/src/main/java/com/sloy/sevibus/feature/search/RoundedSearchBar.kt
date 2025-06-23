@@ -34,7 +34,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.icons.SevIcons
@@ -117,7 +119,7 @@ fun RoundedSearchBar(
                         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                             innerTextField()
                             if (searchTerm.isEmpty()) {
-                                Text("Busca líneas y paradas", color = SevTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.search_placeholder), color = SevTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 

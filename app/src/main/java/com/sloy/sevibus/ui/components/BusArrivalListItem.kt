@@ -18,6 +18,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.LineSummary
@@ -83,7 +85,7 @@ fun BusArrivalListItem(arrival: BusArrival, isHighlighted: Boolean, onClick: (Bu
             if ((arrival as? BusArrival.Available)?.isLastBus == true) {
                 Column {
                     Text(text = arrival.route.destination)
-                    Text(text = "Último bus", style = SevTheme.typography.bodyExtraSmall, color = SevTheme.colorScheme.onSurfaceVariant)
+                    Text(text = stringResource(R.string.arrivals_last_bus), style = SevTheme.typography.bodyExtraSmall, color = SevTheme.colorScheme.onSurfaceVariant)
                 }
             } else {
                 Text(text = arrival.route.destination)

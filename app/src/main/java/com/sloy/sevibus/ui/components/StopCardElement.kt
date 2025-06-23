@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Stop
@@ -43,7 +45,7 @@ fun StopCardElement(stop: Stop, isHighlighted: Boolean, onStopClick: (Stop) -> U
                 }
             },
             supportingContent = {
-                Text("Parada " + stop.code, style = SevTheme.typography.bodyExtraSmall, modifier = Modifier.padding(top = 8.dp))
+                Text(stringResource(R.string.common_stop_with_code, stop.code), style = SevTheme.typography.bodyExtraSmall, modifier = Modifier.padding(top = 8.dp))
             },
             trailingContent = { SupportingLines(stop.lines) },
         )

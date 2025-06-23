@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -80,7 +81,7 @@ private fun NearbyWidgetHasPermission(
 
             is NearbyScreenState.Content -> {
                 if (state.stops.isEmpty()) {
-                    NearbyEmptyState("No hay paradas cercanas a tu posición.\n¿Tú estás en Sevilla ni ná?")
+                    NearbyEmptyState(stringResource(R.string.foryou_nearby_no_stops))
                 } else {
                     state.stops.forEach { stop ->
                         NearbyListItem(stop, onStopClicked, Modifier.padding(horizontal = 16.dp))
@@ -96,9 +97,9 @@ private fun NearbyWidgetHasPermission(
 @Composable
 private fun NearbyWidgetNoPermission(onPermissionButton: () -> Unit, modifier: Modifier = Modifier) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        NearbyEmptyState("Activa los servicios de localización para ver las paradas más cercanas a tu posición.")
+        NearbyEmptyState(stringResource(R.string.foryou_location_permission_message))
         Spacer(Modifier.height(16.dp))
-        SurfaceButton("Activar localización", icon = {
+        SurfaceButton(stringResource(R.string.foryou_activate_location), icon = {
             Icon(
                 tint = SevTheme.colorScheme.primary,
                 imageVector = Icons.Outlined.LocationOn,
@@ -120,7 +121,7 @@ private fun NearbyEmptyState(message: String) {
                 .height(90.dp)
         )
         Spacer(Modifier.height(16.dp))
-        Text("Paradas cercanas", style = SevTheme.typography.headingStandard)
+        Text(stringResource(R.string.foryou_nearby_header), style = SevTheme.typography.headingStandard)
         Spacer(Modifier.height(8.dp))
         Text(
             message,

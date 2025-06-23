@@ -20,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineId
@@ -86,7 +88,7 @@ private fun LineRouteScreen(
         }
 
         when (state) {
-            LineRouteScreenState.Error -> Text("Error")
+            LineRouteScreenState.Error -> Text(stringResource(R.string.common_error))
             LineRouteScreenState.Loading -> CircularProgressIndicator()
             is LineRouteScreenState.Content.Full -> {
                 RouteContent(state.stops, state.line, highlightedStopId, onStopClick)
