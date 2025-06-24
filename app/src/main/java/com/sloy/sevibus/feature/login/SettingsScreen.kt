@@ -263,11 +263,8 @@ fun SettingsScreen(
                         }
                         if (healthCheckState is HealthCheckState.Success) {
                             with(healthCheckState.data) {
-                                timestamp?.let {
-                                    SettingsItem(stringResource(R.string.settings_timestamp), it, Icons.Outlined.AccessTime)
-                                }
-                                uptime?.let {
-                                    SettingsItem(stringResource(R.string.settings_uptime), stringResource(R.string.settings_uptime_seconds, it), Icons.Outlined.Timer)
+                                host?.let {
+                                    SettingsItem(stringResource(R.string.settings_host), it, Icons.Outlined.Http)
                                 }
                                 environment?.let {
                                     SettingsItem(stringResource(R.string.settings_environment), it, Icons.Outlined.Work)
@@ -281,11 +278,14 @@ fun SettingsScreen(
                                 clientVersion?.let {
                                     SettingsItem(stringResource(R.string.settings_client_version), it, Icons.Outlined.PhoneAndroid)
                                 }
-                                host?.let {
-                                    SettingsItem(stringResource(R.string.settings_host), it, Icons.Outlined.Http)
-                                }
                                 ip?.let {
                                     SettingsItem(stringResource(R.string.settings_ip), it, Icons.Outlined.Map)
+                                }
+                                timestamp?.let {
+                                    SettingsItem(stringResource(R.string.settings_timestamp), it, Icons.Outlined.AccessTime)
+                                }
+                                uptime?.let {
+                                    SettingsItem(stringResource(R.string.settings_uptime), stringResource(R.string.settings_uptime_seconds, it), Icons.Outlined.Timer)
                                 }
                             }
                         }

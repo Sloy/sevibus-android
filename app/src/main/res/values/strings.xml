@@ -148,10 +148,10 @@
     <string name="settings_uptime_seconds">%1$ss</string>
     <string name="settings_environment">Environment</string>
     <string name="settings_deployment">Deployment</string>
-    <string name="settings_version">Version</string>
+    <string name="settings_version">Server version</string>
     <string name="settings_client_version">Client version</string>
-    <string name="settings_host">Host</string>
-    <string name="settings_ip">IP</string>
+    <string name="settings_host">Server host</string>
+    <string name="settings_ip">Server IP</string>
     <string name="settings_night_mode_system">Predeterminado del sistema</string>
     <string name="settings_night_mode_never">Nunca</string>
     <string name="settings_night_mode_always">Siempre</string>
