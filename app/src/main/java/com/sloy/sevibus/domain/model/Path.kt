@@ -1,5 +1,10 @@
 package com.sloy.sevibus.domain.model
 
+/**
+ * Checksum omitted from the domain model, but used in the database and API models
+ */
+typealias PathChecksum = String
+
 data class Path(
     val routeId: RouteId,
     val points: List<Position>,

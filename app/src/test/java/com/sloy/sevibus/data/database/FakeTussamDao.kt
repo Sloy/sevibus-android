@@ -67,6 +67,10 @@ class FakeTussamDao : TussamDao {
         return paths.find { it.routeId == id }
     }
 
+    override suspend fun getAllPathChecksums(): List<TussamDao.PathChecksumRow> {
+        return paths.map { TussamDao.PathChecksumRow(it.routeId, it.checksum) }
+    }
+
     override suspend fun putLines(lines: List<LineEntity>) {
         this.lines.clear()
         this.lines.addAll(lines)
@@ -85,5 +89,12 @@ class FakeTussamDao : TussamDao {
     override suspend fun putPath(path: PathEntity) {
         paths.removeIf { it.routeId == path.routeId }
         paths.add(path)
+    }
+
+    override suspend fun putPaths(paths: List<PathEntity>) {
+        paths.forEach { path ->
+            this.paths.removeIf { it.routeId == path.routeId }
+            this.paths.add(path)
+        }
     }
 }

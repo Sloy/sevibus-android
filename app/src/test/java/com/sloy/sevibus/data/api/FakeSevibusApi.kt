@@ -5,6 +5,7 @@ import com.sloy.sevibus.data.api.model.BusDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.api.model.LineDto
+import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
@@ -17,13 +18,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 
-class FakeSevibusApi : SevibusApi {
+open class FakeSevibusApi : SevibusApi {
 
     var linesResponse: List<LineDto> = emptyList()
     var routesResponse: List<RouteDto> = emptyList()
     var stopsResponse: List<StopDto> = emptyList()
     var arrivalsResponse: List<BusArrivalDto> = emptyList()
     var pathResponse: PathDto? = null
+    var pathUpdatesOnlyResponse: List<PathDto> = emptyList()
     var busesResponse: List<BusDto> = emptyList()
     var cardInfoResponse: CardInfoDto? = null
     var cardTransactionsResponse: List<CardTransactionDto> = emptyList()
@@ -36,6 +38,7 @@ class FakeSevibusApi : SevibusApi {
     var getStopsCount = 0
     var getArrivalsCount = 0
     var getPathCount = 0
+    var getPathUpdatesOnlyCount = 0
     var getBusesCount = 0
 
 
@@ -53,6 +56,9 @@ class FakeSevibusApi : SevibusApi {
 
     val getPathCalled: Boolean
         get() = getPathCount > 0
+
+    val getPathUpdatesOnlyCalled: Boolean
+        get() = getPathUpdatesOnlyCount > 0
 
     val getBusesCalled: Boolean
         get() = getBusesCount > 0
@@ -99,6 +105,12 @@ class FakeSevibusApi : SevibusApi {
         getPathCount++
         awaitLatch()
         return@withContext pathResponse!!
+    }
+
+    open override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> = withContext(Dispatchers.IO) {
+        getPathUpdatesOnlyCount++
+        awaitLatch()
+        return@withContext pathUpdatesOnlyResponse
     }
 
     override suspend fun getBuses(route: RouteId): List<BusDto> = withContext(Dispatchers.IO) {

@@ -7,7 +7,7 @@ import androidx.room.TypeConverters
 
 @Database(
     entities = [LineEntity::class, LineFtsEntity::class, StopEntity::class, StopFtsEntity::class, RouteEntity::class, PathEntity::class, FavoriteStopEntity::class, CardInfoEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),

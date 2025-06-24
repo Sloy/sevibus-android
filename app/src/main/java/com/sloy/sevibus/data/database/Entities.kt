@@ -21,6 +21,7 @@ import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Path
+import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
@@ -79,7 +80,9 @@ data class RouteEntity(
 @Entity(tableName = "paths")
 data class PathEntity(
     @PrimaryKey val routeId: RouteId,
-    val points: List<PositionDto>
+    val points: List<PositionDto>,
+    @ColumnInfo(defaultValue = "")
+    val checksum: PathChecksum
 )
 
 @Entity(tableName = "favorites")
@@ -127,6 +130,10 @@ fun PathEntity.fromEntity(line: LineSummary): Path {
 
 fun PathDto.fromDto(line: LineSummary): Path {
     return Path(routeId, points.map { it.fromDto() }, line)
+}
+
+fun PathDto.toEntity(): PathEntity {
+    return PathEntity(routeId, points, checksum)
 }
 
 fun RouteDto.fromEntity(): RouteEntity {

@@ -64,6 +64,11 @@ interface TussamDao {
     @Query("SELECT * FROM paths WHERE routeId == :id")
     suspend fun getPath(id: RouteId): PathEntity?
 
+    @Query("SELECT routeId, checksum FROM paths")
+    suspend fun getAllPathChecksums(): List<PathChecksumRow>
+
+    data class PathChecksumRow(val routeId: RouteId, val checksum: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun putLines(lines: List<LineEntity>)
 
@@ -75,5 +80,8 @@ interface TussamDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun putPath(path: PathEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun putPaths(paths: List<PathEntity>)
 
 }
