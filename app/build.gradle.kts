@@ -127,8 +127,11 @@ dependencies {
 
     implementation("androidx.core:core-splashscreen:${libs.versions.coreSplashScreen.get()}")
 
+    implementation(project(":debug-menu"))
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 
     testImplementation(libs.junit)
     testImplementation(libs.strikt)

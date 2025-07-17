@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".SevApplication"
@@ -42,6 +43,8 @@
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
+        <activity android:name="com.n26.debug.presentation.DebugMenuActivity"
+            android:theme="@style/Theme.SeviBus4.Translucent"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

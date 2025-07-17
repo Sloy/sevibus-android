@@ -81,7 +81,6 @@ fun SettingsItem(
         }
         endComponent()
     }
-
 }
 
 @Composable

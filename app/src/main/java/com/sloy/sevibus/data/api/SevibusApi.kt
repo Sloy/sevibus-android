@@ -35,7 +35,7 @@ interface SevibusApi {
     suspend fun getPath(@Path("route") route: RouteId): PathDto
 
     @POST("path/checkNewAndUpdated")
-    suspend fun getPathUpdatesOnly(@Body pathChecksums: List<PathChecksumRequestDto>): List<PathDto>
+    suspend fun getPathUpdatesOnly(@Body pathChecksums: List<PathChecksumRequestDto>): List<PathDto>?
 
     @GET("buses/{route}")
     suspend fun getBuses(@Path("route") route: RouteId): List<BusDto>

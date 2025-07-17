@@ -24,12 +24,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.ui.theme.SevTheme
 
 
 @Composable
-fun SegmentedControl(modifier: Modifier = Modifier, options: List<String>, selectedIndex: Int, onOptionSelected: (Int) -> Unit = {}) {
+fun SegmentedControl(options: List<String>, selectedIndex: Int, modifier: Modifier = Modifier, onOptionSelected: (Int) -> Unit = {}) {
 
     var pillWidth by remember { mutableStateOf(0f) }
     val pillTranslationX by animateFloatAsState(
@@ -69,19 +70,28 @@ fun SegmentedControl(modifier: Modifier = Modifier, options: List<String>, selec
             options.forEachIndexed { index, option ->
                 Box(
                     contentAlignment = Alignment.Center, modifier =
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clip(SevTheme.shapes.large)
-                        .clickable(
-                            onClick = { onOptionSelected(index) }, role = Role.Button,
-                            interactionSource = null,
-                            indication = null
-                        )
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(SevTheme.shapes.large)
+                            .clickable(
+                                onClick = { onOptionSelected(index) }, role = Role.Button,
+                                interactionSource = null,
+                                indication = null
+                            )
                 ) {
                     Text(option, style = SevTheme.typography.bodySmallBold, textAlign = TextAlign.Center)
                 }
             }
         }
+    }
+}
+
+
+@Preview
+@Composable
+private fun Preview() {
+    SevTheme {
+        SegmentedControl(options = listOf("First", "Second", "Third"), selectedIndex = 0)
     }
 }

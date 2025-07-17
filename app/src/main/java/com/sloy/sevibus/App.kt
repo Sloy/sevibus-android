@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,11 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.n26.debug.modules.tracking.NetworkDebugModuleDataSource
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
-import com.sloy.sevibus.feature.debug.http.HttpOverlayLayout
+import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerLayout
+import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerStateHolder
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
@@ -51,8 +54,10 @@ import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.theme.SevTheme
+import kotlinx.coroutines.flow.map
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
 
 @Composable
 fun App() {
@@ -64,20 +69,26 @@ fun App() {
         val searchViewModel: SearchViewModel = koinViewModel()
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
+        val networkDebugModuleDataSource = koinInject<NetworkDebugModuleDataSource>()
 
         BackHandler(enabled = !isLastDestination) {
             appState.sevNavigator.navigateBack()
         }
 
+        LaunchedEffect(Unit) {
+            OverlayLoggerStateHolder.visibleWhen(networkDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
+        }
+
         val onNavigate: (NavigationDestination) -> Unit = { appState.navigate(it) }
 
         SevTheme {
-            HttpOverlayLayout() {
+            OverlayLoggerLayout {
                 MapBottomSheetScaffold(
                     currentDestination = currentDestination,
                     onNavigate = onNavigate,
                     topBar = {
-                        TopBar(currentUser,
+                        TopBar(
+                            currentUser,
                             topBarState,
                             onSearchTermChanged = { searchViewModel.onSearch(it) },
                             onCancelSearch = {

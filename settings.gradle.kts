@@ -21,6 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "SeviBus4"
 include(":app")
+include(":debug-menu")
 
 
 val localSettings = file("local.settings.gradle.kts")

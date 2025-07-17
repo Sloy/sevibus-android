@@ -29,6 +29,7 @@ accompanist = "0.37.3"
 morfly-bottomsheet = "0.1.0"
 coil = "2.7.0"
 coreSplashScreen = "1.0.1"
+appcompat = "1.7.1"
 
 [libraries]
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
@@ -96,6 +97,7 @@ strikt = { module = "io.strikt:strikt-core", version.ref = "strikt" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashScreen" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -106,3 +108,4 @@ firebasePerformance = { id = "com.google.firebase.firebase-perf", version.ref = 
 ksp = { id = "com.google.devtools.ksp", version = "2.1.20-1.0.31" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
