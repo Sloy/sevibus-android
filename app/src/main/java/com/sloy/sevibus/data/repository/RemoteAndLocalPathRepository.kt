@@ -2,8 +2,6 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
-import com.sloy.sevibus.data.api.model.PathDto
-import com.sloy.sevibus.data.database.PathEntity
 import com.sloy.sevibus.data.database.TussamDao
 import com.sloy.sevibus.data.database.fromDto
 import com.sloy.sevibus.data.database.fromEntity
@@ -20,11 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -49,14 +42,15 @@ class RemoteAndLocalPathRepository(
 
     override suspend fun obtainPath(routeId: RouteId): Path {
         val line = lineRepository.obtainLine(routeId.lineId).toSummary()
-
-        val local = dao.getPath(routeId)
-        return if (local != null) {
-            local.fromEntity(line)
-        } else {
-            val remote = api.getPath(routeId)
-            dao.putPath(remote.toEntity())
-            remote.fromDto(line)
+        mutex.withLock {
+            val local = dao.getPath(routeId)
+            return if (local != null) {
+                local.fromEntity(line)
+            } else {
+                val remote = api.getPath(routeId)
+                dao.putPath(remote.toEntity())
+                remote.fromDto(line)
+            }
         }
     }
 
@@ -79,19 +73,24 @@ class RemoteAndLocalPathRepository(
             mutex.withLock {
                 if (isDataFresh) return
                 SevLogger.logD("Refreshing local data for PATHS")
-                
+
                 val currentChecksums = dao.getAllPathChecksums()
+                    .ifEmpty {
+                        lineRepository.obtainLines()
+                            .flatMap { it.routes }
+                            .map { TussamDao.PathChecksumRow(it.id, "missing") }
+                    }
                 val pathChecksumRequests = currentChecksums.map { row ->
                     PathChecksumRequestDto(row.routeId, row.checksum)
                 }
-                
+
                 if (pathChecksumRequests.isNotEmpty()) {
                     val updatedPaths = api.getPathUpdatesOnly(pathChecksumRequests)
                     if (updatedPaths.isNotEmpty()) {
                         dao.putPaths(updatedPaths.map { it.toEntity() })
                     }
                 }
-                
+
                 isDataFresh = true
             }
         }.onFailure { SevLogger.logE(it, "Error refreshing Path local data") }
