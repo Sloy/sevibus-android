@@ -147,7 +147,8 @@
     <string name="settings_uptime">Uptime</string>
     <string name="settings_uptime_seconds">%1$ss</string>
     <string name="settings_environment">Environment</string>
-    <string name="settings_deployment">Deployment</string>
+    <string name="settings_database">Environment</string>
+    <string name="settings_provider">Provider</string>
     <string name="settings_version">Server version</string>
     <string name="settings_client_version">Client version</string>
     <string name="settings_host">Server host</string>

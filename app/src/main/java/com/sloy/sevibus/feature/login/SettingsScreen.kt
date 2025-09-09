@@ -28,6 +28,7 @@ import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
@@ -269,8 +270,11 @@ fun SettingsScreen(
                                 environment?.let {
                                     SettingsItem(stringResource(R.string.settings_environment), it, Icons.Outlined.Work)
                                 }
-                                deploymentTarget?.let {
-                                    SettingsItem(stringResource(R.string.settings_deployment), it, Icons.Outlined.Cloud)
+                                database?.let {
+                                    SettingsItem(stringResource(R.string.settings_database), it, Icons.Outlined.AccountTree)
+                                }
+                                provider?.let {
+                                    SettingsItem(stringResource(R.string.settings_provider), it, Icons.Outlined.Cloud)
                                 }
                                 version?.let {
                                     SettingsItem(stringResource(R.string.settings_version), it, Icons.Outlined.Timeline)
