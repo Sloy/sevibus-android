@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.sloy.sevibus.infrastructure.extensions.applyIf
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -58,10 +59,8 @@ fun SettingsItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-            .apply {
-                if (onClick != null) {
-                    clickable { onClick() }
-                }
+            .applyIf(onClick != null) {
+                clickable { onClick?.invoke() }
             }
             .padding(16.dp)) {
         Icon(
