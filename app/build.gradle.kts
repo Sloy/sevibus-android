@@ -131,8 +131,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation(libs.chucker)
 
-    releaseImplementation(libs.chucker.noop)
-
     testImplementation(libs.junit)
     testImplementation(libs.strikt)
     testImplementation(libs.coroutines.testing)

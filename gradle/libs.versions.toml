@@ -88,7 +88,6 @@ retrofit-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-se
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 
 chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
-chucker-noop = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.6.6" }
