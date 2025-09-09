@@ -25,6 +25,7 @@ googleIdentity = "1.1.1"
 okhttp = "4.12.0"
 retrofit = "3.0.0"
 serialization = "1.8.1"
+chucker = "4.2.0"
 accompanist = "0.37.3"
 morfly-bottomsheet = "0.1.0"
 coil = "2.7.0"
@@ -85,6 +86,9 @@ okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+
+chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
+chucker-noop = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 lottie = { module = "com.airbnb.android:lottie-compose", version = "6.6.6" }
