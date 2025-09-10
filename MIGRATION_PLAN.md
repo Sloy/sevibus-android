@@ -23,8 +23,8 @@
 
 #### 3. Update API Data Transfer Objects
 
-- [ ] Modify `PathDto` in `ApiModels.kt`:
-    - [ ] Replace `points: List<PositionDto>` with `polyline: Polyline`.
+- [x] Modify `PathDto` in `ApiModels.kt`:
+  - [x] Replace `points: List<PositionDto>` with `polyline: Polyline`.
 
 #### 4. Update Database Schema
 
