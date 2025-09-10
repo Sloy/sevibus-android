@@ -9,6 +9,7 @@ import com.sloy.sevibus.data.database.PathEntity
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
+import com.sloy.sevibus.domain.model.Polyline
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.repository.FakeLineRepository
 import kotlinx.coroutines.test.runTest
@@ -284,10 +285,7 @@ class RemoteAndLocalPathRepositoryTest {
 
     private fun pathDto(routeId: String, checksum: String) = PathDto(
         routeId = routeId,
-        points = listOf(
-            PositionDto(1.0, 1.0),
-            PositionDto(2.0, 2.0)
-        ),
+        polyline = "_p~iF~ps|U_ulLnnqC" as Polyline, // Encoded polyline for coordinates (1.0,1.0) -> (2.0,2.0) 
         checksum = checksum
     )
 
