@@ -13,7 +13,7 @@
 
 #### 1. Add Polyline Type Definition
 
-- [ ] Create `typealias Polyline = String` in the `domain.model` package.
+- [x] Create `typealias Polyline = String` in the `domain.model` package.
 
 #### 2. Create Custom Polyline Decoder
 
