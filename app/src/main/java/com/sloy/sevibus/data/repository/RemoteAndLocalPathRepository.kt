@@ -75,20 +75,13 @@ class RemoteAndLocalPathRepository(
                 SevLogger.logD("Refreshing local data for PATHS")
 
                 val currentChecksums = dao.getAllPathChecksums()
-                    .ifEmpty {
-                        lineRepository.obtainLines()
-                            .flatMap { it.routes }
-                            .map { TussamDao.PathChecksumRow(it.id, "missing") }
-                    }
                 val pathChecksumRequests = currentChecksums.map { row ->
                     PathChecksumRequestDto(row.routeId, row.checksum)
                 }
 
-                if (pathChecksumRequests.isNotEmpty()) {
-                    val updatedPaths = api.getPathUpdatesOnly(pathChecksumRequests)
-                    if (updatedPaths.isNotEmpty()) {
-                        dao.putPaths(updatedPaths.map { it.toEntity() })
-                    }
+                val updatedPaths = api.getPathUpdatesOnly(pathChecksumRequests)
+                if (updatedPaths.isNotEmpty()) {
+                    dao.putPaths(updatedPaths.map { it.toEntity() })
                 }
 
                 isDataFresh = true
