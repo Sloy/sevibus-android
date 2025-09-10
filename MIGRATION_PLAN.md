@@ -17,9 +17,9 @@
 
 #### 2. Create Custom Polyline Decoder
 
-- [ ] Create a new file `PolylineUtils.kt` in the `domain/model` package.
-- [ ] Implement the custom `decode(polyline: String): List<Position>` function.
-- [ ] Add an extension function `Polyline.toPositions(): List<Position>` that calls `decode`.
+- [x] Create a new file `PolylineUtils.kt` in the `domain/model` package.
+- [x] Implement the custom `decode(polyline: String): List<Position>` function.
+- [x] Add an extension function `Polyline.toPositions(): List<Position>` that calls `decode`.
 
 #### 3. Update API Data Transfer Objects
 
