@@ -33,9 +33,9 @@
 
 #### 4. Update API Calls to Request Polyline Format
 
-- [ ] Update API implementation to always append `?format=polyline` query parameter
-- [ ] No changes needed to `SevibusApi` interface methods (keep existing signatures)
-- [ ] API will return `polyline` property when `format=polyline` is sent
+- [x] Update API implementation to always append `?format=polyline` query parameter
+- [x] No changes needed to `SevibusApi` interface methods (keep existing signatures)
+- [x] API will return `polyline` property when `format=polyline` is sent
 
 #### 5. Update Test Files for Polyline Format
 

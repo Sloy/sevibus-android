@@ -31,10 +31,10 @@ interface SevibusApi {
     @GET("arrivals/{stop}")
     suspend fun getArrivals(@Path("stop") stop: StopId): List<BusArrivalDto>
 
-    @GET("path/{route}")
+    @GET("path/{route}?format=polyline")
     suspend fun getPath(@Path("route") route: RouteId): PathDto
 
-    @POST("path/checkNewAndUpdated")
+    @POST("path/checkNewAndUpdated?format=polyline")
     suspend fun getPathUpdatesOnly(@Body pathChecksums: List<PathChecksumRequestDto>): List<PathDto>
 
     @GET("buses/{route}")
