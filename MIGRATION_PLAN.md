@@ -17,31 +17,57 @@
 
 #### 2. Create Custom Polyline Decoder
 
-- [x] Create a new file `PolylineUtils.kt` in the `domain/model` package.
-- [x] Implement the custom `decode(polyline: String): List<Position>` function.
+- [x] Create a new file `PolylineUtils.kt` in the `infrastructure` package.
+- [x] Implement the custom `decode(polyline: String): List<Position>` function based on the Kotlin gist.
 - [x] Add an extension function `Polyline.toPositions(): List<Position>` that calls `decode`.
 
-#### 3. Update API Data Transfer Objects
+#### 3. Update API Data Transfer Objects and Mapping Functions
 
 - [x] Modify `PathDto` in `ApiModels.kt`:
   - [x] Replace `points: List<PositionDto>` with `polyline: Polyline`.
+- [ ] Update mapping functions in `Entities.kt` to convert between polyline and points:
+  - [ ] `PathDto.fromDto()`: Use `polyline.toPositions()` to convert polyline to Position list for domain model
+  - [ ] `PathDto.toEntity()`: Convert polyline to points list for database storage using
+    `polyline.toPositions().map { PositionDto(it.latitude, it.longitude) }`
+  - [ ] Keep `PathEntity` unchanged (still stores `points: List<PositionDto>`)
 
-#### 4. Update Database Schema
+#### 4. Update API Calls to Request Polyline Format
+
+- [ ] Update API implementation to always append `?format=polyline` query parameter
+- [ ] No changes needed to `SevibusApi` interface methods (keep existing signatures)
+- [ ] API will return `polyline` property when `format=polyline` is sent
+
+#### 5. Update Test Files for Polyline Format
+
+- [ ] Modify test data in `FakeSevibusApi.kt` to use polyline strings instead of points arrays
+- [ ] Update `RemoteAndLocalPathRepositoryTest.kt` test expectations to use polyline format
+- [ ] Update `StubPathRepository.kt` to use polyline format if it creates PathDto objects
+
+#### 6. Database Schema Changes (Later Step)
+
+**Note: This will be done in a separate step to maintain app usability during the transition**
 
 - [ ] Modify `PathEntity` in `Entities.kt`:
     - [ ] Replace `points: List<PositionDto>` with `polyline: Polyline`.
 - [ ] Increment the database version from 7 to 8 in `SevibusDatabase.kt`.
 - [ ] Add a manual migration from 7 to 8 that executes: `DELETE FROM paths`.
 - [ ] Remove `PositionListConverter` from `TypeConverters.kt` and the `@TypeConverters` annotation in `SevibusDatabase.kt`.
+- [ ] Update entity mapping functions to use polyline storage directly.
 
-#### 5. Update Entity Mapping Functions
+---
 
-- [ ] Update `PathEntity.fromEntity()` to use `polyline.toPositions()` for the domain model.
-- [ ] Update `PathDto.fromDto()` to use `polyline.toPositions()` for the domain model.
-- [ ] Update `PathDto.toEntity()` to store the `polyline` string directly.
+## Benefits of This Approach
 
-#### 6. Update Test Files
+- **Clean API Migration**: API uses polyline format only, no dual format complexity
+- **Database Compatibility**: Database continues using points format until step 6
+- **Production Safe**: App remains functional throughout the migration process
+- **Storage Efficiency**: Polyline is decoded once and stored as points (avoiding repeated decoding)
+- **API Flexibility**: API can roll out polyline support gradually with feature flag via query parameter
+- **Gradual Migration**: Database schema changes are separated into a later step
 
-- [ ] Modify test data in `FakeSevibusApi.kt` to use polyline strings.
-- [ ] Update `RemoteAndLocalPathRepositoryTest.kt` test expectations.
-- [ ] Update `StubPathRepository.kt` if it creates `PathDto` objects.
+## Migration Flow
+
+1. Deploy app with polyline API support and points database storage (steps 1-5)
+2. API team enables polyline support with `?format=polyline` query parameter
+3. App automatically starts using efficient polyline format from API
+4. Later, in step 6, we can optimize database storage to use polyline strings directly
