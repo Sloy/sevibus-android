@@ -291,10 +291,7 @@ class RemoteAndLocalPathRepositoryTest {
 
     private fun pathEntity(routeId: String, checksum: String) = PathEntity(
         routeId = routeId,
-        points = listOf(
-            PositionDto(1.0, 1.0),
-            PositionDto(2.0, 2.0)
-        ),
+        polyline = "_p~iF~ps|U_ulLnnqC" as Polyline, // Encoded polyline for coordinates (1.0,1.0) -> (2.0,2.0)
         checksum = checksum
     )
 }

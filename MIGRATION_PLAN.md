@@ -49,12 +49,18 @@
 
 **Note: This will be done in a separate step to maintain app usability during the transition**
 
-- [ ] Modify `PathEntity` in `Entities.kt`:
-    - [ ] Replace `points: List<PositionDto>` with `polyline: Polyline`.
-- [ ] Increment the database version from 7 to 8 in `SevibusDatabase.kt`.
-- [ ] Add a manual migration from 7 to 8 that executes: `DELETE FROM paths`.
-- [ ] Remove `PositionListConverter` from `TypeConverters.kt` and the `@TypeConverters` annotation in `SevibusDatabase.kt`.
-- [ ] Update entity mapping functions to use polyline storage directly.
+- [x] Modify `PathEntity` in `Entities.kt`:
+  - [x] Replace `points: List<PositionDto>` with `polyline: Polyline`.
+- [x] Increment the database version from 7 to 8 in `SevibusDatabase.kt`.
+- [x] Implement AutoMigrationSpec approach with `@RenameColumn` annotation:
+  - [x] Create `PathMigration7To8` class implementing `AutoMigrationSpec`
+  - [x] Use `@RenameColumn` to rename `points` to `polyline`
+  - [x] Clear all data in `onPostMigrate()` due to format incompatibility
+  - [x] Add AutoMigration to database configuration
+- [x] Remove `PositionListConverter` from `TypeConverters.kt` and the `@TypeConverters` annotation in `SevibusDatabase.kt`.
+- [x] Update entity mapping functions to use polyline storage directly.
+- [x] Update test data to use polyline format in `pathEntity` helper function.
+- [x] Verify compilation and basic functionality tests pass.
 
 ---
 
