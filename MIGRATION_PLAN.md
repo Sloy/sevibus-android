@@ -25,11 +25,11 @@
 
 - [x] Modify `PathDto` in `ApiModels.kt`:
   - [x] Replace `points: List<PositionDto>` with `polyline: Polyline`.
-- [ ] Update mapping functions in `Entities.kt` to convert between polyline and points:
-  - [ ] `PathDto.fromDto()`: Use `polyline.toPositions()` to convert polyline to Position list for domain model
-  - [ ] `PathDto.toEntity()`: Convert polyline to points list for database storage using
+- [x] Update mapping functions in `Entities.kt` to convert between polyline and points:
+  - [x] `PathDto.fromDto()`: Use `polyline.toPositions()` to convert polyline to Position list for domain model
+  - [x] `PathDto.toEntity()`: Convert polyline to points list for database storage using
     `polyline.toPositions().map { PositionDto(it.latitude, it.longitude) }`
-  - [ ] Keep `PathEntity` unchanged (still stores `points: List<PositionDto>`)
+  - [x] Keep `PathEntity` unchanged (still stores `points: List<PositionDto>`)
 
 #### 4. Update API Calls to Request Polyline Format
 

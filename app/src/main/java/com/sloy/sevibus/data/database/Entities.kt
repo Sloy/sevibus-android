@@ -23,6 +23,7 @@ import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Position
+import com.sloy.sevibus.infrastructure.polyline.toPositions
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
@@ -129,11 +130,11 @@ fun PathEntity.fromEntity(line: LineSummary): Path {
 }
 
 fun PathDto.fromDto(line: LineSummary): Path {
-    return Path(routeId, points.map { it.fromDto() }, line)
+    return Path(routeId, polyline.toPositions(), line)
 }
 
 fun PathDto.toEntity(): PathEntity {
-    return PathEntity(routeId, points, checksum)
+    return PathEntity(routeId, polyline.toPositions().map { PositionDto(it.latitude, it.longitude) }, checksum)
 }
 
 fun RouteDto.fromEntity(): RouteEntity {
