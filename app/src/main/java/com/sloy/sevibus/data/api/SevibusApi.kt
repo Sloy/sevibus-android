@@ -33,7 +33,7 @@ interface SevibusApi {
     @GET("path/{route}?format=polyline")
     suspend fun getPath(@Path("route") route: RouteId): PathDto
 
-    @GET("paths/")
+    @GET("paths")
     suspend fun getPaths(): List<PathDto>
 
     @POST("path/checkNewAndUpdated?format=polyline")
