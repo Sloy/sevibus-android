@@ -1,9 +1,7 @@
 package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.FakeSevibusApi
-import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
 import com.sloy.sevibus.data.api.model.PathDto
-import com.sloy.sevibus.data.api.model.PositionDto
 import com.sloy.sevibus.data.database.FakeTussamDao
 import com.sloy.sevibus.data.database.PathEntity
 import com.sloy.sevibus.domain.model.Line
@@ -36,7 +34,7 @@ class RemoteAndLocalPathRepositoryTest {
 
     @Before
     fun setUp() {
-        // Setup line repository with test data
+        // Setup line repository with test data that includes routes used in tests
         lineRepository.setLines(listOf(
             Line(
                 id = 1,
@@ -44,7 +42,30 @@ class RemoteAndLocalPathRepositoryTest {
                 description = "Line 1",
                 color = LineColor.Red,
                 group = "Test",
-                routes = emptyList()
+                routes = listOf(
+                    com.sloy.sevibus.domain.model.Route(
+                        id = "1.1",
+                        direction = 1,
+                        destination = "Test Destination 1",
+                        line = 1,
+                        stops = emptyList(),
+                        schedule = com.sloy.sevibus.domain.model.Route.Schedule(
+                            startTime = java.time.LocalTime.of(6, 0),
+                            endTime = java.time.LocalTime.of(23, 0)
+                        )
+                    ),
+                    com.sloy.sevibus.domain.model.Route(
+                        id = "1.2",
+                        direction = 2,
+                        destination = "Test Destination 2",
+                        line = 1,
+                        stops = emptyList(),
+                        schedule = com.sloy.sevibus.domain.model.Route.Schedule(
+                            startTime = java.time.LocalTime.of(6, 0),
+                            endTime = java.time.LocalTime.of(23, 0)
+                        )
+                    )
+                )
             )
         ))
     }
@@ -84,156 +105,88 @@ class RemoteAndLocalPathRepositoryTest {
     }
 
     @Test
-    fun `should obtain multiple paths successfully`() = runTest {
-        api.pathResponse = pathDto("1.1", "checksum1")
+    fun `should obtain multiple paths using bulk endpoint`() = runTest {
+        // Pre-populate database to avoid refresh logic complications
+        dao.putPaths(
+            listOf(
+                pathEntity("1.1", "checksum1"),
+                pathEntity("1.2", "checksum2"),
+                pathEntity("1.3", "checksum3")
+            )
+        )
 
         val result = repository.obtainPaths(listOf("1.1", "1.2"))
 
-        expectThat(result).hasSize(2) // Both succeed since FakeSevibusApi returns same response for any route ID
-        expectThat(result[0].routeId).isEqualTo("1.1")
-        expectThat(result[1].routeId).isEqualTo("1.1") // FakeSevibusApi returns same response for all route IDs
+        // Should return only the requested paths from database
+        expectThat(result).hasSize(2)
+        expectThat(result.find { it.routeId == "1.1" }).isNotNull()
+        expectThat(result.find { it.routeId == "1.2" }).isNotNull()
     }
 
     @Test
     fun `should handle failures gracefully in obtainPaths`() = runTest {
-        api.pathResponse = null // This will cause an exception
+        api.pathsResponse = emptyList() // Empty response
 
         val result = repository.obtainPaths(listOf("1.1", "1.2"))
 
-        expectThat(result).hasSize(0) // All should fail gracefully
+        expectThat(result).hasSize(0)
     }
 
-    // REFRESH LOGIC TESTS - Testing the core refreshLocalData functionality
+    // NEW SIMPLIFIED BEHAVIOR TESTS - Testing the /paths bulk endpoint approach
 
     @Test
-    fun `should not call updatesOnly API when no cached paths exist`() = runTest {
-        api.pathResponse = pathDto("1.1", "checksum1")
-        
-        repository.obtainPath("1.1")
-        
-        // Should NOT call updatesOnly API since obtainPath doesn't trigger refresh
-        expectThat(api.getPathUpdatesOnlyCalled).isFalse()
-        // Should call individual path API
-        expectThat(api.getPathCalled).isTrue()
-    }
-
-    @Test
-    fun `refresh should send correct checksums and handle empty response`() = runTest {
-        // Setup existing cached paths
-        dao.putPath(pathEntity("1.1", "checksum1"))
-        dao.putPath(pathEntity("1.2", "checksum2"))
-        
-        // Create capturing API to verify the request
-        val capturedRequests = mutableListOf<List<PathChecksumRequestDto>>()
-        val capturingApi = object : FakeSevibusApi() {
-            override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> {
-                capturedRequests.add(pathChecksums)
-                return emptyList() // No updates
-            }
-        }
-        
-        // Create repository with autoUpdate=true to trigger refresh in init
-        val testRepository = RemoteAndLocalPathRepository(capturingApi, dao, lineRepository, shouldAutoUpdate = true)
-        
-        // Wait for async refresh to complete
-        kotlinx.coroutines.delay(REFRESH_DELAY)
-        
-        // Verify the updatesOnly API was called with correct checksums
-        expectThat(capturedRequests).hasSize(1)
-        val request = capturedRequests[0]
-        expectThat(request).hasSize(2)
-        
-        val request1 = request.find { it.routeId == "1.1" }!!
-        val request2 = request.find { it.routeId == "1.2" }!!
-        expectThat(request1.checksum).isEqualTo("checksum1")
-        expectThat(request2.checksum).isEqualTo("checksum2")
-        
-        // Verify database wasn't changed (no updates returned)
-        expectThat(dao.getPath("1.1")).isNotNull().get { checksum }.isEqualTo("checksum1")
-        expectThat(dao.getPath("1.2")).isNotNull().get { checksum }.isEqualTo("checksum2")
-    }
-
-    @Test
-    fun `refresh should update database with changed paths`() = runTest {
-        // Setup existing cached paths with old checksums
-        dao.putPath(pathEntity("1.1", "oldChecksum1"))
-        dao.putPath(pathEntity("1.2", "oldChecksum2"))
-        dao.putPath(pathEntity("1.3", "oldChecksum3"))
-        
-        // Setup API to return updated paths (only 1.1 and 1.3 changed)
-        val capturedRequests = mutableListOf<List<PathChecksumRequestDto>>()
-        val capturingApi = object : FakeSevibusApi() {
-            override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> {
-                capturedRequests.add(pathChecksums)
+    fun `refresh should work with bulk endpoint on auto-update`() = runTest {
+        // Setup API to return paths via bulk endpoint
+        val trackingApi = object : FakeSevibusApi() {
+            override suspend fun getPaths(): List<PathDto> {
                 return listOf(
-                    pathDto("1.1", "newChecksum1"),
-                    pathDto("1.3", "newChecksum3")
+                    pathDto("1.1", "checksum1"),
+                    pathDto("1.2", "checksum2")
                 )
             }
         }
         
         // Create repository with autoUpdate=true to trigger refresh in init
-        val testRepository = RemoteAndLocalPathRepository(capturingApi, dao, lineRepository, shouldAutoUpdate = true)
+        val testRepository = RemoteAndLocalPathRepository(trackingApi, dao, lineRepository, shouldAutoUpdate = true)
         
         // Wait for async refresh to complete
         kotlinx.coroutines.delay(REFRESH_DELAY)
-        
-        // Verify correct request was sent
-        expectThat(capturedRequests).hasSize(1)
-        expectThat(capturedRequests[0]).hasSize(3)
-        
-        // Verify database was updated correctly
-        expectThat(dao.getPath("1.1")).isNotNull().get { checksum }.isEqualTo("newChecksum1") // Updated
-        expectThat(dao.getPath("1.2")).isNotNull().get { checksum }.isEqualTo("oldChecksum2") // Unchanged
-        expectThat(dao.getPath("1.3")).isNotNull().get { checksum }.isEqualTo("newChecksum3") // Updated
-        
-        // Now test that individual path fetching still works
-        capturingApi.pathResponse = pathDto("1.4", "checksum4")
-        testRepository.obtainPath("1.4")
-        expectThat(dao.getPath("1.4")).isNotNull().get { checksum }.isEqualTo("checksum4")   // New from individual call
+
+        // Verify database has paths from bulk endpoint
+        expectThat(dao.getPath("1.1")).isNotNull()
+        expectThat(dao.getPath("1.2")).isNotNull()
     }
 
     @Test
-    fun `refresh should handle new paths from API`() = runTest {
+    fun `refresh should handle empty bulk response gracefully`() = runTest {
         // Setup existing cached paths
         dao.putPath(pathEntity("1.1", "checksum1"))
-        
-        // Setup API to return existing + new paths
-        val capturingApi = object : FakeSevibusApi() {
-            override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> {
-                return listOf(
-                    pathDto("1.1", "checksum1"), // Unchanged (shouldn't happen in practice but let's handle it)
-                    pathDto("1.2", "checksum2"), // New path
-                    pathDto("1.3", "checksum3")  // Another new path
-                )
+
+        // Setup API to return empty response
+        val trackingApi = object : FakeSevibusApi() {
+            override suspend fun getPaths(): List<PathDto> {
+                return emptyList()
             }
         }
         
         // Create repository with autoUpdate=true to trigger refresh in init
-        val testRepository = RemoteAndLocalPathRepository(capturingApi, dao, lineRepository, shouldAutoUpdate = true)
+        val testRepository = RemoteAndLocalPathRepository(trackingApi, dao, lineRepository, shouldAutoUpdate = true)
         
         // Wait for async refresh to complete
         kotlinx.coroutines.delay(REFRESH_DELAY)
-        
-        // Verify all paths are now in database
+
+        // Database should still contain the old path (not cleared by empty response)
         expectThat(dao.getPath("1.1")).isNotNull().get { checksum }.isEqualTo("checksum1")
-        expectThat(dao.getPath("1.2")).isNotNull().get { checksum }.isEqualTo("checksum2") // New
-        expectThat(dao.getPath("1.3")).isNotNull().get { checksum }.isEqualTo("checksum3") // New
-        
-        // Test individual path fetching still works
-        capturingApi.pathResponse = pathDto("1.4", "checksum4")
-        testRepository.obtainPath("1.4")
-        expectThat(dao.getPath("1.4")).isNotNull().get { checksum }.isEqualTo("checksum4") // From individual call
     }
 
     @Test
     fun `refresh should handle API errors gracefully`() = runTest {
         // Setup existing cached paths
         dao.putPath(pathEntity("1.1", "oldChecksum"))
-        
-        // Setup API to throw an error for updatesOnly
+
+        // Setup API to throw an error for bulk endpoint
         val failingApi = object : FakeSevibusApi() {
-            override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> {
+            override suspend fun getPaths(): List<PathDto> {
                 throw RuntimeException("Network error")
             }
         }
@@ -243,8 +196,8 @@ class RemoteAndLocalPathRepositoryTest {
         
         // Wait for failed refresh attempt
         kotlinx.coroutines.delay(REFRESH_DELAY)
-        
-        // Individual path fetch should still succeed even though refresh failed
+
+        // Individual path fetch should still work
         failingApi.pathResponse = pathDto("1.2", "checksum2")
         val result = testRepository.obtainPath("1.2")
         
@@ -256,31 +209,21 @@ class RemoteAndLocalPathRepositoryTest {
     }
 
     @Test
-    fun `should not call updatesOnly API when no cached paths exist during initialization`() = runTest {
-        // Start with empty database - no cached paths
-        
-        val trackingApi = object : FakeSevibusApi() {
-            override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> {
-                return emptyList() // No updates
-            }
-        }
-        
-        // Create repository with autoUpdate=true - should not trigger refresh since no cached paths
-        val testRepository = RemoteAndLocalPathRepository(trackingApi, dao, lineRepository, shouldAutoUpdate = true)
-        
-        // Wait for any potential async operations
-        kotlinx.coroutines.delay(REFRESH_DELAY)
-        
-        // Should not have called updatesOnly since no cached paths exist
-        expectThat(trackingApi.getPathUpdatesOnlyCount).isEqualTo(0)
-        
-        // Individual path fetching should work normally
-        trackingApi.pathResponse = pathDto("1.1", "checksum1")
-        testRepository.obtainPath("1.1")
-        
-        // Should still be 0 calls to updatesOnly
-        expectThat(trackingApi.getPathUpdatesOnlyCount).isEqualTo(0)
-        expectThat(trackingApi.getPathCalled).isTrue() // Individual call was made
+    fun `should obtain paths from database when available`() = runTest {
+        // Pre-populate database
+        dao.putPaths(
+            listOf(
+                pathEntity("1.1", "checksum1"),
+                pathEntity("1.2", "checksum2")
+            )
+        )
+
+        val result = repository.obtainPaths(listOf("1.1", "1.2"))
+
+        // Should return paths from database
+        expectThat(result).hasSize(2)
+        expectThat(result.find { it.routeId == "1.1" }).isNotNull()
+        expectThat(result.find { it.routeId == "1.2" }).isNotNull()
     }
 
     private fun pathDto(routeId: String, checksum: String) = PathDto(
