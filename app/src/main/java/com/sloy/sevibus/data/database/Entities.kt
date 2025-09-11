@@ -10,7 +10,6 @@ import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
-import com.sloy.sevibus.data.repository.fromDto
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CustomIcon
@@ -148,7 +147,7 @@ private fun RouteDto.ScheduleDto.fromDto(): Route.Schedule {
     )
 }
 
-fun LineDto.fromEntity(): LineEntity {
+fun LineDto.toEntity(): LineEntity {
     return LineEntity(id, label, description, color, group, routes)
 }
 

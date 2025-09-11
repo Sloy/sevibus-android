@@ -1,11 +1,12 @@
 package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
-import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
 import com.sloy.sevibus.data.database.TussamDao
 import com.sloy.sevibus.data.database.fromDto
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toEntity
+import com.sloy.sevibus.domain.model.Line
+import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.lineId
@@ -17,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -55,13 +55,18 @@ class RemoteAndLocalPathRepository(
     }
 
     override suspend fun obtainPaths(routeIds: List<RouteId>): List<Path> = withContext(Dispatchers.Default) {
-        return@withContext routeIds.map { id ->
-            async {
-                runCatching { obtainPath(id) }.getOrNull()
+        val paths = async {
+            dao.getPaths(routeIds).ifEmpty {
+                refreshLocalData()
+                dao.getPaths(routeIds)
             }
         }
-            .awaitAll()
-            .filterNotNull()
+        val linesByRoute = async { lineRepository.obtainLines().byRouteId() }
+        return@withContext paths.await().mapNotNull { entity ->
+            val line = linesByRoute.await()[entity.routeId]
+            if (line == null) SevLogger.logW(msg = "Failed to find route ${entity.routeId} for path")
+            line?.let { entity.fromEntity(it) }
+        }
     }
 
     /**
@@ -73,17 +78,8 @@ class RemoteAndLocalPathRepository(
             mutex.withLock {
                 if (isDataFresh) return
                 SevLogger.logD("Refreshing local data for PATHS")
-
-                val currentChecksums = dao.getAllPathChecksums()
-                val pathChecksumRequests = currentChecksums.map { row ->
-                    PathChecksumRequestDto(row.routeId, row.checksum)
-                }
-
-                val updatedPaths = api.getPathUpdatesOnly(pathChecksumRequests)
-                if (updatedPaths.isNotEmpty()) {
-                    dao.putPaths(updatedPaths.map { it.toEntity() })
-                }
-
+                val remote = api.getPaths()
+                dao.putPaths(remote.map { it.toEntity() })
                 isDataFresh = true
             }
         }.onFailure { SevLogger.logE(it, "Error refreshing Path local data") }
@@ -99,6 +95,10 @@ class RemoteAndLocalPathRepository(
         backgroundScope.launch {
             refreshLocalData()
         }
+    }
+
+    private fun List<Line>.byRouteId(): Map<RouteId, LineSummary> {
+        return this.map { line -> line.routes.map { it.id to line.toSummary() } }.flatten().toMap()
     }
 }
 
