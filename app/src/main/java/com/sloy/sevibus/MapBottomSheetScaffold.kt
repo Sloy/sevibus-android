@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -48,6 +50,8 @@ import com.sloy.sevibus.navigation.NavigationDestinationType
 import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.navigation.isBottomBarVisible
 import com.sloy.sevibus.navigation.isTopBarVisible
+import com.sloy.sevibus.ui.components.AppUpdateButton
+import com.sloy.sevibus.ui.components.AppUpdateButtonState
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -56,6 +60,9 @@ import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
 import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import kotlinx.coroutines.launch
+import se.warting.inappupdate.compose.InAppUpdateState
+import se.warting.inappupdate.compose.Mode
+import se.warting.inappupdate.compose.rememberInAppUpdateState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -82,6 +89,8 @@ fun MapBottomSheetScaffold(
         CustomSheetValue.PartiallyExpanded at height(percent = 60)
         CustomSheetValue.Expanded at offset(topInsetPadding)
     })
+
+    val updateState = rememberInAppUpdateState()
 
     // Bottomsheet expanded state
     var previousSheetDestination by remember { mutableStateOf(currentDestination) }
@@ -171,11 +180,35 @@ fun MapBottomSheetScaffold(
                         }
                     },
                 )
+
+                Box(Modifier.fillMaxWidth()) {
+                    AppUpdateButton(
+                        updateState.toButtonState(),
+                        Modifier
+                            .padding(top = scaffoldInnerPadding.calculateTopPadding())
+                            .padding(8.dp)
+                            .align(Alignment.Center)
+                    )
+                }
             }
             AnimatedFullScreenContent(currentDestination) { destination ->
                 fullScreenContent(destination, scaffoldInnerPadding)
             }
         }
+    }
+}
+
+private fun InAppUpdateState.toButtonState(): AppUpdateButtonState {
+    return when (this) {
+        is InAppUpdateState.OptionalUpdate -> AppUpdateButtonState.Available(onClick = { this.onStartUpdate(Mode.FLEXIBLE) })
+        is InAppUpdateState.RequiredUpdate -> AppUpdateButtonState.Available(onClick = { this.onStartUpdate() })
+        is InAppUpdateState.DownloadedUpdate -> AppUpdateButtonState.Ready(onClick = { this.appUpdateResult.completeUpdate() })
+        is InAppUpdateState.InProgressUpdate -> AppUpdateButtonState.Downloading(
+            installState.bytesDownloaded,
+            installState.totalBytesToDownload
+        )
+
+        else -> AppUpdateButtonState.Hidden
     }
 }
 
@@ -251,4 +284,5 @@ private fun WithRetainedDestination(
 
 
 private enum class CustomSheetValue { Collapsed, PartiallyExpanded, PartiallyCollapsed, Expanded }
+
 private val SHEET_DRAG_HANDLE_HEIGHT = 48.dp

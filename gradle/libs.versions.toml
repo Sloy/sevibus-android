@@ -30,6 +30,7 @@ accompanist = "0.37.3"
 morfly-bottomsheet = "0.1.0"
 coil = "2.7.0"
 coreSplashScreen = "1.0.1"
+inAppUpdate = "1.3.1"
 
 [libraries]
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
@@ -99,6 +100,9 @@ strikt = { module = "io.strikt:strikt-core", version.ref = "strikt" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
 
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashScreen" }
+
+inAppUpdateCompose = { group = "se.warting.in-app-update", name = "in-app-update-compose", version.ref = "inAppUpdate" }
+inAppUpdateCompose-material = { group = "se.warting.in-app-update", name = "in-app-update-compose-mui", version.ref = "inAppUpdate" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
