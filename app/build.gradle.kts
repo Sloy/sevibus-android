@@ -18,8 +18,8 @@ android {
         applicationId = "com.sloy.sevibus"
         minSdk = 26
         targetSdk = 36
-        versionCode = 105
-        versionName = "5.2.0"
+        versionCode = 106
+        versionName = "5.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
