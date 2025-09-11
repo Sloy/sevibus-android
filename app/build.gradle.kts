@@ -29,10 +29,20 @@ android {
 
     signingConfigs {
         register("release") {
-            storePassword = "banana"
-            keyAlias = "banana"
-            keyPassword = "banana"
-            storeFile = file("../certs/fakeRelease.keystore")
+            val realKeystoreFile = file("../certs/release.keystore")
+            val fakeKeystoreFile = file("../certs/fakeRelease.keystore")
+
+            if (realKeystoreFile.exists() && System.getenv("KEYSTORE_PASSWORD") != null) {
+                storeFile = realKeystoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "no_value"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "no_value"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "no_value"
+            } else {
+                storeFile = fakeKeystoreFile
+                storePassword = "banana"
+                keyAlias = "banana"
+                keyPassword = "banana"
+            }
         }
         named("debug") {
             storeFile = file("../certs/debug.keystore")

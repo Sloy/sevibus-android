@@ -32,6 +32,10 @@ jobs:
           cache-read-only: false
       - name: Build release AAB
         run: ./gradlew :app:bundleRelease
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       - name: Upload to Google Play Internal Track
         uses: r0adkll/upload-google-play@v1
         with:
