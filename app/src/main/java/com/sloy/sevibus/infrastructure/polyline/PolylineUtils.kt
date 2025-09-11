@@ -110,7 +110,7 @@ fun decode(polyline: Polyline): List<Position> {
     var previousX = 0.0
     var previousY = 0.0
 
-    for (i in 0..coordinates.size - 1 step 2) {
+    for (i in 0 until coordinates.size step 2) {
         if (coordinates[i] == 0.0 && coordinates[i + 1] == 0.0)
             continue
 
