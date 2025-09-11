@@ -5,7 +5,6 @@ import com.sloy.sevibus.data.api.model.BusDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.api.model.LineDto
-import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
@@ -14,7 +13,6 @@ import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 
@@ -25,7 +23,7 @@ open class FakeSevibusApi : SevibusApi {
     var stopsResponse: List<StopDto> = emptyList()
     var arrivalsResponse: List<BusArrivalDto> = emptyList()
     var pathResponse: PathDto? = null
-    var pathUpdatesOnlyResponse: List<PathDto> = emptyList()
+    var pathsResponse: List<PathDto> = emptyList()
     var busesResponse: List<BusDto> = emptyList()
     var cardInfoResponse: CardInfoDto? = null
     var cardTransactionsResponse: List<CardTransactionDto> = emptyList()
@@ -107,10 +105,9 @@ open class FakeSevibusApi : SevibusApi {
         return@withContext pathResponse!!
     }
 
-    open override suspend fun getPathUpdatesOnly(pathChecksums: List<PathChecksumRequestDto>): List<PathDto> = withContext(Dispatchers.IO) {
-        getPathUpdatesOnlyCount++
+    override suspend fun getPaths(): List<PathDto> {
         awaitLatch()
-        return@withContext pathUpdatesOnlyResponse
+        return pathsResponse
     }
 
     override suspend fun getBuses(route: RouteId): List<BusDto> = withContext(Dispatchers.IO) {
