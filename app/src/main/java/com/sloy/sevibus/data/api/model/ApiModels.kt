@@ -6,6 +6,7 @@ import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.PathChecksum
+import com.sloy.sevibus.domain.model.Polyline
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
 import kotlinx.serialization.Serializable
@@ -59,7 +60,7 @@ data class BusArrivalDto(
 @Serializable
 data class PathDto(
     val routeId: RouteId,
-    val points: List<PositionDto>,
+    val polyline: Polyline,
     val checksum: PathChecksum
 )
 

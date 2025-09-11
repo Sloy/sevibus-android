@@ -9,9 +9,7 @@ import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
-import com.sloy.sevibus.data.api.model.PositionDto
 import com.sloy.sevibus.data.api.model.RouteDto
-import com.sloy.sevibus.data.repository.fromDto
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CustomIcon
@@ -23,6 +21,8 @@ import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Position
+import com.sloy.sevibus.domain.model.Polyline
+import com.sloy.sevibus.infrastructure.polyline.toPositions
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
@@ -80,7 +80,7 @@ data class RouteEntity(
 @Entity(tableName = "paths")
 data class PathEntity(
     @PrimaryKey val routeId: RouteId,
-    val points: List<PositionDto>,
+    val polyline: Polyline,
     @ColumnInfo(defaultValue = "")
     val checksum: PathChecksum
 )
@@ -125,15 +125,15 @@ fun RouteEntity.fromEntity(): Route {
 }
 
 fun PathEntity.fromEntity(line: LineSummary): Path {
-    return Path(routeId, points.map { it.fromDto() }, line)
+    return Path(routeId, polyline.toPositions(), line)
 }
 
 fun PathDto.fromDto(line: LineSummary): Path {
-    return Path(routeId, points.map { it.fromDto() }, line)
+    return Path(routeId, polyline.toPositions(), line)
 }
 
 fun PathDto.toEntity(): PathEntity {
-    return PathEntity(routeId, points, checksum)
+    return PathEntity(routeId, polyline, checksum)
 }
 
 fun RouteDto.fromEntity(): RouteEntity {
@@ -147,7 +147,7 @@ private fun RouteDto.ScheduleDto.fromDto(): Route.Schedule {
     )
 }
 
-fun LineDto.fromEntity(): LineEntity {
+fun LineDto.toEntity(): LineEntity {
     return LineEntity(id, label, description, color, group, routes)
 }
 

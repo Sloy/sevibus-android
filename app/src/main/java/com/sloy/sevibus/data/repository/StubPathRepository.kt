@@ -1,18 +1,15 @@
 package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.Stubs
-import com.sloy.sevibus.data.api.model.PathDto
+import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.RouteId
-import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.domain.repository.PathRepository
-import kotlinx.serialization.json.Json
 
 class StubPathRepository : PathRepository {
     override suspend fun obtainPath(routeId: RouteId): Path {
-        val dto = Json.decodeFromString<PathDto>(json)
-        return Path(routeId, dto.points.map { Position(it.latitude, it.longitude) }, Stubs.lines[0].toSummary())
+        return Path(routeId, listOf(Position(latitude = 37.367492, longitude = -5.985054)), Stubs.lines[0].toSummary())
     }
 
     override suspend fun obtainPaths(routeIds: List<RouteId>): List<Path> {

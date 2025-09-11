@@ -5,17 +5,13 @@ import com.sloy.sevibus.data.api.model.BusDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.api.model.LineDto
-import com.sloy.sevibus.data.api.model.PathChecksumRequestDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
 import com.sloy.sevibus.domain.model.CardId
-import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
-import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface SevibusApi {
@@ -31,11 +27,11 @@ interface SevibusApi {
     @GET("arrivals/{stop}")
     suspend fun getArrivals(@Path("stop") stop: StopId): List<BusArrivalDto>
 
-    @GET("path/{route}")
+    @GET("path/{route}?format=polyline")
     suspend fun getPath(@Path("route") route: RouteId): PathDto
 
-    @POST("path/checkNewAndUpdated")
-    suspend fun getPathUpdatesOnly(@Body pathChecksums: List<PathChecksumRequestDto>): List<PathDto>
+    @GET("paths")
+    suspend fun getPaths(): List<PathDto>
 
     @GET("buses/{route}")
     suspend fun getBuses(@Path("route") route: RouteId): List<BusDto>

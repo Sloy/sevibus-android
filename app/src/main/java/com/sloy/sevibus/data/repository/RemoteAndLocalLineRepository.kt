@@ -3,6 +3,7 @@ package com.sloy.sevibus.data.repository
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.database.TussamDao
 import com.sloy.sevibus.data.database.fromEntity
+import com.sloy.sevibus.data.database.toEntity
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.repository.LineRepository
@@ -83,7 +84,7 @@ class RemoteAndLocalLineRepository(
                 if (isDataFresh) return
                 SevLogger.logD("Refreshing local data for LINES")
                 val remote = api.getLines()
-                dao.putLines(remote.map { it.fromEntity() })
+                dao.putLines(remote.map { it.toEntity() })
                 isDataFresh = true
             }
         }.onFailure { SevLogger.logE(it, "Error refreshing Line local data") }

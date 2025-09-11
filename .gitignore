@@ -21,3 +21,4 @@ secret.properties
 certs/release.keystore
 .claude
 CLAUDE.md
+GEMINI.md
