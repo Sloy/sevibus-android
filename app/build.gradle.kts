@@ -12,12 +12,12 @@ plugins {
 
 android {
     namespace = "com.sloy.sevibus"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.sloy.sevibus"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 105
         versionName = "5.2.0"
 
