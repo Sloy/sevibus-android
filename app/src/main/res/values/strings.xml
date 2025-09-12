@@ -190,4 +190,11 @@
     <string name="info_select_destination_stop">Selecciona la parada de destino para ver la hora prevista de llegada.</string>
     <string name="info_select_destination_stop_short">Selecciona la parada de destino.</string>
 
+    <!-- ================== -->
+    <!-- App Updates -->
+    <!-- ================== -->
+    <string name="app_update_available">Actualización disponible</string>
+    <string name="app_update_downloading">Descargando… %1$d%%</string>
+    <string name="app_update_ready">Pulsa para instalar</string>
+
 </resources>

@@ -189,4 +189,11 @@
     <!-- ================== -->
     <string name="info_select_destination_stop">Select the destination stop to see the estimated arrival time.</string>
     <string name="info_select_destination_stop_short">Select the destination stop.</string>
+
+    <!-- ================== -->
+    <!-- App Updates -->
+    <!-- ================== -->
+    <string name="app_update_available">Update available</string>
+    <string name="app_update_downloading">Downloading… %1$d%%</string>
+    <string name="app_update_ready">Tap to install</string>
 </resources>
