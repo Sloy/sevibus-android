@@ -30,4 +30,8 @@ interface Clicks {
         "Location Button Clicked",
         "state" to state,
     )
+
+    data object AnalyticsDisabledClicked : SevEvent(
+        "Analytics Disabled Clicked"
+    )
 }

@@ -47,6 +47,7 @@ import com.sloy.sevibus.feature.search.LineSelectorViewModel
 import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.stopdetail.StopDetailViewModel
 import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.Tracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.FirebaseTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.LoggerTracker
@@ -89,7 +90,7 @@ object DI {
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
-        viewModel { SettingsViewModel(get(), get(), get()) }
+        viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
         viewModel { CardViewModel(get(), get()) }
     }
 
@@ -107,6 +108,7 @@ object DI {
         single<RouteRepository> { RemoteAndLocalRouteRepository(get(), get()) }
         single<CardsRepository> { RemoteAndLocalCardsRepository(get(), get(), get(), get(), get()) }
         single<NightModeDataSource> { NightModeDataSource(androidContext()) }
+        single<AnalyticsSettingsDataSource> { AnalyticsSettingsDataSource(androidContext()) }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(
@@ -197,7 +199,7 @@ object DI {
 
         single { FirebaseTracker() }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
-        single<Analytics> { Analytics(getAll()) }
+        single<Analytics> { Analytics(getAll(), get()) }
     }
 
     private fun OkHttpClient.Builder.addInterceptors(interceptors: List<Interceptor>): OkHttpClient.Builder {

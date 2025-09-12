@@ -7,6 +7,9 @@ import com.sloy.sevibus.data.api.AdminApi
 import com.sloy.sevibus.data.api.model.HealthCheckDto
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.infrastructure.BuildVariant
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -21,6 +24,8 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val sessionService: SessionService,
     private val nightModeDataSource: NightModeDataSource,
+    private val analyticsSettingsDataSource: AnalyticsSettingsDataSource,
+    private val analytics: Analytics,
     private val adminApi: AdminApi,
 ) : ViewModel() {
 
@@ -46,6 +51,9 @@ class SettingsViewModel(
     val currentNightModeState: StateFlow<NightModeSetting> = nightModeDataSource.observeCurrentNightMode()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), NightModeSetting.FOLLOW_SYSTEM)
 
+    val currentAnalyticsState: StateFlow<Boolean> = analyticsSettingsDataSource.observeAnalyticsEnabled()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), true)
+
 
     fun onLoginClick(context: Context) {
         viewModelScope.launch {
@@ -65,6 +73,15 @@ class SettingsViewModel(
     fun onNightModeChange(mode: NightModeSetting) {
         viewModelScope.launch {
             nightModeDataSource.setNightMode(mode)
+        }
+    }
+
+    fun onAnalyticsChange(enabled: Boolean) {
+        viewModelScope.launch {
+            if (!enabled) {
+                analytics.track(Clicks.AnalyticsDisabledClicked)
+            }
+            analyticsSettingsDataSource.setAnalyticsEnabled(enabled)
         }
     }
 

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
 import androidx.compose.material.icons.outlined.LocalFireDepartment
@@ -104,13 +105,16 @@ fun SettingsScreen() {
     val state by viewModel.state.collectAsState()
     val healthCheckState by viewModel.healthCheckState.collectAsState()
     val nightModeState by viewModel.currentNightModeState.collectAsState()
+    val analyticsEnabled by viewModel.currentAnalyticsState.collectAsState()
     SettingsScreen(
         state,
         healthCheckState,
         nightModeState,
+        analyticsEnabled,
         onLoginClick = { viewModel.onLoginClick(context) },
         onLogoutClick = { viewModel.onLogoutClick(context) },
-        onNightModeChange = { viewModel.onNightModeChange(it) }
+        onNightModeChange = { viewModel.onNightModeChange(it) },
+        onAnalyticsChange = { viewModel.onAnalyticsChange(it) }
     )
 }
 
@@ -120,9 +124,11 @@ fun SettingsScreen(
     state: SettingsScreenState,
     healthCheckState: HealthCheckState,
     currentNightMode: NightModeSetting,
+    analyticsEnabled: Boolean,
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onNightModeChange: (NightModeSetting) -> Unit = {}
+    onNightModeChange: (NightModeSetting) -> Unit = {},
+    onAnalyticsChange: (Boolean) -> Unit = {}
 ) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -216,6 +222,20 @@ fun SettingsScreen(
 
                 Spacer(Modifier.height(16.dp))
                 SettingsSection(stringResource(R.string.settings_services)) {
+                    SettingsItem(
+                        title = stringResource(R.string.settings_analytics),
+                        subtitle = stringResource(R.string.settings_analytics_description),
+                        leadingIcon = Icons.Outlined.Analytics,
+                        onClick = { onAnalyticsChange(!analyticsEnabled) },
+                        endComponent = {
+                            Switch(
+                                checked = analyticsEnabled,
+                                onCheckedChange = onAnalyticsChange,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                     val uriHandler = LocalUriHandler.current
                     SettingsItem(
                         title = stringResource(R.string.settings_give_feedback),
@@ -458,6 +478,7 @@ private fun LoggedInPreview() {
             SettingsScreenState.LoggedIn(LoggedUser("Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
             HealthCheckState.Success(Stubs.healthCheck),
             NightModeSetting.FOLLOW_SYSTEM,
+            true,
             {},
             {})
     }
@@ -471,6 +492,7 @@ private fun LoggedOutPreview() {
             SettingsScreenState.LoggedOut(isInProgress = false),
             HealthCheckState.Success(Stubs.healthCheck),
             NightModeSetting.FOLLOW_SYSTEM,
+            true,
             {},
             {})
     }
@@ -484,6 +506,7 @@ private fun LoggedOutProgressPreview() {
             SettingsScreenState.LoggedOut(isInProgress = true),
             HealthCheckState.Success(Stubs.healthCheck),
             NightModeSetting.FOLLOW_SYSTEM,
+            true,
             {},
             {})
     }

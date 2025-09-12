@@ -121,6 +121,8 @@
     <string name="settings_appearance">Appearance</string>
     <string name="settings_dark_mode">Dark mode</string>
     <string name="settings_services">Services</string>
+    <string name="settings_analytics">Allow anonymous analytics</string>
+    <string name="settings_analytics_description">They help us to improve the app without tracking your personal information</string>
     <string name="settings_give_feedback">Give us feedback</string>
     <string name="settings_feedback_description">Have any issues or suggestions? Help us improve!</string>
     <string name="settings_login_to_save_favorites">Sign in to save your favorite stops and travel cards.</string>
