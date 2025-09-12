@@ -42,6 +42,8 @@ import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.extensions.isApproximatelyEqualTo
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.extensions.performHapticReject
@@ -67,7 +69,7 @@ fun MapScreen(
     if (!LocalView.current.isInEditMode) {
         val mapViewModel: MapViewModel = koinViewModel()
         val state by mapViewModel.state.collectAsStateWithLifecycle()
-        MapScreen(state, contentPadding, onStopSelected, onMapClick)
+        MapScreen(state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack)
         val snackbarState = LocalSnackbarHostState.current
         EventCollector(mapViewModel.events) { event ->
             when (event) {
@@ -75,7 +77,7 @@ fun MapScreen(
             }
         }
     } else {
-        MapScreen(MapScreenState.Initial, contentPadding, onStopSelected, onMapClick)
+        MapScreen(MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { })
     }
 }
 
@@ -86,6 +88,7 @@ private fun MapScreen(
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
+    onTrack: (SevEvent) -> Unit,
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
     val locationPermissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -105,7 +108,7 @@ private fun MapScreen(
         }
     }
 
-    MapUI(state, cameraPositionState, locationPermissionState, locationService, contentPadding, onStopSelected, onMapClick)
+    MapUI(state, cameraPositionState, locationPermissionState, locationService, contentPadding, onStopSelected, onMapClick, onTrack)
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -117,7 +120,8 @@ private fun MapUI(
     locationService: LocationService,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
-    onMapClick: () -> Unit
+    onMapClick: () -> Unit,
+    onTrack: (SevEvent) -> Unit,
 ) {
     val shakeAnim = remember { Animatable(0f) }
 
@@ -138,6 +142,7 @@ private fun MapUI(
             onReject = {
                 shakeAnim.animateShake()
             },
+            onTrack = onTrack,
             Modifier
                 .zIndex(1f)
                 .padding(contentPadding)
@@ -162,6 +167,7 @@ private fun BoxScope.LocationButton(
     cameraPositionState: CameraPositionState,
     locationService: LocationService,
     onReject: suspend () -> Unit,
+    onTrack: (SevEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hasPermission = locationPermissionState?.status?.isGranted ?: false
@@ -178,12 +184,15 @@ private fun BoxScope.LocationButton(
         onClick = {
             if (!hasPermission) {
                 locationPermissionState?.launchPermissionRequest()
+                onTrack(Clicks.LocationButtonClicked("no-permission"))
             } else {
                 scope.launch {
                     locationService.obtainCurrentLocation()?.toLatLng()?.let { userLocation ->
                         if (userLocation.isInsideSevilla()) {
+                            onTrack(Clicks.LocationButtonClicked("inside-sevilla"))
                             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOCATION_ZOOM))
                         } else {
+                            onTrack(Clicks.LocationButtonClicked("outside-sevilla"))
                             view.performHapticReject()
                             launch {
                                 snackbarState.currentSnackbarData?.dismiss()
@@ -239,6 +248,7 @@ private fun MapScreenPreview() {
             locationService = NoopLocationService,
             onStopSelected = {},
             onMapClick = {},
+            onTrack = {}
         )
     }
 }

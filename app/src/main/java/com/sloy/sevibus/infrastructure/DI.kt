@@ -80,14 +80,14 @@ object DI {
     val viewModelModule = module {
         viewModel { LinesViewModel(get()) }
         viewModel { parameters -> LineRouteViewModel(parameters.get(), parameters.getOrNull<RouteId>(), get(), get()) }
-        viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get(), get(), get(), get()) }
+        viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get(), get(), get(), get(), get()) }
         viewModel { FavoritesListViewModel(get(), get(), get()) }
         viewModel { NearbyViewModel(get(), get(), get()) }
         viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
         viewModel { EditFavoritesViewModel(get(), get()) }
         viewModel { SearchViewModel(get(), get(), get()) }
-        viewModel { MapViewModel(get(), get(), get(), get(), get(), get()) }
+        viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
         viewModel { SettingsViewModel(get(), get(), get()) }
         viewModel { CardViewModel(get(), get()) }

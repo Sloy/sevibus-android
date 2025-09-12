@@ -8,6 +8,8 @@ import com.sloy.sevibus.feature.map.states.OnLinesSectionSelected
 import com.sloy.sevibus.feature.map.states.OnStopAndLineSelected
 import com.sloy.sevibus.feature.map.states.OnStopSelectedState
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.SevNavigator
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +36,7 @@ class MapViewModel(
     private val onStopSelectedState: OnStopSelectedState,
     private val onStopAndLineSelected: OnStopAndLineSelected,
     private val onLinesSectionSelected: OnLinesSectionSelected,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     val state = sevNavigator.observeDestination().distinctUntilChanged().transformLatest { destination ->
@@ -53,6 +56,10 @@ class MapViewModel(
         .stateIn(viewModelScope, started = SharingStarted.WhileSubscribed(), initialValue = MapScreenState.Initial)
 
     val events = MutableSharedFlow<MapScreenEvent>()
+
+    fun onTrack(event: SevEvent) {
+        analytics.track(event)
+    }
 
     private fun mapDestination(destination: NavigationDestination): Flow<MapScreenState> = flow {
         when (destination) {

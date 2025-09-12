@@ -6,7 +6,8 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
-import com.sloy.sevibus.infrastructure.session.SessionService
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,10 +21,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModel(
-    private val sessionService: SessionService,
-    private val cardsRepository: CardsRepository
+    private val cardsRepository: CardsRepository,
+    private val analytics: Analytics,
 ) : ViewModel() {
-
 
     val events = MutableSharedFlow<CardsScreenEvent>()
     val newCardState = MutableStateFlow<CardsScreenNewCardState>(CardsScreenNewCardState.InputForm())
@@ -93,6 +93,12 @@ class CardViewModel(
         newCardState.value = CardsScreenNewCardState.InputForm()
     }
 
+    fun onTopUpClicked(card: CardInfo) {
+        viewModelScope.launch {
+            events.emit(CardsScreenEvent.LaunchUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}"))
+            analytics.track(Clicks.CardTopUpClicked(card.type, card.balance))
+        }
+    }
     fun onDeleteCard(cardId: CardId) {
         viewModelScope.launch {
             runCatching { cardsRepository.deleteUserCard(cardId) }

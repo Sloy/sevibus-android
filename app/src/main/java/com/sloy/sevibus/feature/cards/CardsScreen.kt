@@ -75,6 +75,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -83,7 +84,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -126,6 +126,7 @@ fun CardsScreen(onNavigateToHelp: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val newCardState by viewModel.newCardState.collectAsStateWithLifecycle()
     val nfcState by nfcStateManager.state.collectAsStateWithLifecycle()
+    val uriHandler = LocalUriHandler.current
 
     val nfcAnimation = remember { Animatable(1f) }
 
@@ -138,6 +139,10 @@ fun CardsScreen(onNavigateToHelp: () -> Unit) {
             is CardsScreenEvent.ShowMessage -> {
                 snackBar.showSnackbar(it.message, withDismissAction = true)
             }
+
+            is CardsScreenEvent.LaunchUri -> {
+                uriHandler.openUri(it.uri)
+            }
         }
     }
 
@@ -147,6 +152,7 @@ fun CardsScreen(onNavigateToHelp: () -> Unit) {
         nfcState,
         viewModel::onNewCardNumber,
         viewModel::onDeleteCard,
+        viewModel::onTopUpClicked,
         viewModel::onStartReordering,
         viewModel::onReorderingDone,
         onNavigateToHelp,
@@ -161,8 +167,9 @@ fun CardsScreen(
     state: CardsScreenState,
     newCardState: CardsScreenNewCardState,
     nfcState: NfcState,
-    onNewCardNumber: (String) -> Unit,
-    onDeleteCard: (CardId) -> Unit,
+    onNewCardNumber: (String) -> Unit = {},
+    onDeleteCard: (CardId) -> Unit = {},
+    onTopUpClicked: (CardInfo) -> Unit = {},
     onStartReorder: () -> Unit = {},
     onReorderDone: (List<CardInfo>) -> Unit = {},
     onNavigateToHelp: () -> Unit = {},
@@ -239,8 +246,9 @@ fun CardsScreen(
                                 scrollState,
                                 onNewCardNumber,
                                 onDeleteCard,
+                                onTopUpClicked,
                                 nfcAnimation,
-                                this@AnimatedContent
+                                this@AnimatedContent,
                             )
                         }
                     }
@@ -259,6 +267,7 @@ private fun SharedTransitionScope.CardsScreenContent(
     scrollState: ScrollState,
     onNewCardNumber: (String) -> Unit,
     onDeleteCard: (CardId) -> Unit,
+    onTopUpClicked: (CardInfo) -> Unit,
     nfcAnimation: Animatable<Float, AnimationVector1D>,
     animatedContentScope: AnimatedContentScope,
 ) {
@@ -302,14 +311,17 @@ private fun SharedTransitionScope.CardsScreenContent(
         val contentAlpha = 1 - abs(pagerState.currentPageOffsetFraction) * 2
         Box(Modifier.alpha(contentAlpha)) {
             if (currentCardAndTransactions != null) {
-                ExistingCardsDetail(currentCardAndTransactions.card,
+                ExistingCardsDetail(
+                    currentCardAndTransactions.card,
                     currentCardAndTransactions.transactions,
+                    onTopUpClicked,
                     onDeleteCard = {
                         onDeleteCard(it)
                         scope.launch {
                             scrollState.animateScrollTo(0)
                         }
-                    })
+                    },
+                )
             } else {
                 NewCardDetail(nfcState, newCardState, onNewCardNumber)
             }
@@ -319,7 +331,12 @@ private fun SharedTransitionScope.CardsScreenContent(
 }
 
 @Composable
-private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: TransactionsState, onDeleteCard: (CardId) -> Unit) {
+private fun ExistingCardsDetail(
+    currentCard: CardInfo,
+    transactionsState: TransactionsState,
+    onTopUpClicked: (CardInfo) -> Unit,
+    onDeleteCard: (CardId) -> Unit,
+) {
     Column {
         if (FeatureFlags.showCardUpdateWarning) {
             WarningNotice()
@@ -327,9 +344,13 @@ private fun ExistingCardsDetail(currentCard: CardInfo, transactionsState: Transa
         }
         CardBalanceItem(currentCard)
         Spacer(Modifier.size(16.dp))
-        CardInfoElement(currentCard)
+        CardInfoElement(currentCard, onTopUpClicked)
         Spacer(Modifier.size(32.dp))
-        Text(stringResource(R.string.cards_recent_activity), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
+        Text(
+            stringResource(R.string.cards_recent_activity),
+            style = SevTheme.typography.headingSmall,
+            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp)
+        )
         when (transactionsState) {
             is TransactionsState.Loaded -> {
                 CardTransactionsElement(transactionsState.transactions)
@@ -695,7 +716,10 @@ private fun CardAddMoreItem(newCardState: CardsScreenNewCardState) {
             ) {
                 Column {
                     Icon(
-                        Icons.Default.Add, contentDescription = stringResource(R.string.cd_add_bonobus), tint = tint, modifier = Modifier.size(48.dp)
+                        Icons.Default.Add,
+                        contentDescription = stringResource(R.string.cd_add_bonobus),
+                        tint = tint,
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
@@ -723,8 +747,7 @@ private fun LoadedWithTransactionsPreview() {
             CardsScreenState.Content(cards.andTransactions(transactions)),
             CardsScreenNewCardState.InputForm(),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -738,8 +761,7 @@ private fun LoadedWithTransactionsLoadingPreview() {
             CardsScreenState.Content(cards.andTransactions(transactions)),
             CardsScreenNewCardState.InputForm(),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -753,8 +775,7 @@ private fun LoadedWithTransactionsEmptyPreview() {
             CardsScreenState.Content(cards.andTransactions(transactions)),
             CardsScreenNewCardState.InputForm(),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -768,8 +789,7 @@ private fun LoadedWithTransactionsErrorPreview() {
             CardsScreenState.Content(cards.andTransactions(transactions)),
             CardsScreenNewCardState.InputForm(),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -777,7 +797,7 @@ private fun LoadedWithTransactionsErrorPreview() {
 @Composable
 private fun LoadedPreview() {
     ScreenPreview {
-        CardsScreen(CardsScreenState.Content(Stubs.cards.andTransactions()), CardsScreenNewCardState.InputForm(), NfcState.ENABLED, {}, {})
+        CardsScreen(CardsScreenState.Content(Stubs.cards.andTransactions()), CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
 }
 
@@ -789,8 +809,7 @@ private fun ReorderingPreview() {
             CardsScreenState.Content(Stubs.cards.andTransactions(), isReordering = true),
             CardsScreenNewCardState.InputForm(),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -798,7 +817,7 @@ private fun ReorderingPreview() {
 @Composable
 private fun LoadingPreview() {
     ScreenPreview {
-        CardsScreen(CardsScreenState.Loading, CardsScreenNewCardState.InputForm(), NfcState.ENABLED, {}, {})
+        CardsScreen(CardsScreenState.Loading, CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
 }
 
@@ -806,7 +825,7 @@ private fun LoadingPreview() {
 @Composable
 private fun EmptyNfcEnabledPreview() {
     ScreenPreview {
-        CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.ENABLED, {}, {})
+        CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
 }
 
@@ -818,8 +837,7 @@ private fun EmptyCheckingCardPreview() {
             CardsScreenState.Empty,
             CardsScreenNewCardState.CheckingCard(Stubs.cards.first().fullSerialNumber.toString()),
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }
 
@@ -827,7 +845,7 @@ private fun EmptyCheckingCardPreview() {
 @Composable
 private fun EmptyNfcDisabledPreview() {
     ScreenPreview {
-        CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.DISABLED, {}, {})
+        CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.DISABLED)
     }
 }
 
@@ -840,7 +858,6 @@ private fun ErrorPreview() {
             CardsScreenNewCardState.InputForm(),
 
             NfcState.ENABLED,
-            {},
-            {})
+        )
     }
 }

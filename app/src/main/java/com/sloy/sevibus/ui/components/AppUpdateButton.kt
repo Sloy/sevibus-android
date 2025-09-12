@@ -28,11 +28,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 
@@ -40,6 +42,7 @@ import kotlinx.coroutines.launch
 fun AppUpdateButton(state: AppUpdateButtonState, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val analytics: Analytics? = koinInjectOnUI()
 
     val pulse = if (state is AppUpdateButtonState.Ready) {
         infiniteTransition.animateFloat(
@@ -65,8 +68,14 @@ fun AppUpdateButton(state: AppUpdateButtonState, modifier: Modifier = Modifier) 
         Surface(
             onClick = {
                 scope.launch {
-                    if (state is AppUpdateButtonState.Available) state.onClick()
-                    if (state is AppUpdateButtonState.Ready) state.onClick()
+                    if (state is AppUpdateButtonState.Available) {
+                        state.onClick()
+                        analytics?.track(Clicks.AppUpdateDownloadClicked)
+                    }
+                    if (state is AppUpdateButtonState.Ready) {
+                        state.onClick()
+                        analytics?.track(Clicks.AppUpdateInstallClicked)
+                    }
                 }
             },
             shape = SevTheme.shapes.extraLarge,
@@ -82,7 +91,11 @@ fun AppUpdateButton(state: AppUpdateButtonState, modifier: Modifier = Modifier) 
         ) {
             val text = when (state) {
                 is AppUpdateButtonState.Available -> stringResource(R.string.app_update_available)
-                is AppUpdateButtonState.Downloading -> stringResource(R.string.app_update_downloading, percentage(state.downloaded, state.total))
+                is AppUpdateButtonState.Downloading -> stringResource(
+                    R.string.app_update_downloading,
+                    percentage(state.downloaded, state.total)
+                )
+
                 is AppUpdateButtonState.Ready -> stringResource(R.string.app_update_ready)
                 is AppUpdateButtonState.Hidden -> ""
             }

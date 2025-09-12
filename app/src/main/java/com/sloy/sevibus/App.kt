@@ -49,7 +49,8 @@ import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.search.TopBarState
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloy.sevibus.infrastructure.analytics.Analytics
-import com.sloy.sevibus.infrastructure.analytics.events.AppStarted
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.track
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
@@ -71,7 +72,10 @@ fun App() {
         val analytics: Analytics = koinInject()
 
         LaunchedEffect(Unit) {
-            analytics.track(AppStarted)
+            analytics.track(Events.AppStarted)
+            appState.sevNavigator.destination.collect { destination ->
+                analytics.track(destination)
+            }
         }
 
         BackHandler(enabled = !isLastDestination) {

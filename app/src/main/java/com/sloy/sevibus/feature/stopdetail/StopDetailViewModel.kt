@@ -13,6 +13,8 @@ import com.sloy.sevibus.domain.repository.FavoriteRepository
 import com.sloy.sevibus.domain.repository.RouteRepository
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -34,22 +36,12 @@ class StopDetailViewModel(
     private val favoriteRepository: FavoriteRepository,
     private val routeRepository: RouteRepository,
     private val sessionService: SessionService,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     private val isFavorite: Flow<Boolean> = favoriteRepository.observeFavorites()
         .map { it.find { favorite -> favorite.stop.code == stopId } }
         .map { it != null }
-
-    private val stopState: StateFlow<StopDetailScreenState> = flow {
-        emit(stopRepository.obtainStop(stopId))
-    }.combine(isFavorite) { stop, isFavorite ->
-        try {
-            StopDetailScreenState.Loaded(stop, isFavorite)
-        } catch (e: Exception) {
-            SevLogger.logW(e)
-            StopDetailScreenState.Failed(e)
-        }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, StopDetailScreenState.Loading)
 
     private val arrivals: Flow<Result<List<BusArrival>>> = flow {
         emit(Result.success(emptyList()))
@@ -90,8 +82,10 @@ class StopDetailViewModel(
             (state.value as? StopDetailScreenState.Loaded)?.let { state ->
                 if (state.isFavorite) {
                     favoriteRepository.removeFavorite(stopId)
+                    analytics.track(Clicks.RemoveFavoriteClicked(stopId))
                 } else {
                     favoriteRepository.addFavorite(FavoriteStop(state.stop, null, null))
+                    analytics.track(Clicks.AddFavoriteClicked(stopId))
                 }
             }
         } else {

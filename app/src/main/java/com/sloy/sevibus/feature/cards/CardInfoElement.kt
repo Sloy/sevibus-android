@@ -17,22 +17,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
-fun CardInfoElement(card: CardInfo) {
-    val uriHandler = LocalUriHandler.current
+fun CardInfoElement(card: CardInfo, onTopUpClicked: (CardInfo) -> Unit) {
 
     Column {
-        Text(stringResource(R.string.cards_data_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 12.dp, start = 16.dp))
+        Text(
+            stringResource(R.string.cards_data_section),
+            style = SevTheme.typography.headingSmall,
+            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp)
+        )
         Card(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -53,9 +55,10 @@ fun CardInfoElement(card: CardInfo) {
 
             if (card.balance != null) {
                 HorizontalDivider()
-                TitleSubtitleItem(stringResource(R.string.cards_top_up), stringResource(R.string.cards_top_up_description),
+                TitleSubtitleItem(
+                    stringResource(R.string.cards_top_up), stringResource(R.string.cards_top_up_description),
                     onClick = {
-                        uriHandler.openUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}")
+                        onTopUpClicked(card)
                     }, endAccessory = {
                         Icon(
                             Icons.AutoMirrored.Filled.OpenInNew,
@@ -104,6 +107,6 @@ private fun TitleSubtitleItem(
 @Composable
 private fun CardInfoCardPreview() {
     SevTheme {
-        CardInfoElement(Stubs.cardWithAllFields)
+        CardInfoElement(Stubs.cardWithAllFields, {})
     }
 }

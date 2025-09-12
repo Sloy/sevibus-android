@@ -23,6 +23,7 @@ class FirebaseTracker : Tracker {
                         is Long -> param(formattedKey, value)
                         is Double -> param(formattedKey, value)
                         is Float -> param(formattedKey, value.toDouble())
+                        null -> {}
                         else -> param(formattedKey, value.toString()) // Fallback
                     }
                 }
