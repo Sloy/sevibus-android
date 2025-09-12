@@ -1,4 +1,4 @@
-package com.sloy.sevibus.infrastructure.reviews
+package com.sloy.sevibus.infrastructure.reviews.presentation
 
 import android.app.Activity
 import androidx.compose.runtime.Composable

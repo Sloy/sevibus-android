@@ -1,4 +1,4 @@
-package com.sloy.sevibus.infrastructure.reviews
+package com.sloy.sevibus.infrastructure.reviews.presentation
 
 import android.app.Activity
 import com.google.android.play.core.review.ReviewManager
@@ -11,7 +11,7 @@ import kotlin.time.measureTime
  * A default implementation of the [InAppReviewManager] interface that uses the Android In-App Reviews API
  * to launch the In-App Review flow.
  *
- * @property reviewManager An instance of [com.google.android.play.core.review.ReviewManager] that will be used to launch the In-App Review flow.
+ * @property reviewManager An instance of [ReviewManager] that will be used to launch the In-App Review flow.
  */
 internal class GoogleInAppReviewManager(
     private val reviewManager: ReviewManager
