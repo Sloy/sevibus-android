@@ -44,6 +44,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.fragment.app.DialogFragment
 import com.sloy.sevibus.ui.theme.SevTheme
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 @Composable
 fun FakeReviewDialog(
@@ -53,7 +55,9 @@ fun FakeReviewDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false
+            decorFitsSystemWindows = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
     ) {
         Box(
@@ -198,8 +202,11 @@ private fun FakeReviewDialogContentPreview() {
 
 class FakeReviewDialogFragment : DialogFragment() {
 
+    private var dismissalCallback: (() -> Unit)? = null
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(requireContext(), android.R.style.Theme_Translucent_NoTitleBar).apply {
+            setCanceledOnTouchOutside(true)
             window?.apply {
                 setFlags(
                     WindowManager.LayoutParams.FLAG_DIM_BEHIND,
@@ -234,6 +241,26 @@ class FakeReviewDialogFragment : DialogFragment() {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT
             )
+        }
+    }
+
+    override fun onDismiss(dialog: android.content.DialogInterface) {
+        super.onDismiss(dialog)
+        dismissalCallback?.invoke()
+    }
+
+    /**
+     * Suspends until the dialog is dismissed by the user.
+     */
+    suspend fun awaitDismissal() = suspendCancellableCoroutine<Unit> { continuation ->
+        dismissalCallback = {
+            if (continuation.isActive) {
+                continuation.resume(Unit)
+            }
+        }
+
+        continuation.invokeOnCancellation {
+            dismissalCallback = null
         }
     }
 }

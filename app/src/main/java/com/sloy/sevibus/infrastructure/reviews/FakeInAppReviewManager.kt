@@ -4,6 +4,8 @@ import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.ui.components.FakeReviewDialogFragment
+import kotlin.time.Duration
+import kotlin.time.measureTime
 
 /**
  * A fake implementation of the [InAppReviewManager] interface that can be used in debug builds.
@@ -13,16 +15,19 @@ internal class FakeInAppReviewManager : InAppReviewManager {
 
     override suspend fun launchReviewFlow(
         activity: Activity,
-    ): Result<Unit> {
+    ): Result<Duration> {
         return runCatching {
-            when (activity) {
-                is AppCompatActivity -> {
-                    val dialog = FakeReviewDialogFragment()
-                    dialog.show(activity.supportFragmentManager, "FakeReviewDialog")
-                }
+            measureTime {
+                when (activity) {
+                    is AppCompatActivity -> {
+                        val dialog = FakeReviewDialogFragment()
+                        dialog.show(activity.supportFragmentManager, "FakeReviewDialog")
+                        dialog.awaitDismissal()
+                    }
 
-                else -> {
-                    throw IllegalArgumentException("Activity must be AppCompatActivity to show dialog fragment")
+                    else -> {
+                        throw IllegalArgumentException("Activity must be AppCompatActivity to show dialog fragment")
+                    }
                 }
             }
         }.onFailure {

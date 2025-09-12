@@ -4,6 +4,8 @@ import android.app.Activity
 import com.google.android.play.core.review.ReviewManager
 import com.sloy.sevibus.infrastructure.SevLogger
 import kotlinx.coroutines.tasks.await
+import kotlin.time.Duration
+import kotlin.time.measureTime
 
 /**
  * A default implementation of the [InAppReviewManager] interface that uses the Android In-App Reviews API
@@ -17,11 +19,12 @@ internal class GoogleInAppReviewManager(
 
     override suspend fun launchReviewFlow(
         activity: Activity,
-    ): Result<Unit> {
+    ): Result<Duration> {
         return runCatching {
-            val reviewInfo = reviewManager.requestReviewFlow().await()!!
-            reviewManager.launchReviewFlow(activity, reviewInfo).await()
-            Unit
+            measureTime {
+                val reviewInfo = reviewManager.requestReviewFlow().await()
+                reviewManager.launchReviewFlow(activity, reviewInfo).await()
+            }
         }.onFailure {
             SevLogger.logW(it, "Failed requesting InAppReview flow")
         }
