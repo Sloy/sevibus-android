@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,12 +48,15 @@ import com.sloy.sevibus.feature.search.SearchScreen
 import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.search.TopBarState
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreen
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.AppStarted
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
 
 @Composable
 fun App() {
@@ -64,6 +68,11 @@ fun App() {
         val searchViewModel: SearchViewModel = koinViewModel()
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
+        val analytics: Analytics = koinInject()
+
+        LaunchedEffect(Unit) {
+            analytics.track(AppStarted)
+        }
 
         BackHandler(enabled = !isLastDestination) {
             appState.sevNavigator.navigateBack()
@@ -77,7 +86,8 @@ fun App() {
                     currentDestination = currentDestination,
                     onNavigate = onNavigate,
                     topBar = {
-                        TopBar(currentUser,
+                        TopBar(
+                            currentUser,
                             topBarState,
                             onSearchTermChanged = { searchViewModel.onSearch(it) },
                             onCancelSearch = {

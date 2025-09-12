@@ -46,6 +46,10 @@ import com.sloy.sevibus.feature.map.states.OnStopSelectedState
 import com.sloy.sevibus.feature.search.LineSelectorViewModel
 import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.stopdetail.StopDetailViewModel
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.analytics.tracker.FirebaseTracker
+import com.sloy.sevibus.infrastructure.analytics.tracker.LoggerTracker
 import com.sloy.sevibus.infrastructure.config.ApiConfigurationManager
 import com.sloy.sevibus.infrastructure.config.DynamicApiUrlInterceptor
 import com.sloy.sevibus.infrastructure.config.RemoteConfigService
@@ -65,6 +69,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -189,6 +194,10 @@ object DI {
         single<OnLinesSectionSelected> { OnLinesSectionSelected(get(), get(), get(), get()) }
         single<ObtainNearbyStops> { ObtainNearbyStops(get()) }
         single<NfcStateManager> { NfcStateManager(androidContext()) }
+
+        single { FirebaseTracker() }.bind(Tracker::class)
+        single { LoggerTracker() }.bind(Tracker::class)
+        single<Analytics> { Analytics(getAll()) }
     }
 
     private fun OkHttpClient.Builder.addInterceptors(interceptors: List<Interceptor>): OkHttpClient.Builder {
