@@ -10,15 +10,42 @@ import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.Tracker
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 class AmplitudeTracker(
     context: Context,
     analyticsSettingsDataSource: AnalyticsSettingsDataSource
 ) : Tracker {
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val amplitude = CompletableDeferred<Amplitude>()
+
+    init {
+        scope.launch {
+            val enabled = analyticsSettingsDataSource.isAnalyticsEnabled()
+            amplitude.complete(createAmplitudeInstance(context, optOut = !enabled))
+        }
+        analyticsSettingsDataSource.observeAnalyticsEnabled()
+            .distinctUntilChanged()
+            .onEach { enabled ->
+                amplitude.await().configuration.optOut = !enabled
+            }
+            .launchIn(scope)
+    }
+
+
     @OptIn(ExperimentalAmplitudeFeature::class)
-    private val amplitude = Amplitude(
+    private fun createAmplitudeInstance(
+        context: Context,
+        optOut: Boolean
+    ): Amplitude = Amplitude(
         Configuration(
             context = context,
             apiKey = if (BuildVariant.isRelease()) PROD_PUBIC_KEY else DEV_PUBIC_KEY,
@@ -31,12 +58,14 @@ class AmplitudeTracker(
             flushIntervalMillis = if (BuildVariant.isRelease()) PROD_FLUSH_INTERVAL else DEV_FLUSH_INTERVAL,
             identifyBatchIntervalMillis = (if (BuildVariant.isRelease()) PROD_FLUSH_INTERVAL else DEV_FLUSH_INTERVAL).toLong(),
             serverZone = ServerZone.EU,
-            optOut = runBlocking { !analyticsSettingsDataSource.isAnalyticsEnabled() }
+            optOut = optOut,
         )
     )
 
     override fun track(event: SevEvent) {
-        amplitude.track(event.name)
+        scope.launch {
+            amplitude.await().track(event.name)
+        }
     }
 
     private companion object {

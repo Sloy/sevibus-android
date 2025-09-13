@@ -121,7 +121,6 @@ dependencies {
     implementation(libs.credentials.googleIdentity)
 
     implementation(libs.amplitude)
-    implementation(libs.amplitude.sessionReplay)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
