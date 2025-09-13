@@ -475,7 +475,7 @@ private fun AccountContentLoggedIn(state: SettingsScreenState.LoggedIn, onLogout
 private fun LoggedInPreview() {
     SevTheme {
         SettingsScreen(
-            SettingsScreenState.LoggedIn(LoggedUser("Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
+            SettingsScreenState.LoggedIn(LoggedUser("x", "Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
             HealthCheckState.Success(Stubs.healthCheck),
             NightModeSetting.FOLLOW_SYSTEM,
             true,

@@ -10,6 +10,7 @@ import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,18 +21,28 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AmplitudeTracker(
-    context: Context,
-    analyticsSettingsDataSource: AnalyticsSettingsDataSource
+    private val context: Context,
+    private val analyticsSettingsDataSource: AnalyticsSettingsDataSource,
+    private val sessionService: SessionService,
 ) : Tracker {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val amplitude = CompletableDeferred<Amplitude>()
 
     init {
+        initSdk()
+        monitorOptOut()
+        monitorUserSession()
+    }
+
+    private fun initSdk() {
         scope.launch {
             val enabled = analyticsSettingsDataSource.isAnalyticsEnabled()
             amplitude.complete(createAmplitudeInstance(context, optOut = !enabled))
         }
+    }
+
+    private fun monitorOptOut() {
         analyticsSettingsDataSource.observeAnalyticsEnabled()
             .distinctUntilChanged()
             .onEach { enabled ->
@@ -40,6 +51,18 @@ class AmplitudeTracker(
             .launchIn(scope)
     }
 
+    private fun monitorUserSession() {
+        sessionService.observeCurrentUser()
+            .distinctUntilChanged()
+            .onEach { user ->
+                if (user != null) {
+                    amplitude.await().setUserId(user.id)
+                } else if (amplitude.await().getUserId() != null) {
+                    amplitude.await().reset()
+                }
+            }
+            .launchIn(scope)
+    }
 
     @OptIn(ExperimentalAmplitudeFeature::class)
     private fun createAmplitudeInstance(

@@ -77,6 +77,7 @@ class SessionService(
     }
 
     private fun FirebaseUser.toLoggedUser() = LoggedUser(
+        id = this.uid,
         displayName = this.displayName!!,
         email = this.email!!,
         photoUrl = this.photoUrl?.toString(),

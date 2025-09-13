@@ -565,11 +565,13 @@ object Stubs {
     val locationSouth = Position(37.34274628939858, -5.982401669025421)
 
     val userLaura = LoggedUser(
+        id = "x",
         displayName = "Laura Suárez",
         email = "laurasuarezlagares@gmail.com",
         photoUrl = "https://lh3.googleusercontent.com/-YUwtaYpq3TE/AAAAAAAAAAI/AAAAAAAAABc/n77IYIR9Zho/s96-c/photo.jpg",
     )
     val userNoPhoto = LoggedUser(
+        id = "x",
         displayName = "Bonifacio Ramírez Alcántara",
         email = "boni@gmail.com",
         photoUrl = null,

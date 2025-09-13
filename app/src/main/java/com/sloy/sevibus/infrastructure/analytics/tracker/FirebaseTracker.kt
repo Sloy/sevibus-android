@@ -6,6 +6,7 @@ import com.google.firebase.ktx.Firebase
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,13 +15,20 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class FirebaseTracker(
-    analyticsSettingsDataSource: AnalyticsSettingsDataSource
-) : Tracker {
+    private val analyticsSettingsDataSource: AnalyticsSettingsDataSource,
+    private val sessionService: SessionService,
+
+    ) : Tracker {
 
     private val firebaseAnalytics = Firebase.analytics
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
+        initSdk()
+        monitorUserSession()
+    }
+
+    private fun initSdk() {
         analyticsSettingsDataSource.observeAnalyticsEnabled()
             .distinctUntilChanged()
             .onEach { enabled ->
@@ -28,6 +36,16 @@ class FirebaseTracker(
             }
             .launchIn(scope)
     }
+
+    private fun monitorUserSession() {
+        sessionService.observeCurrentUser()
+            .distinctUntilChanged()
+            .onEach { user ->
+                firebaseAnalytics.setUserId(user?.id)
+            }
+            .launchIn(scope)
+    }
+
 
     override fun track(event: SevEvent) {
         if (event.properties.isEmpty()) {

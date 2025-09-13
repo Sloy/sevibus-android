@@ -200,8 +200,8 @@ object DI {
         single<ObtainNearbyStops> { ObtainNearbyStops(get()) }
         single<NfcStateManager> { NfcStateManager(androidContext()) }
 
-        single { AmplitudeTracker(get(), get()) }.bind(Tracker::class)
-        single { FirebaseTracker(get()) }.bind(Tracker::class)
+        single { AmplitudeTracker(get(), get(), get()) }.bind(Tracker::class)
+        single { FirebaseTracker(get(), get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
         single<Analytics> { Analytics(getAll(), get()) }
     }
