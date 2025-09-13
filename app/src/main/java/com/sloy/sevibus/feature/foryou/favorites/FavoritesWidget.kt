@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -42,7 +43,19 @@ fun FavoritesWidget(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: 
         val viewModel = koinViewModel<FavoritesListViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val isLoginLoading by viewModel.isLoginLoading.collectAsStateWithLifecycle()
-        FavoritesWidget(state, isLoginLoading, onStopClicked, onEditFavoritesClicked, onLoginClicked = viewModel::onLoginClick)
+        FavoritesWidget(
+            state = state,
+            isLoginLoading = isLoginLoading,
+            onStopClicked = { stopId ->
+                viewModel.onTrack(Clicks.FavoriteStopClicked(stopId))
+                onStopClicked(stopId)
+            },
+            onEditFavoritesClicked = {
+                viewModel.onTrack(Clicks.EditFavoritesClicked)
+                onEditFavoritesClicked()
+            },
+            onLoginClicked = viewModel::onLoginClick
+        )
     } else {
         FavoritesWidget(
             FavoritesListState.Content(Stubs.favorites), false, onStopClicked, onEditFavoritesClicked, {}

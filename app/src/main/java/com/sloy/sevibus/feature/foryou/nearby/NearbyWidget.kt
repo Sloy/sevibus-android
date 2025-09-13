@@ -28,6 +28,7 @@ import com.google.accompanist.permissions.isGranted
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.feature.foryou.favorites.FavoriteListItemShimmer
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.extensions.rememberPermissionStateOnUI
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -40,9 +41,18 @@ import org.koin.androidx.compose.koinViewModel
 fun NearbyWidget(onStopClicked: (code: Int) -> Unit) {
     val permissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
     val hasPermission = permissionState?.status?.isGranted == true
-    NearbyWidget(onStopClicked, hasPermission, onPermissionButton = {
-        permissionState?.launchPermissionRequest()
-    })
+
+    if (!LocalView.current.isInEditMode) {
+        val viewModel = koinViewModel<NearbyViewModel>()
+        NearbyWidget(onStopClicked, hasPermission, onPermissionButton = {
+            viewModel.onTrack(Clicks.NearbyStopsLocationPermissionClicked)
+            permissionState?.launchPermissionRequest()
+        })
+    } else {
+        NearbyWidget(onStopClicked, hasPermission, onPermissionButton = {
+            permissionState?.launchPermissionRequest()
+        })
+    }
 }
 
 @Composable
@@ -59,7 +69,13 @@ private fun NearbyWidgetHasPermission(onStopClicked: (code: Int) -> Unit) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<NearbyViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        NearbyWidgetHasPermission(state, onStopClicked)
+        NearbyWidgetHasPermission(
+            state = state,
+            onStopClicked = { stopId ->
+                viewModel.onTrack(Clicks.NearbyStopClicked(stopId))
+                onStopClicked(stopId)
+            }
+        )
     } else {
         NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), onStopClicked)
     }

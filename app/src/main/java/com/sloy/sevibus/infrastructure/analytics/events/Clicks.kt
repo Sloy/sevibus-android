@@ -34,4 +34,21 @@ interface Clicks {
     data object AnalyticsDisabledClicked : SevEvent(
         "Analytics Disabled Clicked"
     )
+
+    data class FavoriteStopClicked(val stopId: Int) : SevEvent(
+        "Favorite Stop Clicked",
+        "stopId" to stopId
+    )
+
+    data object EditFavoritesClicked : SevEvent(
+        "Edit Favorites Clicked"
+    )
+
+    data class NearbyStopClicked(val stopId: Int) : SevEvent(
+        "Nearby Stop Clicked", "stopId" to stopId
+    )
+
+    data object NearbyStopsLocationPermissionClicked : SevEvent(
+        "Nearby Stops Location Permission Clicked"
+    )
 }

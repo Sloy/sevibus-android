@@ -7,6 +7,8 @@ import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.FavoriteRepository
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.Tracker
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ class FavoritesListViewModel(
     private val favoriteRepository: FavoriteRepository,
     private val busRepository: BusRepository,
     private val sessionService: SessionService,
+    private val tracker: Tracker,
 ) : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,6 +52,10 @@ class FavoritesListViewModel(
             //TODO show some error message if the login fails
             isLoginLoading.value = false
         }
+    }
+
+    fun onTrack(event: SevEvent) {
+        tracker.track(event)
     }
 
 }
