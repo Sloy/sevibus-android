@@ -596,8 +596,8 @@ private fun WarningNotice() {
         text = stringResource(R.string.cards_today_operations_notice),
         icon = Icons.Outlined.Info,
         containerColor = SevTheme.colorScheme.surfaceContainer,
-        contentColor = SevTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(horizontal = 16.dp)
+        iconColor = SevTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(horizontal = 16.dp),
     )
 }
 
