@@ -51,4 +51,8 @@ interface Clicks {
     data object NearbyStopsLocationPermissionClicked : SevEvent(
         "Nearby Stops Location Permission Clicked"
     )
+
+    data class ForYouTabClicked(val tab: String) : SevEvent(
+        "For You Tab Clicked", "tab" to tab
+    )
 }

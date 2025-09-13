@@ -30,6 +30,7 @@ import com.sloy.sevibus.domain.repository.RouteRepository
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.domain.usecase.ObtainNearbyStops
 import com.sloy.sevibus.feature.cards.CardViewModel
+import com.sloy.sevibus.feature.foryou.ForYouViewModel
 import com.sloy.sevibus.feature.foryou.favorites.FavoriteItemViewModel
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesListViewModel
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesViewModel
@@ -87,6 +88,7 @@ object DI {
         viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
         viewModel { EditFavoritesViewModel(get(), get()) }
+        viewModel { ForYouViewModel(get()) }
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }

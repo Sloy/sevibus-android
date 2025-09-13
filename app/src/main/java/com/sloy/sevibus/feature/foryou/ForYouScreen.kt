@@ -13,15 +13,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesWidget
 import com.sloy.sevibus.feature.foryou.nearby.NearbyWidget
@@ -29,15 +27,31 @@ import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.ui.components.SegmentedControl
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun ForYouScreen(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () -> Unit) {
+    if (!LocalView.current.isInEditMode) {
+        val viewModel = koinViewModel<ForYouViewModel>()
+        val selectedIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
+        ForYouScreen(selectedIndex, onStopClicked, onEditFavoritesClicked, onTabSelected = viewModel::onTabSelected)
+    } else {
+        ForYouScreen(0, onStopClicked, onEditFavoritesClicked, onTabSelected = {})
+    }
+}
+
+@Composable
+private fun ForYouScreen(
+    selectedIndex: Int,
+    onStopClicked: (code: Int) -> Unit,
+    onEditFavoritesClicked: () -> Unit,
+    onTabSelected: (Int) -> Unit
+) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Text(stringResource(R.string.foryou_title), style = SevTheme.typography.headingLarge, modifier = Modifier.padding(start = 16.dp))
 
         val view = LocalView.current
-        var selectedIndex by remember { mutableStateOf(0) }
         SegmentedControl(
             modifier = Modifier
                 .fillMaxWidth()
@@ -46,7 +60,7 @@ fun ForYouScreen(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () 
             options = listOf(stringResource(R.string.foryou_tab_favorites), stringResource(R.string.foryou_tab_nearby)),
             selectedIndex = selectedIndex,
             onOptionSelected = {
-                selectedIndex = it
+                onTabSelected(it)
                 view.performHapticSegmentTick()
             }
         )
@@ -92,6 +106,6 @@ private fun SlidingContent(
 @Composable
 private fun ForYouScreenPreview() {
     ScreenPreview {
-        ForYouScreen({}, {})
+        ForYouScreen(0, {}, {}, {})
     }
 }
