@@ -201,7 +201,7 @@ object DI {
         single<NfcStateManager> { NfcStateManager(androidContext()) }
 
         single { AmplitudeTracker(get(), get()) }.bind(Tracker::class)
-        single { FirebaseTracker() }.bind(Tracker::class)
+        single { FirebaseTracker(get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
         single<Analytics> { Analytics(getAll(), get()) }
     }
