@@ -72,6 +72,9 @@ firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 
+amplitude = { module = "com.amplitude:analytics-android", version = "1.22.2" }
+amplitude-sessionReplay = { module = "com.amplitude:plugin-session-replay-android", version = "0.20.15" }
+
 maps = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 maps-secrets-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "mapsecrets" }
 

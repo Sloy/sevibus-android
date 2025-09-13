@@ -120,6 +120,9 @@ dependencies {
     implementation(libs.credentials.playServices)
     implementation(libs.credentials.googleIdentity)
 
+    implementation(libs.amplitude)
+    implementation(libs.amplitude.sessionReplay)
+
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)

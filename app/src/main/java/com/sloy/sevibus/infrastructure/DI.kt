@@ -50,6 +50,7 @@ import com.sloy.sevibus.feature.stopdetail.StopDetailViewModel
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.analytics.tracker.AmplitudeTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.FirebaseTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.LoggerTracker
 import com.sloy.sevibus.infrastructure.config.ApiConfigurationManager
@@ -199,6 +200,7 @@ object DI {
         single<ObtainNearbyStops> { ObtainNearbyStops(get()) }
         single<NfcStateManager> { NfcStateManager(androidContext()) }
 
+        single { AmplitudeTracker(get(), get()) }.bind(Tracker::class)
         single { FirebaseTracker() }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
         single<Analytics> { Analytics(getAll(), get()) }
