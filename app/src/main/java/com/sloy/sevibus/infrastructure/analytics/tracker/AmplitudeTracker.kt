@@ -87,7 +87,7 @@ class AmplitudeTracker(
 
     override fun track(event: SevEvent) {
         scope.launch {
-            amplitude.await().track(event.name)
+            amplitude.await().track(event.name, event.properties.toMap())
         }
     }
 

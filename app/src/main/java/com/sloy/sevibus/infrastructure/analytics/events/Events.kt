@@ -15,5 +15,15 @@ interface Events {
         "Card Alert Displayed",
         "balanceType" to balanceType
     )
+
+    data class ReviewDialogDismissed(val durationSeconds: Int) : SevEvent(
+        "Review Dialog Dismissed",
+        "duration" to durationSeconds
+    )
+
+    data class ReviewDialogFailed(val reason: String) : SevEvent(
+        "Review Dialog Failed",
+        "reason" to reason
+    )
 }
 

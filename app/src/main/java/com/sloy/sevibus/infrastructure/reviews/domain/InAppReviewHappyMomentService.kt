@@ -1,0 +1,62 @@
+package com.sloy.sevibus.infrastructure.reviews.domain
+
+import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+
+/**
+ * Service that manages multiple happy moment criteria for A/B testing.
+ *
+ * This service coordinates different criteria implementations and provides
+ * a unified interface for determining when to show in-app review prompts.
+ * The actual logic for selecting which criteria to use is TBD and will be
+ * implemented based on A/B testing requirements.
+ */
+class InAppReviewHappyMomentService(
+    private val criteriaList: List<HappyMomentCriteria>
+) {
+
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val activeCriteria = MutableStateFlow<HappyMomentCriteria?>(null)
+
+    /**
+     * Exposes `true` when the active criteria's conditions are met and we should ask the user for a review.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeHappyMoment(): StateFlow<Boolean> {
+        return activeCriteria.flatMapLatest { criteria ->
+            criteria?.observeHappyMoment() ?: flowOf(false)
+        }.stateIn(backgroundScope, SharingStarted.Eagerly, false)
+    }
+
+    init {
+        // TODO: Implement logic to select which criteria to use
+        // For now, use the first criteria if available
+        if (criteriaList.isEmpty()) {
+            SevLogger.logW(msg = "No happy moment criteria found")
+        } else {
+            val criteria = criteriaList.find { it is ReturningUserCriteria }
+            if (criteria == null) {
+                SevLogger.logW(msg = "No returning user criteria found in $criteriaList")
+            }
+            activeCriteria.value = criteria
+        }
+    }
+
+    /**
+     * Dispatches an event to all criteria. Each criteria can choose to handle or ignore the event.
+     */
+    fun dispatch(event: SevEvent) {
+        criteriaList.forEach { it.dispatch(event) }
+    }
+}
