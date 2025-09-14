@@ -2,12 +2,14 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
+import com.sloy.sevibus.data.api.model.CardAlertDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toDto
 import com.sloy.sevibus.data.database.toEntity
+import com.sloy.sevibus.domain.model.CardAlert
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
@@ -51,8 +53,9 @@ class RemoteAndLocalCardsRepository(
             .onEach { isLogged ->
                 if (isLogged) {
                     syncWithServer()
+                } else {
+                    updateAnonymousCards()
                 }
-                updateLocalCards()
             }
             .catch { SevLogger.logW(it, "Error syncing cards") }
             .launchIn(backgroundScope)
@@ -92,7 +95,7 @@ class RemoteAndLocalCardsRepository(
     }
 
     override suspend fun addUserCard(cardResult: CardInfo) {
-        val lastOrder = sevibusDao.getCards().sortedBy { it.order }.lastOrNull()?.order ?: -1
+        val lastOrder = sevibusDao.getCards().maxByOrNull { it.order }?.order ?: -1
         val card = cardResult.toEntity(order = lastOrder + 1)
         sevibusDao.putCard(card)
         backgroundScope.launch {
@@ -119,7 +122,7 @@ class RemoteAndLocalCardsRepository(
         return api.getCardTransactions(cardId).mapNotNull { it.fromDto(lines) }
     }
 
-    private suspend fun updateLocalCards() {
+    private suspend fun updateAnonymousCards() {
         val cards = sevibusDao.getCards()
         cards.forEach { card ->
             val remoteCard = checkCard(card.serialNumber)
@@ -141,18 +144,22 @@ class RemoteAndLocalCardsRepository(
             val localCards = sevibusDao.getCards()
             val remoteCards = userApi.obtainUserCards()
 
-            val missingFromLocal: List<CardInfoDto> = remoteCards.filter { remoteCard ->
-                localCards.none { it.serialNumber == remoteCard.serialNumber }
-            }
-            sevibusDao.replaceAllCards(localCards + missingFromLocal.map { it.toEntity() })
-
             val missingFromRemote = localCards.filter { localFavorite ->
                 remoteCards.none { it.serialNumber == localFavorite.serialNumber }
             }
             missingFromRemote.forEach { local ->
                 userApi.addUpdateUserCard(local.serialNumber, local.toDto())
             }
+
+            sevibusDao.insertAllCards(remoteCards.map { it.toEntity() })
         }
+    }
+
+    override suspend fun getCardAlert(): CardAlert? {
+        val localCards = sevibusDao.getCards()
+        if (localCards.isEmpty()) return null
+
+        return userApi.getUserCardAlerts().firstOrNull()?.fromDto()
     }
 }
 
@@ -213,5 +220,13 @@ private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
             null
         }
     }
+}
+
+private fun CardAlertDto.fromDto(): CardAlert {
+    return CardAlert(
+        cardId = cardId,
+        type = type,
+        message = message
+    )
 }
 

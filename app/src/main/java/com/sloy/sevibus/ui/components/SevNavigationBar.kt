@@ -62,7 +62,7 @@ private fun SevNavigationBarPreview() {
             listOf(
                 NavigationDestination.ForYou,
                 NavigationDestination.Lines,
-                NavigationDestination.Cards,
+                NavigationDestination.Cards(),
             ),
             onNavigateToDestination = { _ -> },
             currentNavDestination = NavigationDestination.ForYou

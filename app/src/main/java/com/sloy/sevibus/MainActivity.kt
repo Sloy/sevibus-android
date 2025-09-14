@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         if ("android.nfc.action.TECH_DISCOVERED" == intent.action) {
             val cardId = NfcDecoder.readCard(intent)
             if (cardId != null) {
-                sevNavigator.navigate(NavigationDestination.Cards)
+                sevNavigator.navigate(NavigationDestination.Cards())
                 lifecycleScope.launch {
                     nfcStateManager.emitNfcCardRead(cardId)
                 }

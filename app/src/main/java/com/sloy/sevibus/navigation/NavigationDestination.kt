@@ -2,6 +2,7 @@ package com.sloy.sevibus.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sloy.sevibus.R
+import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
@@ -12,6 +13,7 @@ import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.ShimmerFill
 import com.sloy.sevibus.ui.icons.ShimmerOutline
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 sealed interface NavigationDestination {
     val type: NavigationDestinationType
@@ -33,8 +35,11 @@ sealed interface NavigationDestination {
     }
 
     @Serializable
-    data object Cards : TopLevelDestination {
+    data class Cards(val cardId: CardId? = null) : TopLevelDestination {
+        @Transient
         override val selectedIcon = SevIcons.CardOutline
+
+        @Transient
         override val unselectedIcon = SevIcons.CardOutline
         override val iconTextId = R.string.navigation_cards
         override val type: NavigationDestinationType = NavigationDestinationType.FULL_SCREEN
@@ -82,7 +87,7 @@ interface TopLevelDestination : NavigationDestination {
         val topLevelDestinations: List<TopLevelDestination> = listOf(
             NavigationDestination.ForYou,
             NavigationDestination.Lines,
-            NavigationDestination.Cards,
+            NavigationDestination.Cards(),
         )
     }
 }

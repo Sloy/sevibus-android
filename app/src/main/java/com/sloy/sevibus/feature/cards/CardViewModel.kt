@@ -23,13 +23,14 @@ import kotlinx.coroutines.launch
 class CardViewModel(
     private val cardsRepository: CardsRepository,
     private val analytics: Analytics,
+    initialCardId: CardId? = null,
 ) : ViewModel() {
 
     val events = MutableSharedFlow<CardsScreenEvent>()
     val newCardState = MutableStateFlow<CardsScreenNewCardState>(CardsScreenNewCardState.InputForm())
 
     private val isReordering = MutableStateFlow(false)
-    private val scrollToCard = MutableStateFlow<CardId?>(null)
+    private val scrollToCard = MutableStateFlow<CardId?>(initialCardId)
 
 
     private val cardsFlow: Flow<List<CardAndTransactions>> = cardsRepository.observeUserCards().transformLatest { userCards ->

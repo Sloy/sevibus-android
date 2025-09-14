@@ -50,7 +50,7 @@ class DebugHttpOverlayState(private val context: Context) : HttpOverlayState {
             }
 
             if (item.status != null) {
-                delay(5_000)
+                delay(8_000)
                 items.update { it - item }
             }
         }

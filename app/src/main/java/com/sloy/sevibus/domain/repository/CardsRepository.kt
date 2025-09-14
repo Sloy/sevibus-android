@@ -1,5 +1,6 @@
 package com.sloy.sevibus.domain.repository
 
+import com.sloy.sevibus.domain.model.CardAlert
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
@@ -13,4 +14,5 @@ interface CardsRepository {
     suspend fun addUserCard(cardResult: CardInfo)
     suspend fun deleteUserCard(card: CardId)
     suspend fun obtainTransactions(cardId: CardId): List<CardTransaction>
+    suspend fun getCardAlert(): CardAlert?
 }

@@ -24,7 +24,7 @@ fun ScreenPreview(content: @Composable () -> Unit) {
                 topLevelDestinations = listOf(
                     NavigationDestination.ForYou,
                     NavigationDestination.Lines,
-                    NavigationDestination.Cards,
+                    NavigationDestination.Cards(),
                 ),
                 onNavigateToDestination = { },
                 currentNavDestination = null,

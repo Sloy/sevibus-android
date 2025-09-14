@@ -16,11 +16,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
+import com.sloy.sevibus.domain.model.CardId
+import com.sloy.sevibus.feature.foryou.alert.AlertWidget
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesWidget
 import com.sloy.sevibus.feature.foryou.nearby.NearbyWidget
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
@@ -31,13 +33,18 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ForYouScreen(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () -> Unit) {
+fun ForYouScreen(
+    onStopClicked: (code: Int) -> Unit,
+    onEditFavoritesClicked: () -> Unit,
+    onAlertClicked: (CardId) -> Unit
+) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<ForYouViewModel>()
         val selectedIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
-        ForYouScreen(selectedIndex, onStopClicked, onEditFavoritesClicked, onTabSelected = viewModel::onTabSelected)
+
+        ForYouScreen(selectedIndex, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = viewModel::onTabSelected)
     } else {
-        ForYouScreen(0, onStopClicked, onEditFavoritesClicked, onTabSelected = {})
+        ForYouScreen(0, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = {})
     }
 }
 
@@ -46,10 +53,13 @@ private fun ForYouScreen(
     selectedIndex: Int,
     onStopClicked: (code: Int) -> Unit,
     onEditFavoritesClicked: () -> Unit,
+    onAlertClicked: (CardId) -> Unit,
     onTabSelected: (Int) -> Unit
 ) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Text(stringResource(R.string.foryou_title), style = SevTheme.typography.headingLarge, modifier = Modifier.padding(start = 16.dp))
+
+        AlertWidget(onAlertClicked = onAlertClicked)
 
         val view = LocalView.current
         SegmentedControl(
@@ -106,6 +116,6 @@ private fun SlidingContent(
 @Composable
 private fun ForYouScreenPreview() {
     ScreenPreview {
-        ForYouScreen(0, {}, {}, {})
+        ForYouScreen(0, {}, {}, {}, {})
     }
 }

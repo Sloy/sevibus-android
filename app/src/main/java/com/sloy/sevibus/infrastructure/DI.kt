@@ -31,6 +31,7 @@ import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.domain.usecase.ObtainNearbyStops
 import com.sloy.sevibus.feature.cards.CardViewModel
 import com.sloy.sevibus.feature.foryou.ForYouViewModel
+import com.sloy.sevibus.feature.foryou.alert.AlertViewModel
 import com.sloy.sevibus.feature.foryou.favorites.FavoriteItemViewModel
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesListViewModel
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesViewModel
@@ -90,11 +91,12 @@ object DI {
         viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
         viewModel { EditFavoritesViewModel(get(), get()) }
         viewModel { ForYouViewModel(get()) }
+        viewModel { AlertViewModel(get()) }
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
         viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
-        viewModel { CardViewModel(get(), get()) }
+        viewModel { parameters -> CardViewModel(get(), get(), parameters.getOrNull()) }
     }
 
     val dataModule = module {

@@ -39,6 +39,7 @@
     <string name="foryou_location_permission_message">Activa los servicios de localización para ver las paradas más cercanas a tu posición.</string>
     <string name="foryou_activate_location">Activar localización</string>
     <string name="foryou_login_with_google">Inicia sesión con Google</string>
+    <string name="foryou_card_low_balance_action">Ver</string>
 
     <!-- ================== -->
     <!-- Lines Screen -->

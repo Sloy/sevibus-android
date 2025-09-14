@@ -126,3 +126,10 @@ data class PathChecksumRequestDto(
     val routeId: RouteId,
     val checksum: PathChecksum
 )
+
+@Serializable
+data class CardAlertDto(
+    val cardId: CardId,
+    val type: String,
+    val message: String,
+)

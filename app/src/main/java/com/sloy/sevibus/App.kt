@@ -168,9 +168,15 @@ private fun BottomSheetContent(
 ) {
     when (destination) {
         is NavigationDestination.ForYou -> {
-            ForYouScreen(onStopClicked = { code ->
-                onNavigate(NavigationDestination.StopDetail(code))
-            }, onEditFavoritesClicked = { onNavigate(NavigationDestination.EditFavorites) })
+            ForYouScreen(
+                onStopClicked = { code ->
+                    onNavigate(NavigationDestination.StopDetail(code))
+                },
+                onEditFavoritesClicked = { onNavigate(NavigationDestination.EditFavorites) },
+                onAlertClicked = { cardId ->
+                    onNavigate(NavigationDestination.Cards(cardId))
+                }
+            )
         }
 
         is NavigationDestination.Lines -> {
@@ -205,7 +211,10 @@ private fun FullScreenContent(
     onNavigate: (NavigationDestination) -> Unit
 ) {
     when (destination) {
-        is NavigationDestination.Cards -> CardsScreen(onNavigateToHelp = { onNavigate(NavigationDestination.CardsHelp) })
+        is NavigationDestination.Cards -> CardsScreen(
+            initialCardId = destination.cardId,
+            onNavigateToHelp = { onNavigate(NavigationDestination.CardsHelp) }
+        )
         is NavigationDestination.Settings -> SettingsScreen()
         is NavigationDestination.Search -> SearchScreen(
             searchResults, onNavigate, Modifier.padding(top = paddingValues.calculateTopPadding())

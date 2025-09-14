@@ -90,6 +90,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.google.common.math.LinearTransformation.horizontal
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
@@ -113,15 +114,19 @@ import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.math.abs
 
 
 @Composable
-fun CardsScreen(onNavigateToHelp: () -> Unit) {
+fun CardsScreen(
+    initialCardId: CardId? = null,
+    onNavigateToHelp: () -> Unit
+) {
     val snackBar = LocalSnackbarHostState.current
-    val viewModel = koinInject<CardViewModel>()
+    val viewModel = koinInject<CardViewModel> { parametersOf(initialCardId) }
     val nfcStateManager = koinInject<NfcStateManager>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val newCardState by viewModel.newCardState.collectAsStateWithLifecycle()
