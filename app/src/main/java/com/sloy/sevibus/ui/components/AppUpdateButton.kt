@@ -24,6 +24,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
@@ -56,6 +58,12 @@ fun AppUpdateButton(state: AppUpdateButtonState, modifier: Modifier = Modifier) 
         )
     } else {
         null
+    }
+
+    LaunchedEffect(state) {
+        if (state is AppUpdateButtonState.Ready) {
+            analytics?.track(Events.AppUpdateAvailable)
+        }
     }
 
     AnimatedVisibility(

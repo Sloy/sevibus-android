@@ -6,5 +6,9 @@ interface Events {
     data object AppStarted : SevEvent(
         "App Started"
     )
+
+    data object AppUpdateAvailable : SevEvent(
+        "App Update Available"
+    )
 }
 
