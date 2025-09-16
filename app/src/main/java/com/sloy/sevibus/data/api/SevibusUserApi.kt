@@ -1,6 +1,5 @@
 package com.sloy.sevibus.data.api
 
-import com.sloy.sevibus.data.api.model.CardAlertDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LoggedUserDto
@@ -46,7 +45,5 @@ interface SevibusUserApi {
     @DELETE("user/deleteCard/{card}")
     suspend fun deleteUserCard(@Path("card") card: CardId)
 
-    @GET("user/cards/alerts")
-    suspend fun getUserCardAlerts(): List<CardAlertDto>
 
 }

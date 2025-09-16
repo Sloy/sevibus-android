@@ -2,14 +2,12 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
-import com.sloy.sevibus.data.api.model.CardAlertDto
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toDto
 import com.sloy.sevibus.data.database.toEntity
-import com.sloy.sevibus.domain.model.CardAlert
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
@@ -155,12 +153,6 @@ class RemoteAndLocalCardsRepository(
         }
     }
 
-    override suspend fun getCardAlert(): CardAlert? {
-        val localCards = sevibusDao.getCards()
-        if (localCards.isEmpty()) return null
-
-        return userApi.getUserCardAlerts().firstOrNull()?.fromDto()
-    }
 }
 
 private fun CardInfoDto.fromDto(): CardInfo {
@@ -222,11 +214,4 @@ private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
     }
 }
 
-private fun CardAlertDto.fromDto(): CardAlert {
-    return CardAlert(
-        cardId = cardId,
-        type = type,
-        message = message
-    )
-}
 

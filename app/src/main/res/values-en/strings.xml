@@ -39,6 +39,8 @@
     <string name="foryou_location_permission_message">Enable location services to see the stops closest to your position.</string>
     <string name="foryou_activate_location">Activate location</string>
     <string name="foryou_login_with_google">Sign in with Google</string>
+    <string name="foryou_card_low_balance_alert">You have a card with low balance</string>
+    <string name="foryou_card_negative_balance_alert">You have a card with negative balance</string>
     <string name="foryou_card_low_balance_action">View</string>
 
     <!-- ================== -->

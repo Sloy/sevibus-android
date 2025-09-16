@@ -16,21 +16,26 @@ class AlertViewModel(
     val state: StateFlow<AlertState> = _state
 
     init {
-        fetchAlert()
+        checkCardBalances()
     }
 
-    private fun fetchAlert() {
+    private fun checkCardBalances() {
         viewModelScope.launch {
-            runCatching { cardsRepository.getCardAlert() }
-                .onSuccess { alert ->
-                    _state.value = if (alert != null) {
-                        AlertState.CardAlert(cardId = alert.cardId, message = alert.message)
-                    } else {
-                        AlertState.Hidden
+            runCatching { cardsRepository.obtainUserCards() }
+                .onSuccess { cards ->
+                    val alertCard = cards.firstOrNull { card ->
+                        card.balance != null && card.balance < 300 // 3€ = 300 cents
+                    }
+
+                    _state.value = when {
+                        alertCard == null -> AlertState.Hidden
+                        alertCard.balance != null && alertCard.balance < 0 -> AlertState.NegativeBalance(alertCard.serialNumber)
+                        alertCard.balance != null && alertCard.balance < 300 -> AlertState.LowBalance(alertCard.serialNumber)
+                        else -> AlertState.Hidden
                     }
                 }
                 .onFailure { error ->
-                    SevLogger.logW(error, "Error obtaining card alert")
+                    SevLogger.logW(error, "Error checking card balances")
                     _state.value = AlertState.Hidden
                 }
         }

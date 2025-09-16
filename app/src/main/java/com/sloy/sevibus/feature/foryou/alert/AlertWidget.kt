@@ -44,22 +44,46 @@ private fun AlertWidget(
     onAlertClicked: (CardId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (state is AlertState.CardAlert) {
-        InfoBannerComponent(
-            text = state.message,
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            icon = Icons.Rounded.WarningAmber,
-            iconColor = SevTheme.colorScheme.error,
-            containerColor = SevTheme.colorScheme.surfaceContainer,
-            textStyle = SevTheme.typography.bodySmallBold,
-            action = {
-                TextButton(onClick = { onAlertClicked(state.cardId) }) {
-                    Text(stringResource(R.string.foryou_card_low_balance_action))
-                }
-            },
-        )
+    when (state) {
+        is AlertState.LowBalance -> {
+            InfoBannerComponent(
+                text = stringResource(R.string.foryou_card_low_balance_alert),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                icon = Icons.Rounded.WarningAmber,
+                iconColor = SevTheme.colorScheme.error,
+                containerColor = SevTheme.colorScheme.surfaceContainer,
+                textStyle = SevTheme.typography.bodySmallBold,
+                action = {
+                    TextButton(onClick = { onAlertClicked(state.cardId) }) {
+                        Text(stringResource(R.string.foryou_card_low_balance_action))
+                    }
+                },
+            )
+        }
+
+        is AlertState.NegativeBalance -> {
+            InfoBannerComponent(
+                text = stringResource(R.string.foryou_card_negative_balance_alert),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                icon = Icons.Rounded.WarningAmber,
+                iconColor = SevTheme.colorScheme.error,
+                containerColor = SevTheme.colorScheme.surfaceContainer,
+                textStyle = SevTheme.typography.bodySmallBold,
+                action = {
+                    TextButton(onClick = { onAlertClicked(state.cardId) }) {
+                        Text(stringResource(R.string.foryou_card_low_balance_action))
+                    }
+                },
+            )
+        }
+
+        is AlertState.Hidden -> {
+            // Don't show anything
+        }
     }
 }
 
@@ -68,7 +92,7 @@ private fun AlertWidget(
 private fun AlertWidgetPreview() {
     ScreenPreview {
         AlertWidget(
-            state = AlertState.CardAlert(cardId = 123456L, message = "Your card balance is low"),
+            state = AlertState.LowBalance(cardId = 123456L),
             onAlertClicked = {},
         )
     }
