@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.map
 
 import android.Manifest
+import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Icon
@@ -22,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,10 +40,13 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.sloy.debugmenu.launcher.DebugMenuActivity
+import com.sloy.debugmenu.launcher.DebugMenuLauncher
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toLatLng
+import com.sloy.sevibus.feature.debug.SevDebugMenu
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
@@ -149,20 +156,25 @@ private fun MapUI(
                     .padding(contentPadding)
             )
         }
-        LocationButton(
-            locationPermissionState,
-            cameraPositionState,
-            snackbarHostState,
-            locationService,
-            onReject = {
-                shakeAnim.animateShake()
-            },
-            onTrack = onTrack,
+        Column(
             Modifier
-                .zIndex(1f)
+                .padding(contentPadding)
                 .align(Alignment.BottomEnd)
-                .padding(contentPadding),
-        )
+                .zIndex(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            DebugButton()
+            LocationButton(
+                locationPermissionState,
+                cameraPositionState,
+                snackbarHostState,
+                locationService,
+                onReject = {
+                    shakeAnim.animateShake()
+                },
+                onTrack = onTrack,
+            )
+        }
 
         SevMap(
             state = state,
@@ -173,6 +185,22 @@ private fun MapUI(
             contentPadding = contentPadding,
             modifier = Modifier.zIndex(0f)
         )
+    }
+}
+
+@Composable
+private fun DebugButton(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    CustomFab(
+        onClick = {
+            DebugMenuLauncher.launchMenu { SevDebugMenu() }
+            context.startActivity(Intent(context, DebugMenuActivity::class.java))
+        },
+        color = SevTheme.colorScheme.background,
+        contentColor = SevTheme.colorScheme.onSurfaceVariant,
+        size = 38.dp
+    ) {
+        Icon(Icons.Filled.BugReport, "Debug", Modifier.size(16.dp))
     }
 }
 
@@ -258,7 +286,7 @@ private fun MapScreenPreview() {
         MapUI(
             state = MapScreenState.Initial,
             contentPadding = PaddingValues(),
-            cameraPositionState = CameraPositionState(),
+            cameraPositionState = remember { CameraPositionState() },
             snackbarHostState = SnackbarHostState(),
             locationPermissionState = null,
             locationService = NoopLocationService,

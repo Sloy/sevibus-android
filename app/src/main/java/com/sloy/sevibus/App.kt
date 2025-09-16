@@ -33,11 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.sloy.sevibus.modules.tracking.NetworkDebugModuleDataSource
+import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
-import com.sloy.sevibus.feature.debug.http.HttpOverlayLayout
+import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerLayout
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
@@ -55,6 +57,7 @@ import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.theme.SevTheme
+import kotlinx.coroutines.flow.map
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
@@ -69,6 +72,8 @@ fun App() {
         val searchViewModel: SearchViewModel = koinViewModel()
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
+        val networkDebugModuleDataSource = koinInject<NetworkDebugModuleDataSource>()
+        val overlayStateHolder = koinInject<OverlayLoggerStateHolder>()
         val analytics: Analytics = koinInject()
 
         LaunchedEffect(Unit) {
@@ -82,10 +87,14 @@ fun App() {
             appState.sevNavigator.navigateBack()
         }
 
+        LaunchedEffect(Unit) {
+            overlayStateHolder.visibleWhen(networkDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
+        }
+
         val onNavigate: (NavigationDestination) -> Unit = { appState.navigate(it) }
 
         SevTheme {
-            HttpOverlayLayout() {
+            OverlayLoggerLayout(overlayStateHolder) {
                 MapBottomSheetScaffold(
                     currentDestination = currentDestination,
                     onNavigate = onNavigate,
@@ -215,6 +224,7 @@ private fun FullScreenContent(
             initialCardId = destination.cardId,
             onNavigateToHelp = { onNavigate(NavigationDestination.CardsHelp) }
         )
+
         is NavigationDestination.Settings -> SettingsScreen()
         is NavigationDestination.Search -> SearchScreen(
             searchResults, onNavigate, Modifier.padding(top = paddingValues.calculateTopPadding())

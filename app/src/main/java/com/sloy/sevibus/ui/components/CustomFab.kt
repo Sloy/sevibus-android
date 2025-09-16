@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,7 +21,8 @@ fun CustomFab(
     color: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
-    content: @Composable() (BoxScope.() -> Unit)
+    size: Dp = 56.dp,
+    content: @Composable() (BoxScope.() -> Unit),
 ) {
     Surface(
         onClick = onClick,
@@ -30,6 +32,6 @@ fun CustomFab(
         modifier = modifier.semantics { role = Role.Button },
         shape = CircleShape,
     ) {
-        Box(Modifier.defaultMinSize(56.dp, 56.dp), contentAlignment = Alignment.Center, content = content)
+        Box(Modifier.defaultMinSize(size, size), contentAlignment = Alignment.Center, content = content)
     }
 }

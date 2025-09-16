@@ -1,6 +1,8 @@
 package com.sloy.sevibus
 
 import android.app.Application
+import com.sloy.sevibus.presentation.DebugMenuNotification
+import com.sloy.sevibus.feature.debug.DebugDI
 import com.sloy.sevibus.infrastructure.AndroidLogger
 import com.sloy.sevibus.infrastructure.BuildVariantDI
 import com.sloy.sevibus.infrastructure.DI
@@ -14,16 +16,18 @@ import org.koin.core.context.startKoin
 class SevApplication : Application() {
 
     private val remoteConfigService: RemoteConfigService by inject()
-    
+
     override fun onCreate() {
         super.onCreate()
         SevLogger.setLogger(AndroidLogger())
         startKoin {
             androidLogger()
             androidContext(this@SevApplication)
-            modules(DI.viewModelModule, DI.dataModule, DI.infrastructureModule, BuildVariantDI.module)
+            modules(DI.viewModelModule, DI.dataModule, DI.infrastructureModule, BuildVariantDI.module, DebugDI.module)
         }
 
         remoteConfigService.initialize()
+
+        DebugMenuNotification.show(this)
     }
 }
