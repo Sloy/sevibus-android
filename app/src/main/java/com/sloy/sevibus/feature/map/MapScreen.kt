@@ -4,7 +4,6 @@ import android.Manifest
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,15 +69,15 @@ fun MapScreen(
     if (!LocalView.current.isInEditMode) {
         val mapViewModel: MapViewModel = koinViewModel()
         val state by mapViewModel.state.collectAsStateWithLifecycle()
-        MapScreen(state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack)
         val snackbarState = LocalSnackbarHostState.current
+        MapScreen(state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack, snackbarState)
         EventCollector(mapViewModel.events) { event ->
             when (event) {
                 is MapScreenEvent.Error -> snackbarState.showSnackbar(event.message, withDismissAction = true)
             }
         }
     } else {
-        MapScreen(MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { })
+        MapScreen(MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { }, SnackbarHostState())
     }
 }
 
@@ -89,6 +89,7 @@ private fun MapScreen(
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
     onTrack: (SevEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
     val locationPermissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -108,7 +109,17 @@ private fun MapScreen(
         }
     }
 
-    MapUI(state, cameraPositionState, locationPermissionState, locationService, contentPadding, onStopSelected, onMapClick, onTrack)
+    MapUI(
+        state,
+        cameraPositionState,
+        locationPermissionState,
+        snackbarHostState,
+        locationService,
+        contentPadding,
+        onStopSelected,
+        onMapClick,
+        onTrack,
+    )
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -117,6 +128,7 @@ private fun MapUI(
     state: MapScreenState,
     cameraPositionState: CameraPositionState,
     locationPermissionState: PermissionState?,
+    snackbarHostState: SnackbarHostState,
     locationService: LocationService,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
@@ -138,14 +150,18 @@ private fun MapUI(
             )
         }
         LocationButton(
-            locationPermissionState, cameraPositionState, locationService,
+            locationPermissionState,
+            cameraPositionState,
+            snackbarHostState,
+            locationService,
             onReject = {
                 shakeAnim.animateShake()
             },
             onTrack = onTrack,
             Modifier
                 .zIndex(1f)
-                .padding(contentPadding)
+                .align(Alignment.BottomEnd)
+                .padding(contentPadding),
         )
 
         SevMap(
@@ -162,18 +178,18 @@ private fun MapUI(
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-private fun BoxScope.LocationButton(
+private fun LocationButton(
     locationPermissionState: PermissionState?,
     cameraPositionState: CameraPositionState,
+    snackbarState: SnackbarHostState,
     locationService: LocationService,
     onReject: suspend () -> Unit,
     onTrack: (SevEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val hasPermission = locationPermissionState?.status?.isGranted ?: false
     val scope = rememberCoroutineScope()
     val view = LocalView.current
-    val snackbarState = LocalSnackbarHostState.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val location by locationService.requestLocationUpdates().collectAsStateWithLifecycle(null, lifecycle)
     val isCameraInCurrentPosition = location?.toLatLng()?.isApproximatelyEqualTo(cameraPositionState.position.target) == true
@@ -207,7 +223,6 @@ private fun BoxScope.LocationButton(
         color = SevTheme.colorScheme.background,
         contentColor = if (isCameraInCurrentPosition) SevTheme.colorScheme.primary else SevTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
-            .align(Alignment.BottomEnd)
             .padding(16.dp),
     ) {
         Icon(if (isCameraInCurrentPosition) Icons.Filled.MyLocation else Icons.Filled.LocationSearching, "Search Location")
@@ -244,6 +259,7 @@ private fun MapScreenPreview() {
             state = MapScreenState.Initial,
             contentPadding = PaddingValues(),
             cameraPositionState = CameraPositionState(),
+            snackbarHostState = SnackbarHostState(),
             locationPermissionState = null,
             locationService = NoopLocationService,
             onStopSelected = {},
