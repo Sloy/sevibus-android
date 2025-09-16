@@ -13,4 +13,8 @@ interface CardsRepository {
     suspend fun addUserCard(cardResult: CardInfo)
     suspend fun deleteUserCard(card: CardId)
     suspend fun obtainTransactions(cardId: CardId): List<CardTransaction>
+    suspend fun dismissAlertForCards(cardIds: List<CardId>)
+    suspend fun clearDismissedAlert(cardId: CardId)
+    suspend fun getDismissedCardIds(): List<CardId>
+    fun observeDismissedCardIds(): Flow<List<CardId>>
 }

@@ -9,12 +9,13 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [LineEntity::class, LineFtsEntity::class, StopEntity::class, StopFtsEntity::class, RouteEntity::class, PathEntity::class, FavoriteStopEntity::class, CardInfoEntity::class],
-    version = 8,
+    entities = [LineEntity::class, LineFtsEntity::class, StopEntity::class, StopFtsEntity::class, RouteEntity::class, PathEntity::class, FavoriteStopEntity::class, CardInfoEntity::class, DismissedAlertEntity::class],
+    version = 9,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
-        AutoMigration(from = 7, to = 8, spec = PathMigration7To8::class)
+        AutoMigration(from = 7, to = 8, spec = PathMigration7To8::class),
+        AutoMigration(from = 8, to = 9)
     ]
 )
 @TypeConverters(LocalDateTimeConverter::class, StringListConverter::class, IntListConverter::class)

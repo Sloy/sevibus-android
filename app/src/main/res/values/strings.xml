@@ -39,9 +39,11 @@
     <string name="foryou_location_permission_message">Activa los servicios de localización para ver las paradas más cercanas a tu posición.</string>
     <string name="foryou_activate_location">Activar localización</string>
     <string name="foryou_login_with_google">Inicia sesión con Google</string>
-    <string name="foryou_card_low_balance_alert">Tienes un bonobús con poco saldo</string>
-    <string name="foryou_card_negative_balance_alert">Tienes un bonobús con saldo negativo</string>
-    <string name="foryou_card_low_balance_action">Ver</string>
+    <string name="foryou_card_alert_title">Poco saldo</string>
+    <string name="foryou_card_alert_low_balance_description">Tienes un bonobús con poco saldo. Recuerda recargarlo para no quedes sin viajar.</string>
+    <string name="foryou_card_alert_negative_balance_description">Tienes un bonobús con saldo negativo. Recuerda recargarlo para no quedes sin viajar.</string>
+    <string name="foryou_card_alert_action_see">Ver</string>
+    <string name="foryou_card_alert_action_dismiss">Ocultar</string>
 
     <!-- ================== -->
     <!-- Lines Screen -->
@@ -95,7 +97,7 @@
     <string name="cards_error_already_saved">Ya tienes guardada esa tarjeta</string>
     <string name="cards_error_delete">Hubo un error al eliminar la tarjeta, inténtalo más tarde</string>
     <string name="cards_error_reorder">Hubo un error al reordenar las tarjetas, inténtalo más tarde</string>
-    
+
     <!-- Cards Help / FAQ -->
     <string name="cards_help_no_update_title">La información de la tarjeta no se actualiza</string>
     <string name="cards_help_no_update_answer">La información de la tarjeta se actualiza en un plazo de &lt;b&gt;24h&lt;/b&gt;. Por lo tanto sólo verás el saldo y la actividad del día anterior.</string>

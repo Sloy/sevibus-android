@@ -20,12 +20,12 @@ import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
-import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Polyline
-import com.sloy.sevibus.infrastructure.polyline.toPositions
+import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.infrastructure.polyline.toPositions
 import java.time.LocalTime
 
 @Entity(tableName = "stops")
@@ -101,6 +101,11 @@ data class CardInfoEntity(
     val balance: Int? = null,
     val customName: String? = null,
     val order: Int = 0,
+)
+
+@Entity(tableName = "dismissed_alerts")
+data class DismissedAlertEntity(
+    @PrimaryKey val cardId: CardId,
 )
 
 fun LineEntity.fromEntity(routes: List<Route>): Line {

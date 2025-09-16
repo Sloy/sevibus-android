@@ -59,4 +59,22 @@ interface SevibusDao {
         insertAllCards(cards)
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDismissedAlert(alert: DismissedAlertEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDismissedAlerts(alerts: List<DismissedAlertEntity>)
+
+    @Query("SELECT cardId FROM dismissed_alerts")
+    suspend fun getDismissedCardIds(): List<CardId>
+
+    @Query("SELECT cardId FROM dismissed_alerts")
+    fun observeDismissedCardIds(): Flow<List<CardId>>
+
+    @Query("DELETE FROM dismissed_alerts WHERE cardId = :cardId")
+    suspend fun clearDismissedAlert(cardId: CardId)
+
+    @Query("DELETE FROM dismissed_alerts WHERE cardId IN (:cardIds)")
+    suspend fun clearDismissedAlerts(cardIds: List<CardId>)
+
 }

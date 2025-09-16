@@ -53,6 +53,38 @@ fun SurfaceButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
     }
 }
 
+@Composable
+fun SmallSurfaceButton(onClick: () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Button(
+        enabled = true,
+        modifier = modifier,
+        colors = ButtonDefaults.outlinedButtonColors().copy(
+            containerColor = SevTheme.colorScheme.outlineVariant,
+            contentColor = SevTheme.colorScheme.onSurfaceVariant
+        ),
+        onClick = onClick,
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun SmallSurfaceButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: @Composable (() -> Unit)? = null) {
+    SmallSurfaceButton(onClick, modifier) {
+        if (icon != null) {
+            icon()
+            Spacer(Modifier.width(4.dp))
+        }
+        Text(
+            color = SevTheme.colorScheme.onSurface,
+            text = text,
+            style = SevTheme.typography.bodySmallBold,
+            modifier = Modifier,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun TextPreview() {
@@ -70,6 +102,24 @@ private fun IconPreview() {
     SevTheme {
         Box(Modifier.padding(16.dp)) {
             SurfaceButton("Hello world", {}, icon = {
+                Icon(
+                    Icons.Default.LocationOn,
+                    tint = SevTheme.colorScheme.primary,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+            })
+        }
+
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SmallIconPreview() {
+    SevTheme {
+        Box(Modifier.padding(16.dp)) {
+            SmallSurfaceButton("Hello world", {}, icon = {
                 Icon(
                     Icons.Default.LocationOn,
                     tint = SevTheme.colorScheme.primary,

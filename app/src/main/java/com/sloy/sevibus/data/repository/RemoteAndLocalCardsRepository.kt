@@ -4,6 +4,7 @@ import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
+import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toDto
@@ -120,6 +121,29 @@ class RemoteAndLocalCardsRepository(
         return api.getCardTransactions(cardId).mapNotNull { it.fromDto(lines) }
     }
 
+    override suspend fun dismissAlertForCards(cardIds: List<CardId>) {
+        val cards = sevibusDao.getCards()
+
+        val dismissedAlerts = cardIds.mapNotNull { cardId ->
+            val card = cards.find { it.serialNumber == cardId }
+            card?.let { DismissedAlertEntity(cardId = cardId) }
+        }
+
+        sevibusDao.insertDismissedAlerts(dismissedAlerts)
+    }
+
+    override suspend fun clearDismissedAlert(cardId: CardId) {
+        sevibusDao.clearDismissedAlert(cardId)
+    }
+
+    override suspend fun getDismissedCardIds(): List<CardId> {
+        return sevibusDao.getDismissedCardIds()
+    }
+
+    override fun observeDismissedCardIds(): Flow<List<CardId>> {
+        return sevibusDao.observeDismissedCardIds()
+    }
+
     private suspend fun updateAnonymousCards() {
         val cards = sevibusDao.getCards()
         cards.forEach { card ->
@@ -130,6 +154,12 @@ class RemoteAndLocalCardsRepository(
                     type = remoteCard.type,
                 )
                 if (updated != card) {
+                    // Check if balance changed from below threshold to above threshold
+                    val oldBalance = card.balance ?: 0
+                    val newBalance = updated.balance ?: 0
+                    if (oldBalance < 300 && newBalance >= 300) {
+                        sevibusDao.clearDismissedAlert(card.serialNumber)
+                    }
                     sevibusDao.putCard(updated)
                 }
             }
@@ -147,6 +177,19 @@ class RemoteAndLocalCardsRepository(
             }
             missingFromRemote.forEach { local ->
                 userApi.addUpdateUserCard(local.serialNumber, local.toDto())
+            }
+
+            // Check for balance changes that should clear dismissed alerts
+            val localCardMap = localCards.associateBy { it.serialNumber }
+            remoteCards.forEach { remoteCard ->
+                val localCard = localCardMap[remoteCard.serialNumber]
+                if (localCard != null) {
+                    val oldBalance = localCard.balance ?: 0
+                    val newBalance = remoteCard.balance ?: 0
+                    if (oldBalance < 300 && newBalance >= 300) {
+                        sevibusDao.clearDismissedAlert(remoteCard.serialNumber)
+                    }
+                }
             }
 
             sevibusDao.insertAllCards(remoteCards.map { it.toEntity() })
