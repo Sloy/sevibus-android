@@ -63,12 +63,12 @@ private fun ForYouScreen(
 
         val view = LocalView.current
         SegmentedControl(
+            options = listOf(stringResource(R.string.foryou_tab_favorites), stringResource(R.string.foryou_tab_nearby)),
+            selectedIndex = selectedIndex,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
                 .padding(16.dp),
-            options = listOf(stringResource(R.string.foryou_tab_favorites), stringResource(R.string.foryou_tab_nearby)),
-            selectedIndex = selectedIndex,
             onOptionSelected = {
                 onTabSelected(it)
                 view.performHapticSegmentTick()

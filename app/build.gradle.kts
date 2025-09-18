@@ -139,9 +139,13 @@ dependencies {
 
     implementation(libs.inAppUpdateCompose.material)
 
+    debugImplementation(project(":debug-menu"))
+    releaseImplementation(project(":debug-menu-noop"))
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation(libs.chucker)
+
 
     testImplementation(libs.junit)
     testImplementation(libs.strikt)

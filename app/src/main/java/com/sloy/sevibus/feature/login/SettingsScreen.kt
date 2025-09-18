@@ -84,7 +84,6 @@ import coil.compose.AsyncImage
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.LoggedUser
-import com.sloy.sevibus.feature.debug.http.HttpOverlayState
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSelectorBottomSheet
@@ -251,27 +250,11 @@ fun SettingsScreen(
                     SettingsSection(stringResource(R.string.settings_debug_menu)) {
                         val coroutineScope = rememberCoroutineScope()
                         val firebaseService = koinInjectOnUI<FirebaseAuthService>()
-                        val httpOverlayState = koinInjectOnUI<HttpOverlayState>()
                         SettingsItem(
                             title = stringResource(R.string.settings_firebase_logout),
                             subtitle = stringResource(R.string.settings_firebase_logout_description),
                             leadingIcon = Icons.Outlined.LocalFireDepartment,
                             onClick = { coroutineScope.launch { firebaseService?.signOut() } },
-                        )
-                        DebugLocationSetting()
-                        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                        SettingsItem(
-                            title = stringResource(R.string.settings_show_requests),
-                            subtitle = stringResource(R.string.settings_show_requests_description),
-                            leadingIcon = Icons.Outlined.Http,
-                            onClick = { httpOverlayState?.setVisibility(!httpOverlayState.isVisible) },
-                            endComponent = {
-                                Switch(
-                                    checked = httpOverlayState?.isVisible == true,
-                                    onCheckedChange = { httpOverlayState?.setVisibility(it) },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
-                            }
                         )
                     }
                 }
@@ -309,7 +292,11 @@ fun SettingsScreen(
                                     SettingsItem(stringResource(R.string.settings_timestamp), it, Icons.Outlined.AccessTime)
                                 }
                                 uptime?.let {
-                                    SettingsItem(stringResource(R.string.settings_uptime), stringResource(R.string.settings_uptime_seconds, it), Icons.Outlined.Timer)
+                                    SettingsItem(
+                                        stringResource(R.string.settings_uptime),
+                                        stringResource(R.string.settings_uptime_seconds, it),
+                                        Icons.Outlined.Timer
+                                    )
                                 }
                             }
                         }

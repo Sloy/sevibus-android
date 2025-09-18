@@ -3,18 +3,19 @@ package com.sloy.sevibus.infrastructure.location
 import android.location.Location
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Position
-import com.sloy.sevibus.feature.debug.LocationDebugModule
+import com.sloy.sevibus.feature.debug.location.LocationDebugModuleDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 
-class DebugLocationService(val locationService: LocationService) : LocationService {
-    val state = LocationDebugModule.locationState
+class DebugLocationService(
+    private val locationService: LocationService,
+    private val locationDebugModuleDataSource: LocationDebugModuleDataSource
+) : LocationService {
 
     override fun requestLocationUpdates(): Flow<Location> {
         return locationService.requestLocationUpdates()
-            .combine(state) { location, debugLocationState ->
-                if (debugLocationState.isFakeLocation) {
+            .combine(locationDebugModuleDataSource.observeCurrentState()) { location, debugLocationState ->
+                if (debugLocationState.isFakeLocationEnabled) {
                     location.setCoordinates(Stubs.locationTriana)
                 } else {
                     location
@@ -24,9 +25,9 @@ class DebugLocationService(val locationService: LocationService) : LocationServi
     }
 
     override suspend fun obtainCurrentLocation(): Location? {
-        val debugLocationState = state.first()
+        val debugLocationState = locationDebugModuleDataSource.getCurrentState()
         return locationService.obtainCurrentLocation()?.let {
-            if (debugLocationState.isFakeLocation) {
+            if (debugLocationState.isFakeLocationEnabled) {
                 it.setCoordinates(Stubs.locationTriana)
             } else {
                 it
