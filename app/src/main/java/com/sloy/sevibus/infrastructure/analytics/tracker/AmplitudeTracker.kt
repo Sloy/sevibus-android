@@ -71,7 +71,7 @@ class AmplitudeTracker(
     ): Amplitude = Amplitude(
         Configuration(
             context = context,
-            apiKey = if (BuildVariant.isRelease()) PROD_PUBIC_KEY else DEV_PUBIC_KEY,
+            apiKey = if (BuildVariant.isRelease()) PROD_PUBLIC_KEY else DEV_PUBLIC_KEY,
             autocapture = setOf(
                 AutocaptureOption.SESSIONS,
                 AutocaptureOption.APP_LIFECYCLES,
@@ -92,8 +92,8 @@ class AmplitudeTracker(
     }
 
     private companion object {
-        const val DEV_PUBIC_KEY = "d80b706ae22f1b16240ea9321eaed101"
-        const val PROD_PUBIC_KEY = "314a40d0364157fd867f887e44327af4"
+        const val DEV_PUBLIC_KEY = "d80b706ae22f1b16240ea9321eaed101"
+        const val PROD_PUBLIC_KEY = "314a40d0364157fd867f887e44327af4"
         const val DEV_FLUSH_INTERVAL = 5_000
         const val PROD_FLUSH_INTERVAL = 30_000
 
