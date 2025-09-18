@@ -1,7 +1,6 @@
-package com.sloy.sevibus.feature.debug.network.overlay
+package com.sloy.debugmenu.overlay
 
 import androidx.annotation.VisibleForTesting
-import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

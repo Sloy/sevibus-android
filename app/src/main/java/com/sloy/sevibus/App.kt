@@ -39,7 +39,7 @@ import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
-import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerLayout
+import com.sloy.debugmenu.overlay.OverlayLoggerLayout
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen

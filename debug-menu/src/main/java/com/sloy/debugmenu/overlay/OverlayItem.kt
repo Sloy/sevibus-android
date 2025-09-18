@@ -1,4 +1,4 @@
-package com.sloy.sevibus.feature.debug.network.overlay
+package com.sloy.debugmenu.overlay
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

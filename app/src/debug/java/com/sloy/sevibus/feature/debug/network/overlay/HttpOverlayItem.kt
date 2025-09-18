@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.debug.network.overlay
 
 import androidx.compose.foundation.background
+import com.sloy.debugmenu.overlay.OverlayItem
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

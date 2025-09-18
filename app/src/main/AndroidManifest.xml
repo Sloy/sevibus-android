@@ -43,8 +43,6 @@
                 android:name="android.nfc.action.TECH_DISCOVERED"
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
-        <activity android:name="com.sloy.sevibus.com.sloy.debugmenu.launcher.DebugMenuActivity"
-            android:theme="@style/Theme.SeviBus4.Translucent"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

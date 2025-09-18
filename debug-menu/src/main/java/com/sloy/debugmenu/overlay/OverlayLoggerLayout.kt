@@ -1,4 +1,4 @@
-package com.sloy.sevibus.feature.debug.network.overlay
+package com.sloy.debugmenu.overlay
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 
 /**
  * This is the actual overlay layout containing the items that are currently displayed on screen.

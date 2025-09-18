@@ -2,7 +2,6 @@ package com.sloy.sevibus.modules.tracking
 
 import androidx.lifecycle.ViewModel
 import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
-import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerStateHolderImpl
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable

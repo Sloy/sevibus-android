@@ -1,6 +1,5 @@
 package com.sloy.debugmenu.overlay
 
-import com.sloy.sevibus.feature.debug.network.overlay.OverlayItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 

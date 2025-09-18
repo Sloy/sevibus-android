@@ -6,7 +6,7 @@ import com.sloy.debugmenu.base.DebugMenuViewModel
 import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 import com.sloy.sevibus.feature.debug.location.LocationDebugModuleDataSource
 import com.sloy.sevibus.feature.debug.location.LocationDebugModuleViewModel
-import com.sloy.sevibus.feature.debug.network.overlay.OverlayLoggerStateHolderImpl
+import com.sloy.debugmenu.overlay.OverlayLoggerStateHolderImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
