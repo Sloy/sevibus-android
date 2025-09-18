@@ -2,7 +2,7 @@ package com.sloy.sevibus.infrastructure.reviews.domain
 
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
-import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,12 +40,10 @@ class InAppReviewHappyMomentService(
     }
 
     init {
-        // TODO: Implement logic to select which criteria to use
-        // For now, use the first criteria if available
         if (criteriaList.isEmpty()) {
             SevLogger.logW(msg = "No happy moment criteria found")
         } else {
-            val criteria = criteriaList.find { it is ReturningUserCriteria }
+            val criteria = criteriaList.find { it is ReturningUserWithFavoritesCriteria }
             if (criteria == null) {
                 SevLogger.logW(msg = "No returning user criteria found in $criteriaList")
             }
