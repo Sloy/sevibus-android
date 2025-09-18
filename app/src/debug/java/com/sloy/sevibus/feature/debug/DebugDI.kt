@@ -18,7 +18,7 @@ object DebugDI {
         viewModel { DebugMenuViewModel() }
         viewModel { NetworkDebugModuleViewModel(get(), get()) }
         viewModel { LocationDebugModuleViewModel(get()) }
-        viewModel { InAppReviewDebugModuleViewModel(get()) }
+        viewModel { InAppReviewDebugModuleViewModel(get(), get()) }
         single { NetworkDebugModuleDataSource(androidContext()) }
         single { LocationDebugModuleDataSource(androidContext()) }
         single { InAppReviewDebugModuleDataSource(androidContext()) }

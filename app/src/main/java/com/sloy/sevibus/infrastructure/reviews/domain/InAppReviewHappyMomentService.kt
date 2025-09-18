@@ -1,5 +1,6 @@
 package com.sloy.sevibus.infrastructure.reviews.domain
 
+import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 /**
  * Service that manages multiple happy moment criteria for A/B testing.
@@ -25,7 +27,7 @@ import kotlinx.coroutines.flow.combine
  */
 class InAppReviewHappyMomentService(
     private val criteriaList: List<HappyMomentCriteria>,
-    private val debugDataSource: com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
+    private val debugDataSource: InAppReviewDebugModuleDataSource
 ) {
 
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -47,6 +49,15 @@ class InAppReviewHappyMomentService(
         ) { criteriaResult, debugState ->
             criteriaResult && debugState.isInAppReviewEnabled
         }.stateIn(backgroundScope, SharingStarted.Eagerly, false)
+    }
+
+    /**
+     * Exposes the name of the currently active criteria, or null if no criteria is active.
+     */
+    fun observeActiveCriteriaName(): StateFlow<String?> {
+        return activeCriteria.map { criteria ->
+            criteria?.name
+        }.stateIn(backgroundScope, SharingStarted.Eagerly, null)
     }
 
     init {

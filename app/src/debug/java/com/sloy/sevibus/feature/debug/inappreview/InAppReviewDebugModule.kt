@@ -3,7 +3,9 @@ package com.sloy.sevibus.feature.debug.inappreview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -40,6 +42,14 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                 onClick = { onInAppReviewEnabledChanged(!state.isInAppReviewEnabled) }
             ) {
                 Switch(checked = state.isInAppReviewEnabled, onCheckedChange = { onInAppReviewEnabledChanged(it) })
+            }
+
+            state.activeCriteriaName?.let { criteriaName ->
+                Text(
+                    text = "Active criteria: $criteriaName",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

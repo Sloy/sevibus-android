@@ -5,4 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class InAppReviewDebugModuleState(
     val isInAppReviewEnabled: Boolean = true,
+    val activeCriteriaName: String? = null,
 )
