@@ -92,8 +92,8 @@ class AmplitudeTracker(
     }
 
     private companion object {
-        const val DEV_PUBIC_KEY = "3850b1abe822f3a889751f845f401b15"
-        const val PROD_PUBIC_KEY = ""
+        const val DEV_PUBIC_KEY = "d80b706ae22f1b16240ea9321eaed101"
+        const val PROD_PUBIC_KEY = "314a40d0364157fd867f887e44327af4"
         const val DEV_FLUSH_INTERVAL = 5_000
         const val PROD_FLUSH_INTERVAL = 30_000
 
