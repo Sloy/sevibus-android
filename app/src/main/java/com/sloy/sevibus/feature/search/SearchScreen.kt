@@ -29,6 +29,9 @@ import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.description1
 import com.sloy.sevibus.domain.model.description2
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.icons.SevIcons
@@ -38,10 +41,18 @@ import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
 fun SearchScreen(results: List<SearchResult>, onNavigate: (NavigationDestination) -> Unit, modifier: Modifier = Modifier) {
+    val analytics: Analytics? = koinInjectOnUI()
     SearchResultsContent(results, modifier) { searchResult ->
         when (searchResult) {
-            is SearchResult.LineResult -> onNavigate(NavigationDestination.LineStops(searchResult.line.id))
-            is SearchResult.StopResult -> onNavigate(NavigationDestination.StopDetail(searchResult.stop.code))
+            is SearchResult.LineResult -> {
+                onNavigate(NavigationDestination.LineStops(searchResult.line.id))
+                analytics?.track(Clicks.SearchResultLineClicked(searchResult.line.id))
+            }
+
+            is SearchResult.StopResult -> {
+                onNavigate(NavigationDestination.StopDetail(searchResult.stop.code))
+                analytics?.track(Clicks.SearchResultStopClicked(searchResult.stop.code))
+            }
         }
     }
 }

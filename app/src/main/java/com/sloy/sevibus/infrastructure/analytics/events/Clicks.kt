@@ -1,5 +1,7 @@
 package com.sloy.sevibus.infrastructure.analytics.events
 
+import com.sloy.sevibus.domain.model.LineId
+import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 
 interface Clicks {
@@ -62,6 +64,14 @@ interface Clicks {
 
     data object CardAlertViewClicked : SevEvent(
         "Card Alert View Clicked"
+    )
+
+    data class SearchResultLineClicked(val lineId: LineId) : SevEvent(
+        "Search Result Line Clicked", "lineId" to lineId
+    )
+
+    data class SearchResultStopClicked(val stopId: StopId) : SevEvent(
+        "Search Result Stop Clicked", "stopId" to stopId
     )
 
 }
