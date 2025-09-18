@@ -189,9 +189,10 @@ private fun MapUI(
 
 @Composable
 private fun DebugButton(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     CustomFab(
         onClick = {
-            DebugMenuLauncher.launchMenu { SevDebugMenu() }
+            DebugMenuLauncher.launchMenu(context) { SevDebugMenu() }
         },
         color = SevTheme.colorScheme.background,
         contentColor = SevTheme.colorScheme.onSurfaceVariant,

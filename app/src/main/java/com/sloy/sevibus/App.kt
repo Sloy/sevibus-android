@@ -40,6 +40,7 @@ import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
 import com.sloy.debugmenu.overlay.OverlayLoggerLayout
+import com.sloy.sevibus.feature.debug.tracking.TrackingDebugModuleDataSource
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
@@ -73,6 +74,7 @@ fun App() {
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
         val networkDebugModuleDataSource = koinInject<NetworkDebugModuleDataSource>()
+        val trackingDebugModuleDataSource = koinInject<TrackingDebugModuleDataSource>()
         val overlayStateHolder = koinInject<OverlayLoggerStateHolder>()
         val analytics: Analytics = koinInject()
 
@@ -89,6 +91,7 @@ fun App() {
 
         LaunchedEffect(Unit) {
             overlayStateHolder.visibleWhen(networkDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
+            overlayStateHolder.visibleWhen(trackingDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
         }
 
         val onNavigate: (NavigationDestination) -> Unit = { appState.navigate(it) }

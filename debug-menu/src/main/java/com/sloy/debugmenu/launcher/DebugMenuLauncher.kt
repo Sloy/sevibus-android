@@ -1,13 +1,16 @@
 package com.sloy.debugmenu.launcher
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 
 object DebugMenuLauncher {
 
     internal var menuContainer: MenuContainer? = null
 
-    fun launchMenu(menu: @Composable () -> Unit) {
+    fun launchMenu(context: Context, menu: @Composable () -> Unit) {
         menuContainer = MenuContainer(menu)
+        context.startActivity(Intent(context, DebugMenuActivity::class.java))
     }
 }
 

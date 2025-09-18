@@ -1,13 +1,20 @@
 package com.sloy.sevibus.feature.debug.network.overlay
 
 import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
+import com.sloy.sevibus.modules.tracking.NetworkDebugModuleDataSource
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
 
-class HttpOverlayInterceptor(private val overlayLoggerStateHolder: OverlayLoggerStateHolder) : Interceptor {
+class HttpOverlayInterceptor(
+    private val trackingModuleDataSource: NetworkDebugModuleDataSource,
+    private val overlayLoggerStateHolder: OverlayLoggerStateHolder
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
+        if (!trackingModuleDataSource.getCurrentState().isOverlayEnabled) {
+            return chain.proceed(request)
+        }
         val item = HttpOverlayItem(
             method = request.method,
             endpoint = request.url.encodedPath
