@@ -3,6 +3,7 @@ package com.sloy.sevibus.infrastructure.reviews.domain
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,9 +65,12 @@ class InAppReviewHappyMomentService(
         if (criteriaList.isEmpty()) {
             SevLogger.logW(msg = "No happy moment criteria found")
         } else {
-            val criteria = criteriaList.find { it is ReturningUserWithFavoritesCriteria }
+            // For now, prefer the new AddingFavoriteCriteria, but fallback to ReturningUserWithFavoritesCriteria
+            val criteria = criteriaList.find { it is AddingFavoriteCriteria }
+                ?: criteriaList.find { it is ReturningUserWithFavoritesCriteria }
+
             if (criteria == null) {
-                SevLogger.logW(msg = "No returning user criteria found in $criteriaList")
+                SevLogger.logW(msg = "No suitable criteria found in $criteriaList")
             }
             activeCriteria.value = criteria
         }

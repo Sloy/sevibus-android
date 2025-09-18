@@ -67,6 +67,7 @@ import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.reviews.domain.AppStartTrackingDataSource
 import com.sloy.sevibus.infrastructure.reviews.domain.HappyMomentCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewHappyMomentService
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AlwaysTrueCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
@@ -218,6 +219,7 @@ object DI {
 
         single { ReturningUserCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
+        single { AddingFavoriteCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
         single<InAppReviewHappyMomentService> { InAppReviewHappyMomentService(getAll<HappyMomentCriteria>(), get()) }
         single<InAppReviewManager> {
