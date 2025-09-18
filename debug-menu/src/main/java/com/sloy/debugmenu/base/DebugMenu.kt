@@ -170,7 +170,7 @@ fun DebugMenuScope.DebugModule(
 }
 
 /**
- * This scope allows the [DebugModue] composable to coordinate the expanded state with the parent [DebugMenu].
+ * This scope allows the [DebugModule] composable to coordinate the expanded state with the parent [DebugMenu].
  */
 interface DebugMenuScope {
     fun onExpandedChanged(module: String, expanded: Boolean)
