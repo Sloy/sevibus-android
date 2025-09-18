@@ -6,16 +6,22 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-
-class AlertViewModel(private val cardsRepository: CardsRepository) : ViewModel() {
-
+class AlertViewModel(
+    private val cardsRepository: CardsRepository,
+    private val analytics: Analytics,
+) : ViewModel() {
 
     val state: StateFlow<AlertState> = combine(
         cardsRepository.observeUserCards(),
@@ -24,8 +30,9 @@ class AlertViewModel(private val cardsRepository: CardsRepository) : ViewModel()
 
         clearDismissedAlertsWithHighBalance(cards, dismissedCardIds)
 
-        val lowBalanceCards = cards.filterLowBalance()
-        val cardsWithAlerts = lowBalanceCards.filterNot { it.serialNumber in dismissedCardIds }
+        val cardsWithAlerts = cards
+            .filterLowBalance()
+            .filterNot { it.serialNumber in dismissedCardIds }
 
         cardsWithAlerts
             .firstOrNull()
@@ -35,14 +42,22 @@ class AlertViewModel(private val cardsRepository: CardsRepository) : ViewModel()
                     else -> AlertState.LowBalance(card.serialNumber)
                 }
             } ?: AlertState.Hidden
-    }.catch { error ->
-        SevLogger.logW(error, "Error observing card balances")
-        emit(AlertState.Hidden)
-    }.stateIn(
-        scope = viewModelScope,
-        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-        initialValue = AlertState.Hidden
-    )
+    }
+        .distinctUntilChanged()
+        .onEach { state ->
+            if (state is AlertState.LowBalance) {
+                onTrack(Events.CardAlertDisplayed("low"))
+            } else if (state is AlertState.NegativeBalance) {
+                onTrack(Events.CardAlertDisplayed("negative"))
+            }
+        }.catch { error ->
+            SevLogger.logW(error, "Error observing card balances")
+            emit(AlertState.Hidden)
+        }.stateIn(
+            scope = viewModelScope,
+            started = WhileSubscribed(5000),
+            initialValue = AlertState.Hidden
+        )
 
     fun onDismissAlert() {
         viewModelScope.launch {
@@ -55,6 +70,10 @@ class AlertViewModel(private val cardsRepository: CardsRepository) : ViewModel()
                 SevLogger.logW(error, "Error dismissing alert")
             }
         }
+    }
+
+    fun onTrack(event: SevEvent) {
+        analytics.track(event)
     }
 
     private fun List<CardInfo>.filterLowBalance(): List<CardInfo> = filter { it.balance != null && it.balance < BALANCE_THRESHOLD }

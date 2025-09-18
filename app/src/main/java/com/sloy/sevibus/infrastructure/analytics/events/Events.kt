@@ -10,5 +10,10 @@ interface Events {
     data object AppUpdateAvailable : SevEvent(
         "App Update Available"
     )
+
+    data class CardAlertDisplayed(val balanceType: String) : SevEvent(
+        "Card Alert Displayed",
+        "balanceType" to balanceType
+    )
 }
 

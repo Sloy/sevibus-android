@@ -55,4 +55,13 @@ interface Clicks {
     data class ForYouTabClicked(val tab: String) : SevEvent(
         "For You Tab Clicked", "tab" to tab
     )
+
+    data object CardAlertDismissClicked : SevEvent(
+        "Card Alert Dismiss Clicked"
+    )
+
+    data object CardAlertViewClicked : SevEvent(
+        "Card Alert View Clicked"
+    )
+
 }

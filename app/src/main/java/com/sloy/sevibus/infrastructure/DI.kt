@@ -91,7 +91,7 @@ object DI {
         viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
         viewModel { EditFavoritesViewModel(get(), get()) }
         viewModel { ForYouViewModel(get()) }
-        viewModel { AlertViewModel(get()) }
+        viewModel { AlertViewModel(get(), get()) }
         viewModel { SearchViewModel(get(), get(), get()) }
         viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }

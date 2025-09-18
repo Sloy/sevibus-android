@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.CardId
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.components.SmallSurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -37,8 +38,14 @@ fun AlertWidget(onAlertClicked: (CardId) -> Unit) {
         val state by viewModel.state.collectAsStateWithLifecycle()
         AlertWidget(
             state = state,
-            onAlertClicked = onAlertClicked,
-            onDismissAlert = viewModel::onDismissAlert
+            onAlertClicked = { cardId ->
+                viewModel.onTrack(Clicks.CardAlertViewClicked)
+                onAlertClicked(cardId)
+            },
+            onDismissAlert = {
+                viewModel.onTrack(Clicks.CardAlertDismissClicked)
+                viewModel.onDismissAlert()
+            }
         )
     } else {
         AlertWidget(
