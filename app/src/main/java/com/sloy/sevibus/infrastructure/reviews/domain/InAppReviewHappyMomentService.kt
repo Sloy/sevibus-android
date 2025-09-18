@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 
 /**
  * Service that manages multiple happy moment criteria for A/B testing.
@@ -23,7 +24,8 @@ import kotlinx.coroutines.flow.stateIn
  * implemented based on A/B testing requirements.
  */
 class InAppReviewHappyMomentService(
-    private val criteriaList: List<HappyMomentCriteria>
+    private val criteriaList: List<HappyMomentCriteria>,
+    private val debugDataSource: com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
 ) {
 
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -31,11 +33,19 @@ class InAppReviewHappyMomentService(
 
     /**
      * Exposes `true` when the active criteria's conditions are met and we should ask the user for a review.
+     * The debug setting can override this to always return false when in-app reviews are disabled.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeHappyMoment(): StateFlow<Boolean> {
-        return activeCriteria.flatMapLatest { criteria ->
+        val criteriaFlow = activeCriteria.flatMapLatest { criteria ->
             criteria?.observeHappyMoment() ?: flowOf(false)
+        }
+
+        return combine(
+            criteriaFlow,
+            debugDataSource.observeCurrentState()
+        ) { criteriaResult, debugState ->
+            criteriaResult && debugState.isInAppReviewEnabled
         }.stateIn(backgroundScope, SharingStarted.Eagerly, false)
     }
 

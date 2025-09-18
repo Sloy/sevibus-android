@@ -219,7 +219,7 @@ object DI {
         single { ReturningUserCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
         single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
-        single<InAppReviewHappyMomentService> { InAppReviewHappyMomentService(getAll<HappyMomentCriteria>()) }
+        single<InAppReviewHappyMomentService> { InAppReviewHappyMomentService(getAll<HappyMomentCriteria>(), get()) }
         single<InAppReviewManager> {
             if (BuildVariant.isDebug()) {
                 FakeInAppReviewManager()
