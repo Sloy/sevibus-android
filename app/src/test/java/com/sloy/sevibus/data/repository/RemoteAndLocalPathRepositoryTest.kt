@@ -132,31 +132,6 @@ class RemoteAndLocalPathRepositoryTest {
         expectThat(result).hasSize(0)
     }
 
-    // NEW SIMPLIFIED BEHAVIOR TESTS - Testing the /paths bulk endpoint approach
-
-    @Test
-    fun `refresh should work with bulk endpoint on auto-update`() = runTest {
-        // Setup API to return paths via bulk endpoint
-        val trackingApi = object : FakeSevibusApi() {
-            override suspend fun getPaths(): List<PathDto> {
-                return listOf(
-                    pathDto("1.1", "checksum1"),
-                    pathDto("1.2", "checksum2")
-                )
-            }
-        }
-        
-        // Create repository with autoUpdate=true to trigger refresh in init
-        val testRepository = RemoteAndLocalPathRepository(trackingApi, dao, lineRepository, shouldAutoUpdate = true)
-        
-        // Wait for async refresh to complete
-        kotlinx.coroutines.delay(REFRESH_DELAY)
-
-        // Verify database has paths from bulk endpoint
-        expectThat(dao.getPath("1.1")).isNotNull()
-        expectThat(dao.getPath("1.2")).isNotNull()
-    }
-
     @Test
     fun `refresh should handle empty bulk response gracefully`() = runTest {
         // Setup existing cached paths

@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_open_enter.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_open_enter.xml"
+    },
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_close_enter.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_close_enter.xml"
+    },
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_fade_enter.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_fade_enter.xml"
+    },
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_close_exit.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_close_exit.xml"
+    },
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_open_exit.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_open_exit.xml"
+    },
+    {
+        "merged": "com.sloy.debugmenu.debug-menu-release-47:/animator/fragment_fade_exit.xml",
+        "source": "com.sloy.debugmenu.debug-menu-fragment-1.5.4-4:/animator/fragment_fade_exit.xml"
+    }
+]

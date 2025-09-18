@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml:2:13-83
+INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml:2:13-83
+	package
+		INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml
+	xmlns:android
+		ADDED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml:2:23-81
+uses-sdk
+INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml reason: use-sdk injection requested
+INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml
+INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml
+	android:targetSdkVersion
+		INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml
+	android:minSdkVersion
+		INJECTED from /Users/rafa.vazquez/ShadowMosses/sevibus/sevibus-android/debug-menu-noop/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest17991467814884741908.xml

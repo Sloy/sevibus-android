@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.sloy.debugmenu.debug-menu-mergeReleaseResources-45:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/rafa.vazquez/.gradle/caches/8.13/transforms/6c0347d8bf0dcc6bae8385f425f896fd/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.sloy.debugmenu.debug-menu-release-47:/values-v30/values-v30.xml",
+            "map": [
+                {
+                    "source": "/Users/rafa.vazquez/.gradle/caches/8.13/transforms/6c0347d8bf0dcc6bae8385f425f896fd/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "72",
+                        "endOffsets": "123"
+                    }
+                }
+            ]
+        }
+    ]
+}
