@@ -1,7 +1,6 @@
 package com.sloy.sevibus
 
 import android.app.Application
-import com.sloy.sevibus.presentation.DebugMenuNotification
 import com.sloy.sevibus.feature.debug.DebugDI
 import com.sloy.sevibus.infrastructure.AndroidLogger
 import com.sloy.sevibus.infrastructure.BuildVariantDI
@@ -27,7 +26,5 @@ class SevApplication : Application() {
         }
 
         remoteConfigService.initialize()
-
-        DebugMenuNotification.show(this)
     }
 }

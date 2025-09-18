@@ -40,7 +40,6 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.sloy.debugmenu.launcher.DebugMenuActivity
 import com.sloy.debugmenu.launcher.DebugMenuLauncher
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Stop
@@ -190,11 +189,9 @@ private fun MapUI(
 
 @Composable
 private fun DebugButton(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
     CustomFab(
         onClick = {
             DebugMenuLauncher.launchMenu { SevDebugMenu() }
-            context.startActivity(Intent(context, DebugMenuActivity::class.java))
         },
         color = SevTheme.colorScheme.background,
         contentColor = SevTheme.colorScheme.onSurfaceVariant,
