@@ -26,7 +26,7 @@ class AmplitudeTracker(
     private val sessionService: SessionService,
 ) : Tracker {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val amplitude = CompletableDeferred<Amplitude>()
 
     init {

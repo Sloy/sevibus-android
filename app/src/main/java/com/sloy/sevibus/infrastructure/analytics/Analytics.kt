@@ -9,7 +9,7 @@ class Analytics(
     private val trackers: List<Tracker>,
     private val analyticsSettingsDataSource: AnalyticsSettingsDataSource
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     fun track(event: SevEvent) {
         scope.launch {

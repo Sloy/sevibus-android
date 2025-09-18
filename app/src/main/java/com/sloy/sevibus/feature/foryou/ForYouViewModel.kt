@@ -1,14 +1,12 @@
 package com.sloy.sevibus.feature.foryou
 
 import androidx.lifecycle.ViewModel
+import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
-import com.sloy.sevibus.infrastructure.analytics.Tracker
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class ForYouViewModel(
-    private val tracker: Tracker,
-) : ViewModel() {
+class ForYouViewModel(private val analytics: Analytics) : ViewModel() {
 
     val selectedTabIndex = MutableStateFlow(0)
 
@@ -25,6 +23,6 @@ class ForYouViewModel(
     }
 
     fun onTrack(event: SevEvent) {
-        tracker.track(event)
+        analytics.track(event)
     }
 }
