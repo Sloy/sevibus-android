@@ -48,7 +48,10 @@ fun DebugMenuScope.InAppReviewDebugModule() {
             InAppReviewDebugModuleState(
                 activeCriteriaName = "Adding favorite",
                 availableCriteria = listOf("Adding favorite", "Returning user with favorites", "Returning user", "Always true"),
-                selectedDebugCriteriaName = "Always true"
+                selectedDebugCriteriaName = "Always true",
+                favoritesCount = 3,
+                appOpensCount = 7,
+                isUserLoggedIn = true
             )
         )
         return
@@ -146,6 +149,43 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = "Current Conditions",
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Favorites:", style = MaterialTheme.typography.bodySmall)
+                            Text("${state.favoritesCount}", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("App opens (30d):", style = MaterialTheme.typography.bodySmall)
+                            Text("${state.appOpensCount}", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("User logged in:", style = MaterialTheme.typography.bodySmall)
+                            Text(if (state.isUserLoggedIn) "Yes" else "No", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                 }
             }
         }

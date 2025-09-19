@@ -13,4 +13,7 @@ data class InAppReviewDebugModuleState(
     val activeCriteriaName: String? = null,
     val availableCriteria: List<String> = emptyList(),
     val selectedDebugCriteriaName: String? = null,
+    val favoritesCount: Int = 0,
+    val appOpensCount: Int = 0,
+    val isUserLoggedIn: Boolean = false,
 )
