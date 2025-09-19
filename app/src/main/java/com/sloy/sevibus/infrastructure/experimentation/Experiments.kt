@@ -2,9 +2,13 @@ package com.sloy.sevibus.infrastructure.experimentation
 
 import android.app.Application
 import android.content.Context
+import coil.util.CoilUtils.result
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.session.SessionService
+import com.statsig.androidsdk.DynamicConfig
+import com.statsig.androidsdk.EvaluationDetails
+import com.statsig.androidsdk.EvaluationReason
 import com.statsig.androidsdk.InitializationDetails
 import com.statsig.androidsdk.Statsig
 import com.statsig.androidsdk.StatsigOptions
@@ -18,6 +22,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlin.math.exp
 
 class Experiments(private val context: Context, private val sessionService: SessionService) {
 
@@ -54,6 +59,13 @@ class Experiments(private val context: Context, private val sessionService: Sess
         return statsig.await()?.checkGate(flag.flagName)?.also {
             SevLogger.logD("Statsig value for $flag=$it")
         } ?: false
+    }
+
+    suspend fun getExperiment(experiment: Experiment): ExperimentResult {
+        val result: DynamicConfig = statsig.await()?.getExperiment(experiment.experimentName)
+            ?: DynamicConfig(experiment.experimentName, EvaluationDetails(EvaluationReason.Error, lcut = 0))
+        return result.toExperimentResult()
+
     }
 
     private fun monitorUserSession() {
