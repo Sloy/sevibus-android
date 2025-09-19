@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Events
-import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewHappyMomentService
+import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewService
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 class InAppReviewViewModel(
-    private val happyMomentService: InAppReviewHappyMomentService,
+    private val happyMomentService: InAppReviewService,
     private val inAppReviewManager: InAppReviewManager,
     private val analytics: Analytics,
 ) : ViewModel() {

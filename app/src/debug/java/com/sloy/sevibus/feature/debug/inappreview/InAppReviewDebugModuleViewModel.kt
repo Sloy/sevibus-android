@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.repository.FavoriteRepository
 import com.sloy.sevibus.infrastructure.reviews.domain.AppStartTrackingDataSource
-import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewHappyMomentService
+import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewService
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class InAppReviewDebugModuleViewModel(
     private val dataSource: InAppReviewDebugModuleDataSource,
-    private val inAppReviewService: InAppReviewHappyMomentService,
+    private val inAppReviewService: InAppReviewService,
     private val favoriteRepository: FavoriteRepository,
     private val sessionService: SessionService,
     private val appStartTracker: AppStartTrackingDataSource

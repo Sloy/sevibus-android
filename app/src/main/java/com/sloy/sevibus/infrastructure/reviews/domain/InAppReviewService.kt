@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.stateIn
  * The actual logic for selecting which criteria to use is TBD and will be
  * implemented based on A/B testing requirements.
  */
-class InAppReviewHappyMomentService(
+class InAppReviewService(
     private val criteriaList: List<HappyMomentCriteria>,
     private val debugDataSource: InAppReviewDebugModuleDataSource
 ) {

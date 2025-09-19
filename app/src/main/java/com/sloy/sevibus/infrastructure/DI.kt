@@ -66,7 +66,7 @@ import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.reviews.domain.AppStartTrackingDataSource
 import com.sloy.sevibus.infrastructure.reviews.domain.HappyMomentCriteria
-import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewHappyMomentService
+import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewService
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AlwaysTrueCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
@@ -221,7 +221,7 @@ object DI {
         single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
         single { AddingFavoriteCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
-        single<InAppReviewHappyMomentService> { InAppReviewHappyMomentService(getAll<HappyMomentCriteria>(), get()) }
+        single<InAppReviewService> { InAppReviewService(getAll<HappyMomentCriteria>(), get()) }
         single<InAppReviewManager> {
             if (BuildVariant.isDebug()) {
                 FakeInAppReviewManager()
