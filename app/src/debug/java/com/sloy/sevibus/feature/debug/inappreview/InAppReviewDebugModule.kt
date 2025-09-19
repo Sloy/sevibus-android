@@ -1,12 +1,17 @@
 package com.sloy.sevibus.feature.debug.inappreview
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,7 +47,8 @@ fun DebugMenuScope.InAppReviewDebugModule() {
         InAppReviewDebugModule(
             InAppReviewDebugModuleState(
                 activeCriteriaName = "Adding favorite",
-                availableCriteria = listOf("Adding favorite", "Returning user with favorites", "Returning user", "Always true")
+                availableCriteria = listOf("Adding favorite", "Returning user with favorites", "Returning user", "Always true"),
+                selectedDebugCriteriaName = "Always true"
             )
         )
         return
@@ -51,7 +58,8 @@ fun DebugMenuScope.InAppReviewDebugModule() {
     InAppReviewDebugModule(
         state,
         onInAppReviewEnabledChanged = vm::onInAppReviewEnabledChanged,
-        onCriteriaSelected = vm::onCriteriaSelected
+        onCriteriaSelected = vm::onCriteriaSelected,
+        onRevertToLiveCriteria = vm::onRevertToLiveCriteria
     )
 }
 
@@ -61,6 +69,7 @@ private fun DebugMenuScope.InAppReviewDebugModule(
     state: InAppReviewDebugModuleState,
     onInAppReviewEnabledChanged: (Boolean) -> Unit = {},
     onCriteriaSelected: (String) -> Unit = {},
+    onRevertToLiveCriteria: () -> Unit = {},
 ) {
     DebugModule("In-App Review", Icons.Default.Star, showBadge = !state.isInAppReviewEnabled) {
         Column {
@@ -81,36 +90,57 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
 
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedTextField(
-                            value = state.activeCriteriaName ?: "None",
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                            },
-                            label = {
-                                Text("Active criteria", style = MaterialTheme.typography.titleSmall)
-                            },
-                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
-                        )
-                        DropdownMenu(
+                        ExposedDropdownMenuBox(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }
+                            onExpandedChange = { expanded = it },
+                            modifier = Modifier.weight(1f)
                         ) {
-                            state.availableCriteria.forEach { criteriaName ->
-                                DropdownMenuItem(
-                                    text = { Text(criteriaName) },
-                                    onClick = {
-                                        onCriteriaSelected(criteriaName)
-                                        expanded = false
-                                    }
+                            val modeIndicator = if (state.selectedDebugCriteriaName != null) " (debug)" else " (live)"
+                            val displayValue = state.activeCriteriaName ?: "None"
+
+                            OutlinedTextField(
+                                value = displayValue,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                },
+                                label = {
+                                    Text("Active criteria$modeIndicator", style = MaterialTheme.typography.titleSmall)
+                                },
+                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(type = MenuAnchorType.PrimaryNotEditable)
+                            )
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                state.availableCriteria.forEach { criteriaName ->
+                                    DropdownMenuItem(
+                                        text = { Text(criteriaName) },
+                                        onClick = {
+                                            onCriteriaSelected(criteriaName)
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        if (state.selectedDebugCriteriaName != null) {
+                            IconButton(
+                                onClick = onRevertToLiveCriteria
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Revert to live criteria"
                                 )
                             }
                         }

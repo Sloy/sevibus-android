@@ -28,6 +28,16 @@ class InAppReviewDebugModuleViewModel(
     }
 
     fun onCriteriaSelected(criteriaName: String) {
+        // Store the debug criteria selection
+        dataSource.updateState(state.value.copy(selectedDebugCriteriaName = criteriaName))
+        // Update the service to use the debug criteria
         inAppReviewService.setActiveCriteria(criteriaName)
+    }
+
+    fun onRevertToLiveCriteria() {
+        // Clear the debug criteria selection
+        dataSource.updateState(state.value.copy(selectedDebugCriteriaName = null))
+        // Tell the service to revert to live criteria
+        inAppReviewService.revertToLiveCriteria()
     }
 }

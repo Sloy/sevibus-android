@@ -12,11 +12,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 /**
  * Service that manages multiple happy moment criteria for A/B testing.
@@ -75,24 +75,54 @@ class InAppReviewHappyMomentService(
         val criteria = criteriaList.find { it.name == criteriaName }
         if (criteria != null) {
             activeCriteria.value = criteria
-            SevLogger.logD(msg = "Active criteria changed to: $criteriaName")
+            SevLogger.logD(msg = "Active criteria changed to: $criteriaName (debug override)")
         } else {
             SevLogger.logW(msg = "Criteria not found: $criteriaName")
         }
+    }
+
+    /**
+     * Reverts to live criteria selection logic, removing any debug override.
+     */
+    fun revertToLiveCriteria() {
+        selectLiveCriteria()
+        SevLogger.logD(msg = "Reverted to live criteria")
+    }
+
+
+    /**
+     * Selects criteria using the live/production logic.
+     * This function can be evolved for A/B testing and feature flags.
+     */
+    private fun selectLiveCriteria() {
+        // For now, prefer the new AddingFavoriteCriteria, but fallback to ReturningUserWithFavoritesCriteria
+        activeCriteria.value = criteriaList.find { it is AddingFavoriteCriteria }
+            ?: criteriaList.find { it is ReturningUserWithFavoritesCriteria }
+        SevLogger.logD("Selected live criteria: ${activeCriteria.value?.name}")
     }
 
     init {
         if (criteriaList.isEmpty()) {
             SevLogger.logW(msg = "No happy moment criteria found")
         } else {
-            // For now, prefer the new AddingFavoriteCriteria, but fallback to ReturningUserWithFavoritesCriteria
-            val criteria = criteriaList.find { it is AddingFavoriteCriteria }
-                ?: criteriaList.find { it is ReturningUserWithFavoritesCriteria }
+            // Check if there's a debug criteria override
+            val debugState = debugDataSource.observeCurrentState().value
+            val debugCriteriaName = debugState.selectedDebugCriteriaName
 
-            if (criteria == null) {
-                SevLogger.logW(msg = "No suitable criteria found in $criteriaList")
+            if (debugCriteriaName != null) {
+                // Use debug override
+                val debugCriteria = criteriaList.find { it.name == debugCriteriaName }
+                if (debugCriteria != null) {
+                    activeCriteria.value = debugCriteria
+                    SevLogger.logD(msg = "Using debug criteria override: $debugCriteriaName")
+                } else {
+                    SevLogger.logW(msg = "Debug criteria not found: $debugCriteriaName, falling back to live")
+                    selectLiveCriteria()
+                }
+            } else {
+                selectLiveCriteria()
+                SevLogger.logD(msg = "Using live criteria: ${activeCriteria.value?.name}")
             }
-            activeCriteria.value = criteria
         }
     }
 

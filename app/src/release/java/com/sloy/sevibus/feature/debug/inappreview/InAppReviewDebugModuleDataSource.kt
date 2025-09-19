@@ -12,4 +12,5 @@ data class InAppReviewDebugModuleState(
     val isInAppReviewEnabled: Boolean = true,
     val activeCriteriaName: String? = null,
     val availableCriteria: List<String> = emptyList(),
+    val selectedDebugCriteriaName: String? = null,
 )
