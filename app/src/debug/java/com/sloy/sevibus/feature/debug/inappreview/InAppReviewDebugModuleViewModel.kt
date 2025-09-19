@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class InAppReviewDebugModuleViewModel constructor(
+class InAppReviewDebugModuleViewModel(
     private val dataSource: InAppReviewDebugModuleDataSource,
     private val inAppReviewService: InAppReviewHappyMomentService
 ) : ViewModel() {
@@ -17,10 +17,17 @@ class InAppReviewDebugModuleViewModel constructor(
         dataSource.observeCurrentState(),
         inAppReviewService.observeActiveCriteriaName()
     ) { baseState, activeCriteriaName ->
-        baseState.copy(activeCriteriaName = activeCriteriaName)
+        baseState.copy(
+            activeCriteriaName = activeCriteriaName,
+            availableCriteria = inAppReviewService.getAllCriteria().map { it.name }
+        )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, dataSource.defaultValue)
 
     fun onInAppReviewEnabledChanged(isEnabled: Boolean) {
         dataSource.updateState(state.value.copy(isInAppReviewEnabled = isEnabled))
+    }
+
+    fun onCriteriaSelected(criteriaName: String) {
+        inAppReviewService.setActiveCriteria(criteriaName)
     }
 }

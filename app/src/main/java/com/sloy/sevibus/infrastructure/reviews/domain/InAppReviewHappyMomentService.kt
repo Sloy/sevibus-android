@@ -61,6 +61,26 @@ class InAppReviewHappyMomentService(
         }.stateIn(backgroundScope, SharingStarted.Eagerly, null)
     }
 
+    /**
+     * Returns all available criteria for selection.
+     */
+    fun getAllCriteria(): List<HappyMomentCriteria> {
+        return criteriaList
+    }
+
+    /**
+     * Sets the active criteria by name. Used by debug module for testing different criteria.
+     */
+    fun setActiveCriteria(criteriaName: String) {
+        val criteria = criteriaList.find { it.name == criteriaName }
+        if (criteria != null) {
+            activeCriteria.value = criteria
+            SevLogger.logD(msg = "Active criteria changed to: $criteriaName")
+        } else {
+            SevLogger.logW(msg = "Criteria not found: $criteriaName")
+        }
+    }
+
     init {
         if (criteriaList.isEmpty()) {
             SevLogger.logW(msg = "No happy moment criteria found")

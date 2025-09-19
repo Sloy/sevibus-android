@@ -11,4 +11,5 @@ class InAppReviewDebugModuleDataSource(context: Context) {
 data class InAppReviewDebugModuleState(
     val isInAppReviewEnabled: Boolean = true,
     val activeCriteriaName: String? = null,
+    val availableCriteria: List<String> = emptyList(),
 )
