@@ -3,6 +3,8 @@ package com.sloy.sevibus.infrastructure.reviews.domain
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.experimentation.Experiments
+import com.sloy.sevibus.infrastructure.experimentation.FeatureFlag
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
 import kotlinx.coroutines.CoroutineScope
@@ -13,7 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -28,7 +32,8 @@ import kotlinx.coroutines.flow.stateIn
  */
 class InAppReviewService(
     private val criteriaList: List<HappyMomentCriteria>,
-    private val debugDataSource: InAppReviewDebugModuleDataSource
+    private val debugDataSource: InAppReviewDebugModuleDataSource,
+    private val experiments: Experiments,
 ) {
 
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -37,6 +42,7 @@ class InAppReviewService(
     /**
      * Exposes `true` when the active criteria's conditions are met and we should ask the user for a review.
      * The debug setting can override this to always return false when in-app reviews are disabled.
+     * The feature flag can disable the entire feature remotely.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeHappyMoment(): StateFlow<Boolean> {
@@ -44,12 +50,17 @@ class InAppReviewService(
             criteria?.observeHappyMoment() ?: flowOf(false)
         }
 
+        val featureFlagFlow = flow {
+            emit(experiments.isFeatureEnabled(FeatureFlag.IN_APP_REVIEWS))
+        }
+
         return combine(
             criteriaFlow,
-            debugDataSource.observeCurrentState()
-        ) { criteriaResult, debugState ->
-            criteriaResult && debugState.isInAppReviewEnabled
-        }.stateIn(backgroundScope, SharingStarted.Eagerly, false)
+            debugDataSource.observeCurrentState(),
+            featureFlagFlow
+        ) { criteriaResult, debugState, featureFlagEnabled ->
+            criteriaResult && debugState.isInAppReviewEnabled && featureFlagEnabled
+        }.distinctUntilChanged().stateIn(backgroundScope, SharingStarted.Eagerly, false)
     }
 
     /**

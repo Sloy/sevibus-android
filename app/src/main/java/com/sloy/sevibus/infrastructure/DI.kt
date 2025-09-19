@@ -59,6 +59,7 @@ import com.sloy.sevibus.infrastructure.analytics.tracker.LoggerTracker
 import com.sloy.sevibus.infrastructure.config.ApiConfigurationManager
 import com.sloy.sevibus.infrastructure.config.DynamicApiUrlInterceptor
 import com.sloy.sevibus.infrastructure.config.RemoteConfigService
+import com.sloy.sevibus.infrastructure.experimentation.Experiments
 import com.sloy.sevibus.infrastructure.location.FusedLocationService
 import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.infrastructure.location.LocationServiceSource
@@ -221,7 +222,7 @@ object DI {
         single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
         single { AddingFavoriteCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
-        single<InAppReviewService> { InAppReviewService(getAll<HappyMomentCriteria>(), get()) }
+        single<InAppReviewService> { InAppReviewService(getAll<HappyMomentCriteria>(), get(), get()) }
         single<InAppReviewManager> {
             if (BuildVariant.isDebug()) {
                 FakeInAppReviewManager()
@@ -235,6 +236,8 @@ object DI {
         single { FirebaseTracker(get(), get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
         single<Analytics> { Analytics(getAll(), get()) }
+
+        single { Experiments(androidContext(), get()) }
     }
 
     private fun OkHttpClient.Builder.addInterceptors(interceptors: List<Interceptor>): OkHttpClient.Builder {

@@ -122,6 +122,7 @@ dependencies {
     implementation(libs.play.review)
 
     implementation(libs.amplitude)
+    implementation(libs.statsig.sdk)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
