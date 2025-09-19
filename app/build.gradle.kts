@@ -119,6 +119,7 @@ dependencies {
     implementation(libs.credentials)
     implementation(libs.credentials.playServices)
     implementation(libs.credentials.googleIdentity)
+    implementation(libs.play.review)
 
     implementation(libs.amplitude)
 

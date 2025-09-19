@@ -1,6 +1,7 @@
 package com.sloy.sevibus
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -51,7 +52,9 @@ import com.sloy.sevibus.feature.search.SearchScreen
 import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.search.TopBarState
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreen
+import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.reviews.presentation.InAppReviewViewModel
 import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.analytics.events.track
 import com.sloy.sevibus.navigation.NavigationDestination
@@ -73,6 +76,7 @@ fun App() {
         val searchViewModel: SearchViewModel = koinViewModel()
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
+        val reviewViewModel: InAppReviewViewModel = koinViewModel()
         val networkDebugModuleDataSource = koinInject<NetworkDebugModuleDataSource>()
         val trackingDebugModuleDataSource = koinInject<TrackingDebugModuleDataSource>()
         val overlayStateHolder = koinInject<OverlayLoggerStateHolder>()
@@ -87,6 +91,11 @@ fun App() {
 
         BackHandler(enabled = !isLastDestination) {
             appState.sevNavigator.navigateBack()
+        }
+
+        val activity = LocalActivity.current
+        EventCollector(reviewViewModel.reviewTrigger) {
+            reviewViewModel.launch(activity!!)
         }
 
         LaunchedEffect(Unit) {

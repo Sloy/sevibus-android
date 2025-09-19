@@ -7,6 +7,7 @@ import com.sloy.debugmenu.base.DebugMenuViewModel
 import com.sloy.sevibus.feature.debug.location.LocationDebugModule
 import com.sloy.sevibus.feature.debug.network.NetworkDebugModule
 import com.sloy.sevibus.feature.debug.tracking.TrackingDebugModule
+import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModule
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
@@ -24,6 +25,7 @@ private fun SevDebugMenu(viewModelProvider: () -> DebugMenuViewModel) {
             TrackingDebugModule()
             NetworkDebugModule()
             LocationDebugModule()
+            InAppReviewDebugModule()
         }
     }
 }

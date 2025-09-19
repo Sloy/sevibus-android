@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.LocationSource
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.sloy.sevibus.data.api.AdminApi
 import com.sloy.sevibus.data.api.FirebaseAuthHeaderInterceptor
 import com.sloy.sevibus.data.api.SevibusApi
@@ -53,6 +54,7 @@ import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.Tracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.AmplitudeTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.FirebaseTracker
+import com.sloy.sevibus.infrastructure.analytics.tracker.HappyMomentTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.LoggerTracker
 import com.sloy.sevibus.infrastructure.config.ApiConfigurationManager
 import com.sloy.sevibus.infrastructure.config.DynamicApiUrlInterceptor
@@ -62,6 +64,17 @@ import com.sloy.sevibus.infrastructure.location.LocationService
 import com.sloy.sevibus.infrastructure.location.LocationServiceSource
 import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
+import com.sloy.sevibus.infrastructure.reviews.domain.AppStartTrackingDataSource
+import com.sloy.sevibus.infrastructure.reviews.domain.HappyMomentCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewService
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AlwaysTrueCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
+import com.sloy.sevibus.infrastructure.reviews.presentation.FakeInAppReviewManager
+import com.sloy.sevibus.infrastructure.reviews.presentation.GoogleInAppReviewManager
+import com.sloy.sevibus.infrastructure.reviews.presentation.InAppReviewManager
+import com.sloy.sevibus.infrastructure.reviews.presentation.InAppReviewViewModel
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.infrastructure.session.GoogleAuthService
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -97,6 +110,7 @@ object DI {
         viewModel { LineSelectorViewModel(get()) }
         viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
         viewModel { parameters -> CardViewModel(get(), get(), parameters.getOrNull()) }
+        viewModel { InAppReviewViewModel(get(), get(), get()) }
     }
 
     val dataModule = module {
@@ -113,6 +127,7 @@ object DI {
         single<RouteRepository> { RemoteAndLocalRouteRepository(get(), get()) }
         single<CardsRepository> { RemoteAndLocalCardsRepository(get(), get(), get(), get(), get()) }
         single<NightModeDataSource> { NightModeDataSource(androidContext()) }
+        single<AppStartTrackingDataSource> { AppStartTrackingDataSource(androidContext()) }
         single<AnalyticsSettingsDataSource> { AnalyticsSettingsDataSource(androidContext()) }
 
         single<SevibusDatabase> {
@@ -202,6 +217,20 @@ object DI {
         single<ObtainNearbyStops> { ObtainNearbyStops(get()) }
         single<NfcStateManager> { NfcStateManager(androidContext()) }
 
+        single { ReturningUserCriteria(get()) }.bind(HappyMomentCriteria::class)
+        single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
+        single { AddingFavoriteCriteria(get()) }.bind(HappyMomentCriteria::class)
+        single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
+        single<InAppReviewService> { InAppReviewService(getAll<HappyMomentCriteria>(), get()) }
+        single<InAppReviewManager> {
+            if (BuildVariant.isDebug()) {
+                FakeInAppReviewManager()
+            } else {
+                GoogleInAppReviewManager(ReviewManagerFactory.create(androidContext()))
+            }
+        }
+
+        single { HappyMomentTracker(get()) }.bind(Tracker::class)
         single { AmplitudeTracker(get(), get(), get()) }.bind(Tracker::class)
         single { FirebaseTracker(get(), get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)
