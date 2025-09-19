@@ -16,6 +16,10 @@ interface Events {
         "balanceType" to balanceType
     )
 
+    data object ReviewDialogRequested : SevEvent(
+        "Review Dialog Requested"
+    )
+
     data class ReviewDialogDismissed(val durationSeconds: Int) : SevEvent(
         "Review Dialog Dismissed",
         "duration" to durationSeconds

@@ -26,6 +26,7 @@ class InAppReviewViewModel(
         .shareIn(viewModelScope, SharingStarted.Lazily, 1)
 
     fun launch(activity: Activity) {
+        analytics.track(Events.ReviewDialogRequested)
         viewModelScope.launch {
             val result = inAppReviewManager.launchReviewFlow(activity)
             result.onSuccess { duration ->
