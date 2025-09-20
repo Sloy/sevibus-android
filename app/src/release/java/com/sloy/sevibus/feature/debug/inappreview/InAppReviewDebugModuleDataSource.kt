@@ -9,10 +9,11 @@ class InAppReviewDebugModuleDataSource(context: Context) {
 }
 
 data class InAppReviewDebugModuleState(
-    val isInAppReviewEnabled: Boolean = true,
-    val activeCriteriaName: String? = null,
+    val experimentVariant: String? = null,
+    val featureFlag: Boolean? = null,
+    val activeCriteria: String? = null,
+    val debugCriteria: String? = null,
     val availableCriteria: List<String> = emptyList(),
-    val selectedDebugCriteriaName: String? = null,
     val favoritesCount: Int = 0,
     val appOpensCount: Int = 0,
     val isUserLoggedIn: Boolean = false,
