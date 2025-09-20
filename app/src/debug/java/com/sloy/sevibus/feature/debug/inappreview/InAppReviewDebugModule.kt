@@ -10,17 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,9 +45,9 @@ fun DebugMenuScope.InAppReviewDebugModule() {
     if (LocalInspectionMode.current) {
         InAppReviewDebugModule(
             InAppReviewDebugModuleState(
-                activeCriteriaName = "Adding favorite",
+                activeCriteria = "Adding favorite",
                 availableCriteria = listOf("Adding favorite", "Returning user with favorites", "Returning user", "Always true"),
-                selectedDebugCriteriaName = "Always true",
+                debugCriteria = "Always true",
                 favoritesCount = 3,
                 appOpensCount = 7,
                 isUserLoggedIn = true
@@ -60,7 +59,6 @@ fun DebugMenuScope.InAppReviewDebugModule() {
     val state by vm.state.collectAsStateWithLifecycle()
     InAppReviewDebugModule(
         state,
-        onInAppReviewEnabledChanged = vm::onInAppReviewEnabledChanged,
         onCriteriaSelected = vm::onCriteriaSelected,
         onRevertToLiveCriteria = vm::onRevertToLiveCriteria
     )
@@ -70,31 +68,23 @@ fun DebugMenuScope.InAppReviewDebugModule() {
 @Composable
 private fun DebugMenuScope.InAppReviewDebugModule(
     state: InAppReviewDebugModuleState,
-    onInAppReviewEnabledChanged: (Boolean) -> Unit = {},
     onCriteriaSelected: (String) -> Unit = {},
     onRevertToLiveCriteria: () -> Unit = {},
 ) {
-    DebugModule("In-App Review", Icons.Default.Star, showBadge = !state.isInAppReviewEnabled) {
+    DebugModule("In-App Review", Icons.Default.Star, showBadge = state.debugCriteria != null) {
         Column {
-            DebugItem(
-                title = "Enable In-App Review",
-                subtitle = "When disabled, in-app review prompts will never show",
-                onClick = { onInAppReviewEnabledChanged(!state.isInAppReviewEnabled) }
-            ) {
-                Switch(checked = state.isInAppReviewEnabled, onCheckedChange = { onInAppReviewEnabledChanged(it) })
-            }
-
             if (state.availableCriteria.isNotEmpty()) {
                 var expanded by remember { mutableStateOf(false) }
-
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(vertical = 8.dp)
                 ) {
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -103,8 +93,8 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                             onExpandedChange = { expanded = it },
                             modifier = Modifier.weight(1f)
                         ) {
-                            val modeIndicator = if (state.selectedDebugCriteriaName != null) " (debug)" else " (live)"
-                            val displayValue = state.activeCriteriaName ?: "None"
+                            val modeIndicator = if (state.debugCriteria != null) " (debug)" else " (live)"
+                            val displayValue = state.activeCriteria ?: "None"
 
                             OutlinedTextField(
                                 value = displayValue,
@@ -137,7 +127,7 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                             }
                         }
 
-                        if (state.selectedDebugCriteriaName != null) {
+                        if (state.debugCriteria != null) {
                             IconButton(
                                 onClick = onRevertToLiveCriteria
                             ) {
@@ -151,6 +141,9 @@ private fun DebugMenuScope.InAppReviewDebugModule(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    DebugItem(title = "Experiment value", subtitle = state.experimentVariant ?: "None") { }
+                    DebugItem(title = "Feature flag", subtitle = state.featureFlag?.onOff() ?: "Unknown") { }
+
                     Column(
                         Modifier
                             .fillMaxWidth()
@@ -159,38 +152,34 @@ private fun DebugMenuScope.InAppReviewDebugModule(
                         Text(
                             text = "Current Conditions",
                             style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
                         )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Favorites:", style = MaterialTheme.typography.bodySmall)
-                            Text("${state.favoritesCount}", style = MaterialTheme.typography.bodySmall)
-                        }
+                        Text(
+                            "Favorites: ${state.favoritesCount}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("App opens (30d):", style = MaterialTheme.typography.bodySmall)
-                            Text("${state.appOpensCount}", style = MaterialTheme.typography.bodySmall)
-                        }
+                        Text(
+                            "App opens (30d): ${state.appOpensCount}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("User logged in:", style = MaterialTheme.typography.bodySmall)
-                            Text(if (state.isUserLoggedIn) "Yes" else "No", style = MaterialTheme.typography.bodySmall)
-                        }
+                        Text(
+                            "User logged in: ${state.isUserLoggedIn.yesNo()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
         }
     }
 }
+
+private fun Boolean.yesNo(): String = if (this) "Yes" else "No"
+private fun Boolean.onOff(): String = if (this) "On" else "Off"
 
 @Preview
 @Composable

@@ -69,6 +69,7 @@ import com.sloy.sevibus.infrastructure.reviews.domain.AppStartTrackingDataSource
 import com.sloy.sevibus.infrastructure.reviews.domain.HappyMomentCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.InAppReviewService
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AddingFavoriteCriteria
+import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AlwaysFalseCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.AlwaysTrueCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserCriteria
 import com.sloy.sevibus.infrastructure.reviews.domain.criteria.ReturningUserWithFavoritesCriteria
@@ -222,6 +223,7 @@ object DI {
         single { ReturningUserWithFavoritesCriteria(get(), get(), get()) }.bind(HappyMomentCriteria::class)
         single { AddingFavoriteCriteria(get()) }.bind(HappyMomentCriteria::class)
         single { AlwaysTrueCriteria() }.bind(HappyMomentCriteria::class)
+        single { AlwaysFalseCriteria() }.bind(HappyMomentCriteria::class)
         single<InAppReviewService> { InAppReviewService(getAll<HappyMomentCriteria>(), get(), get()) }
         single<InAppReviewManager> {
             if (BuildVariant.isDebug()) {
@@ -231,7 +233,7 @@ object DI {
             }
         }
 
-        single { HappyMomentTracker(get()) }.bind(Tracker::class)
+        single { HappyMomentTracker(getAll()) }.bind(Tracker::class)
         single { AmplitudeTracker(get(), get(), get()) }.bind(Tracker::class)
         single { FirebaseTracker(get(), get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)

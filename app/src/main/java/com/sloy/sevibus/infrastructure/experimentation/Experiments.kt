@@ -2,7 +2,6 @@ package com.sloy.sevibus.infrastructure.experimentation
 
 import android.app.Application
 import android.content.Context
-import coil.util.CoilUtils.result
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.math.exp
 
 class Experiments(private val context: Context, private val sessionService: SessionService) {
 
@@ -39,7 +37,8 @@ class Experiments(private val context: Context, private val sessionService: Sess
             val result: InitializationDetails? = Statsig.initialize(
                 context.applicationContext as Application,
                 if (BuildVariant.isRelease()) PROD_PUBLIC_KEY else DEV_PUBLIC_KEY,
-                options = StatsigOptions().apply {
+                StatsigUser(sessionService.getCurrentUser()?.id),
+                StatsigOptions().apply {
                     setTier(if (BuildVariant.isRelease()) Tier.PRODUCTION else Tier.DEVELOPMENT)
                 }
             )
@@ -57,14 +56,18 @@ class Experiments(private val context: Context, private val sessionService: Sess
 
     suspend fun isFeatureEnabled(flag: FeatureFlag): Boolean {
         return statsig.await()?.checkGate(flag.flagName)?.also {
-            SevLogger.logD("Statsig value for $flag=$it")
+            SevLogger.logD("Statsig value for flag $flag=$it")
         } ?: false
     }
 
     suspend fun getExperiment(experiment: Experiment): ExperimentResult {
-        val result: DynamicConfig = statsig.await()?.getExperiment(experiment.experimentName)
-            ?: DynamicConfig(experiment.experimentName, EvaluationDetails(EvaluationReason.Error, lcut = 0))
-        return result.toExperimentResult()
+        val result: DynamicConfig = statsig.await()?.getExperiment(experiment.experimentName) ?: DynamicConfig(
+            experiment.experimentName,
+            EvaluationDetails(EvaluationReason.Error, lcut = 0)
+        )
+        return result.toExperimentResult().also {
+            SevLogger.logD("Statsig value for experiment $experiment=$it")
+        }
 
     }
 
@@ -73,6 +76,7 @@ class Experiments(private val context: Context, private val sessionService: Sess
             .distinctUntilChanged()
             .onEach { user ->
                 statsig.await()?.updateUser(StatsigUser(user?.id))
+                SevLogger.logD("Statsig user updated to ${user?.id}")
             }
             .launchIn(scope)
     }
