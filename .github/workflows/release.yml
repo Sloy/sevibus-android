@@ -1,0 +1,149 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Type of release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      release_name:
+        description: 'Optional release name (e.g., "Bonobus alerts")'
+        required: false
+        type: string
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Setup
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 2. Read current version
+      - name: Read current version
+        id: current_version
+        run: |
+          source version.properties
+          echo "major=$major" >> $GITHUB_OUTPUT
+          echo "minor=$minor" >> $GITHUB_OUTPUT
+          echo "patch=$patch" >> $GITHUB_OUTPUT
+          echo "snapshot=$snapshot" >> $GITHUB_OUTPUT
+          echo "current=${major}.${minor}.${patch}" >> $GITHUB_OUTPUT
+
+      # 3. Validate current state
+      - name: Validate snapshot state
+        run: |
+          if [ "${{ steps.current_version.outputs.snapshot }}" != "true" ]; then
+            echo "Error: Cannot release from non-snapshot version"
+            exit 1
+          fi
+
+      # 4. Prepare release version (remove snapshot)
+      - name: Prepare release version
+        id: release_version
+        run: |
+          ./scripts/prepare-release.sh ${{ github.event.inputs.release_type }}
+          source version.properties
+          echo "version=${major}.${minor}.${patch}" >> $GITHUB_OUTPUT
+
+      # 5. Commit release version
+      - name: Commit release version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: release v${{ steps.release_version.outputs.version }}"
+          file_pattern: version.properties
+
+      # 6. Create and push tag
+      - name: Create release tag
+        run: |
+          git tag "v${{ steps.release_version.outputs.version }}"
+          git push origin "v${{ steps.release_version.outputs.version }}"
+
+      # 7. Prepare next development version
+      - name: Prepare next development version
+        id: next_version
+        run: |
+          ./scripts/prepare-next-dev.sh
+          source version.properties
+          echo "next_version=${major}.${minor}.${patch}-snapshot" >> $GITHUB_OUTPUT
+
+      # 8. Commit next development version
+      - name: Commit next development version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: prepare next development iteration ${{ steps.next_version.outputs.next_version }}"
+          file_pattern: version.properties
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: release
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get release version from tag
+        id: release_info
+        run: |
+          # Get the tag that was just created by the release job
+          LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "version=${LATEST_TAG#v}" >> $GITHUB_OUTPUT
+
+      - name: Get previous tag for release notes
+        id: prev-tag
+        run: |
+          git fetch --tags
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "${{ steps.release_info.outputs.tag }}" | head -1)
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          if [ -n "${{ steps.prev-tag.outputs.prev_tag }}" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" ${{ steps.prev-tag.outputs.prev_tag }}..${{ steps.release_info.outputs.tag }})
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --max-count=10)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "${{ steps.release_info.outputs.tag }}"
+          name: "${{ steps.release_info.outputs.tag }}${{ github.event.inputs.release_name && format(' - {0}', github.event.inputs.release_name) || '' }}"
+          body: |
+            ## Changes in this release:
+
+            ${{ steps.release-notes.outputs.commits }}
+
+            ---
+            This release will be automatically deployed to Google Play Internal Track.
+          draft: false
+          prerelease: false
+
