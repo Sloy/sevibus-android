@@ -39,7 +39,6 @@ jobs:
         with:
           appId: ${{secrets.FIREBASE_APP_ID}}
           serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
-          groups: testers-release
           file: app/build/outputs/apk/release/app-release.apk
   publish-firebase-debug-apk:
     runs-on: ubuntu-latest
