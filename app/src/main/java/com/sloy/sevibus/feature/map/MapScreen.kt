@@ -1,7 +1,6 @@
 package com.sloy.sevibus.feature.map
 
 import android.Manifest
-import android.content.Intent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +45,7 @@ import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.feature.debug.SevDebugMenu
+import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
@@ -189,6 +189,7 @@ private fun MapUI(
 
 @Composable
 private fun DebugButton(modifier: Modifier = Modifier) {
+    if (BuildVariant.isRelease()) return
     val context = LocalContext.current
     CustomFab(
         onClick = {
@@ -196,7 +197,8 @@ private fun DebugButton(modifier: Modifier = Modifier) {
         },
         color = SevTheme.colorScheme.background,
         contentColor = SevTheme.colorScheme.onSurfaceVariant,
-        size = 38.dp
+        size = 38.dp,
+        modifier = modifier
     ) {
         Icon(Icons.Filled.BugReport, "Debug", Modifier.size(16.dp))
     }
