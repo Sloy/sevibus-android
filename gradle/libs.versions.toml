@@ -56,6 +56,7 @@ androidx-icons = { group = "androidx.compose.material", name = "material-icons-e
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 morfly-bottomsheet = { module = "io.morfly.compose:advanced-bottomsheet-material3", version.ref = "morfly-bottomsheet" }
+composeunstyled = { module = "com.composables:core", version = "1.43.1" }
 
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
