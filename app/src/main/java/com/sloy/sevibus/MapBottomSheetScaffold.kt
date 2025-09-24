@@ -253,8 +253,8 @@ private fun InAppUpdateState.toButtonState(): AppUpdateButtonState {
 
 private fun NavigationDestination.peekingSheetHeight(): Dp {
     return when (this) {
-        is NavigationDestination.ForYou -> 48.dp
-        is NavigationDestination.Lines -> 48.dp
+        is NavigationDestination.ForYou -> 0.dp
+        is NavigationDestination.Lines -> 0.dp
         is NavigationDestination.LineStops -> 92.dp
         is NavigationDestination.StopDetail -> 68.dp
         else -> 0.dp
@@ -321,7 +321,6 @@ private fun WithRetainedDestination(
     content(previousDestination.value, shouldShow(destination))
 }
 
-
-private enum class CustomSheetValue { Collapsed, PartiallyExpanded, PartiallyCollapsed, Expanded }
-
-private val SHEET_DRAG_HANDLE_HEIGHT = 48.dp
+val DRAG_INDICATOR_HANDLE_HEIGHT = 4.dp
+val DRAG_INDICATOR_PADDING = 16.dp
+val DRAG_INDICATOR_HEIGHT = DRAG_INDICATOR_HANDLE_HEIGHT + DRAG_INDICATOR_PADDING * 2

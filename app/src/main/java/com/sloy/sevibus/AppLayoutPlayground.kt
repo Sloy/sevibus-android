@@ -162,9 +162,6 @@ fun AppLayoutPlayground(modifier: Modifier = Modifier) {
     }
 }
 
-val DRAG_INDICATOR_HANDLE_HEIGHT = 4.dp
-val DRAG_INDICATOR_PADDING = 22.dp
-val DRAG_INDICATOR_HEIGHT = DRAG_INDICATOR_HANDLE_HEIGHT + DRAG_INDICATOR_PADDING * 2
 
 
 @Composable
