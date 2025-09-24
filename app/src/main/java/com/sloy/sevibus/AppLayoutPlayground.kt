@@ -19,18 +19,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -42,17 +43,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
-import com.sloy.sevibus.infrastructure.SevLogger
+import com.composables.core.BottomSheet
+import com.composables.core.BottomSheetState
+import com.composables.core.DragIndication
+import com.composables.core.SheetDetent
+import com.composables.core.rememberBottomSheetState
 import com.sloy.sevibus.feature.foryou.favorites.FavoriteListItemShimmer
 import com.sloy.sevibus.ui.theme.SevTheme
-import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -62,22 +69,35 @@ import kotlinx.coroutines.launch
 fun AppLayoutPlayground(modifier: Modifier = Modifier) {
     SevTheme {
 
-        val insetPaddings = WindowInsets.systemBars.asPaddingValues()
-        val bottomInsetPadding by remember { derivedStateOf { insetPaddings.calculateBottomPadding() } }
-        val topInsetPadding by remember { derivedStateOf { insetPaddings.calculateTopPadding() } }
+        val scope = rememberCoroutineScope()
 
-        var isBottomBarVisible by remember { mutableStateOf(false) }
-        val bottomBarHeight by remember { derivedStateOf{ if (isBottomBarVisible) 80.dp else 0.dp }}
+        val systemBarInsetPaddings = WindowInsets.systemBars.asPaddingValues()
+        val bottomInsetPadding by remember { derivedStateOf { systemBarInsetPaddings.calculateBottomPadding() } }
+        val topInsetPadding by remember { derivedStateOf { systemBarInsetPaddings.calculateTopPadding() } }
 
-        val sheetState = rememberBottomSheetState(SheetValue.PartiallyExpanded,
-            defineValues = {
-                SevLogger.logPotato("bottomBarHeight: $bottomBarHeight")
-                SevLogger.logPotato("bottomInsetPadding: $bottomInsetPadding")
-                SheetValue.Hidden at height(bottomBarHeight + bottomInsetPadding + 48.dp)
-                SheetValue.PartiallyExpanded at offset(percent = 40)
-                SheetValue.Expanded at offset(topInsetPadding) //contentHeight// offset(topInsetPadding)
-            })
-        val scaffoldState = rememberBottomSheetScaffoldState(sheetState)
+        var isBottomBarVisible by remember { mutableStateOf(true) }
+        val bottomBarHeight by remember { derivedStateOf { if (isBottomBarVisible) 80.dp else 0.dp } }
+
+        val CollapsedWithBottomBar = SheetDetent("CollapsedWithBottomBar") { containerHeight, sheetHeight ->
+            // bottomBarHeight + bottomInsetPadding + SHEET_DRAG_HANDLE_HEIGHT + screenPeekingHeight
+            bottomBarHeight + bottomInsetPadding + DRAG_INDICATOR_HEIGHT
+        }
+
+        val PartiallyCollapsed = SheetDetent("PartiallyCollapsed") { containerHeight, sheetHeight ->
+            containerHeight * 0.4f
+        }
+        val PartiallyExpanded = SheetDetent("PartiallyExpanded") { containerHeight, sheetHeight ->
+            containerHeight * 0.7f
+        }
+        val Expanded = SheetDetent("Expanded") { containerHeight, sheetHeight ->
+            containerHeight - topInsetPadding
+        }
+
+        val sheetState = rememberBottomSheetState(
+            initialDetent = Expanded,
+            detents = listOf(CollapsedWithBottomBar, PartiallyCollapsed, PartiallyExpanded, Expanded),
+        )
+
 
         Scaffold(
             bottomBar = {
@@ -99,120 +119,174 @@ fun AppLayoutPlayground(modifier: Modifier = Modifier) {
                         )
                     }
                 }
-            }
-        ) { scaffoldPadding ->
-
-            SevLogger.logPotato("scaffoldPadding: $scaffoldPadding")
-            BottomSheetScaffold(
-                topBar = {
-                    Box(
-                        Modifier
-                            .systemBarsPadding()
-                            .background(Color.Blue.copy(alpha = 0.5f))
-                    ) {
-                        Text(
-                            "Top Bar", textAlign = TextAlign.Center, modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        )
+            },
+            content = { paddingValues ->
+                MapContainer(sheetState, onToggleBottomBar = {
+                    scope.launch {
+                        val currentDetent = sheetState.targetDetent
+                        sheetState.animateTo(CollapsedWithBottomBar)
+                        isBottomBarVisible = !isBottomBarVisible
+                        sheetState.invalidateDetents()
+                        sheetState.animateTo(currentDetent)
                     }
-                },
-                scaffoldState = scaffoldState,
-                sheetContent = {
+                })
+                BottomSheet(
+                    state = sheetState,
+                    modifier = Modifier
+                        .shadow(4.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .background(SevTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .widthIn(max = 640.dp)
+                        .fillMaxWidth()
+                ) {
                     Column(
-                        Modifier
-                            .navigationBarsPadding()
-                            .consumeWindowInsets(PaddingValues(bottom = bottomBarHeight))
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = topInsetPadding), // To compensate the top padding
                     ) {
-                        Box(
-                            Modifier
-                                .border(2.dp, Color.Blue)
-                                .weight(1f)
-                        ) {
-                            // <sheetContent>
-                            Column(
-                                Modifier
-                                    .verticalScroll(rememberScrollState())
-                                    .fillMaxWidth()
-                            ) {
-                                repeat(20) {
-                                    val scope = rememberCoroutineScope()
-                                    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-                                    FavoriteListItemShimmer()
-                                    TextField(
-                                        value = "",
-                                        onValueChange = {},
-                                        Modifier
-                                            .bringIntoViewRequester(bringIntoViewRequester)
-                                            .padding(16.dp)
-                                            .onFocusEvent { focusState ->
-                                                if (focusState.isFocused) {
-                                                    scope.launch {
-                                                        delay(100)
-                                                        bringIntoViewRequester.bringIntoView()
-                                                    }
-                                                }
-                                            }
-                                    )
-                                }
-                            }
-                            // </sheetContent>
-
-                        }
-                        Box(Modifier.height(topInsetPadding)) // <-- Trick to overcome the offset on the Expanded bottomsheet top
-                        Box(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
-                        Box(Modifier
-                            .height(bottomBarHeight)
-                            .animateContentSize())
-                    }
-                },
-                content = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .border(2.dp, Color.Red)
-                            .background(Color.Green),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            Modifier
-                                .verticalScroll(rememberScrollState())
-                                .fillMaxWidth()
-
-                        ) {
-                            Button(onClick = {
-                                isBottomBarVisible = !isBottomBarVisible
-                                sheetState.refreshValues()
-                            }, Modifier.safeDrawingPadding()) {
-                                Text("Bottom bar visible")
-                            }
-                            repeat(20) {
-                                val scope = rememberCoroutineScope()
-                                val bringIntoViewRequester = remember { BringIntoViewRequester() }
-                                FavoriteListItemShimmer()
-                                TextField(
-                                    value = "",
-                                    onValueChange = {},
-                                    Modifier
-                                        .padding(16.dp)
-                                        .bringIntoViewRequester(bringIntoViewRequester)
-                                        .onFocusEvent { focusState ->
-                                            if (focusState.isFocused) {
-                                                scope.launch {
-                                                    delay(1000)
-                                                    //bringIntoViewRequester.bringIntoView()
-                                                }
-                                            }
-                                        }
-                                )
-                            }
-                        }
-
+                        DragIndication(
+                            modifier = Modifier
+                                .padding(vertical = DRAG_INDICATOR_PADDING)
+                                .background(Color.Black.copy(0.4f), RoundedCornerShape(100))
+                                .width(32.dp)
+                                .height(DRAG_INDICATOR_HANDLE_HEIGHT)
+                                .align(Alignment.CenterHorizontally),
+                        )
+                        // Sheet Content
+                        SheetContent(bottomBarHeight, bottomInsetPadding, topInsetPadding)
                     }
                 }
-            )
+            }
+        )
+
+    }
+}
+
+val DRAG_INDICATOR_HANDLE_HEIGHT = 4.dp
+val DRAG_INDICATOR_PADDING = 22.dp
+val DRAG_INDICATOR_HEIGHT = DRAG_INDICATOR_HANDLE_HEIGHT + DRAG_INDICATOR_PADDING * 2
+
+
+@Composable
+private fun SheetContent(bottomBarHeight: Dp, bottomInsetPadding: Dp, topInsetPadding: Dp) {
+    Column(
+        Modifier
+            .navigationBarsPadding()
+            .consumeWindowInsets(PaddingValues(bottom = bottomBarHeight))
+    ) {
+        Box(
+            Modifier
+                .border(2.dp, Color.Cyan)
+                .weight(1f)
+        ) {
+            // <sheetContent>
+            Column(
+                Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            ) {
+                repeat(10) {
+                    val scope = rememberCoroutineScope()
+                    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+                    FavoriteListItemShimmer()
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        Modifier
+                            .bringIntoViewRequester(bringIntoViewRequester)
+                            .padding(16.dp)
+                            .onFocusEvent { focusState ->
+                                if (focusState.isFocused) {
+                                    scope.launch {
+                                        delay(100)
+                                        bringIntoViewRequester.bringIntoView()
+                                    }
+                                }
+                            }
+                    )
+                }
+                Text("THE END")
+            }
+            // </sheetContent>
 
         }
+        Box(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
+        Box(
+            Modifier
+                .height(bottomBarHeight)
+                .animateContentSize()
+        )
+    }
+}
+
+@Composable
+private fun MapContainer(sheetState: BottomSheetState, onToggleBottomBar: () -> Unit) {
+    // Map Background
+    Box(
+        Modifier
+            .fillMaxSize()
+            .border(2.dp, Color.Red)
+            .background(Color.Green),
+        contentAlignment = Alignment.Center
+    ) {
+        with(LocalDensity.current) {
+            // MapScreen
+            val topSystemBarPadding = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = (sheetState.offset.toDp() - topSystemBarPadding).coerceAtLeast(0.dp))
+                    .padding(top = topSystemBarPadding)
+                    .border(4.dp, Color.Blue)
+                    .background(Color.Blue.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(onClick = {
+                    onToggleBottomBar()
+                }) {
+                    Text("Toggle bottom bar")
+                }
+                //FullScreenContent()
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun FullScreenContent() {
+    Column(
+        Modifier
+            .verticalScroll(rememberScrollState())
+            .fillMaxWidth()
+
+    ) {
+        Button(onClick = {
+            //sheetState.refreshValues()
+        }) {
+            Text("Toggle bottom bar")
+        }
+        repeat(20) {
+            val scope = rememberCoroutineScope()
+            val bringIntoViewRequester = remember { BringIntoViewRequester() }
+            FavoriteListItemShimmer()
+            TextField(
+                value = "",
+                onValueChange = {},
+                Modifier
+                    .padding(16.dp)
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusEvent { focusState ->
+                        if (focusState.isFocused) {
+                            scope.launch {
+                                delay(1000)
+                                //bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    }
+            )
+        }
+        Text("THE END")
     }
 }
 

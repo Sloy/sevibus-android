@@ -1,8 +1,10 @@
 package com.sloy.sevibus.feature.search
 
+import android.R.attr.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -65,7 +69,8 @@ private fun SearchResultsContent(
     onSearchResultClicked: (SearchResult) -> Unit
 ) {
     LazyColumn(
-        modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+        modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+        contentPadding = PaddingValues(bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding())
     ) {
 
         // Lines

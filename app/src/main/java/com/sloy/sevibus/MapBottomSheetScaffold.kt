@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,7 +23,11 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -40,9 +45,18 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import com.composables.core.BottomSheet
+import com.composables.core.BottomSheetState
+import com.composables.core.DragIndication
+import com.composables.core.SheetDetent
+import com.composables.core.rememberBottomSheetState
 import com.sloy.sevibus.feature.map.MapScreen
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.navigation.NavigationDestination
@@ -50,15 +64,10 @@ import com.sloy.sevibus.navigation.NavigationDestinationType
 import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.navigation.isBottomBarVisible
 import com.sloy.sevibus.navigation.isTopBarVisible
-import com.sloy.sevibus.ui.components.AppUpdateButton
 import com.sloy.sevibus.ui.components.AppUpdateButtonState
 import com.sloy.sevibus.ui.components.SevNavigationBar
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
-import io.morfly.compose.bottomsheet.material3.BottomSheetScaffold
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetScaffoldState
-import io.morfly.compose.bottomsheet.material3.rememberBottomSheetState
-import io.morfly.compose.bottomsheet.material3.requireSheetVisibleHeightDp
 import kotlinx.coroutines.launch
 import se.warting.inappupdate.compose.InAppUpdateState
 import se.warting.inappupdate.compose.Mode
@@ -83,13 +92,22 @@ fun MapBottomSheetScaffold(
     val bottomBarHeight by remember(currentDestination) { derivedStateOf { if (currentDestinationState.isBottomBarVisible()) 80.dp else 0.dp } }
     val screenPeekingHeight by remember(currentDestination) { derivedStateOf { currentDestinationState.peekingSheetHeight() } }
 
-    val sheetState = rememberBottomSheetState(initialValue = CustomSheetValue.PartiallyExpanded, defineValues = {
-        CustomSheetValue.Collapsed at height(bottomBarHeight + bottomInsetPadding + SHEET_DRAG_HANDLE_HEIGHT + screenPeekingHeight)
-        CustomSheetValue.PartiallyCollapsed at height(percent = 40)
-        CustomSheetValue.PartiallyExpanded at height(percent = 60)
-        CustomSheetValue.Expanded at offset(topInsetPadding)
-    })
-
+    val DetentCollapsed = SheetDetent("CollapsedWithBottomBar") { containerHeight, sheetHeight ->
+        bottomBarHeight + bottomInsetPadding + DRAG_INDICATOR_HEIGHT + screenPeekingHeight
+    }
+    val DetentPartiallyCollapsed = SheetDetent("PartiallyCollapsed") { containerHeight, sheetHeight ->
+        containerHeight * 0.4f
+    }
+    val DetentPartiallyExpanded = SheetDetent("PartiallyExpanded") { containerHeight, sheetHeight ->
+        containerHeight * 0.6f
+    }
+    val DetentExpanded = SheetDetent("Expanded") { containerHeight, sheetHeight ->
+        containerHeight - topInsetPadding
+    }
+    val sheetState = rememberBottomSheetState(
+        initialDetent = DetentPartiallyExpanded,
+        detents = listOf(DetentCollapsed, DetentPartiallyCollapsed, DetentPartiallyExpanded, DetentExpanded),
+    )
     val updateState = rememberInAppUpdateState()
 
     // Bottomsheet expanded state
@@ -97,9 +115,9 @@ fun MapBottomSheetScaffold(
     LaunchedEffect(currentDestination) {
         if (currentDestination.type == NavigationDestinationType.MAP_BOTTOM_SHEET) {
             if (currentDestination::class != previousSheetDestination::class) {
-                sheetState.animateTo(CustomSheetValue.Collapsed)
-                sheetState.animateTo(CustomSheetValue.PartiallyExpanded)
-                sheetState.refreshValues()
+                sheetState.animateTo(DetentCollapsed)
+                sheetState.animateTo(DetentPartiallyExpanded)
+                sheetState.invalidateDetents()
             }
             previousSheetDestination = currentDestination
         }
@@ -122,7 +140,7 @@ fun MapBottomSheetScaffold(
                         },
                         onNavigateToDestination = {
                             onNavigate(it)
-                            coroutineScope.launch { sheetState.animateTo(CustomSheetValue.PartiallyExpanded) }
+                            coroutineScope.launch { sheetState.animateTo(DetentPartiallyExpanded) }
                         },
                         currentNavDestination = currentDestination,
                     )
@@ -130,18 +148,42 @@ fun MapBottomSheetScaffold(
             },
             topBar = {
                 AnimatedVisibility(
-                    visible = currentDestination.isTopBarVisible() && sheetState.targetValue != CustomSheetValue.Expanded,
+                    visible = currentDestination.isTopBarVisible() && sheetState.targetDetent != DetentExpanded,
                     enter = slideInVertically(initialOffsetY = { -it }),
                     exit = slideOutVertically(targetOffsetY = { -it }),
                     content = { topBar(currentDestination) },
                 )
 
-            }) { scaffoldInnerPadding -> // Includes the padding from BottomNavigation
-            BottomSheetScaffold(
-                scaffoldState = rememberBottomSheetScaffoldState(sheetState),
-                sheetContainerColor = SevTheme.colorScheme.background,
-                sheetShadowElevation = 8.dp,
-                sheetContent = {
+            }) { scaffoldInnerPadding -> // Includes the padding from BottomNavigation and Snackbar
+
+            MapContainer(sheetState, scaffoldInnerPadding, onNavigate, onMapClick = {
+                if (currentDestination is TopLevelDestination) {
+                    coroutineScope.launch { sheetState.animateTo(DetentCollapsed) }
+                }
+            })
+            BottomSheet(
+                state = sheetState,
+                modifier = Modifier
+                    .shadow(4.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(SevTheme.colorScheme.background)
+                    .widthIn(max = 640.dp)
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = topInsetPadding), // To compensate the top padding applied to the Sheet
+                ) {
+                    DragIndication(
+                        modifier = Modifier
+                            .padding(vertical = DRAG_INDICATOR_PADDING)
+                            .background(Color.Black.copy(0.4f), RoundedCornerShape(100))
+                            .width(32.dp)
+                            .height(DRAG_INDICATOR_HANDLE_HEIGHT)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    // Sheet Content
                     AnimatedBottomSheetContent(
                         currentDestination,
                     ) { destination ->
@@ -150,14 +192,10 @@ fun MapBottomSheetScaffold(
                                 .navigationBarsPadding()
                                 .consumeWindowInsets(PaddingValues(bottom = bottomBarHeight))
                         ) {
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                            ) {
+                            Box(Modifier.weight(1f)) { // weight=1 to make the content fill the space except for the spacers below
                                 bottomSheetContent(destination)
                             }
-                            Spacer(Modifier.height(topInsetPadding)) // <-- Trick to overcome the offset on the Expanded bottomsheet top
+                            //Spacer(Modifier.height(topInsetPadding)) // <-- Trick to overcome the offset on the Expanded bottomsheet top
                             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.ime))
                             Spacer(
                                 Modifier
@@ -166,35 +204,36 @@ fun MapBottomSheetScaffold(
                             )
                         }
                     }
-                },
-            ) { contentPadding -> // ignored because we already use the bottom sheet height to offset the map content
-                val sheetHeight by remember { derivedStateOf { sheetState.requireSheetVisibleHeightDp() } }
-                MapScreen(
-                    PaddingValues(bottom = sheetHeight, top = scaffoldInnerPadding.calculateTopPadding()),
-                    onStopSelected = {
-                        onNavigate(NavigationDestination.StopDetail(it.code))
-                    },
-                    onMapClick = {
-                        if (currentDestination is TopLevelDestination) {
-                            coroutineScope.launch { sheetState.animateTo(CustomSheetValue.Collapsed) }
-                        }
-                    },
-                )
-
-                Box(Modifier.fillMaxWidth()) {
-                    AppUpdateButton(
-                        updateState.toButtonState(),
-                        Modifier
-                            .padding(top = scaffoldInnerPadding.calculateTopPadding())
-                            .padding(8.dp)
-                            .align(Alignment.Center)
-                    )
                 }
             }
+
             AnimatedFullScreenContent(currentDestination) { destination ->
                 fullScreenContent(destination, scaffoldInnerPadding)
             }
         }
+    }
+}
+
+@Composable
+fun BottomSheetContainer(modifier: Modifier = Modifier) {
+
+}
+
+@Composable
+private fun MapContainer(sheetState: BottomSheetState, scaffoldInnerPadding: PaddingValues, onNavigate: (NavigationDestination) -> Unit, onMapClick: ()->Unit) {
+    with(LocalDensity.current) {
+        // Map padded content
+        val topSystemBarPadding = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+        val bottomPadding = (sheetState.offset.toDp() - topSystemBarPadding).coerceAtLeast(0.dp)
+        val topPadding =scaffoldInnerPadding.calculateTopPadding()
+
+        MapScreen(
+            PaddingValues(bottom = bottomPadding, top = topPadding),
+            onStopSelected = {
+                onNavigate(NavigationDestination.StopDetail(it.code))
+            },
+            onMapClick,
+        )
     }
 }
 

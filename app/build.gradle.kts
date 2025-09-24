@@ -97,7 +97,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.morfly.bottomsheet)
+    implementation(libs.composeunstyled)
 
     implementation(libs.accompanist.permissions)
     implementation(libs.coil)
