@@ -21,7 +21,6 @@ class OnStopAndLineSelected(
         val route = routeRepository.obtainRoute(stopId, lineId)
 
         emitAll(onLineSelectedState(lineId, route.id)
-            .map { it.copy(lineStops = it.lineStops.filter { it.code != stop.code }) }
             .map { lineState ->
                 val movedStop = lineState.path?.let { stop.moveToPath(it) } ?: stop
                 MapScreenState.StopAndLineSelected(movedStop, lineState)

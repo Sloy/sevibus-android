@@ -56,7 +56,7 @@ private fun StopSelectedMarkerLayers(state: MapScreenState.StopSelected, zoomLev
 @GoogleMapComposable
 private fun StopAndLineSelectedMarkerLayers(state: MapScreenState.StopAndLineSelected, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
     SelectedStopLayer(state.selectedStop, zoomLevel, onStopClick, color = state.lineSelectedState.line.color)
-    LineStopsMarkerLayer(state.lineSelectedState.lineStops, state.lineSelectedState.line, zoomLevel, onStopClick)
+    LineStopsMarkerLayer(state.lineSelectedState.lineStops - state.selectedStop, state.lineSelectedState.line, zoomLevel, onStopClick)
     GenericStopsMakerLayer(state.lineSelectedState.otherStops, zoomLevel, onStopClick, colored = false, hideOnZoom = listOf(ZoomLevel.Far, ZoomLevel.Medium))
     if (state.lineSelectedState.path != null) SingleLineLayer(state.lineSelectedState.path, zoomLevel, splitPoint = state.selectedStop.position)
     if (state.lineSelectedState.buses != null) BusMarkersLayer(state.lineSelectedState.buses, showLineTooltip = false)
