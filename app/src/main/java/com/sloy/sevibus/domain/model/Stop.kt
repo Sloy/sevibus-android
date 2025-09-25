@@ -34,4 +34,6 @@ fun Collection<Stop>.filterInBounds(bounds: PositionBounds?): Collection<Stop> {
     }
 }
 
+fun Collection<Stop>.toBounds(): PositionBounds = map { it.position }.toBounds()
+
 typealias StopId = Int

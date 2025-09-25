@@ -1,5 +1,6 @@
 package com.sloy.sevibus
 
+import android.R.attr.bottom
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -227,7 +228,9 @@ private fun MapContainer(sheetState: BottomSheetState, scaffoldInnerPadding: Pad
         val bottomPadding = (sheetState.offset.toDp() - topSystemBarPadding).coerceAtLeast(0.dp)
         val topPadding =scaffoldInnerPadding.calculateTopPadding()
 
+
         MapScreen(
+            sheetState,
             PaddingValues(bottom = bottomPadding, top = topPadding),
             onStopSelected = {
                 onNavigate(NavigationDestination.StopDetail(it.code))

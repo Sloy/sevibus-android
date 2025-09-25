@@ -25,15 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.composables.core.BottomSheetState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.maps.android.compose.CameraMoveStartedReason
@@ -43,7 +46,9 @@ import com.sloy.debugmenu.launcher.DebugMenuLauncher
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
+import com.sloy.sevibus.domain.model.toBounds
 import com.sloy.sevibus.domain.model.toLatLng
+import com.sloy.sevibus.domain.model.toLatLngBounds
 import com.sloy.sevibus.feature.debug.SevDebugMenu
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.EventCollector
@@ -61,6 +66,7 @@ import com.sloy.sevibus.ui.components.CustomFab
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.internal.format
 import org.koin.androidx.compose.koinViewModel
@@ -68,6 +74,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MapScreen(
+    sheetState: BottomSheetState,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
@@ -76,20 +83,21 @@ fun MapScreen(
         val mapViewModel: MapViewModel = koinViewModel()
         val state by mapViewModel.state.collectAsStateWithLifecycle()
         val snackbarState = LocalSnackbarHostState.current
-        MapScreen(state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack, snackbarState)
+        MapScreen(sheetState, state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack, snackbarState)
         EventCollector(mapViewModel.events) { event ->
             when (event) {
                 is MapScreenEvent.Error -> snackbarState.showSnackbar(event.message, withDismissAction = true)
             }
         }
     } else {
-        MapScreen(MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { }, SnackbarHostState())
+        MapScreen(sheetState, MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { }, SnackbarHostState())
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun MapScreen(
+    sheetState: BottomSheetState,
     state: MapScreenState,
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
@@ -99,25 +107,60 @@ private fun MapScreen(
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
     val locationPermissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
-    val cameraPositionState = rememberCameraPositionState {
+    val camera = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(Stubs.locationInitial.toLatLng(), ZoomLevel.Far.minimumLevel.toFloat())
     }
     LaunchedEffect(locationPermissionState?.status?.isGranted) {
         locationService.obtainCurrentLocation()?.toLatLng()?.let { userLocation ->
             if (userLocation.isInsideSevilla()) {
-                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOCATION_ZOOM))
+                camera.animate(CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOCATION_ZOOM))
             }
         }
     }
-    LaunchedEffect(cameraPositionState.isMoving, cameraPositionState.cameraMoveStartedReason) {
-        if (cameraPositionState.isMoving && cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
+    LaunchedEffect(camera.isMoving, camera.cameraMoveStartedReason) {
+        if (camera.isMoving && camera.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
             onMapClick()
         }
     }
 
+    suspend fun centerMapOn(cameraUpdate: CameraUpdate?) {
+        if (cameraUpdate == null) return
+        // Wait until the sheet is in its final position
+        delay(20)
+        while (!sheetState.isIdle) {
+            delay(10)
+        }
+        camera.animate(cameraUpdate, MAP_CAMERA_ANIMATION_DURATION)
+    }
+
+    val density = LocalDensity.current
+    val boundsPadding = with(density) { 40.dp.toPx() }.toInt()
+
+    when (state) {
+        is MapScreenState.StopSelected -> {
+            LaunchedEffect(state.selectedStop) {
+                centerMapOn(CameraUpdateFactory.newLatLngZoom(state.selectedStop.position.toLatLng(), ZoomLevel.Close.minimumLevel.toFloat()) )
+            }
+        }
+
+        is MapScreenState.LineSelected -> {
+            LaunchedEffect(state.lineStops) {
+                centerMapOn(CameraUpdateFactory.newLatLngBounds(state.lineStops.toBounds().toLatLngBounds(), boundsPadding))
+            }
+        }
+
+        is MapScreenState.StopAndLineSelected -> {
+            LaunchedEffect(state.selectedStop) {
+                centerMapOn(CameraUpdateFactory.newLatLngBounds(state.selectedStops().toBounds().toLatLngBounds(), boundsPadding))
+            }
+        }
+
+        else -> {}
+    }
+
     MapUI(
         state,
-        cameraPositionState,
+        camera,
         locationPermissionState,
         snackbarHostState,
         locationService,
@@ -174,6 +217,8 @@ private fun MapUI(
                 onTrack = onTrack,
             )
         }
+
+
 
         SevMap(
             state = state,
@@ -256,6 +301,7 @@ private fun LocationButton(
         Icon(if (isCameraInCurrentPosition) Icons.Filled.MyLocation else Icons.Filled.LocationSearching, "Search Location")
     }
 
+
 }
 
 @Composable
@@ -275,7 +321,9 @@ private fun DebugInfo(
     }
 }
 
-const val MY_LOCATION_ZOOM = 17f
+
+private const val MY_LOCATION_ZOOM = 17f
+private const val MAP_CAMERA_ANIMATION_DURATION = 200
 
 
 @OptIn(ExperimentalPermissionsApi::class)

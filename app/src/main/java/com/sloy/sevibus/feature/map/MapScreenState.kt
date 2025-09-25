@@ -29,3 +29,14 @@ sealed interface MapScreenState {
         val buses: List<Bus>? = null,
     ) : MapScreenState
 }
+
+fun MapScreenState.StopAndLineSelected.selectedStops(): List<Stop> {
+    val lineStops = lineSelectedState.lineStops
+    val stopIndex = lineStops.indexOfFirst { it.code == selectedStop.code }
+    if (stopIndex == -1) {
+        error("Stop ${selectedStop.code} not found in line ${lineSelectedState.line.id} stops")
+    }
+    val nextStop = lineStops.getOrNull(stopIndex + 1)
+    val previousStop = lineStops.getOrNull(stopIndex - 1)
+    return listOf(previousStop, selectedStop, nextStop).filterNotNull()
+}

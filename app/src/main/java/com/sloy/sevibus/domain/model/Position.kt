@@ -12,6 +12,18 @@ fun Position.toLatLng(): LatLng {
     return LatLng(latitude, longitude)
 }
 
+fun List<Position>.toBounds(): PositionBounds {
+    val latitudes = this.map { it.latitude }
+    val longitudes = this.map { it.longitude }
+    val northeast = Position(latitudes.maxOrNull() ?: 0.0, longitudes.maxOrNull() ?: 0.0)
+    val southwest = Position(latitudes.minOrNull() ?: 0.0, longitudes.minOrNull() ?: 0.0)
+    return PositionBounds(northeast, southwest)
+}
+
+fun PositionBounds.toLatLngBounds(): LatLngBounds {
+    return LatLngBounds(southwest.toLatLng(), northeast.toLatLng())
+}
+
 fun LatLng.fromLatLng(): Position {
     return Position(latitude, longitude)
 }
@@ -26,7 +38,6 @@ fun Location.toLatLng(): LatLng {
 
 fun LatLng.isInsideSevilla(): Boolean {
     return SEVILLA_BOUNDS.contains(this)
-
 }
 
 fun Position.manhattanDistance(other: Position): Double {
