@@ -97,7 +97,7 @@ fun StopDetailScreen(
     Column {
 
         if (state is StopDetailScreenState.Loaded) {
-            val title = stringResource(R.string.common_stop_with_code, (state as? StopDetailScreenState.Loaded)?.stop?.code ?: "")
+            val title = stringResource(R.string.common_stop_with_code, state.stop.code)
             StopDetailsHeader(state, title, onFavoriteClick)
             Spacer(Modifier.height(16.dp))
             HorizontalDivider()
