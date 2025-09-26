@@ -124,9 +124,17 @@ fun NearbyListItem(
                     null
                 }
 
-                Text(
-                    title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
+                    )
+                    Text(
+                        " • ${nearby.stop.code}",
+                        maxLines = 1,
+                        style = SevTheme.typography.bodySmall,
+                        color = SevTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 subtitle?.let {
                     Text(
                         subtitle,

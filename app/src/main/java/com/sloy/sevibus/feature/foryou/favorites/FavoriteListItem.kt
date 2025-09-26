@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextOverflow
@@ -105,7 +106,7 @@ fun FavoriteListItem(
         Row(Modifier.padding(16.dp)) {
             Icon(favorite.customIcon.toImageVector(), contentDescription = null, tint = SevTheme.colorScheme.primary)
             Column(Modifier.padding(start = 16.dp)) {
-                val title = favorite.customName ?: favorite.stop.description1
+                val title = (favorite.customName ?: favorite.stop.description1)
                 val subtitle = if (favorite.customName != null) {
                     favorite.stop.descriptionWithSeparator()
                 } else if (favorite.stop.description2 != null) {
@@ -114,9 +115,17 @@ fun FavoriteListItem(
                     null
                 }
 
-                Text(
-                    title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
+                    )
+                    Text(
+                        " • ${favorite.stop.code}",
+                        maxLines = 1,
+                        style = SevTheme.typography.bodySmall,
+                        color = SevTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 subtitle?.let {
                     Text(
                         subtitle,
