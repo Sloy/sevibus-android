@@ -38,14 +38,18 @@ class RemoteBusRepository(
         mutex.withLock {
             arrivalsMemoryCache.get(stop)?.let { return@withContext it }
             val arrivals = api.getArrivals(stop)
-            val lines = lineRepository.obtainLines(arrivals.map { it.line }).map { it.toSummary() }
             val routes = routeRepository.obtainRoutesOfStop(stop)
+            val lines = lineRepository.obtainLines(routes.map { it.line }).map { it.toSummary() }
 
-            return@withContext arrivals.map { arrival ->
+            val successfulArrivals = arrivals.map { arrival ->
                 val line = lines.first { it.id == arrival.line }
                 val route = routes.first { (arrival.line == it.line) and (stop in it.stops) }
                 arrival.fromDto(line, route)
-            }.sorted()
+            }
+
+            val missingArrivals = getMissingArrivals(lines, routes, successfulArrivals)
+
+            return@withContext (successfulArrivals + missingArrivals).sorted()
                 .also { arrivalsMemoryCache.put(stop, it) }
         }
     }
@@ -57,6 +61,20 @@ class RemoteBusRepository(
             busesMemoryCache.get(route)?.let { return@withContext it }
             api.getBuses(route).map { it.fromDto(line) }
                 .also { busesMemoryCache.put(route, it) }
+        }
+    }
+
+    private fun getMissingArrivals(
+        allLines: List<LineSummary>,
+        allRoutes: List<Route>,
+        successfulArrivals: List<BusArrival>
+    ): List<BusArrival.NotAvailable> {
+        val missingLines = allLines.filter { line -> successfulArrivals.none { it.line == line } }
+        val routesAndLines: List<Pair<LineSummary, Route>> = missingLines.map { line ->
+            line to (allRoutes.find { it.line == line.id })
+        }.filter { (_, route) -> route != null }.map { (line, route) -> line to route!! }
+        return routesAndLines.map { (line, route) ->
+            BusArrival.NotAvailable(line, route)
         }
     }
 }

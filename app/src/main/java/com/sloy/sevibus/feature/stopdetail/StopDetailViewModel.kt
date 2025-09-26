@@ -4,19 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.FavoriteStop
-import com.sloy.sevibus.domain.model.LineSummary
-import com.sloy.sevibus.domain.model.Route
-import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.FavoriteRepository
-import com.sloy.sevibus.domain.repository.RouteRepository
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.session.SessionService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -36,7 +30,6 @@ class StopDetailViewModel(
     private val stopRepository: StopRepository,
     private val busRepository: BusRepository,
     private val favoriteRepository: FavoriteRepository,
-    private val routeRepository: RouteRepository,
     private val sessionService: SessionService,
     private val analytics: Analytics,
 ) : ViewModel() {
@@ -70,11 +63,10 @@ class StopDetailViewModel(
             if (arrivals.isEmpty()) {
                 StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loading(stop.lines))
             } else {
-                StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals + getMissingArrivals(stop, arrivals)))
+                StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals))
             }
         }.recover {
-            val failedArrivals = getMissingArrivals(stop, emptyList())
-            StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Failed(failedArrivals, arrivalsResult.exceptionOrNull()!!))
+            StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Failed(emptyList(), arrivalsResult.exceptionOrNull()!!))
         }.getOrThrow()
     }.catch { StopDetailScreenState.Failed(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2000), StopDetailScreenState.Loading)
@@ -94,17 +86,4 @@ class StopDetailViewModel(
             events.emit(StopDetailScreenEvent.LoginRequired(loginAction = { sessionService.manualSignIn(it) }))
         }
     }
-
-    private suspend fun getMissingArrivals(stop: Stop, successfulArrivals: List<BusArrival>): List<BusArrival.NotAvailable> {
-        val routes = routeRepository.obtainRoutesOfStop(stopId).filterNot { route -> route in successfulArrivals.map { it.route } }
-        val missingLines = stop.lines.filter { line -> successfulArrivals.none { it.line == line } }
-        val routesAndLines: List<Pair<LineSummary, Route>> = missingLines.map { line ->
-            line to (routes.find { it.line == line.id })
-        }.filter { (_, route) -> route != null }.map { (line, route) -> line to route!! }
-        return routesAndLines.map { (line, route) ->
-            BusArrival.NotAvailable(line, route)
-        }
-    }
-
-
 }

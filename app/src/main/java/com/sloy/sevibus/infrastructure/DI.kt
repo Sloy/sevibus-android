@@ -99,7 +99,7 @@ object DI {
     val viewModelModule = module {
         viewModel { LinesViewModel(get()) }
         viewModel { parameters -> LineRouteViewModel(parameters.get(), parameters.getOrNull<RouteId>(), get(), get()) }
-        viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get(), get(), get(), get()) }
         viewModel { FavoritesListViewModel(get(), get(), get()) }
         viewModel { NearbyViewModel(get(), get(), get()) }
         viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get()) }
