@@ -31,11 +31,13 @@ fun DebugItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .apply {
+            .then(
                 if (onClick != null) {
-                    clickable { onClick() }
+                    Modifier.clickable { onClick() }
+                } else {
+                    Modifier
                 }
-            }
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)) {
         leadingIcon?.let {
             Icon(
