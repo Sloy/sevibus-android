@@ -16,6 +16,7 @@ import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.session.SessionService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -75,7 +77,7 @@ class StopDetailViewModel(
             StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Failed(failedArrivals, arrivalsResult.exceptionOrNull()!!))
         }.getOrThrow()
     }.catch { StopDetailScreenState.Failed(it) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, StopDetailScreenState.Loading)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2000), StopDetailScreenState.Loading)
 
     fun onFavoriteClick() = viewModelScope.launch {
         if (sessionService.isLogged()) {
