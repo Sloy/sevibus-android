@@ -2,6 +2,8 @@ package com.sloy.sevibus.feature.foryou.favorites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sloy.sevibus.Stubs.arrivals
+import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.onePerLine
 import com.sloy.sevibus.domain.repository.BusRepository
@@ -26,6 +28,7 @@ class FavoriteItemViewModel(
         while (true) {
             runCatching {
                 busRepository.obtainBusArrivals(favorite.stop.code)
+                    .filter { it !is BusArrival.NotAvailable }
                     .onePerLine()
             }.onSuccess { arrivals ->
                 emit(FavoriteItemState.Loaded(favorite, arrivals))
