@@ -2,14 +2,12 @@ package com.sloy.sevibus.feature.lines
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,11 +22,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 fun NavGraphBuilder.linesRoute(onNavigate: (NavigationDestination) -> Unit) {
     composable<NavigationDestination.Lines> {
@@ -41,10 +42,12 @@ fun LinesScreen(onNavigate: (NavigationDestination) -> Unit, modifier: Modifier 
     if (!LocalView.current.isInEditMode) {
 
         val viewModel = koinViewModel<LinesViewModel>()
+        val analytics = koinInject<Analytics>()
         val state by viewModel.state.collectAsState()
         LinesScreen(
             state,
             onLineClick = {
+                analytics.track(Clicks.LineListClicked(it.label))
                 onNavigate(NavigationDestination.LineStops(it.id))
             },
             modifier

@@ -74,4 +74,8 @@ interface Clicks {
         "Search Result Stop Clicked", "stopId" to stopId
     )
 
+    data class LineListClicked(val lineLabel: String) : SevEvent(
+        "Line List Clicked", "line" to lineLabel
+    )
+
 }
