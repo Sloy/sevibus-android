@@ -116,23 +116,12 @@ jobs:
           echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
           echo "version=${LATEST_TAG#v}" >> $GITHUB_OUTPUT
 
-      - name: Get previous tag for release notes
-        id: prev-tag
-        run: |
-          git fetch --tags
-          PREV_TAG=$(git tag --sort=-version:refname | grep -v "${{ steps.release_info.outputs.tag }}" | head -1)
-          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
-
       - name: Generate release notes
         id: release-notes
         run: |
-          if [ -n "${{ steps.prev-tag.outputs.prev_tag }}" ]; then
-            COMMITS=$(git log --pretty=format:"- %s (%h)" ${{ steps.prev-tag.outputs.prev_tag }}..${{ steps.release_info.outputs.tag }})
-          else
-            COMMITS=$(git log --pretty=format:"- %s (%h)" --max-count=10)
-          fi
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
+          RELEASE_NOTES=$(./scripts/generate-release-notes.sh --format markdown)
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
@@ -141,9 +130,7 @@ jobs:
           tag: "${{ steps.release_info.outputs.tag }}"
           name: "${{ steps.release_info.outputs.tag }}${{ github.event.inputs.release_name && format(' - {0}', github.event.inputs.release_name) || '' }}"
           body: |
-            ## Changes in this release:
-
-            ${{ steps.release-notes.outputs.commits }}
+            ${{ steps.release-notes.outputs.release_notes }}
 
             ---
             This release will be automatically deployed to Google Play Internal Track.
