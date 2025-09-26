@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.sloy.debugmenu.base.DebugMenu
 import com.sloy.debugmenu.base.DebugMenuViewModel
+import com.sloy.sevibus.feature.debug.auth.AuthDebugModule
 import com.sloy.sevibus.feature.debug.location.LocationDebugModule
 import com.sloy.sevibus.feature.debug.network.NetworkDebugModule
 import com.sloy.sevibus.feature.debug.tracking.TrackingDebugModule
@@ -26,6 +27,7 @@ private fun SevDebugMenu(viewModelProvider: () -> DebugMenuViewModel) {
             NetworkDebugModule()
             LocationDebugModule()
             InAppReviewDebugModule()
+            AuthDebugModule()
         }
     }
 }

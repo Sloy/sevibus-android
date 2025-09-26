@@ -33,7 +33,6 @@ import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Http
-import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.Timeline
@@ -84,11 +83,8 @@ import coil.compose.AsyncImage
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.LoggedUser
-import com.sloy.sevibus.infrastructure.BuildVariant
-import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSelectorBottomSheet
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
-import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -245,19 +241,6 @@ fun SettingsScreen(
                     )
                 }
 
-                if (BuildVariant.isDebug()) {
-                    Spacer(Modifier.height(32.dp))
-                    SettingsSection(stringResource(R.string.settings_debug_menu)) {
-                        val coroutineScope = rememberCoroutineScope()
-                        val firebaseService = koinInjectOnUI<FirebaseAuthService>()
-                        SettingsItem(
-                            title = stringResource(R.string.settings_firebase_logout),
-                            subtitle = stringResource(R.string.settings_firebase_logout_description),
-                            leadingIcon = Icons.Outlined.LocalFireDepartment,
-                            onClick = { coroutineScope.launch { firebaseService?.signOut() } },
-                        )
-                    }
-                }
 
                 if (healthCheckState !is HealthCheckState.NotAvailable) {
                     Spacer(Modifier.height(32.dp))
