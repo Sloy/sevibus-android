@@ -159,7 +159,7 @@ fun LineDto.toEntity(): LineEntity {
 fun FavoriteStop.toEntity(order: Int = 0): FavoriteStopEntity {
     return FavoriteStopEntity(
         stopId = stop.code,
-        customName = customName,
+        customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
         order = order
     )
@@ -177,7 +177,7 @@ fun FavoriteStopDto.toEntity(): FavoriteStopEntity {
 fun FavoriteStopEntity.toDto(): FavoriteStopDto {
     return FavoriteStopDto(
         stopId = stopId,
-        customName = customName,
+        customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
         order = order
     )
