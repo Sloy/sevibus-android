@@ -23,3 +23,8 @@ val RouteId.direction: Int
     get() = this.split(".").last().toInt()
 
 data class RouteWithStops(val route: Route, val stops: List<Stop>)
+
+fun Route.Schedule.isCurrentyActive(): Boolean {
+    val now = LocalTime.now()
+    return now.isAfter(startTime) && now.isBefore(endTime)
+}
