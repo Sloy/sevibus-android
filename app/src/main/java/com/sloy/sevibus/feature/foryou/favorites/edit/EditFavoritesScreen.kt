@@ -304,12 +304,14 @@ fun LazyItemScope.EditFavoriteListItem(
                                                 )
                                             }
                                         }
-                                        IconButton(onClick = { onNameChanged("") }) {
-                                            Icon(
-                                                Icons.Filled.Close,
-                                                contentDescription = "Borrar",
-                                                tint = SevTheme.colorScheme.onSurfaceVariant
-                                            )
+                                        if (favorite.customName?.isNotEmpty() == true) {
+                                            IconButton(onClick = { onNameChanged("") }) {
+                                                Icon(
+                                                    Icons.Filled.Close,
+                                                    contentDescription = "Borrar",
+                                                    tint = SevTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
                                         }
                                     }
                                 }
