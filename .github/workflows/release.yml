@@ -119,7 +119,12 @@ jobs:
       - name: Generate release notes
         id: release-notes
         run: |
-          RELEASE_NOTES=$(./scripts/generate-release-notes.sh --format markdown)
+          # Get the current release tag and the previous one
+          CURRENT_TAG="${{ steps.release_info.outputs.tag }}"
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "^${CURRENT_TAG}$" | head -1)
+
+          echo "Generating release notes from $PREVIOUS_TAG to $CURRENT_TAG"
+          RELEASE_NOTES=$(./scripts/generate-release-notes.sh --format markdown --from "$PREVIOUS_TAG" --to "$CURRENT_TAG")
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
           echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
