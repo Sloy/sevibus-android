@@ -28,12 +28,11 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.StopId
-import com.sloy.sevibus.domain.model.description1
-import com.sloy.sevibus.domain.model.description2
-import com.sloy.sevibus.domain.model.descriptionWithSeparator
 import com.sloy.sevibus.domain.model.toImageVector
 import com.sloy.sevibus.ui.components.ArrivalTimeElement
 import com.sloy.sevibus.ui.components.ArrivalTimeElementShimmer
+import com.sloy.sevibus.ui.formatter.formatSubtitle
+import com.sloy.sevibus.ui.formatter.formatTitle
 import com.sloy.sevibus.ui.shimmer.shimmerLoadingAnimation
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
@@ -106,18 +105,10 @@ fun FavoriteListItem(
         Row(Modifier.padding(16.dp)) {
             Icon(favorite.customIcon.toImageVector(), contentDescription = null, tint = SevTheme.colorScheme.primary)
             Column(Modifier.padding(start = 16.dp)) {
-                val title = (favorite.customName ?: favorite.stop.description1)
-                val subtitle = if (favorite.customName != null) {
-                    favorite.stop.descriptionWithSeparator()
-                } else if (favorite.stop.description2 != null) {
-                    favorite.stop.description2
-                } else {
-                    null
-                }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
+                        favorite.formatTitle(), maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
                     )
                     Text(
                         " • ${favorite.stop.code}",
@@ -126,7 +117,7 @@ fun FavoriteListItem(
                         color = SevTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                subtitle?.let {
+                favorite.formatSubtitle()?.let { subtitle ->
                     Text(
                         subtitle,
                         maxLines = 1,

@@ -36,11 +36,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
+import com.sloy.sevibus.domain.model.CustomIcon
+import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.domain.model.description1
 import com.sloy.sevibus.domain.model.description2
+import com.sloy.sevibus.domain.model.toImageVector
 import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.EventCollector
@@ -49,6 +52,8 @@ import com.sloy.sevibus.ui.components.BusArrivalListItemLoading
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.InfoBannerComponent
 import com.sloy.sevibus.ui.components.LineIndicator
+import com.sloy.sevibus.ui.formatter.formatSubtitle
+import com.sloy.sevibus.ui.formatter.formatTitle
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -148,21 +153,21 @@ fun StopDetailScreen(
 private fun StopDetailsHeader(stopState: StopDetailScreenState.Loaded, title: String, onFavoriteClick: () -> Unit) {
     Row(Modifier.padding(horizontal = 16.dp)) {
         Icon(
-            SevIcons.Stop,
+            stopState.favorite?.customIcon?.toImageVector() ?: SevIcons.Stop,
             contentDescription = null,
             tint = SevTheme.colorScheme.primary,
             modifier = Modifier.padding(end = 8.dp)
         )
         Column(Modifier.weight(1f)) {
             Text(
-                stopState.stop.description1,
+                stopState.stop.formatTitle(stopState.favorite),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = SevTheme.typography.headingSmall
             )
-            stopState.stop.description2?.let {
+            stopState.stop.formatSubtitle(stopState.favorite)?.let { subtitle ->
                 Text(
-                    it,
+                    subtitle,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = SevTheme.typography.bodySmall,
@@ -181,7 +186,7 @@ private fun StopDetailsHeader(stopState: StopDetailScreenState.Loaded, title: St
         }
         Column(horizontalAlignment = Alignment.End) {
             CircularIconButton(onClick = onFavoriteClick, modifier = Modifier.padding(start = 8.dp)) {
-                val (icon, color) = if (stopState.isFavorite) {
+                val (icon, color) = if (stopState.favorite != null) {
                     Icons.Outlined.Favorite to SevTheme.colorScheme.primary
                 } else {
                     Icons.Outlined.FavoriteBorder to SevTheme.colorScheme.onSurfaceVariant
@@ -235,7 +240,11 @@ private fun LoadedArrivalsPreview() {
     ScreenPreview {
         val arrivals = Stubs.arrivals
         StopDetailScreen(
-            StopDetailScreenState.Loaded(Stubs.stops[1], isFavorite = true, arrivalsState = ArrivalsState.Loaded(arrivals)),
+            StopDetailScreenState.Loaded(
+                Stubs.stops[1],
+                favorite = FavoriteStop(Stubs.stops[1], "Casa", CustomIcon.Home),
+                arrivalsState = ArrivalsState.Loaded(arrivals)
+            ),
             highlighedLine = arrivals[2].line.id,
             {},
             {},

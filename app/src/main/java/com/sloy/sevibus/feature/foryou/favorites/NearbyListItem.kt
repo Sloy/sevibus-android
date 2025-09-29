@@ -28,10 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.StopId
-import com.sloy.sevibus.domain.model.description1
-import com.sloy.sevibus.domain.model.description2
 import com.sloy.sevibus.ui.components.ArrivalTimeElement
 import com.sloy.sevibus.ui.components.ArrivalTimeElementShimmer
+import com.sloy.sevibus.ui.formatter.formatSubtitle
+import com.sloy.sevibus.ui.formatter.formatTitle
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.shimmer.shimmerLoadingAnimation
@@ -117,16 +117,13 @@ fun NearbyListItem(
                 )
             }
             Column(Modifier.padding()) {
-                val title = nearby.stop.description1
-                val subtitle = if (nearby.stop.description2 != null) {
-                    nearby.stop.description2
-                } else {
-                    null
-                }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        title, maxLines = 1, overflow = TextOverflow.Ellipsis, style = SevTheme.typography.bodyStandardBold
+                        nearby.stop.formatTitle(null),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = SevTheme.typography.bodyStandardBold
                     )
                     Text(
                         " • ${nearby.stop.code}",
@@ -135,7 +132,7 @@ fun NearbyListItem(
                         color = SevTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                subtitle?.let {
+                nearby.stop.formatSubtitle(null)?.let { subtitle ->
                     Text(
                         subtitle,
                         maxLines = 1,

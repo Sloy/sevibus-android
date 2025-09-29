@@ -34,9 +34,8 @@ class StopDetailViewModel(
     private val analytics: Analytics,
 ) : ViewModel() {
 
-    private val isFavorite: Flow<Boolean> = favoriteRepository.observeFavorites()
+    private val favorite: Flow<FavoriteStop?> = favoriteRepository.observeFavorites()
         .map { it.find { favorite -> favorite.stop.code == stopId } }
-        .map { it != null }
 
     private val arrivals: Flow<Result<List<BusArrival>>> = flow {
         emit(Result.success(emptyList()))
@@ -56,7 +55,7 @@ class StopDetailViewModel(
 
     val state: StateFlow<StopDetailScreenState> = combine(
         flow { emit(stopRepository.obtainStop(stopId)) },
-        isFavorite,
+        favorite,
         arrivals
     ) { stop, isFavorite, arrivalsResult ->
         arrivalsResult.map { arrivals ->
@@ -74,7 +73,7 @@ class StopDetailViewModel(
     fun onFavoriteClick() = viewModelScope.launch {
         if (sessionService.isLogged()) {
             (state.value as? StopDetailScreenState.Loaded)?.let { state ->
-                if (state.isFavorite) {
+                if (state.favorite != null) {
                     favoriteRepository.removeFavorite(stopId)
                     analytics.track(Clicks.RemoveFavoriteClicked(stopId))
                 } else {
