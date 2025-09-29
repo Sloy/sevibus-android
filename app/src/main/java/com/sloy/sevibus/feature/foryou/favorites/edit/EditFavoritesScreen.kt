@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -73,6 +74,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.descriptionWithSeparator
 import com.sloy.sevibus.domain.model.toImageVector
@@ -82,6 +84,7 @@ import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.infrastructure.extensions.plus
 import com.sloy.sevibus.infrastructure.extensions.swap
 import com.sloy.sevibus.ui.components.CircularIconButton
+import com.sloy.sevibus.ui.components.IconPicker
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.components.SevTopAppBar
 import com.sloy.sevibus.ui.components.SurfaceButton
@@ -168,6 +171,11 @@ fun EditFavoritesScreen(
                             set(indexOfFirst { it.stop.code == favorite.stop.code }, favorite.copy(customName = name))
                         }
                     },
+                    onIconChanged = { icon ->
+                        favoritesLocalList = favoritesLocalList.toMutableList().apply {
+                            set(indexOfFirst { it.stop.code == favorite.stop.code }, favorite.copy(customIcon = icon))
+                        }
+                    },
                     onDeleteClicked = {
                         val index = favoritesLocalList.indexOf(favorite)
                         favoritesLocalList = favoritesLocalList.toMutableList().apply {
@@ -196,6 +204,7 @@ fun LazyItemScope.EditFavoriteListItem(
     favorite: FavoriteStop,
     reorderableLazyListState: ReorderableLazyListState,
     onNameChanged: (String) -> Unit,
+    onIconChanged: (CustomIcon?) -> Unit,
     onDeleteClicked: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -226,9 +235,10 @@ fun LazyItemScope.EditFavoriteListItem(
                         .padding(start = 16.dp, end = 8.dp)
                         .height(IntrinsicSize.Min)
                 ) {
-                    // Icon surface
+                    // Icon surface with picker
+                    var showIconPicker by remember { mutableStateOf(false) }
                     Surface(
-                        onClick = { /* TODO Icon selector UI */ },
+                        onClick = { showIconPicker = true },
                         border = BorderStroke(1.dp, SevTheme.colorScheme.outlineVariant),
                         color = SevTheme.colorScheme.outlineVariant,
                         shape = SevTheme.shapes.small,
@@ -240,6 +250,14 @@ fun LazyItemScope.EditFavoriteListItem(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .size(24.dp),
+                        )
+                        IconPicker(
+                            expanded = showIconPicker,
+                            onDismiss = { showIconPicker = false },
+                            onIconSelected = { icon ->
+                                showIconPicker = false
+                                onIconChanged(icon)
+                            }
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -348,6 +366,7 @@ fun LazyItemScope.EditFavoriteListItem(
     }
 }
 
+
 @Preview(showSystemUi = true)
 @Composable
 private fun Preview() {
@@ -367,10 +386,10 @@ private fun FavoriteItemPreview() {
             modifier = Modifier.background(SevTheme.colorScheme.background)
         ) {
             item {
-                EditFavoriteListItem(Stubs.favorites.first(), reorderableLazyListState, {}, {})
+                EditFavoriteListItem(Stubs.favorites.first(), reorderableLazyListState, {}, {}, {})
             }
             item {
-                EditFavoriteListItem(Stubs.favorites.last(), reorderableLazyListState, {}, {})
+                EditFavoriteListItem(Stubs.favorites.last(), reorderableLazyListState, {}, {}, {})
             }
         }
     }
