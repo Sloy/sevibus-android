@@ -78,4 +78,8 @@ interface Clicks {
         "Line List Clicked", "line" to lineLabel
     )
 
+    data object FeedbackClicked : SevEvent(
+        "Feedback Clicked"
+    )
+
 }

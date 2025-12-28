@@ -85,6 +85,10 @@ class SettingsViewModel(
         }
     }
 
+    fun onFeedbackClick() {
+        analytics.track(Clicks.FeedbackClicked)
+    }
+
 }
 
 sealed class SettingsScreenState {

@@ -130,6 +130,12 @@
     <string name="settings_analytics_description">They help us to improve the app without tracking your personal information</string>
     <string name="settings_give_feedback">Give us feedback</string>
     <string name="settings_feedback_description">Have any issues or suggestions? Help us improve!</string>
+    <string name="settings_feedback_email_prompt">Write your feedback or suggestion here</string>
+    <string name="settings_feedback_email_diagnostic_info">Diagnostic info</string>
+    <string name="settings_feedback_email_device">Device</string>
+    <string name="settings_feedback_email_os">OS</string>
+    <string name="settings_feedback_email_app_version">App version</string>
+    <string name="settings_feedback_email_user_id">User ID</string>
     <string name="settings_login_to_save_favorites">Sign in to save your favorite stops and travel cards.</string>
     <string name="settings_login_with_google">Sign in with Google</string>
     <string name="settings_profile_description">Your profile is used to store your favorite stops and travel cards. This way you can always switch phones without losing anything.</string>

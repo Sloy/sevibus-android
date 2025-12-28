@@ -130,6 +130,12 @@
     <string name="settings_analytics_description">Nos ayudan a mejorar la app sin recopilar tu información personal</string>
     <string name="settings_give_feedback">Danos tu opinión</string>
     <string name="settings_feedback_description">¿Tienes algún problemilla o sugerencia? ¡Ayúdanos a mejorar!</string>
+    <string name="settings_feedback_email_prompt">Escribe aquí tu opinión o sugerencia</string>
+    <string name="settings_feedback_email_diagnostic_info">Información de diagnóstico</string>
+    <string name="settings_feedback_email_device">Device</string>
+    <string name="settings_feedback_email_os">OS</string>
+    <string name="settings_feedback_email_app_version">App version</string>
+    <string name="settings_feedback_email_user_id">User ID</string>
     <string name="settings_login_to_save_favorites">Inicia sesión para guardar tus paradas favoritas y tus tarjetas de bonobús.</string>
     <string name="settings_login_with_google">Inicia sesión con Google</string>
     <string name="settings_profile_description">Tu perfil se usa para almacenar tus paradas favoritas y tus tarjetas de bonobús. Así siempre podras cambiar de móvil sin perder nada.</string>

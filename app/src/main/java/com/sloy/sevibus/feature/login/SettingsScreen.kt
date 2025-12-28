@@ -109,7 +109,8 @@ fun SettingsScreen() {
         onLoginClick = { viewModel.onLoginClick(context) },
         onLogoutClick = { viewModel.onLogoutClick(context) },
         onNightModeChange = { viewModel.onNightModeChange(it) },
-        onAnalyticsChange = { viewModel.onAnalyticsChange(it) }
+        onAnalyticsChange = { viewModel.onAnalyticsChange(it) },
+        onFeedbackClick = { viewModel.onFeedbackClick() }
     )
 }
 
@@ -123,7 +124,8 @@ fun SettingsScreen(
     onLoginClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNightModeChange: (NightModeSetting) -> Unit = {},
-    onAnalyticsChange: (Boolean) -> Unit = {}
+    onAnalyticsChange: (Boolean) -> Unit = {},
+    onFeedbackClick: () -> Unit = {}
 ) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -232,11 +234,15 @@ fun SettingsScreen(
                     )
                     HorizontalDivider(Modifier.padding(horizontal = 16.dp))
                     val uriHandler = LocalUriHandler.current
+                    val feedbackEmailUri = buildFeedbackEmailUri(state)
                     SettingsItem(
                         title = stringResource(R.string.settings_give_feedback),
                         subtitle = stringResource(R.string.settings_feedback_description),
                         leadingIcon = Icons.AutoMirrored.Outlined.ContactSupport,
-                        onClick = { uriHandler.openUri("https://docs.google.com/forms/d/e/1FAIpQLSeSvAtEva0oKiPm-kQgIazXWqa2bjjgf-Y3fngVrm6SZSC6WA/viewform?usp=dialog") },
+                        onClick = {
+                            onFeedbackClick()
+                            uriHandler.openUri(feedbackEmailUri)
+                        },
                         endIcon = Icons.Default.ChevronRight
                     )
                 }
@@ -364,6 +370,42 @@ private fun ColumnScope.Footer() {
             .fillMaxWidth()
             .padding(top = 16.dp)
     )
+}
+
+@Composable
+private fun buildFeedbackEmailUri(state: SettingsScreenState): String {
+    val userId = when (state) {
+        is SettingsScreenState.LoggedIn -> state.user.id
+        is SettingsScreenState.LoggedOut -> "no"
+    }
+
+    val deviceInfo = "${Build.MANUFACTURER} ${Build.MODEL}"
+    val osInfo = "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+    val appVersion = version()
+
+    val promptText = stringResource(R.string.settings_feedback_email_prompt)
+    val diagnosticInfoText = stringResource(R.string.settings_feedback_email_diagnostic_info)
+    val deviceLabel = stringResource(R.string.settings_feedback_email_device)
+    val osLabel = stringResource(R.string.settings_feedback_email_os)
+    val appVersionLabel = stringResource(R.string.settings_feedback_email_app_version)
+    val userIdLabel = stringResource(R.string.settings_feedback_email_user_id)
+
+    val body = """
+        |--- $promptText ---
+        |
+        |
+        |
+        |--- $diagnosticInfoText ---
+        |$deviceLabel: $deviceInfo
+        |$osLabel: $osInfo
+        |$appVersionLabel: $appVersion
+        |$userIdLabel: $userId
+    """.trimMargin()
+
+    val encodedBody = android.net.Uri.encode(body)
+    val encodedSubject = android.net.Uri.encode("[SeviBus feedback]")
+
+    return "mailto:sevibus@sloydev.com?subject=$encodedSubject&body=$encodedBody"
 }
 
 @Composable
