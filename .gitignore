@@ -21,6 +21,5 @@ secret.properties
 /app/google-services.json
 certs/release.keystore
 .claude
-CLAUDE.md
 GEMINI.md
 .kotlin/
