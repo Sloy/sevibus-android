@@ -8,6 +8,8 @@ import com.sloy.sevibus.domain.repository.RouteRepository
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.feature.map.MapScreenState
 import com.sloy.sevibus.infrastructure.FeatureFlags
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -16,6 +18,7 @@ class OnLinesSectionSelected(
     private val lineRepository: LineRepository,
     private val pathRepository: PathRepository,
     private val routeRepository: RouteRepository,
+    private val analytics: Analytics,
 ) {
 
     suspend operator fun invoke(): Flow<MapScreenState.LinesOverview> = flow {
@@ -27,6 +30,8 @@ class OnLinesSectionSelected(
             val paths = pathRepository.obtainPaths(routes.map { it.id })
                 .filter { it.line.color != LineColor.Black }
                 .filter { it.line.color != LineColor.Wine }
+
+            analytics.track(Events.LinePathsDisplayed(paths.size))
 
             emit(MapScreenState.LinesOverview(stops, paths.nudgeByColors()))
         }

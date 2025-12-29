@@ -16,6 +16,11 @@ interface Events {
         "balanceType" to balanceType
     )
 
+    data class LinePathsDisplayed(val pathCount: Int) : SevEvent(
+        "Line Paths Displayed",
+        "pathCount" to pathCount
+    )
+
     data object ReviewDialogRequested : SevEvent(
         "Review Dialog Requested"
     )

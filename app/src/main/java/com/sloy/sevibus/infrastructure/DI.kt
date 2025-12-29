@@ -215,7 +215,7 @@ object DI {
         single<OnStopSelectedState> { OnStopSelectedState(get(), get(), get(), get()) }
         single<OnLineSelectedState> { OnLineSelectedState(get(), get(), get(), get(), get()) }
         single<OnStopAndLineSelected> { OnStopAndLineSelected(get(), get(), get()) }
-        single<OnLinesSectionSelected> { OnLinesSectionSelected(get(), get(), get(), get()) }
+        single<OnLinesSectionSelected> { OnLinesSectionSelected(get(), get(), get(), get(), get()) }
         single<ObtainNearbyStops> { ObtainNearbyStops(get()) }
         single<NfcStateManager> { NfcStateManager(androidContext()) }
 
