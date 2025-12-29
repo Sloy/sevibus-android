@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.repository.FavoriteRepository
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 class EditFavoritesViewModel(
     private val favoriteRepository: FavoriteRepository,
     private val sessionService: SessionService,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     val state = favoriteRepository.observeFavorites()
@@ -30,6 +33,10 @@ class EditFavoritesViewModel(
             favoriteRepository.replaceFavorites(favorites)
             events.emit(EditFavoritesEvent.Done)
         }
+    }
+
+    fun track(event: SevEvent) {
+        analytics.track(event)
     }
 }
 

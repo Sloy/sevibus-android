@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.Stubs.arrivals
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.FavoriteStop
+import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.onePerLine
 import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.FavoriteRepository
@@ -25,10 +26,16 @@ class FavoriteItemViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val state: StateFlow<FavoriteItemState> = flow {
+        if (favorite.selectedLineIds?.isEmpty() == true) {
+            emit(FavoriteItemState.Loaded(favorite, emptyList()))
+            return@flow
+        }
+
         while (true) {
             runCatching {
                 busRepository.obtainBusArrivals(favorite.stop.code)
                     .filter { it !is BusArrival.NotAvailable }
+                    .filterBySelectedLines(favorite.selectedLineIds)
                     .onePerLine()
             }.onSuccess { arrivals ->
                 emit(FavoriteItemState.Loaded(favorite, arrivals))
@@ -38,6 +45,10 @@ class FavoriteItemViewModel(
             delay(20.seconds)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), FavoriteItemState.Loading(favorite))
+
+    private fun List<BusArrival>.filterBySelectedLines(selectedLineIds: Set<LineId>?): List<BusArrival> {
+        return if (selectedLineIds == null) this else filter { arrival -> selectedLineIds.contains(arrival.line.id) }
+    }
 
 
 }

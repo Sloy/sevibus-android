@@ -1,7 +1,7 @@
 package com.sloy.sevibus.data.repository
 
-import com.google.android.play.integrity.internal.i
 import com.sloy.sevibus.data.database.SevibusDao
+import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toEntity
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.StopId
@@ -22,11 +22,7 @@ class LocalFavoriteRepository(
         return sevibusDao.observeFavorites()
             .map { entities ->
                 entities.map { entity ->
-                    FavoriteStop(
-                        stop = stopRepository.obtainStop(entity.stopId),
-                        customName = entity.customName,
-                        customIcon = entity.customIcon
-                    )
+                    entity.fromEntity(stopRepository.obtainStop(entity.stopId))
                 }
             }
     }
@@ -34,11 +30,7 @@ class LocalFavoriteRepository(
     override suspend fun obtainFavorites(): List<FavoriteStop> = withContext(Dispatchers.Default) {
         sevibusDao.getFavorites().map { entity ->
             async {
-                FavoriteStop(
-                    stop = stopRepository.obtainStop(entity.stopId),
-                    customName = entity.customName,
-                    customIcon = entity.customIcon
-                )
+                entity.fromEntity(stopRepository.obtainStop(entity.stopId))
             }
         }.awaitAll()
     }

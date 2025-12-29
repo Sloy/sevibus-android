@@ -78,6 +78,7 @@ data class FavoriteStopDto(
     val customName: String? = null,
     val customIcon: CustomIcon? = null,
     val order: Int = 0,
+    val selectedLineIds: List<LineId>? = null,
 )
 
 @Serializable

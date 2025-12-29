@@ -31,6 +31,9 @@ object IntListConverter {
     fun serialize(list: List<Int>): String = list.joinToString(",")
 
     @TypeConverter
-    fun deserialize(serialized: String): List<Int> = serialized.split(",").map { it.toInt() }
+    fun deserialize(serialized: String): List<Int> {
+        if (serialized.isEmpty()) return emptyList()
+        return serialized.split(",").map { it.toInt() }
+    }
 }
 

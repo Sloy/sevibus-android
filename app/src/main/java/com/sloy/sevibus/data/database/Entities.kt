@@ -24,6 +24,7 @@ import com.sloy.sevibus.domain.model.Polyline
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
+import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.infrastructure.polyline.toPositions
 import java.time.LocalTime
@@ -91,6 +92,7 @@ data class FavoriteStopEntity(
     val customName: String? = null,
     val customIcon: CustomIcon? = null,
     val order: Int = 0,
+    val selectedLineIds: List<LineId>? = null,
 )
 
 @Entity(tableName = "cards")
@@ -161,7 +163,17 @@ fun FavoriteStop.toEntity(order: Int = 0): FavoriteStopEntity {
         stopId = stop.code,
         customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds?.toList()
+    )
+}
+
+fun FavoriteStopEntity.fromEntity(stop: Stop): FavoriteStop {
+    return FavoriteStop(
+        stop = stop,
+        customName = customName,
+        customIcon = customIcon,
+        selectedLineIds = selectedLineIds?.toSet()
     )
 }
 
@@ -170,7 +182,8 @@ fun FavoriteStopDto.toEntity(): FavoriteStopEntity {
         stopId = stopId,
         customName = customName,
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds
     )
 }
 
@@ -179,7 +192,8 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
         stopId = stopId,
         customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds
     )
 }
 

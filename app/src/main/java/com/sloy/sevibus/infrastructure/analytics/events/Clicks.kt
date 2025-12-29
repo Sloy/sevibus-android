@@ -46,6 +46,11 @@ interface Clicks {
         "Edit Favorites Clicked"
     )
 
+    data class EditFavoriteLineClicked(val isSelected: Boolean) : SevEvent(
+        "Edit Favorite Line Clicked",
+        "isSelected" to isSelected
+    )
+
     data class NearbyStopClicked(val stopId: Int) : SevEvent(
         "Nearby Stop Clicked", "stopId" to stopId
     )
