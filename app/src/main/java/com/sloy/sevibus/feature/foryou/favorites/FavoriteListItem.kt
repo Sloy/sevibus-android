@@ -66,7 +66,8 @@ private fun FavoriteStop.viewModelKey(): String {
         ?.joinToString(separator = ", ", prefix = "[", postfix = "]")
         ?: "null"
 
-    return stop.code.toString() + customName + customIcon + selectedLinesKey
+    return listOf(stop.code.toString(), customName, customIcon, selectedLinesKey)
+        .joinToString(separator = "|")
 }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
