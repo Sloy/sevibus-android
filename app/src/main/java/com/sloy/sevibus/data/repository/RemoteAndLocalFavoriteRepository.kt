@@ -131,15 +131,13 @@ class RemoteAndLocalFavoriteRepository(
             val localFavorites = dao.getFavorites()
             val remoteFavorites = api.obtainFavorites()
 
-            val missingFromLocal = remoteFavorites.filter { remoteFavorite ->
-                localFavorites.none { it.stopId == remoteFavorite.stopId }
-            }
-            dao.replaceAllFavorites(localFavorites + missingFromLocal.map { it.toEntity() })
-
-            val missingFromRemote = localFavorites.filter { localFavorite ->
+            val localOnlyFavorites = localFavorites.filter { localFavorite ->
                 remoteFavorites.none { it.stopId == localFavorite.stopId }
             }
-            missingFromRemote.forEach { local ->
+
+            dao.replaceAllFavorites(remoteFavorites.map { it.toEntity() } + localOnlyFavorites)
+
+            localOnlyFavorites.forEach { local ->
                 api.addFavorite(local.stopId, local.toDto())
             }
         }

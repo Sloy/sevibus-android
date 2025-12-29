@@ -261,7 +261,7 @@ Extend the API to support storing and retrieving line selections, ensuring serve
     - Handle server responses with/without line selections
     - Implement proper error handling
 
-- [ ] **Test sync logic**
+- [x] **Test sync logic**
     - Ensure line selections sync on favorites upload
     - Handle conflict resolution (local vs server state)
     - Test with existing favorites (should upgrade gracefully)
