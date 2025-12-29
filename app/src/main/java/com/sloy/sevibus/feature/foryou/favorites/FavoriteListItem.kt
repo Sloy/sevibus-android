@@ -59,8 +59,15 @@ fun FavoriteListItem(
     }
 }
 
-private fun FavoriteStop.viewModelKey() = stop.code.toString() + customName + customIcon + selectedLineIds
+private fun FavoriteStop.viewModelKey(): String {
+    val selectedLinesKey = selectedLineIds
+        ?.map { it.toString() }
+        ?.sorted()
+        ?.joinToString(separator = ", ", prefix = "[", postfix = "]")
+        ?: "null"
 
+    return stop.code.toString() + customName + customIcon + selectedLinesKey
+}
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FavoriteListItem(
