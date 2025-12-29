@@ -25,16 +25,16 @@ Add support for line selections in the local database with proper defaults to en
 
 #### Tasks
 
-- [ ] **Update FavoriteStopEntity**
+- [x] **Update FavoriteStopEntity**
     - Add `selectedLineIds: List<LineId>?` field (nullable for backward compatibility)
     - Default to `null` (all lines selected)
 
-- [ ] **Create database migration**
+- [x] **Create database migration**
     - Add new column `selectedLineIds TEXT` to favorites table
     - Existing rows will have `NULL` value (representing all lines selected)
     - Test migration with existing data
 
-- [ ] **Update DAO**
+- [x] **Update DAO**
     - Ensure all queries fetch the new field
     - No changes needed to method signatures (queries will automatically include new column)
 

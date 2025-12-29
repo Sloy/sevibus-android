@@ -91,6 +91,7 @@ data class FavoriteStopEntity(
     val customName: String? = null,
     val customIcon: CustomIcon? = null,
     val order: Int = 0,
+    val selectedLineIds: List<LineId>? = null,
 )
 
 @Entity(tableName = "cards")
@@ -161,7 +162,8 @@ fun FavoriteStop.toEntity(order: Int = 0): FavoriteStopEntity {
         stopId = stop.code,
         customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds?.toList()
     )
 }
 
@@ -170,7 +172,8 @@ fun FavoriteStopDto.toEntity(): FavoriteStopEntity {
         stopId = stopId,
         customName = customName,
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds
     )
 }
 
@@ -179,7 +182,8 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
         stopId = stopId,
         customName = customName?.takeIf { it.isNotBlank() },
         customIcon = customIcon,
-        order = order
+        order = order,
+        selectedLineIds = selectedLineIds
     )
 }
 

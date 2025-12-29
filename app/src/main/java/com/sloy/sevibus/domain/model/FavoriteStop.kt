@@ -20,7 +20,16 @@ data class FavoriteStop(
     val stop: Stop,
     val customName: String?,
     val customIcon: CustomIcon?,
-)
+    val selectedLineIds: Set<LineId>? = null,
+) {
+    fun isLineSelected(lineId: LineId): Boolean {
+        return when {
+            selectedLineIds == null -> true
+            selectedLineIds.isEmpty() -> false
+            else -> selectedLineIds.contains(lineId)
+        }
+    }
+}
 
 enum class CustomIcon {
     Home, Heart, Star, Stop,
@@ -36,5 +45,4 @@ fun CustomIcon?.toImageVector(): ImageVector = when (this) {
     CustomIcon.Shopping -> Icons.Rounded.ShoppingCart
     CustomIcon.Health -> Icons.Rounded.LocalHospital
     CustomIcon.Stop, null -> SevIcons.Stop
-    else -> SevIcons.Stop
 }
