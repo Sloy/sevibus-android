@@ -199,7 +199,7 @@ Apply line selections to filter arrival times displayed on the home screen favor
 
 #### Tasks
 
-- [ ] **Update FavoriteItemViewModel filtering logic**
+- [x] **Update FavoriteItemViewModel filtering logic**
     - In the flow that fetches arrivals, handle three cases based on `favorite.selectedLineIds`:
         - If `selectedLineIds == null`: Fetch and show all arrivals (backward compatibility)
         - If `selectedLineIds.isEmpty()`: Skip arrivals API call entirely, emit empty state
@@ -207,7 +207,7 @@ Apply line selections to filter arrival times displayed on the home screen favor
     - Apply filtering AFTER `.onePerLine()` or adjust `.onePerLine()` to accept selected lines
     - When skipping API call for empty selection, emit state without loading indicator (no shimmer effect)
 
-- [ ] **Update FavoriteListItem UI**
+- [x] **Update FavoriteListItem UI**
     - Display only arrivals for selected lines
     - Handle two types of empty states:
         - No lines selected (`selectedLineIds.isEmpty()`): Show favorite card without arrivals section

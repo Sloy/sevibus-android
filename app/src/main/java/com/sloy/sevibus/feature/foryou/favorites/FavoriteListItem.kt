@@ -59,7 +59,7 @@ fun FavoriteListItem(
     }
 }
 
-private fun FavoriteStop.viewModelKey() = stop.code.toString() + customName + customIcon
+private fun FavoriteStop.viewModelKey() = stop.code.toString() + customName + customIcon + selectedLineIds
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -136,7 +136,14 @@ fun FavoriteListItem(
                             ArrivalTimeElement(it, showLine = true)
                         }
                     } else {
-                        favorite.stop.lines.forEach { line ->
+                        val linesToShow = when {
+                            favorite.selectedLineIds == null -> favorite.stop.lines
+                            favorite.selectedLineIds.isEmpty() -> emptyList()
+                            else -> favorite.stop.lines.filter { line ->
+                                favorite.selectedLineIds.contains(line.id)
+                            }
+                        }
+                        linesToShow.forEach { line ->
                             ArrivalTimeElementShimmer(line)
                         }
                     }
