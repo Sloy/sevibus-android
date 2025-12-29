@@ -24,6 +24,7 @@ import com.sloy.sevibus.domain.model.Polyline
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
+import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.infrastructure.polyline.toPositions
 import java.time.LocalTime
@@ -164,6 +165,15 @@ fun FavoriteStop.toEntity(order: Int = 0): FavoriteStopEntity {
         customIcon = customIcon,
         order = order,
         selectedLineIds = selectedLineIds?.toList()
+    )
+}
+
+fun FavoriteStopEntity.fromEntity(stop: Stop): FavoriteStop {
+    return FavoriteStop(
+        stop = stop,
+        customName = customName,
+        customIcon = customIcon,
+        selectedLineIds = selectedLineIds?.toSet()
     )
 }
 

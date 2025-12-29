@@ -59,19 +59,19 @@ Update domain models and repositories to handle line selections while maintainin
 
 #### Tasks
 
-- [ ] **Update FavoriteStop domain model**
+- [x] **Update FavoriteStop domain model**
     - Add `selectedLineIds: Set<LineId>?` field
     - Add helper method `fun isLineSelected(lineId: LineId): Boolean` that handles three cases:
         - `null` → returns `true` (all lines selected)
         - `isEmpty()` → returns `false` (no lines selected)
         - otherwise → returns `contains(lineId)` (specific lines selected)
 
-- [ ] **Update FavoriteRepository interface**
+- [x] **Update FavoriteRepository interface**
     - No method signature changes needed - existing methods accept `FavoriteStop`
     - `addFavorite(stop: FavoriteStop)` will handle the new field
     - `replaceFavorites(favorites: List<FavoriteStop>)` will handle the new field
 
-- [ ] **Update LocalFavoriteRepository**
+- [x] **Update LocalFavoriteRepository**
     - Update entity ↔ domain model mapping to include `selectedLineIds`
     - Convert `List<LineId>?` (entity) ↔ `Set<LineId>?` (domain)
     - Handle three cases:
@@ -79,7 +79,7 @@ Update domain models and repositories to handle line selections while maintainin
         - Empty list → empty set (no lines selected)
         - Non-empty list → non-empty set (specific lines selected)
 
-- [ ] **Update RemoteAndLocalFavoriteRepository**
+- [x] **Update RemoteAndLocalFavoriteRepository**
     - Update mapping to include `selectedLineIds`
     - Ensure sync logic handles the new field
 

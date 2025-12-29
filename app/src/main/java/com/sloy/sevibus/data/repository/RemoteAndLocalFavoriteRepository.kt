@@ -2,6 +2,7 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusUserApi
 import com.sloy.sevibus.data.database.SevibusDao
+import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toDto
 import com.sloy.sevibus.data.database.toEntity
 import com.sloy.sevibus.domain.model.FavoriteStop
@@ -62,11 +63,7 @@ class RemoteAndLocalFavoriteRepository(
                     dao.observeFavorites()
                         .map { entities ->
                             entities.map { entity ->
-                                FavoriteStop(
-                                    stop = stopRepository.obtainStop(entity.stopId),
-                                    customName = entity.customName,
-                                    customIcon = entity.customIcon
-                                )
+                                entity.fromEntity(stopRepository.obtainStop(entity.stopId))
                             }
                         }
                 }
@@ -80,12 +77,7 @@ class RemoteAndLocalFavoriteRepository(
             }
             dao.getFavorites()
                 .map { entity ->
-                    val stop = stopRepository.obtainStop(entity.stopId)
-                    FavoriteStop(
-                        stop = stop,
-                        customName = entity.customName,
-                        customIcon = entity.customIcon
-                    )
+                    entity.fromEntity(stopRepository.obtainStop(entity.stopId))
                 }
 
         }
