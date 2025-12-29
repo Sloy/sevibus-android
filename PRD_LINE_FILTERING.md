@@ -243,19 +243,19 @@ Extend the API to support storing and retrieving line selections, ensuring serve
 
 #### Tasks
 
-- [ ] **Update FavoriteStopDto**
+- [x] **Update FavoriteStopDto**
     - Add `selectedLineIds: List<LineId>?` field
     - Ensure backward compatibility (server should handle `null` as all lines selected)
     - LineId will serialize as String automatically
 
-- [ ] **Update API endpoints (if needed)**
+- [x] **Update API endpoints (if needed)**
     - Existing endpoints should automatically handle the new field
     - `POST /favorites` - accepts updated DTO
     - `PUT /favorites/{stop}` - accepts updated DTO
     - `GET /favorites` - returns updated DTO
     - Coordinate with backend team if manual API changes required
 
-- [ ] **Update RemoteAndLocalFavoriteRepository mapping**
+- [x] **Update RemoteAndLocalFavoriteRepository mapping**
     - Map `selectedLineIds` between domain model and API DTO
     - Convert `Set<LineId>?` (domain) ↔ `List<LineId>?` (DTO)
     - Handle server responses with/without line selections
