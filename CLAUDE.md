@@ -121,3 +121,26 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
   - Chucker for network debugging
   - Debug menu module (`:debug-menu`) for development tools
   - No-op implementation for release builds
+
+## Commits
+
+When writing a commit, summarize the given diffs into a concise commit message.
+Focus on specific changes.
+Do NOT output names, e-mail addresses, or any other personally identifiable information if they are not explicitly in the diffs.
+
+Use "conventional commits" syntax:
+<type>(<optional scope>): <description>
+empty line as separator
+<optional body>
+
+Where the type can be,
+
+- feat: for new features visible to the user
+- refactor: for code refactors that don't impact the behaviour of the app
+- fix: for fixing bugs or broken behaviour
+- ci: for changes related to the CI infrastructure
+- chore: for miscelaneous commits like updating dependencies, updating build configuration
+- test: for commits that only add or modify tests
+
+The scope is optional. Only add it when the commit is limited to a very specific domain area, for instance, chore(ci) or feat(favorites). Do
+not add it if the title is intuitive enough
