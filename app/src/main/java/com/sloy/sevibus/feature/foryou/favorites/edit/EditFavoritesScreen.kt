@@ -239,9 +239,7 @@ fun LazyItemScope.EditFavoriteListItem(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    var selectedLines by remember(favorite.selectedLineIds, favorite.stop.lines) {
-        mutableStateOf(favorite.selectedLineIds ?: favorite.stop.lines.map { it.id }.toSet())
-    }
+    val selectedLines = favorite.selectedLineIds ?: favorite.stop.lines.map { it.id }.toSet()
 
     // Without this, a Surface with onClick parameter will force a minimum size of 48dp
     CompositionLocalProvider(
@@ -371,7 +369,6 @@ fun LazyItemScope.EditFavoriteListItem(
                                         } else {
                                             selectedLines - line.id
                                         }
-                                        selectedLines = newSelectedLines
                                         onLineSelectionChanged(newSelectedLines)
                                         onTrack(Clicks.EditFavoriteLineClicked(isSelected))
                                     }
