@@ -102,7 +102,7 @@ Implement the UI for selecting/deselecting lines in the Edit Favorites screen.
 
 #### Tasks
 
-- [ ] **Update EditFavoritesScreen UI state**
+- [x] **Update EditFavoritesScreen UI state**
     - The screen already maintains local state: `var favoritesLocalList by remember(state) { mutableStateOf(state.favorites) }`
     - Add `onLineSelectionChanged: (Set<LineId>) -> Unit` callback to `EditFavoriteListItem` (similar to existing `onNameChanged` and
       `onIconChanged`)
@@ -121,7 +121,7 @@ Implement the UI for selecting/deselecting lines in the Edit Favorites screen.
       `favorite.stop.lines` as selected
     - The updated favorites will be saved via existing `onSaveClick(favoritesLocalList)` when user taps "Guardar"
 
-- [ ] **Implement line selection UI component**
+- [x] **Implement line selection UI component**
     - Line indicators already exist at lines 334-352 in `EditFavoritesScreen.kt` using `FlowRow`
     - Currently ALL lines show checkmarks (non-interactive)
     - Make the existing line indicators interactive:
@@ -157,7 +157,7 @@ Implement the UI for selecting/deselecting lines in the Edit Favorites screen.
       }
       ```
 
-- [ ] **Add analytics tracking**
+- [x] **Add analytics tracking**
   - Add new event to `Clicks.kt`:
     ```kotlin
     data class EditFavoriteLineClicked(val isSelected: Boolean) : SevEvent(
@@ -170,7 +170,7 @@ Implement the UI for selecting/deselecting lines in the Edit Favorites screen.
   - Pass analytics through `EditFavoriteListItem` composable (add `onTrack: (SevEvent) -> Unit` parameter)
   - Wire analytics from `EditFavoritesViewModel` (inject `Analytics` dependency)
 
-- [ ] **Verify save logic**
+- [x] **Verify save logic**
     - No changes needed - existing flow already handles the new field
     - When user taps "Guardar", `onSaveClick(favoritesLocalList)` is called
     - This calls `viewModel.onFavoritesChanged(updatedFavorites)` which calls `favoriteRepository.replaceFavorites(favorites)`

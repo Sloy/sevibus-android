@@ -225,10 +225,30 @@ object Stubs {
 
     @Deprecated("")
     val favorites = listOf(
-        FavoriteStop(customName = "Casa", customIcon = CustomIcon.Home, stop = stops[1]),
-        FavoriteStop(customName = "Oficina", customIcon = CustomIcon.Office, stop = stops[0]),
-        FavoriteStop(customName = null, customIcon = null, stop = stops[2]),
-        FavoriteStop(customName = null, customIcon = null, stop = stops[3]),
+        FavoriteStop(
+            customName = "Casa",
+            customIcon = CustomIcon.Home,
+            stop = stops[1],
+            selectedLineIds = stops[1].lines.take(2).map { it.id }.toSet()
+        ),
+        FavoriteStop(
+            customName = "Oficina",
+            customIcon = CustomIcon.Office,
+            stop = stops[0],
+            selectedLineIds = stops[0].lines.takeLast(1).map { it.id }.toSet()
+        ),
+        FavoriteStop(
+            customName = null,
+            customIcon = null,
+            stop = stops[2],
+            selectedLineIds = null
+        ),
+        FavoriteStop(
+            customName = null,
+            customIcon = null,
+            stop = stops[3],
+            selectedLineIds = stops[3].lines.drop(1).take(2).map { it.id }.toSet()
+        ),
     )
 
     @Deprecated("")

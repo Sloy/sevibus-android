@@ -104,7 +104,7 @@ object DI {
         viewModel { NearbyViewModel(get(), get(), get()) }
         viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get()) }
         viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
-        viewModel { EditFavoritesViewModel(get(), get()) }
+        viewModel { EditFavoritesViewModel(get(), get(), get()) }
         viewModel { ForYouViewModel(get()) }
         viewModel { AlertViewModel(get(), get()) }
         viewModel { SearchViewModel(get(), get(), get()) }
