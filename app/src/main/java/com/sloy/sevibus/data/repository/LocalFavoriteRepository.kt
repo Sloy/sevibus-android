@@ -1,6 +1,5 @@
 package com.sloy.sevibus.data.repository
 
-import com.google.android.play.integrity.internal.i
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toEntity
