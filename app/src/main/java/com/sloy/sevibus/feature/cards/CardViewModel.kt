@@ -8,6 +8,7 @@ import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,12 +56,12 @@ class CardViewModel(
         CardsScreenState.Error(error)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CardsScreenState.Loading)
 
-    fun onNewCardNumber(serialNumber: String) {
+    fun onNewCardNumber(serialNumber: String, scanMethod: Events.CardScanned.ScanMethod) {
         newCardState.value = CardsScreenNewCardState.InputForm(serialNumber)
         if (serialNumber.length < 12 || !serialNumber.all { it.isDigit() }) return
         val cardId = serialNumber.toLong()
 
-
+        analytics.track(Events.CardScanned(scanMethod))
         newCardState.value = CardsScreenNewCardState.CheckingCard(serialNumber)
         viewModelScope.launch {
             runCatching { cardsRepository.checkCard(cardId) }
@@ -89,6 +90,7 @@ class CardViewModel(
             events.emit(CardsScreenEvent.ShowMessage("Ya tienes guardada esa tarjeta"))
         } else {
             cardsRepository.addUserCard(card)
+            analytics.track(Events.CardAdded(card.type))
             scrollToCard.value = card.serialNumber
         }
         newCardState.value = CardsScreenNewCardState.InputForm()

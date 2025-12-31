@@ -34,5 +34,20 @@ interface Events {
         "Review Dialog Failed",
         "reason" to reason
     )
+
+    data class CardAdded(val cardType: String) : SevEvent(
+        "Card Added",
+        "cardType" to cardType
+    )
+
+    data class CardScanned(val scanMethod: ScanMethod) : SevEvent(
+        "Card Scanned",
+        "scanMethod" to scanMethod.name.lowercase()
+    ) {
+        enum class ScanMethod {
+            NFC,
+            MANUAL
+        }
+    }
 }
 

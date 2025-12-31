@@ -98,6 +98,7 @@ import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.extensions.performHapticGestureStart
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.infrastructure.extensions.splitPhrase
@@ -136,7 +137,10 @@ fun CardsScreen(
     val nfcAnimation = remember { Animatable(1f) }
 
     EventCollector(nfcStateManager.events) { nfcReadEvent ->
-        viewModel.onNewCardNumber(CardSerialNumberUtils.calculateVisibleSerialNumber(nfcReadEvent.cardId))
+        viewModel.onNewCardNumber(
+            CardSerialNumberUtils.calculateVisibleSerialNumber(nfcReadEvent.cardId),
+            scanMethod = Events.CardScanned.ScanMethod.NFC
+        )
         nfcAnimation.animatePulse()
     }
     EventCollector(viewModel.events) {
@@ -155,7 +159,9 @@ fun CardsScreen(
         state,
         newCardState,
         nfcState,
-        viewModel::onNewCardNumber,
+        onNewCardNumber = { serialNumber ->
+            viewModel.onNewCardNumber(serialNumber, Events.CardScanned.ScanMethod.MANUAL)
+        },
         viewModel::onDeleteCard,
         viewModel::onTopUpClicked,
         viewModel::onStartReordering,
