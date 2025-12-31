@@ -99,7 +99,7 @@ fun BusArrivalListItem(arrival: BusArrival, isHighlighted: Boolean, onClick: (Bu
 
 @Preview(showBackground = true)
 @Composable
-private fun AvailablePreview() {
+internal fun BusArrivalAvailablePreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
@@ -113,7 +113,7 @@ private fun AvailablePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LastBusPreview() {
+internal fun BusArrivalLastBusPreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
@@ -134,7 +134,7 @@ private fun LastBusPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun HighlightedPreview() {
+internal fun BusArrivalHighlightedPreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
@@ -148,7 +148,7 @@ private fun HighlightedPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun NotAvailablePreview() {
+internal fun BusArrivalNotAvailablePreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
@@ -163,7 +163,7 @@ private fun NotAvailablePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LoadingWithLinePreview() {
+internal fun BusArrivalLoadingWithLinePreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
@@ -177,7 +177,7 @@ private fun LoadingWithLinePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun LoadingPreview() {
+internal fun BusArrivalLoadingPreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier
