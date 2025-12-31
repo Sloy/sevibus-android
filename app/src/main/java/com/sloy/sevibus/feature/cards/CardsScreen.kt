@@ -751,7 +751,8 @@ private fun CardAddMoreItem(newCardState: CardsScreenNewCardState) {
 @Composable
 internal fun LoadedWithTransactionsPreview() {
     ScreenPreview {
-        val cards = Stubs.cards
+        // Use only first 3 cards to avoid overwhelming the layoutlib renderer
+        val cards = Stubs.cards.take(3)
         val transactions: Map<CardId, TransactionsState.Loaded> =
             cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardInfoTransactions) }
         CardsScreen(
