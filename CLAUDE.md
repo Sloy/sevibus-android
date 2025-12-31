@@ -15,6 +15,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `./gradlew check` - Run all checks (tests + lint)
 - `./gradlew lint` - Run lint analysis
 - `./gradlew lintFix` - Run lint and apply safe fixes
+- `./gradlew updateDebugScreenshotTest` - Generate/update screenshot test references
+- `./gradlew validateDebugScreenshotTest` - Validate screenshots against references
 
 ### Clean
 - `./gradlew clean` - Clean build directory
@@ -117,10 +119,255 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
 ### Testing
 - Unit tests: JUnit, Strikt assertions, Mockito-Kotlin, Coroutines testing
 - Instrumentation tests available via `connectedAndroidTest`
+- Screenshot tests: Compose Preview Screenshot Testing (see below)
 - Debug builds include:
   - Chucker for network debugging
   - Debug menu module (`:debug-menu`) for development tools
   - No-op implementation for release builds
+
+## Screenshot Testing
+
+SeviBus uses [Compose Preview Screenshot Testing](https://developer.android.com/studio/preview/compose-screenshot-testing) (experimental) to automatically generate and validate screenshots of Compose previews.
+
+### Overview
+
+The screenshot testing setup uses a **wrapper pattern** to maintain IDE preview visibility while satisfying the `screenshotTest` source set requirement:
+
+- **Preview functions** live in `app/src/main/` with `internal` visibility (visible in IDE)
+- **Test wrappers** live in `app/src/screenshotTest/` and call the preview functions with `@PreviewTest` annotation
+- **Reference screenshots** are stored in `app/src/screenshotTestDebug/reference/`
+
+### Commands
+
+```bash
+# Generate/update reference screenshots (run after creating new tests or changing UI)
+./gradlew updateDebugScreenshotTest
+
+# Validate screenshots against references (run to check for visual regressions)
+./gradlew validateDebugScreenshotTest
+```
+
+### Adding New Screenshot Tests
+
+Follow these steps to add screenshot tests for a component:
+
+#### 1. Create Preview Functions in Main Source
+
+In your component file (e.g., `app/src/main/java/com/sloy/sevibus/ui/components/MyComponent.kt`):
+
+```kotlin
+@Preview
+@Composable
+internal fun MyComponentDefaultPreview() {
+    SevTheme {
+        MyComponent(/* deterministic test data */)
+    }
+}
+```
+
+**Important:**
+- Use `internal` visibility (not `private`) so the screenshotTest source set can access them
+- Use descriptive, unique names ending with "Preview"
+- Use **deterministic test data** (no `.random()`, `.shuffled()`, `Random.nextInt()`, etc.)
+- Wrap in `SevTheme` for consistent theming
+- Use `@PreviewLightDark` to test both light and dark themes automatically
+
+#### 2. Create Test Wrapper in screenshotTest Source Set
+
+Create `app/src/screenshotTest/kotlin/com/sloy/sevibus/ui/components/MyComponentScreenshotTests.kt`:
+
+```kotlin
+package com.sloy.sevibus.ui.components
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.android.tools.screenshot.PreviewTest
+
+/**
+ * Screenshot tests for MyComponent.
+ * These tests reference preview functions defined in the main source set.
+ */
+class MyComponentScreenshotTests {
+
+    @Preview
+    @PreviewTest
+    @Composable
+    fun defaultPreview() {
+        MyComponentDefaultPreview()
+    }
+
+    @Preview
+    @PreviewTest
+    @Composable
+    fun darkModePreview() {
+        MyComponentDarkModePreview()
+    }
+}
+```
+
+**Important:**
+- Both `@Preview` and `@PreviewTest` annotations are required
+- Test function names should be descriptive (they become part of the screenshot filename)
+- Use same package as the component for easier access to internal functions
+
+#### 3. Generate Reference Screenshots
+
+```bash
+./gradlew updateDebugScreenshotTest
+```
+
+This creates PNG files in `app/src/screenshotTestDebug/reference/com/sloy/sevibus/ui/components/MyComponentScreenshotTests/`
+
+#### 4. Validate Screenshots
+
+```bash
+./gradlew validateDebugScreenshotTest
+```
+
+All tests should pass on first generation. Commit the reference screenshots to git.
+
+### Deterministic Test Data
+
+**Critical:** Screenshot tests require deterministic data to produce consistent results across test runs.
+
+**When using Stubs:**
+- The `Stubs` object has been refactored to return deterministic data
+- Use fixed indices: `Stubs.lines[0]`, `Stubs.stops[1]`, etc.
+- Avoid `.random()`, `.shuffled()`, `Random.nextInt()`, `Random.nextLong()`, etc.
+- Cover different cases with different test previews (e.g., empty state, single item, multiple items)
+
+### Testing Different States
+
+Create separate preview functions for different component states:
+
+```kotlin
+// Empty state
+@Preview
+@Composable
+internal fun MyComponentEmptyPreview() {
+    SevTheme {
+        MyComponent(items = emptyList())
+    }
+}
+
+// Single item
+@Preview
+@Composable
+internal fun MyComponentSingleItemPreview() {
+    SevTheme {
+        MyComponent(items = listOf(Stubs.items[0]))
+    }
+}
+
+// Multiple items
+@Preview
+@Composable
+internal fun MyComponentMultipleItemsPreview() {
+    SevTheme {
+        MyComponent(items = listOf(Stubs.items[0], Stubs.items[1], Stubs.items[2]))
+    }
+}
+
+// Error state
+@Preview
+@Composable
+internal fun MyComponentErrorPreview() {
+    SevTheme {
+        MyComponent(error = "Something went wrong")
+    }
+}
+```
+
+### Configuration
+
+Screenshot testing is configured in:
+
+**gradle.properties:**
+```properties
+android.experimental.enableScreenshotTest=true
+```
+
+**gradle/libs.versions.toml:**
+```toml
+[versions]
+composeScreenshot = "0.0.1-alpha12"
+
+[libraries]
+compose-screenshot-validation = { module = "com.android.tools.screenshot:screenshot-validation-api", version.ref = "composeScreenshot" }
+
+[plugins]
+compose-screenshot = { id = "com.android.compose.screenshot", version.ref = "composeScreenshot" }
+```
+
+**app/build.gradle.kts:**
+```kotlin
+plugins {
+    alias(libs.plugins.compose.screenshot)
+}
+
+android {
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
+    testOptions {
+        screenshotTests {
+            imageDifferenceThreshold = 0.01f  // 1% tolerance for image differences
+        }
+    }
+}
+
+dependencies {
+    screenshotTestImplementation(libs.compose.screenshot.validation)
+    screenshotTestImplementation(libs.androidx.ui.tooling)
+    screenshotTestImplementation(platform(libs.androidx.compose.bom))
+    screenshotTestImplementation(libs.androidx.ui)
+}
+```
+
+### Troubleshooting
+
+**Issue: Tests fail with image differences**
+- Run `./gradlew updateDebugScreenshotTest` to regenerate references
+- Check if you're using non-deterministic data (random values, timestamps, etc.)
+- Verify that `SevTheme` is applied consistently
+
+**Issue: `@Preview annotation is required for @PreviewTest`**
+- Both annotations must be present on the test wrapper function
+
+**Issue: Cannot find preview function**
+- Ensure preview function is `internal` (not `private`)
+- Verify package name matches between main source and screenshotTest
+
+**Issue: Screenshots look different on different machines**
+- Ensure deterministic test data (no random values)
+- Check that all developers use the same JDK version (21)
+- Verify image difference threshold in `build.gradle.kts`
+
+### Directory Structure
+
+```
+app/src/
+├── main/
+│   └── java/com/sloy/sevibus/ui/components/
+│       └── MyComponent.kt          # Component + @Preview functions (internal)
+├── screenshotTest/
+│   ├── AndroidManifest.xml         # Required empty manifest
+│   └── kotlin/com/sloy/sevibus/ui/components/
+│       └── MyComponentScreenshotTests.kt  # @PreviewTest wrappers
+└── screenshotTestDebug/
+    └── reference/
+        └── com/sloy/sevibus/ui/components/MyComponentScreenshotTests/
+            ├── defaultPreview_0.png
+            └── darkModePreview_0.png    # Reference screenshots (commit to git)
+```
+### Key Files Reference
+
+- **Plugin configuration**: `gradle/libs.versions.toml`, `app/build.gradle.kts`
+- **Test data**: `app/src/main/java/com/sloy/sevibus/Stubs.kt` (deterministic test data)
+- **Example tests**: `app/src/screenshotTest/kotlin/com/sloy/sevibus/ui/components/`
+  - `BusArrivalListItemScreenshotTests.kt` - Complex component with 6 states
+  - `InfoBannerComponentScreenshotTests.kt` - Light/dark theme testing
+  - `LineIndicatorScreenshotTests.kt` - Simple component
+- **Reference screenshots**: `app/src/screenshotTestDebug/reference/`
 
 ## Analytics & Event Tracking
 
