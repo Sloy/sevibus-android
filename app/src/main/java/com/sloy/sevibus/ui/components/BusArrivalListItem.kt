@@ -124,8 +124,8 @@ internal fun BusArrivalLastBusPreview() {
                 BusArrival.Available.Arriving(
                     bus = 1,
                     distance = 50,
-                    line = Stubs.lines.random().toSummary(),
-                    route = Stubs.routes.random(),
+                    line = Stubs.lines[1].toSummary(),
+                    route = Stubs.routes[0],
                     isLastBus = true
                 ), isHighlighted = false, {})
         }
@@ -155,7 +155,7 @@ internal fun BusArrivalNotAvailablePreview() {
                 .background(Color.White)
                 .padding(16.dp)
         ) {
-            BusArrivalListItem(BusArrival.NotAvailable(Stubs.lines.random().toSummary(), Stubs.routes.random()), isHighlighted = false, {})
+            BusArrivalListItem(BusArrival.NotAvailable(Stubs.lines[2].toSummary(), Stubs.routes[1]), isHighlighted = false, {})
         }
     }
 }
