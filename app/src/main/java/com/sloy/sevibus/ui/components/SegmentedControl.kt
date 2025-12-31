@@ -90,7 +90,7 @@ fun SegmentedControl(options: List<String>, selectedIndex: Int, modifier: Modifi
 
 @Preview
 @Composable
-private fun Preview() {
+internal fun SegmentedControlPreview() {
     SevTheme {
         SegmentedControl(options = listOf("First", "Second", "Third"), selectedIndex = 0)
     }

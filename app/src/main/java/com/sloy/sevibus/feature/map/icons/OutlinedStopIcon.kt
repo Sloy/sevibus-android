@@ -76,7 +76,7 @@ fun OutlinedStopIcon(stopColor: Color, iconSize: Dp = 40.dp, shadow: Boolean = f
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
-private fun OutlinedStopIconPreview() {
+internal fun OutlinedStopIconPreview() {
     Color.Blue
     SevTheme {
         OutlinedStopIcon(LineColor.Red.primary(), shadow = false)
@@ -87,7 +87,7 @@ private fun OutlinedStopIconPreview() {
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
-private fun OutlinedStopIconShadowPreview() {
+internal fun OutlinedStopIconShadowPreview() {
     SevTheme {
         OutlinedStopIcon(LineColor.Red.primary(), shadow = true)
 

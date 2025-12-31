@@ -130,7 +130,7 @@ enum class HighlightPosition {
 
 @PreviewLightDark
 @Composable
-private fun StopListItemPreview() {
+internal fun StopListItemPreview() {
     SevTheme {
         Column(
             Modifier

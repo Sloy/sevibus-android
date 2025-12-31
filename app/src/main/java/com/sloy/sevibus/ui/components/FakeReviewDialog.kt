@@ -211,7 +211,7 @@ private fun StarsRating() {
 
 @Preview
 @Composable
-private fun FakeReviewDialogContentPreview() {
+internal fun FakeReviewDialogContentPreview() {
     SevTheme {
         // Now previewing the content directly
         FakeReviewDialogContent(onDismiss = {})

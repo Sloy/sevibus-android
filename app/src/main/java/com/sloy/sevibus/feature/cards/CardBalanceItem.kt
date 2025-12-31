@@ -70,7 +70,7 @@ private fun FormattedBalance(balance: Int) {
 
 @Preview
 @Composable
-private fun CardBalanceItemPreview() {
+internal fun CardBalanceItemPreview() {
     SevTheme {
         Surface {
             Column {

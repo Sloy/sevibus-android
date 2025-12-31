@@ -144,7 +144,7 @@ fun RoundedSearchBar(
 
 @PreviewLightDark()
 @Composable
-private fun SearchPreviewLightDark() {
+internal fun SearchPreviewLightDark() {
     SevTheme {
         RoundedSearchBar(
             state = TopBarState.Search("triana", true),
@@ -157,7 +157,7 @@ private fun SearchPreviewLightDark() {
 
 @PreviewLightDark()
 @Composable
-private fun SearchEmptyPreviewLightDark() {
+internal fun SearchEmptyPreviewLightDark() {
     SevTheme {
         Column {
             RoundedSearchBar(
@@ -179,10 +179,10 @@ private fun SearchEmptyPreviewLightDark() {
 
 @PreviewLightDark()
 @Composable
-private fun SearchStopPreviewLightDark() {
+internal fun SearchStopPreviewLightDark() {
     SevTheme {
         RoundedSearchBar(
-            state = TopBarState.StopSelected(Stubs.stops.random()),
+            state = TopBarState.StopSelected(Stubs.stops[0]),
             onSearchTermChanged = {},
             onOpenSearchScreen = {},
             onCancelClicked = {},
@@ -192,10 +192,10 @@ private fun SearchStopPreviewLightDark() {
 
 @PreviewLightDark()
 @Composable
-private fun SearchLinePreviewLightDark() {
+internal fun SearchLinePreviewLightDark() {
     SevTheme {
         RoundedSearchBar(
-            state = TopBarState.LineSelected(Stubs.lines.random()),
+            state = TopBarState.LineSelected(Stubs.lines[0]),
             onSearchTermChanged = {},
             onOpenSearchScreen = {},
             onCancelClicked = {},

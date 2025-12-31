@@ -138,7 +138,7 @@ private fun AlertCard(
 
 @Preview
 @Composable
-private fun AlertWidgetPreview() {
+internal fun AlertWidgetPreview() {
     ScreenPreview {
         AlertWidget(
             state = AlertState.LowBalance(cardId = 123456L),

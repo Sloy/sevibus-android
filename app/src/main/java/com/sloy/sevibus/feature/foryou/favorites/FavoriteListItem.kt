@@ -205,7 +205,7 @@ fun FavoriteListItemShimmer(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-private fun LoadedPreview() {
+internal fun LoadedPreview() {
     SevTheme {
         Surface {
             Column(Modifier.padding(16.dp)) {
@@ -213,7 +213,7 @@ private fun LoadedPreview() {
                     FavoriteListItem(
                         favorite = it,
                         onStopClicked = {},
-                        arrivals = Stubs.arrivals.shuffled().take(5).sorted(),
+                        arrivals = listOf(Stubs.arrivals[0], Stubs.arrivals[1], Stubs.arrivals[2], Stubs.arrivals[3], Stubs.arrivals[4]).sorted(),
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
@@ -224,7 +224,7 @@ private fun LoadedPreview() {
 
 @Preview
 @Composable
-private fun LoadingArrivalsPreview() {
+internal fun LoadingArrivalsPreview() {
     SevTheme {
         Surface {
             Column(Modifier.padding(16.dp)) {
@@ -243,7 +243,7 @@ private fun LoadingArrivalsPreview() {
 
 @Preview(widthDp = 400)
 @Composable
-private fun LoadingPreview() {
+internal fun FavoriteListItemLoadingPreview() {
     SevTheme {
         Surface {
             Column {
