@@ -122,6 +122,209 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
   - Debug menu module (`:debug-menu`) for development tools
   - No-op implementation for release builds
 
+## Analytics & Event Tracking
+
+SeviBus uses a multi-tracker analytics system with a type-safe event model.
+
+### Analytics Services
+
+- **Amplitude** - Main analytics service with session tracking, frustration detection, and deep links
+- **Firebase Analytics** - Fallback analytics service for basic event tracking
+- **HappyMomentTracker** - Internal tracker for triggering in-app review prompts based on user behavior
+- **LoggerTracker** - Development-only tracker that logs events to Logcat
+- **OverlayTracker** - Debug-only tracker that displays events in an on-screen overlay (debug builds only)
+
+### Core Architecture
+
+**Main Entry Point:** `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/Analytics.kt`
+
+- Single facade for all event tracking
+- Respects user opt-in/opt-out preference (defaults to enabled)
+- Uses Kotlin Coroutines with `Dispatchers.Default` for async, non-blocking tracking
+- Broadcasts events to all registered tracker implementations
+
+**Base Event Model:** `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/SevEvent.kt`
+
+```kotlin
+abstract class SevEvent(
+   val name: String,
+   vararg val properties: Pair<String, Any?>
+)
+```
+
+### Adding New Events
+
+#### 1. Define the Event
+
+Events are organized into three files based on type:
+
+- **`events/Screens.kt`** - For screen view tracking (use "Viewed" suffix)
+- **`events/Clicks.kt`** - For user interactions (use "Clicked" suffix)
+- **`events/Events.kt`** - For general events (no strict suffix)
+
+**Example:**
+
+```kotlin
+// In events/Clicks.kt
+interface Clicks {
+   // Event without properties
+   data object EditFavoritesClicked : SevEvent(
+      "Edit Favorites Clicked"
+   )
+
+   // Event with properties
+   data class EditFavoriteLineClicked(val isSelected: Boolean) : SevEvent(
+      "Edit Favorite Line Clicked",
+      "lineId" to lineId,
+      "isSelected" to isSelected
+   )
+}
+```
+
+#### 2. Naming Conventions
+
+- **Event Names**: Use Title Case with spaces (e.g., "Add Favorite Clicked")
+   - Firebase automatically converts to underscores: `Add_Favorite_Clicked`
+   - The event naming follows the structure "Object + Action"
+- **Screen Events**: Use "[Screen Name] Viewed" pattern
+   - Examples: "For You Viewed", "Stop Details Viewed", "Settings Viewed"
+- **Click Events**: Use "[Action] Clicked" pattern
+   - Examples: "Add Favorite Clicked", "Card Top Up Clicked", "Location Button Clicked"
+- **General Events**: Use descriptive past tense or noun phrases
+   - Examples: "App Started", "Card Alert Displayed", "Review Dialog Requested"
+
+#### 3. Event Properties
+
+- Use **camelCase** for property keys (e.g., `stopId`, `lineLabel`, `balanceType`)
+- Supported types: `String`, `Int`, `Long`, `Double`, `Float`, `Boolean`
+   - `Int` → converted to `Long` in Firebase
+   - `Float` → converted to `Double` in Firebase
+   - `null` values are skipped in Firebase
+- Keep property names concise but descriptive
+- Include context needed for analytics (IDs, states, types, counts)
+
+#### 4. Where to Track Events
+
+**Primary: ViewModels** (Preferred)
+
+- Inject `Analytics` via Koin
+- Track business logic events and user actions
+- Track when state changes occur
+
+```kotlin
+class MyViewModel(
+   private val analytics: Analytics,
+) : ViewModel() {
+
+   fun onButtonClick() = viewModelScope.launch {
+      doSomething()
+      analytics.track(Clicks.ButtonClicked)
+   }
+}
+```
+
+**Secondary: Composable UI**
+
+- Use `koinInjectOnUI<Analytics>()` for nullable injection
+- Track UI-specific interactions that don't go through ViewModel
+- Use `LaunchedEffect` for tracking state-based events
+
+```kotlin
+@Composable
+fun MyScreen() {
+   val analytics: Analytics? = koinInjectOnUI()
+
+   Button(
+      onClick = {
+         onNavigate(destination)
+         analytics?.track(Clicks.NavigateClicked)
+      }
+   ) { Text("Navigate") }
+}
+```
+
+**Automatic: Navigation**
+
+- Screen views are automatically tracked via `AppState` in `App.kt`
+- Define screen event in `events/Screens.kt`
+- Add mapping in `Screens.kt` helper function:
+
+```kotlin
+fun Analytics.track(destination: NavigationDestination) {
+   val event = when (destination) {
+      is NavigationDestination.MyNewScreen -> Screens.MyNewScreenViewed
+      // ... other mappings
+   }
+   track(event)
+}
+```
+
+### Privacy & User Consent
+
+- Analytics is **enabled by default** (opt-out model)
+- Users can disable from **Settings → Analytics**
+- All trackers respect the user preference in real-time
+- Preference is stored in DataStore: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/AnalyticsSettingsDataSource.kt`
+- **Never track personally identifiable information (PII)** without explicit user consent
+
+### Testing
+
+- Events are logged to Logcat in debug builds via `LoggerTracker`
+- Check Logcat with filter: `"Tracked event"` to verify events are firing
+- Analytics preference changes can be tested via the Settings screen
+- Mock `Analytics` in unit tests to verify tracking calls:
+
+```kotlin
+@Test
+fun `should track event when button clicked`() {
+   val analytics = mock<Analytics>()
+   val viewModel = MyViewModel(analytics)
+
+   viewModel.onButtonClick()
+
+   verify(analytics).track(Clicks.ButtonClicked)
+}
+```
+
+### Best Practices
+
+1. **Track user intent, not implementation details**
+   - ✅ Good: `track(Clicks.AddFavoriteClicked(stopId))`
+   - ❌ Bad: `track(Events.DatabaseInsertCompleted)`
+
+2. **Keep events simple and focused**
+   - One event per user action or state change
+   - Avoid overly granular tracking (e.g., don't track every scroll position)
+
+3. **Use strong typing**
+   - Define events as data classes with typed properties
+   - Avoid magic strings for event names or property keys
+
+4. **Be consistent with naming**
+   - Follow existing patterns in `events/` folder
+   - Use the same terminology across similar events
+
+5. **Track early in the flow**
+   - Track user interactions immediately when they happen
+   - Don't wait for async operations to complete (track intent, not outcome)
+   - For outcomes, create separate events (e.g., "Operation Succeeded"/"Operation Failed")
+
+6. **Avoid tracking sensitive data**
+   - Never track passwords, tokens, email addresses, or phone numbers
+   - Use IDs and codes instead of user names or personal information
+
+### Key Files Reference
+
+- **Analytics facade**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/Analytics.kt`
+- **Event definitions**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/events/`
+   - `Screens.kt` - Screen view events
+   - `Clicks.kt` - User interaction events
+   - `Events.kt` - General events
+- **Base event class**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/SevEvent.kt`
+- **Tracker implementations**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/tracker/`
+- **DI configuration**: `app/src/main/java/com/sloy/sevibus/infrastructure/DI.kt`
+- **User preferences**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/AnalyticsSettingsDataSource.kt`
+
 ## Commits
 
 When writing a commit, summarize the given diffs into a concise commit message.
