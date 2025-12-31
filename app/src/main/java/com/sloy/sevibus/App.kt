@@ -283,7 +283,7 @@ private fun ProfileIcon(currentUser: LoggedUser?, onNavigate: (NavigationDestina
 
 @Preview
 @Composable
-private fun AppPreviewBottomSheet() {
+internal fun AppPreviewBottomSheet() {
     SevTheme {
         MapBottomSheetScaffold(
             currentDestination = NavigationDestination.ForYou,
@@ -301,7 +301,7 @@ private fun AppPreviewBottomSheet() {
 
 @Preview
 @Composable
-private fun AppPreviewFullScreen() {
+internal fun AppPreviewFullScreen() {
     SevTheme {
         MapBottomSheetScaffold(
             currentDestination = NavigationDestination.Search,

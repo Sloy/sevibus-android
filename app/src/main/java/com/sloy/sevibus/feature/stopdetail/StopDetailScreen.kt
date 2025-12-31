@@ -236,7 +236,7 @@ fun ArrivalsFailureBanner(throwable: Throwable) {
 
 @Preview
 @Composable
-private fun LoadedArrivalsPreview() {
+internal fun LoadedArrivalsPreview() {
     ScreenPreview {
         val arrivals = Stubs.arrivals
         StopDetailScreen(
@@ -254,7 +254,7 @@ private fun LoadedArrivalsPreview() {
 
 @Preview
 @Composable
-private fun LoadingArrivalsPreview() {
+internal fun LoadingArrivalsPreview() {
     ScreenPreview {
         StopDetailScreen(
             StopDetailScreenState.Loaded(Stubs.stops[1], arrivalsState = ArrivalsState.Loading(Stubs.lines.take(3).map { it.toSummary() })),
@@ -267,9 +267,9 @@ private fun LoadingArrivalsPreview() {
 
 @PreviewLightDark
 @Composable
-private fun FailedArrivalsPreview() {
+internal fun FailedArrivalsPreview() {
     ScreenPreview {
-        val failedArrivals = Stubs.lines.shuffled().take(3).map { BusArrival.NotAvailable(it.toSummary(), it.routes.first()) }
+        val failedArrivals = listOf(Stubs.lines[0], Stubs.lines[1], Stubs.lines[2]).map { BusArrival.NotAvailable(it.toSummary(), it.routes.first()) }
         StopDetailScreen(
             StopDetailScreenState.Loaded(
                 Stubs.stops[1],
@@ -284,7 +284,7 @@ private fun FailedArrivalsPreview() {
 
 @Preview
 @Composable
-private fun LoadingStopPreview() {
+internal fun LoadingStopPreview() {
     ScreenPreview {
         StopDetailScreen(
             StopDetailScreenState.Loading,
@@ -297,7 +297,7 @@ private fun LoadingStopPreview() {
 
 @Preview
 @Composable
-private fun FailedStopPreview() {
+internal fun FailedStopPreview() {
     ScreenPreview {
         StopDetailScreen(
             StopDetailScreenState.Failed(IllegalStateException("Stop error")),

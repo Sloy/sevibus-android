@@ -50,7 +50,7 @@ fun ShapedStopIcon(stopColor: Color, iconSize: Dp) {
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun ShapedStopIconPreview() {
+internal fun ShapedStopIconPreview() {
     SevTheme {
         ShapedStopIcon(LineColor.Red.primary(), 5 * 24.dp)
     }

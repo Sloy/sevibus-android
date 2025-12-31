@@ -77,7 +77,7 @@ private fun IconPickerContent(
 
 @Preview(showBackground = true, widthDp = 250)
 @Composable
-private fun IconPickerPreview() {
+internal fun IconPickerPreview() {
     SevTheme {
         Surface(
             color = SevTheme.colorScheme.surface,
@@ -93,7 +93,7 @@ private fun IconPickerPreview() {
 
 @Preview(showBackground = true, widthDp = 300, heightDp = 200)
 @Composable
-private fun IconPickerInContextPreview() {
+internal fun IconPickerInContextPreview() {
     SevTheme {
         Box(
             modifier = Modifier.padding(16.dp),

@@ -61,7 +61,7 @@ fun InfoBannerComponent(
 
 @PreviewLightDark
 @Composable
-private fun TwoLinesPreview() {
+internal fun InfoBannerTwoLinesPreview() {
     SevTheme {
         Surface {
 
@@ -75,7 +75,7 @@ private fun TwoLinesPreview() {
 
 @PreviewLightDark
 @Composable
-private fun TwoLinesActionPreview() {
+internal fun InfoBannerTwoLinesActionPreview() {
     SevTheme {
         Surface {
             InfoBannerComponent(
@@ -89,7 +89,7 @@ private fun TwoLinesActionPreview() {
 
 @Preview
 @Composable
-private fun OneLinePreview() {
+internal fun InfoBannerOneLinePreview() {
     SevTheme {
         InfoBannerComponent(
             "Selecciona la parada de destino.",
@@ -100,7 +100,7 @@ private fun OneLinePreview() {
 
 @Preview
 @Composable
-private fun OneLineActionPreview() {
+internal fun InfoBannerOneLineActionPreview() {
     SevTheme {
         InfoBannerComponent(
             "Selecciona la parada de destino.",

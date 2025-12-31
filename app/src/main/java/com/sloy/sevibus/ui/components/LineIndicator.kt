@@ -50,7 +50,7 @@ fun LineIndicator(line: LineSummary, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable
-private fun Preview() {
+internal fun LineIndicatorPreview() {
     SevTheme {
         Surface {
             FlowRow(

@@ -77,7 +77,7 @@ private fun BusArrival.toText() = when (this) {
 
 @Preview(showBackground = true)
 @Composable
-private fun Preview() {
+internal fun ArrivalTimeElementPreview() {
     SevTheme {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),

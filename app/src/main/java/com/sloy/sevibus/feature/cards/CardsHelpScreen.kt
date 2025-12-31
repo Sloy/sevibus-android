@@ -139,7 +139,7 @@ private fun HtmlText(
 
 @Preview
 @Composable
-private fun CardHelpPreview() {
+internal fun CardHelpPreview() {
     ScreenPreview {
         CardsHelpScreen()
     }

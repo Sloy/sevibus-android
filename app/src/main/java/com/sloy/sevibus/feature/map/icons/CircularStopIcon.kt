@@ -28,7 +28,7 @@ fun CircularStopIcon(stopColor: Color, iconSize: Dp) {
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable
-private fun CircularStopIconPreview() {
+internal fun CircularStopIconPreview() {
     SevTheme {
         CircularStopIcon(LineColor.Red.primary(), iconSize = 8.dp)
     }

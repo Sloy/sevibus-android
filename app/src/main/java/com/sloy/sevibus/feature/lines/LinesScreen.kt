@@ -114,7 +114,7 @@ private fun LineGroupTitle(lineGroup: String) {
 
 @Preview
 @Composable
-private fun LinesScreenPreview() {
+internal fun LinesScreenPreview() {
     ScreenPreview {
         LinesScreen(state = LinesScreenState.Content(Stubs.groupsOfLines), {})
     }

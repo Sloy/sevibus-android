@@ -138,12 +138,12 @@ private fun RouteContent(
 
 @Preview
 @Composable
-private fun PreviewWithRoutes() {
+internal fun PreviewWithRoutes() {
     ScreenPreview {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
                 line = Stubs.lines[0],
-                stops = Stubs.stops.shuffled(),
+                stops = Stubs.stops,
                 selectedRoute = Stubs.lines[0].routes.first(),
             ),
             highlightedStopId = null,
@@ -155,12 +155,12 @@ private fun PreviewWithRoutes() {
 
 @Preview
 @Composable
-private fun PreviewWithoutRoutes() {
+internal fun PreviewWithoutRoutes() {
     ScreenPreview {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
                 line = Stubs.lines.first { it.routes.size == 1 },
-                stops = Stubs.stops.shuffled(),
+                stops = Stubs.stops,
                 selectedRoute = Stubs.lines[2].routes.first(),
             ),
             highlightedStopId = null,

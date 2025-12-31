@@ -114,7 +114,7 @@ private fun SlidingContent(
 
 @Preview
 @Composable
-private fun ForYouScreenPreview() {
+internal fun ForYouScreenPreview() {
     ScreenPreview {
         ForYouScreen(0, {}, {}, {}, {})
     }

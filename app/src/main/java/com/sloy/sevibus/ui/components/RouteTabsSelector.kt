@@ -65,7 +65,7 @@ private fun RouteTab(directionValue: String, isSelected: Boolean, onRouteClicked
 
 @Preview(showBackground = true)
 @Composable
-private fun Preview() {
+internal fun RouteTabsSelectorPreview() {
     ScreenPreview {
         Column {
 

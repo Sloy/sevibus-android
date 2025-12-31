@@ -47,7 +47,7 @@ fun CircularIconButton(
 
 @Preview
 @Composable
-private fun Preview() {
+internal fun CircularIconButtonPreview() {
     SevTheme {
         CircularIconButton(
             onClick = { },

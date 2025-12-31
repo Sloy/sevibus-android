@@ -467,7 +467,7 @@ private fun SelectableLineIndicator(
 
 @Preview(showSystemUi = true)
 @Composable
-private fun Preview() {
+internal fun Preview() {
     ScreenPreview {
         EditFavoritesScreen(EditFavoritesState(Stubs.favorites), SnackbarHostState(), {}, {}, {})
     }
@@ -475,7 +475,7 @@ private fun Preview() {
 
 @Preview(showBackground = true, widthDp = 350)
 @Composable
-private fun FavoriteItemPreview() {
+internal fun FavoriteItemPreview() {
     SevTheme {
         val reorderableLazyListState = rememberReorderableLazyListState(rememberLazyListState()) { _, _ -> }
         LazyColumn(

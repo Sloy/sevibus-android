@@ -484,7 +484,7 @@ private fun AccountContentLoggedIn(state: SettingsScreenState.LoggedIn, onLogout
 
 @Preview(showBackground = true, heightDp = 1200)
 @Composable
-private fun LoggedInPreview() {
+internal fun LoggedInPreview() {
     SevTheme {
         SettingsScreen(
             SettingsScreenState.LoggedIn(LoggedUser("x", "Bonifacio Ramírez Alcántara", "pepe@gmail.com", null)),
@@ -498,7 +498,7 @@ private fun LoggedInPreview() {
 
 @Preview
 @Composable
-private fun LoggedOutPreview() {
+internal fun LoggedOutPreview() {
     ScreenPreview {
         SettingsScreen(
             SettingsScreenState.LoggedOut(isInProgress = false),
@@ -512,7 +512,7 @@ private fun LoggedOutPreview() {
 
 @Preview
 @Composable
-private fun LoggedOutProgressPreview() {
+internal fun LoggedOutProgressPreview() {
     ScreenPreview {
         SettingsScreen(
             SettingsScreenState.LoggedOut(isInProgress = true),

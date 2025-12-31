@@ -64,7 +64,7 @@ private fun SupportingLines(lines: List<LineSummary>) {
 
 @Preview(showBackground = true)
 @Composable
-private fun SingleLinePreview() {
+internal fun SingleLinePreview() {
     SevTheme {
         StopCardElement(Stubs.stops[0], false, {})
     }
@@ -72,7 +72,7 @@ private fun SingleLinePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun DoubleLinePreview() {
+internal fun DoubleLinePreview() {
     SevTheme {
         StopCardElement(Stubs.stops[1], false, {})
     }
@@ -80,7 +80,7 @@ private fun DoubleLinePreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun HighlightedPreview() {
+internal fun HighlightedPreview() {
     SevTheme {
         StopCardElement(Stubs.stops.first(), true, {})
     }

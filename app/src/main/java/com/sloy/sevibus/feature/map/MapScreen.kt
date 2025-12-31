@@ -271,7 +271,7 @@ private fun DebugInfo(
 @OptIn(ExperimentalPermissionsApi::class)
 @Preview
 @Composable
-private fun MapScreenPreview() {
+internal fun MapScreenPreview() {
     ScreenPreview {
         val scope = rememberCoroutineScope()
         val density = androidx.compose.ui.platform.LocalDensity.current

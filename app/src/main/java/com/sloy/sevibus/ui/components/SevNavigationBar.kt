@@ -56,7 +56,7 @@ fun SevNavigationBar(
 
 @Preview
 @Composable
-private fun SevNavigationBarPreview() {
+internal fun SevNavigationBarPreview() {
     SevTheme {
         SevNavigationBar(
             listOf(
