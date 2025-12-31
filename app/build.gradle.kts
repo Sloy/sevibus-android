@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.screenshot)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -76,6 +77,14 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
+    testOptions {
+        screenshotTests {
+            imageDifferenceThreshold = 0.01f
         }
     }
 }
@@ -153,6 +162,12 @@ dependencies {
     testImplementation(libs.strikt)
     testImplementation(libs.coroutines.testing)
     testImplementation(libs.mockito.kotlin)
+
+    // Screenshot testing
+    screenshotTestImplementation(libs.compose.screenshot.validation)
+    screenshotTestImplementation(libs.androidx.ui.tooling)
+    screenshotTestImplementation(platform(libs.androidx.compose.bom))
+    screenshotTestImplementation(libs.androidx.ui)
 }
 
 secrets {
