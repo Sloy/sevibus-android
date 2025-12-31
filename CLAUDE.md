@@ -100,14 +100,14 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
 - **NFC**: Custom NFC implementation for Bonobús cards
 
 ### Configuration Requirements
-- JDK 17
+- JDK 21
 - `secret.properties` file in project root with `MAPS_API_KEY`
 - `app/google-services.json` for Firebase services
 - `version.properties` file in project root (managed by release scripts)
 
 ### Build Configuration
 - Compile SDK: 36, Target SDK: 36, Min SDK: 26
-- Kotlin with JVM target 17
+- Kotlin with JVM target 21
 - ProGuard enabled for release builds with optimization
 - Signing configs: Release (uses `certs/release.keystore`) and Debug (uses `certs/debug.keystore`)
 - KSP for Room code generation
