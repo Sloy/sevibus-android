@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
  *
  * This class keeps a memory cache of the state. You can subscribe to the current state using [observeCurrentState],
  * and update it with [updateState]. The state is also persisted in shared preferences.
+ * Stored values that can't be decoded fall back to [defaultValue].
  */
 abstract class DebugModuleDataSource<T : Any>(context: Context) {
 
@@ -50,10 +51,8 @@ abstract class DebugModuleDataSource<T : Any>(context: Context) {
     }
 
     private fun readStoredState(): T {
-        return prefs.getString(prefKey, null)
-            ?.let { jsonString ->
-                json.decode(jsonString)
-            } ?: defaultValue
+        val jsonString = prefs.getString(prefKey, null) ?: return defaultValue
+        return runCatching { json.decode(jsonString) }.getOrDefault(defaultValue)
     }
 }
 
