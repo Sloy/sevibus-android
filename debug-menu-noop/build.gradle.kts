@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.sloy.debugmenu"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -22,11 +22,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
 }
 
@@ -38,4 +38,5 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.appcompat)
     implementation(libs.kotlinx.serialization)
+    implementation(libs.coroutines.android)
 }
