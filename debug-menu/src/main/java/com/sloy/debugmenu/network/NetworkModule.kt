@@ -43,6 +43,8 @@ import com.sloy.debugmenu.overlay.OverlayLogger
 
 /**
  * Network section: HTTP overlay, forced failures, latency and API host override.
+ *
+ * The first host preset is the default host, used when no override is stored.
  */
 @Composable
 fun DebugMenuScope.NetworkModule(
@@ -72,7 +74,7 @@ private fun DebugMenuScope.NetworkModuleContent(
     onForceFailureToggled: (Boolean) -> Unit = {},
     onAutoResetToggled: (Boolean) -> Unit = {},
     onLatencySelected: (LatencyPreset) -> Unit = {},
-    onHostSelected: (String?) -> Unit = {},
+    onHostSelected: (String) -> Unit = {},
     onCustomHostApplied: (String) -> Boolean = { true },
 ) {
     DebugModule("Network", Icons.Outlined.Wifi, showBadge = state.isAnyFeatureActive()) {
@@ -112,32 +114,27 @@ private fun DebugMenuScope.NetworkModuleContent(
 private fun HostSelector(
     hostOverride: String?,
     hostPresets: List<HostPreset>,
-    onHostSelected: (String?) -> Unit,
+    onHostSelected: (String) -> Unit,
     onCustomHostApplied: (String) -> Boolean,
 ) {
-    val options = listOf("Default") + hostPresets.map { it.label } + "Custom"
-    val customIndex = options.lastIndex
+    val options = hostPresets.map { it.label } + "Custom"
+    val customIndex = hostPresets.size
     val storedIndex = hostSelectionIndex(hostOverride, hostPresets)
     var isCustomSelected by rememberSaveable(storedIndex) { mutableStateOf(storedIndex == customIndex) }
     val selectedIndex = if (isCustomSelected) customIndex else storedIndex
 
     Column(Modifier.padding(horizontal = 4.dp, vertical = 12.dp)) {
-        TitleSubtitle("Host", hostOverride ?: "App default")
+        TitleSubtitle("Host", hostOverride ?: hostPresets.firstOrNull()?.url ?: "App default")
         Spacer(Modifier.height(8.dp))
         PillSegmentedControl(
             options = options,
             selectedIndex = selectedIndex,
             onSelected = { index ->
-                when (index) {
-                    0 -> {
-                        isCustomSelected = false
-                        onHostSelected(null)
-                    }
-                    customIndex -> isCustomSelected = true
-                    else -> {
-                        isCustomSelected = false
-                        onHostSelected(hostPresets[index - 1].url)
-                    }
+                if (index == customIndex) {
+                    isCustomSelected = true
+                } else {
+                    isCustomSelected = false
+                    onHostSelected(hostPresets[index].url)
                 }
             },
         )

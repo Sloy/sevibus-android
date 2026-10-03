@@ -129,6 +129,25 @@ class DebugNetworkInterceptorTest {
     }
 
     @Test
+    fun `default host is used when there is no override`() {
+        val withDefault = DebugNetworkInterceptor(
+            store = store,
+            overlayLogger = overlayLogger,
+            randomId = { "id-1" },
+            sleep = { sleeps += it },
+            random = Random(7),
+            defaultHost = HostPreset("Dev", "https://dev.example.com"),
+        )
+        val chain = chainReturning(200)
+
+        withDefault.intercept(chain)
+
+        val captor = argumentCaptor<Request>()
+        verify(chain).proceed(captor.capture())
+        expectThat(captor.firstValue.url.toString()).isEqualTo("https://dev.example.com/api/stops?x=1")
+    }
+
+    @Test
     fun `invalid host override is ignored`() {
         store.updateState(NetworkDebugModuleState(hostOverride = "not a url"))
         val chain = chainReturning(200)

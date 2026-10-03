@@ -27,7 +27,12 @@ class NetworkDebugModuleViewModel(
 
     fun onLatencySelected(preset: LatencyPreset) = update { copy(latencyPreset = preset) }
 
-    fun onHostSelected(url: String?) = update { copy(hostOverride = url) }
+    fun onHostSelected(url: String) {
+        val defaultOrigin = hostPresets.firstOrNull()?.url?.toHttpUrlOrNull()?.origin()
+        val selectedOrigin = url.toHttpUrlOrNull()?.origin()
+        val isDefault = defaultOrigin != null && defaultOrigin == selectedOrigin
+        update { copy(hostOverride = if (isDefault) null else url) }
+    }
 
     fun onCustomHostApplied(input: String): Boolean {
         val url = input.trim().toHttpUrlOrNull() ?: return false
@@ -44,7 +49,7 @@ internal fun hostSelectionIndex(hostOverride: String?, presets: List<HostPreset>
     if (hostOverride == null) return 0
     val override = hostOverride.toHttpUrlOrNull()?.origin()
     val presetIndex = presets.indexOfFirst { it.url.toHttpUrlOrNull()?.origin() == override }
-    return if (presetIndex >= 0) presetIndex + 1 else presets.size + 1
+    return if (presetIndex >= 0) presetIndex else presets.size
 }
 
 private fun HttpUrl.origin(): String =

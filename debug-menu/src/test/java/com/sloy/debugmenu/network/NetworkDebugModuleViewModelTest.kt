@@ -47,8 +47,23 @@ class NetworkDebugModuleViewModelTest {
     @Test
     fun `host selection index maps default presets and custom`() {
         expectThat(hostSelectionIndex(null, presets)).isEqualTo(0)
-        expectThat(hostSelectionIndex("https://prod.example.com", presets)).isEqualTo(1)
-        expectThat(hostSelectionIndex("https://dev.example.com/", presets)).isEqualTo(2)
-        expectThat(hostSelectionIndex("http://192.168.1.10:8080", presets)).isEqualTo(3)
+        expectThat(hostSelectionIndex("https://prod.example.com", presets)).isEqualTo(0)
+        expectThat(hostSelectionIndex("https://dev.example.com/", presets)).isEqualTo(1)
+        expectThat(hostSelectionIndex("http://192.168.1.10:8080", presets)).isEqualTo(presets.size)
+    }
+
+    @Test
+    fun `selecting the first preset stores no override`() {
+        viewModel.onHostSelected("https://dev.example.com")
+        viewModel.onHostSelected("https://prod.example.com/")
+
+        expectThat(dataSource.getCurrentState().hostOverride).isNull()
+    }
+
+    @Test
+    fun `selecting a non default preset stores its url`() {
+        viewModel.onHostSelected("https://dev.example.com")
+
+        expectThat(dataSource.getCurrentState().hostOverride).isEqualTo("https://dev.example.com")
     }
 }

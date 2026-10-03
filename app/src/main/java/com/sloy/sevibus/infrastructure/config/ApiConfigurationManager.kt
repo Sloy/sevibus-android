@@ -7,6 +7,7 @@ class ApiConfigurationManager {
 
     companion object {
         const val DEFAULT_DEBUG_URL = "https://appdev-vd4mgiw7ma-no.a.run.app"
+        const val DEFAULT_STAGING_URL = "https://appstage-vd4mgiw7ma-no.a.run.app"
         const val DEFAULT_RELEASE_URL = "https://app-vd4mgiw7ma-no.a.run.app"
     }
 

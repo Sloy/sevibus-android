@@ -23,19 +23,25 @@ class DebugNetworkInterceptor internal constructor(
     private val randomId: () -> String,
     private val sleep: (Long) -> Unit,
     private val random: Random,
+    private val defaultHost: HostPreset? = null,
 ) : Interceptor {
 
-    constructor(store: NetworkDebugModuleDataSource, overlayLogger: OverlayLogger) : this(
+    constructor(
+        store: NetworkDebugModuleDataSource,
+        overlayLogger: OverlayLogger,
+        defaultHost: HostPreset? = null,
+    ) : this(
         store = store,
         overlayLogger = overlayLogger,
         randomId = { UUID.randomUUID().toString() },
         sleep = ::defaultSleep,
         random = Random.Default,
+        defaultHost = defaultHost,
     )
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val state = store.getCurrentState()
-        val request = chain.request().withHostOverride(state.hostOverride)
+        val request = chain.request().withHostOverride(state.hostOverride ?: defaultHost?.url)
         val overlayItem = HttpOverlayLoggerItem(method = request.method, endpoint = request.url.encodedPath, id = randomId())
         report(overlayItem)
         try {
