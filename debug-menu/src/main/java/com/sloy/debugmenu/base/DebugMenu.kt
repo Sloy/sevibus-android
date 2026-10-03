@@ -95,7 +95,7 @@ fun DebugMenuScope.DebugModule(
     val isExpanded by expandedFlow.collectAsStateWithLifecycle()
     val shape = RoundedCornerShape(24.dp)
     val outlineColor by animateColorAsState(
-        targetValue = if (isExpanded) MaterialTheme.colorScheme.outlineVariant else Color.Transparent,
+        targetValue = if (isExpanded) MaterialTheme.colorScheme.outline else Color.Transparent,
         animationSpec = tween(ANIMATION_MILLIS),
         label = "moduleOutline",
     )
@@ -136,15 +136,12 @@ fun DebugMenuScope.DebugModule(
             enter = expandVertically(tween(ANIMATION_MILLIS)) + fadeIn(tween(ANIMATION_MILLIS)),
             exit = shrinkVertically(tween(ANIMATION_MILLIS)) + fadeOut(tween(ANIMATION_MILLIS)),
         ) {
-            Column(Modifier.fillMaxWidth()) {
-                HorizontalDivider(Modifier.padding(horizontal = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 16.dp),
-                    content = expandedContent,
-                )
-            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 16.dp),
+                content = expandedContent,
+            )
         }
     }
     if (!isExpanded) {

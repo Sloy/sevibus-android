@@ -2,6 +2,9 @@ package com.sloy.debugmenu.overlay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,6 +51,7 @@ internal fun DebugMenuSheet(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         dragHandle = { DragHandle() },
+        modifier = Modifier.padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() * 2),
     ) {
         DebugMenuHeader(onClose = { hideThen(onDismiss) })
         DebugMenu(

@@ -28,7 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -172,7 +172,7 @@ internal fun FloatingDebugButtonContent(pressed: Boolean, modifier: Modifier = M
             .background(MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape),
     ) {
         Icon(
-            Icons.Filled.BugReport,
+            Icons.Outlined.BugReport,
             contentDescription = "Open debug menu",
             tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.size(24.dp),

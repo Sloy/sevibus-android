@@ -19,6 +19,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -72,7 +73,13 @@ fun PillSegmentedControl(
                         .weight(1f)
                         .fillMaxHeight()
                         .clip(CircleShape)
-                        .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelected(index) }),
+                        .selectable(
+                            selected = isSelected,
+                            interactionSource = null,
+                            indication = ripple(color = MaterialTheme.colorScheme.surface),
+                            role = Role.Tab,
+                            onClick = { onSelected(index) },
+                        ),
                 ) {
                     Text(
                         label,
