@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 
 class LocationDebugModuleViewModel(private val dataSource: LocationDebugModuleDataSource) : ViewModel() {
     val state: StateFlow<LocationDebugModuleState> = dataSource.observeCurrentState()
-    fun onFakeLocationChanged(isEnabled: Boolean) {
-        dataSource.updateState(state.value.copy(isFakeLocationEnabled = isEnabled))
+
+    fun onFakeLocationSelected(fakeLocation: FakeLocation?) {
+        dataSource.updateState(state.value.copy(fakeLocation = fakeLocation))
     }
 }
 
-
 @Serializable
 data class LocationDebugModuleState(
-    val isFakeLocationEnabled: Boolean = false,
+    val fakeLocation: FakeLocation? = null,
 )
