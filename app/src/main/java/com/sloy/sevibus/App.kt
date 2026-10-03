@@ -24,6 +24,9 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import com.sloy.debugmenu.overlay.DebugMenuHost
+import com.sloy.debugmenu.overlay.OverlayLogger
+import com.sloy.sevibus.feature.debug.SevDebugMenu
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,14 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.sloy.sevibus.modules.tracking.NetworkDebugModuleDataSource
-import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
-import com.sloy.debugmenu.overlay.OverlayLoggerLayout
-import com.sloy.sevibus.feature.debug.tracking.TrackingDebugModuleDataSource
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
@@ -61,7 +60,6 @@ import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.theme.SevTheme
-import kotlinx.coroutines.flow.map
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
@@ -77,9 +75,7 @@ fun App() {
         val topBarState by searchViewModel.topBarState.collectAsStateWithLifecycle()
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
         val reviewViewModel: InAppReviewViewModel = koinViewModel()
-        val networkDebugModuleDataSource = koinInject<NetworkDebugModuleDataSource>()
-        val trackingDebugModuleDataSource = koinInject<TrackingDebugModuleDataSource>()
-        val overlayStateHolder = koinInject<OverlayLoggerStateHolder>()
+        val overlayLogger = koinInject<OverlayLogger>()
         val analytics: Analytics = koinInject()
 
         LaunchedEffect(Unit) {
@@ -98,15 +94,10 @@ fun App() {
             reviewViewModel.launch(activity!!)
         }
 
-        LaunchedEffect(Unit) {
-            overlayStateHolder.visibleWhen(networkDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
-            overlayStateHolder.visibleWhen(trackingDebugModuleDataSource.observeCurrentState().map { it.isOverlayEnabled })
-        }
-
         val onNavigate: (NavigationDestination) -> Unit = { appState.navigate(it) }
 
         SevTheme {
-            OverlayLoggerLayout(overlayStateHolder) {
+            DebugMenuHost(overlayLogger, menu = { SevDebugMenu() }) {
                 MapBottomSheetScaffold(
                     currentDestination = currentDestination,
                     onNavigate = onNavigate,

@@ -10,6 +10,8 @@ import com.sloy.sevibus.feature.debug.auth.AuthDebugModuleViewModel
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleDataSource
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModuleViewModel
 import com.sloy.debugmenu.overlay.OverlayLoggerStateHolderImpl
+import com.sloy.debugmenu.overlay.OverlayLogger
+import com.sloy.debugmenu.overlay.OverlayLoggerImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -25,6 +27,7 @@ object DebugDI {
         single { InAppReviewDebugModuleDataSource(androidContext()) }
         single { AuthDebugModuleDataSource(androidContext()) }
         single<OverlayLoggerStateHolder> { OverlayLoggerStateHolderImpl() }
+        single<OverlayLogger> { OverlayLoggerImpl() }
     }
 
 }
