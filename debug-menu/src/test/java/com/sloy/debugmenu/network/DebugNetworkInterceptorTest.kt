@@ -160,6 +160,26 @@ class DebugNetworkInterceptorTest {
         )
     }
 
+    @Test
+    fun `unexpected errors are reported and rethrown`() {
+        val chain = mock<Interceptor.Chain> {
+            on { request() } doReturn request
+            on { proceed(any()) } doThrow IllegalStateException("boom")
+        }
+
+        expectThrows<IllegalStateException> { interceptor.intercept(chain) }
+
+        expectThat(overlayLogger.putItems.last()).isEqualTo(
+            HttpOverlayLoggerItem(
+                method = "GET",
+                endpoint = "/api/stops",
+                id = "id-1",
+                status = HttpOverlayLoggerItem.STATUS_IO_EXCEPTION,
+                error = "boom",
+            )
+        )
+    }
+
     private fun chainReturning(code: Int): Interceptor.Chain = mock {
         on { request() } doReturn request
         on { proceed(any()) } doAnswer { invocation ->

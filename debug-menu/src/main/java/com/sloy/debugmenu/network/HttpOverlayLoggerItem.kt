@@ -76,7 +76,7 @@ internal fun HttpOverlayLoggerItem.badgeLabel(): String = when (status) {
 private fun HttpOverlayLoggerItem.badgeColors(): Pair<Color, Color> = when {
     status == null -> Color(0xFF888888) to Color.White
     cache == HttpOverlayLoggerItem.Cache.LOCAL -> Color(0xFF00BCD4) to Color.Black
-    status < 300 || status == 304 -> Color(0xFF4CAF50) to Color.White
+    status < 400 -> Color(0xFF4CAF50) to Color.White
     else -> Color(0xFFE91E63) to Color.White
 }
 

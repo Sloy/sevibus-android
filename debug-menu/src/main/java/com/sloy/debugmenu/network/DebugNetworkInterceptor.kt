@@ -8,7 +8,7 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
-import java.io.IOException
+import java.io.InterruptedIOException
 import java.util.UUID
 import kotlin.random.Random
 
@@ -38,11 +38,21 @@ class DebugNetworkInterceptor internal constructor(
         val request = chain.request().withHostOverride(state.hostOverride)
         val overlayItem = HttpOverlayLoggerItem(method = request.method, endpoint = request.url.encodedPath, id = randomId())
         report(overlayItem)
-        sleep(state.latencyPreset.nextDelayMs(random))
-        if (state.isForceFailureEnabled) {
-            return forceFailure(request, overlayItem)
+        try {
+            sleep(state.latencyPreset.nextDelayMs(random))
+            if (state.isForceFailureEnabled) {
+                return forceFailure(request, overlayItem)
+            }
+            return proceedAndReport(chain, request, overlayItem)
+        } catch (e: Throwable) {
+            report(
+                overlayItem.copy(
+                    status = HttpOverlayLoggerItem.STATUS_IO_EXCEPTION,
+                    error = e.message ?: e::class.simpleName ?: "Error",
+                )
+            )
+            throw e
         }
-        return proceedAndReport(chain, request, overlayItem)
     }
 
     private fun forceFailure(request: Request, overlayItem: HttpOverlayLoggerItem): Response {
@@ -61,19 +71,9 @@ class DebugNetworkInterceptor internal constructor(
     }
 
     private fun proceedAndReport(chain: Interceptor.Chain, request: Request, overlayItem: HttpOverlayLoggerItem): Response {
-        try {
-            val response = chain.proceed(request)
-            report(overlayItem.copy(status = response.code, cache = response.cacheClass()))
-            return response
-        } catch (e: IOException) {
-            report(
-                overlayItem.copy(
-                    status = HttpOverlayLoggerItem.STATUS_IO_EXCEPTION,
-                    error = e.message ?: e::class.simpleName ?: "IOException",
-                )
-            )
-            throw e
-        }
+        val response = chain.proceed(request)
+        report(overlayItem.copy(status = response.code, cache = response.cacheClass()))
+        return response
     }
 
     private fun report(item: HttpOverlayLoggerItem) {
@@ -105,7 +105,7 @@ private fun defaultSleep(millis: Long) {
         Thread.sleep(millis)
     } catch (e: InterruptedException) {
         Thread.currentThread().interrupt()
-        throw IOException("Network debug latency simulation interrupted", e)
+        throw InterruptedIOException("Network debug latency simulation interrupted").apply { initCause(e) }
     }
 }
 
