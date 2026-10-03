@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons)
     implementation(libs.kotlinx.serialization)
-    implementation(libs.androidx.appcompat)
     implementation(libs.coroutines.android)
     implementation(libs.playServices.codeScanner)
     api(libs.okhttp)
