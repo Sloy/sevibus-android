@@ -2,7 +2,7 @@ package com.sloy.debugmenu.overlay
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -25,7 +25,7 @@ internal fun OverlayLoggerLayer(overlayLogger: OverlayLogger, modifier: Modifier
         userScrollEnabled = false,
         modifier = modifier
             .fillMaxSize()
-            .safeContentPadding()
+            .safeDrawingPadding()
             .clearAndSetSemantics {}
             .pointerInteropFilter { false },
     ) {
