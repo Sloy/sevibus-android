@@ -5,8 +5,8 @@ import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.chuckerteam.chucker.api.RetentionManager
 import com.sloy.debugmenu.events.EventStore
 import com.sloy.debugmenu.events.EventsDebugModuleDataSource
+import com.sloy.debugmenu.network.DebugNetworkInterceptor
 import com.sloy.sevibus.feature.debug.events.OverlayTracker
-import com.sloy.sevibus.feature.debug.network.overlay.HttpOverlayInterceptor
 import com.sloy.sevibus.infrastructure.analytics.Tracker
 import com.sloy.sevibus.infrastructure.location.DebugLocationService
 import com.sloy.sevibus.infrastructure.location.FusedLocationService
@@ -43,7 +43,7 @@ object BuildVariantDI {
                 .createShortcut(true)
                 .build(),
             loggingInterceptor,
-            HttpOverlayInterceptor(get(), get())
+            DebugNetworkInterceptor(get(), get())
         ) }
     }
 }
