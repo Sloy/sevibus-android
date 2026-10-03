@@ -2,7 +2,6 @@ package com.sloy.sevibus.feature.debug
 
 import com.sloy.sevibus.modules.tracking.NetworkDebugModuleDataSource
 import com.sloy.sevibus.modules.tracking.NetworkDebugModuleViewModel
-import com.sloy.debugmenu.base.DebugMenuViewModel
 import com.sloy.debugmenu.overlay.OverlayLoggerStateHolder
 import com.sloy.sevibus.feature.debug.location.LocationDebugModuleDataSource
 import com.sloy.sevibus.feature.debug.location.LocationDebugModuleViewModel
@@ -17,7 +16,6 @@ import org.koin.dsl.module
 
 object DebugDI {
     val module = module {
-        viewModel { DebugMenuViewModel() }
         viewModel { NetworkDebugModuleViewModel(get(), get()) }
         viewModel { LocationDebugModuleViewModel(get()) }
         viewModel { InAppReviewDebugModuleViewModel(get(), get(), get(), get(), get(), get()) }
