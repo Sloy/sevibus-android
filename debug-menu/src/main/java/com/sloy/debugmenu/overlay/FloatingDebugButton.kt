@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,6 +73,10 @@ internal fun FloatingDebugButton(
         val heightPx = constraints.maxHeight.toFloat()
         val initialPosition = remember { store.read() ?: StoredPosition(Edge.RIGHT, DEFAULT_Y_FRACTION) }
         var edge by remember { mutableStateOf(initialPosition.edge) }
+        var yFraction by remember { mutableStateOf(initialPosition.yFraction) }
+        val currentWidthPx by rememberUpdatedState(widthPx)
+        val currentHeightPx by rememberUpdatedState(heightPx)
+        val currentVisible by rememberUpdatedState(visible)
         val offsetX = remember { Animatable(hiddenX(initialPosition.edge, buttonSizePx, widthPx)) }
         val offsetY = remember { Animatable(clampY(initialPosition.yFraction * heightPx, buttonSizePx, 0f, heightPx)) }
         val coroutineScope = rememberCoroutineScope()
@@ -80,7 +85,7 @@ internal fun FloatingDebugButton(
         var isDragging by remember { mutableStateOf(false) }
 
         LaunchedEffect(visible, widthPx, heightPx) {
-            offsetY.snapTo(clampY(offsetY.value, buttonSizePx, 0f, heightPx))
+            offsetY.snapTo(clampY(yFraction * heightPx, buttonSizePx, 0f, heightPx))
             if (visible) {
                 offsetX.animateTo(snapX(edge, buttonSizePx, widthPx), tween(SLIDE_IN_MILLIS, easing = OvershootEasing))
             } else {
@@ -89,13 +94,17 @@ internal fun FloatingDebugButton(
         }
 
         suspend fun settle() {
-            val newEdge = nearestEdge(offsetX.value, buttonSizePx, widthPx)
+            val width = currentWidthPx
+            val height = currentHeightPx
+            val newEdge = nearestEdge(offsetX.value, buttonSizePx, width)
             edge = newEdge
-            if (heightPx > 0f) {
-                store.write(StoredPosition(newEdge, (offsetY.value / heightPx).coerceIn(0f, 1f)))
+            if (height > 0f) {
+                yFraction = (offsetY.value / height).coerceIn(0f, 1f)
+                store.write(StoredPosition(newEdge, yFraction))
             }
+            val targetX = if (currentVisible) snapX(newEdge, buttonSizePx, width) else hiddenX(newEdge, buttonSizePx, width)
             offsetX.animateTo(
-                snapX(newEdge, buttonSizePx, widthPx),
+                targetX,
                 spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
             )
         }
@@ -104,25 +113,35 @@ internal fun FloatingDebugButton(
             pressed = isPressed || isDragging,
             modifier = Modifier
                 .offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
-                .pointerInput(widthPx, heightPx) {
-                    detectDragGestures(
-                        onDragStart = { isDragging = true },
-                        onDragEnd = {
-                            isDragging = false
-                            coroutineScope.launch { settle() }
-                        },
-                        onDragCancel = {
-                            isDragging = false
-                            coroutineScope.launch { settle() }
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            coroutineScope.launch {
-                                offsetX.snapTo(offsetX.value + dragAmount.x)
-                                offsetY.snapTo(clampY(offsetY.value + dragAmount.y, buttonSizePx, 0f, heightPx))
-                            }
-                        },
-                    )
+                .pointerInput(Unit) {
+                    try {
+                        detectDragGestures(
+                            onDragStart = {
+                                isDragging = true
+                                coroutineScope.launch {
+                                    offsetX.stop()
+                                    offsetY.stop()
+                                }
+                            },
+                            onDragEnd = {
+                                isDragging = false
+                                coroutineScope.launch { settle() }
+                            },
+                            onDragCancel = {
+                                isDragging = false
+                                coroutineScope.launch { settle() }
+                            },
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                coroutineScope.launch {
+                                    offsetX.snapTo((offsetX.value + dragAmount.x).coerceIn(-buttonSizePx, currentWidthPx))
+                                    offsetY.snapTo(clampY(offsetY.value + dragAmount.y, buttonSizePx, 0f, currentHeightPx))
+                                }
+                            },
+                        )
+                    } finally {
+                        isDragging = false
+                    }
                 }
                 .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
         )
