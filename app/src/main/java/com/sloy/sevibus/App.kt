@@ -24,9 +24,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.sloy.debugmenu.overlay.DebugMenuHost
-import com.sloy.debugmenu.overlay.OverlayLogger
-import com.sloy.sevibus.feature.debug.SevDebugMenu
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,10 +34,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.sloy.debugmenu.overlay.DebugMenuHost
+import com.sloy.debugmenu.overlay.OverlayLogger
 import com.sloy.sevibus.domain.model.LoggedUser
 import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
+import com.sloy.sevibus.feature.debug.SevDebugMenu
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
