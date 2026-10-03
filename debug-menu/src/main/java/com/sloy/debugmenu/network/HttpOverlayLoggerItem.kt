@@ -37,7 +37,7 @@ data class HttpOverlayLoggerItem(
 
     @Composable
     override fun Content(modifier: Modifier) {
-        OverlayPill(modifier) {
+        OverlayPill(modifier, background = HttpPillBackground) {
             Text(
                 redactPath(endpoint),
                 style = MaterialTheme.typography.labelSmall,
@@ -67,18 +67,32 @@ data class HttpOverlayLoggerItem(
     }
 }
 
-internal fun HttpOverlayLoggerItem.badgeLabel(): String = when (status) {
-    null -> method
-    HttpOverlayLoggerItem.STATUS_IO_EXCEPTION -> (error ?: "Error").take(MAX_ERROR_LENGTH).trim()
-    else -> status.toString()
+internal fun HttpOverlayLoggerItem.badgeLabel(): String {
+    val statusLabel = when (status) {
+        null -> null
+        HttpOverlayLoggerItem.STATUS_IO_EXCEPTION -> error ?: "Error"
+        else -> status.toString()
+    }
+    val cacheLabel = when (cache) {
+        HttpOverlayLoggerItem.Cache.LOCAL -> "(local)"
+        HttpOverlayLoggerItem.Cache.NOT_MODIFIED -> "(not modified)"
+        HttpOverlayLoggerItem.Cache.MISS, null -> null
+    }
+    return listOfNotNull(method, statusLabel, cacheLabel).joinToString(" ")
 }
 
 private fun HttpOverlayLoggerItem.badgeColors(): Pair<Color, Color> = when {
-    status == null -> Color(0xFF888888) to Color.White
-    cache == HttpOverlayLoggerItem.Cache.LOCAL -> Color(0xFF00BCD4) to Color.Black
-    status < 400 -> Color(0xFF4CAF50) to Color.White
-    else -> Color(0xFFE91E63) to Color.White
+    status == null -> PendingColor to Color.White
+    cache == HttpOverlayLoggerItem.Cache.LOCAL -> LocalCacheColor to Color.White
+    status < 300 || status == 304 -> SuccessColor to Color.White
+    else -> ErrorColor to Color.White
 }
+
+private val HttpPillBackground = Color.White.copy(alpha = 0.8f)
+private val PendingColor = Color.Gray
+private val LocalCacheColor = Color(0, 151, 167)
+private val SuccessColor = Color(154, 199, 126)
+private val ErrorColor = Color(253, 73, 111)
 
 internal fun redactPath(path: String): String = path.split("/").joinToString("/") { segment ->
     when {
@@ -90,7 +104,6 @@ internal fun redactPath(path: String): String = path.split("/").joinToString("/"
 
 private val UUID_REGEX = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 private const val MAX_SEGMENT_LENGTH = 40
-private const val MAX_ERROR_LENGTH = 17
 
 @Preview(widthDp = 320)
 @Composable

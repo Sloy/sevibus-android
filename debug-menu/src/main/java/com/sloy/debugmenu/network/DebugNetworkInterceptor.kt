@@ -78,7 +78,7 @@ class DebugNetworkInterceptor internal constructor(
 
     private fun proceedAndReport(chain: Interceptor.Chain, request: Request, overlayItem: HttpOverlayLoggerItem): Response {
         val response = chain.proceed(request)
-        report(overlayItem.copy(status = response.code, cache = response.cacheClass()))
+        report(overlayItem.copy(status = response.networkResponse?.code ?: response.code, cache = response.cacheClass()))
         return response
     }
 

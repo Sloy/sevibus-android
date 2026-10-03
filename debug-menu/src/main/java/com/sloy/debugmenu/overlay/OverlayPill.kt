@@ -17,14 +17,18 @@ internal val OverlayPillBackground = Color(0xFFEEEEEE).copy(alpha = 0.8f)
 internal val OverlayPillText = Color(0xFF212121)
 
 @Composable
-internal fun OverlayPill(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
+internal fun OverlayPill(
+    modifier: Modifier = Modifier,
+    background: Color = OverlayPillBackground,
+    content: @Composable RowScope.() -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
         modifier = modifier
             .padding(vertical = 1.dp, horizontal = 2.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(OverlayPillBackground)
+            .background(background)
             .padding(horizontal = 4.dp, vertical = 2.dp),
         content = content,
     )

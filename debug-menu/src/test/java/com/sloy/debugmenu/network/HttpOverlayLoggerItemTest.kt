@@ -33,14 +33,14 @@ class HttpOverlayLoggerItemTest {
 
     @Test
     fun `badge shows the status when finished`() {
-        expectThat(item(status = 404).badgeLabel()).isEqualTo("404")
+        expectThat(item(status = 404).badgeLabel()).isEqualTo("GET 404")
     }
 
     @Test
-    fun `badge shows a truncated error for io failures`() {
+    fun `badge shows the error for io failures`() {
         val failed = item(status = HttpOverlayLoggerItem.STATUS_IO_EXCEPTION, error = "Unable to resolve host example.com")
 
-        expectThat(failed.badgeLabel()).isEqualTo("Unable to resolve")
+        expectThat(failed.badgeLabel()).isEqualTo("GET Unable to resolve host example.com")
     }
 
     @Test
@@ -49,6 +49,13 @@ class HttpOverlayLoggerItemTest {
         expectThat(item(status = 200).autoHide).isTrue()
     }
 
-    private fun item(status: Int? = null, error: String? = null) =
-        HttpOverlayLoggerItem(method = "GET", endpoint = "/api/stops", id = "id", status = status, error = error)
+    @Test
+    fun `badge shows the cache origin`() {
+        expectThat(item(status = 200, cache = HttpOverlayLoggerItem.Cache.LOCAL).badgeLabel()).isEqualTo("GET 200 (local)")
+        expectThat(item(status = 304, cache = HttpOverlayLoggerItem.Cache.NOT_MODIFIED).badgeLabel()).isEqualTo("GET 304 (not modified)")
+        expectThat(item(status = 200, cache = HttpOverlayLoggerItem.Cache.MISS).badgeLabel()).isEqualTo("GET 200")
+    }
+
+    private fun item(status: Int? = null, error: String? = null, cache: HttpOverlayLoggerItem.Cache? = null) =
+        HttpOverlayLoggerItem(method = "GET", endpoint = "/api/stops", id = "id", status = status, error = error, cache = cache)
 }
