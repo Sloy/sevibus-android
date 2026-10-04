@@ -145,10 +145,11 @@ object DI {
         single<ArrivalsMemoryCache> { ArrivalsMemoryCache() }
         single<BusesMemoryCache> { BusesMemoryCache() }
 
+        single<Cache> { okHttpCache(androidContext()) }
         single<OkHttpClient> {
             val interceptors: List<Interceptor> = get()
             OkHttpClient.Builder()
-                .cache(okHttpCache(androidContext()))
+                .cache(get<Cache>())
                 .addInterceptor(DynamicApiUrlInterceptor(get()))
                 .addInterceptors(interceptors)
                 .build()
