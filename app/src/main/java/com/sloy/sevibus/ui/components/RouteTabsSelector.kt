@@ -1,14 +1,14 @@
 package com.sloy.sevibus.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteId
-import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -41,6 +40,31 @@ fun RouteTabsSelector(route1: Route, route2: Route, selected: RouteId, onRouteCl
         )
         RouteTab(directionValue = route1.destination, route1.id == selected, { onRouteClicked(route1) }, Modifier.weight(1f))
     }
+}
+
+@Composable
+fun RouteTabsSegmented(
+    route1: Route,
+    route2: Route,
+    selected: RouteId,
+    onRouteClicked: (Route) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SegmentedControl(
+        size = 2,
+        content = { index ->
+            val name = if (index == 0) route1.destination else route2.destination
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.ArrowForward, contentDescription = null)
+                Text(name)
+            }
+        },
+        selectedIndex = if (route1.id == selected) 0 else 1,
+        modifier = modifier.fillMaxWidth(),
+        onOptionSelected = {
+            onRouteClicked(if (it == 0) route1 else route2)
+        }
+    )
 }
 
 @Composable
@@ -66,9 +90,8 @@ private fun RouteTab(directionValue: String, isSelected: Boolean, onRouteClicked
 @Preview(showBackground = true)
 @Composable
 internal fun RouteTabsSelectorPreview() {
-    ScreenPreview {
-        Column {
-
+    SevTheme {
+        Column(Modifier.background(SevTheme.colorScheme.background)) {
             RouteTabsSelector(
                 route1 = Stubs.routes[0],
                 route2 = Stubs.routes[1],
@@ -76,14 +99,36 @@ internal fun RouteTabsSelectorPreview() {
                 onRouteClicked = {},
                 modifier = Modifier.padding(16.dp),
             )
+            RouteTabsSelector(
+                route1 = Stubs.routes[0],
+                route2 = Stubs.routes[1],
+                selected = Stubs.routes[1].id,
+                onRouteClicked = {},
+                modifier = Modifier.padding(16.dp),
+            )
         }
-        Spacer(Modifier.size(32.dp))
-        RouteTabsSelector(
-            route1 = Stubs.routes[0],
-            route2 = Stubs.routes[1],
-            selected = Stubs.routes[1].id,
-            onRouteClicked = {},
-            modifier = Modifier.padding(16.dp),
-        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun RouteTabsSegmentedPreview() {
+    SevTheme {
+        Column(Modifier.background(SevTheme.colorScheme.background)) {
+            RouteTabsSegmented(
+                route1 = Stubs.routes[0],
+                route2 = Stubs.routes[1],
+                selected = Stubs.routes[0].id,
+                onRouteClicked = {},
+                modifier = Modifier.padding(16.dp),
+            )
+            RouteTabsSegmented(
+                route1 = Stubs.routes[0],
+                route2 = Stubs.routes[1],
+                selected = Stubs.routes[1].id,
+                onRouteClicked = {},
+                modifier = Modifier.padding(16.dp),
+            )
+        }
     }
 }

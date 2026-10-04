@@ -33,6 +33,7 @@ import com.sloy.sevibus.feature.linestops.component.HighlightPosition
 import com.sloy.sevibus.feature.linestops.component.ListPosition
 import com.sloy.sevibus.feature.linestops.component.StopTimelineElement
 import com.sloy.sevibus.ui.components.LineIndicator
+import com.sloy.sevibus.ui.components.RouteTabsSegmented
 import com.sloy.sevibus.ui.components.RouteTabsSelector
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -74,7 +75,7 @@ private fun LineRouteScreen(
                 Text(state.line.description, style = SevTheme.typography.headingSmall, maxLines = 1)
             }
             if (state.line.routes.size > 1) {
-                RouteTabsSelector(
+                RouteTabsSegmented(
                     route1 = state.line.routes[0], route2 = state.line.routes[1], selected = state.selectedRoute.id, onRouteClicked = {
                         onRouteSelected(it)
                     },
@@ -83,8 +84,6 @@ private fun LineRouteScreen(
                         .padding(top = 16.dp)
                 )
             }
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
         }
 
         when (state) {
