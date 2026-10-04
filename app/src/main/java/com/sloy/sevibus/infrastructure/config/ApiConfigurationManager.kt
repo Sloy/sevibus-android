@@ -6,8 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class ApiConfigurationManager {
 
     companion object {
-        private const val DEFAULT_DEBUG_URL = "https://appdev-vd4mgiw7ma-no.a.run.app"
-        private const val DEFAULT_RELEASE_URL = "https://app-vd4mgiw7ma-no.a.run.app"
+        const val DEFAULT_DEBUG_URL = "https://appdev-vd4mgiw7ma-no.a.run.app"
+        const val DEFAULT_STAGING_URL = "https://appstage-vd4mgiw7ma-no.a.run.app"
+        const val DEFAULT_RELEASE_URL = "https://app-vd4mgiw7ma-no.a.run.app"
     }
 
     private val apiUrl = MutableStateFlow(getDefaultApiUrl())

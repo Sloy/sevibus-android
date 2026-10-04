@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.Icon
@@ -26,7 +24,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,13 +34,10 @@ import com.composables.core.BottomSheetState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
-import com.sloy.debugmenu.launcher.DebugMenuLauncher
 import com.google.android.gms.maps.model.LatLng
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toLatLng
-import com.sloy.sevibus.feature.debug.SevDebugMenu
-import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
@@ -146,7 +140,6 @@ private fun MapUI(
                 .zIndex(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DebugButton()
             LocationButton(
                 locationPermissionState,
                 snackbarHostState,
@@ -175,23 +168,6 @@ private fun MapUI(
             },
             modifier = Modifier.zIndex(0f)
         )
-    }
-}
-
-@Composable
-private fun DebugButton(modifier: Modifier = Modifier) {
-    if (BuildVariant.isRelease()) return
-    val context = LocalContext.current
-    CustomFab(
-        onClick = {
-            DebugMenuLauncher.launchMenu(context) { SevDebugMenu() }
-        },
-        color = SevTheme.colorScheme.background,
-        contentColor = SevTheme.colorScheme.onSurfaceVariant,
-        size = 38.dp,
-        modifier = modifier
-    ) {
-        Icon(Icons.Filled.BugReport, "Debug", Modifier.size(16.dp))
     }
 }
 

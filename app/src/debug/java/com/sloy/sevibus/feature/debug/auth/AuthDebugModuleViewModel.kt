@@ -4,15 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthService
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AuthDebugModuleViewModel(
-    private val dataSource: AuthDebugModuleDataSource,
     private val firebaseAuthService: FirebaseAuthService,
 ) : ViewModel() {
-
-    val state: StateFlow<AuthDebugModuleState> = dataSource.observeCurrentState()
 
     fun onFirebaseLogoutClick() {
         SevLogger.logD("AuthDebugModule: Firebase logout clicked")

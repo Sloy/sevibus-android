@@ -125,6 +125,24 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
   - Debug menu module (`:debug-menu`) for development tools
   - No-op implementation for release builds
 
+## Debug Menu
+
+Debug tooling lives in `:debug-menu` (debug builds) and `:debug-menu-noop` (release builds), wired with `debugImplementation` / `releaseImplementation`.
+
+- `:debug-menu` is self-contained: no `com.sloy.sevibus` imports, no app resources, no Koin. It only uses `MaterialTheme` tokens, so it follows `SevTheme` automatically.
+- `:debug-menu-noop` mirrors only the API used from `app/src/main`: `DebugMenuHost`, `DebugMenuScope`, `OverlayLogger`, `OverlayLoggerItem`.
+- `DebugMenuHost` wraps the app content in `App.kt`. It draws the overlay pills, a draggable floating button and the menu `ModalBottomSheet`. `DebugMenuScope.openScreen` shows full-screen debug screens.
+- Library sections: `NetworkModule` (HTTP overlay, forced failure, latency, API host override with QR scan) and `EventsModule` (event overlay and full-screen event log).
+- App sections live in `app/src/debug/java/com/sloy/sevibus/feature/debug/` and are composed in `SevDebugMenu`. Release has an empty `SevDebugMenu`.
+
+### Adding a section
+
+1. Create `@Composable fun DebugMenuScope.MySection()` using `DebugModule`, `DebugCell`, `TitleSubtitle` and `PillSegmentedControl`.
+2. Persist its state with a `DebugModuleDataSource<MyState>` subclass and a `@Serializable` state class.
+3. Give it a ViewModel when it has state or actions. App sections get theirs with `koinViewModel()`; library sections create theirs with `viewModel { }` from the dependencies passed in.
+4. Render a stateless private content composable when `LocalInspectionMode.current` is true so previews work without DI.
+5. Add it to `SevDebugMenu` and bind its dependencies in the debug `DebugDI`.
+
 ## Screenshot Testing
 
 SeviBus uses [Compose Preview Screenshot Testing](https://developer.android.com/studio/preview/compose-screenshot-testing) (experimental) to automatically generate and validate screenshots of Compose previews.
