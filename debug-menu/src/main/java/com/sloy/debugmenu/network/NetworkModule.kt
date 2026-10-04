@@ -4,16 +4,23 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.outlined.DeleteSweep
+import androidx.compose.material.icons.outlined.MonitorHeart
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -26,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -40,22 +48,31 @@ import com.sloy.debugmenu.base.DebugPreviewTheme
 import com.sloy.debugmenu.base.PillSegmentedControl
 import com.sloy.debugmenu.base.TitleSubtitle
 import com.sloy.debugmenu.overlay.OverlayLogger
+import okhttp3.Cache
+import java.util.Locale
 
 /**
- * Network section: HTTP overlay, forced failures, latency and API host override.
+ * Network section: HTTP overlay, forced failures, latency, API host override and one-shot network tools.
  *
  * The first host preset is the default host, used when no override is stored.
+ * [httpCache] enables the "Clear HTTP cache" action, which also drops stored ETags.
+ * [healthCheck] enables the "Health check" action; it returns the label/value pairs to display.
  */
 @Composable
 fun DebugMenuScope.NetworkModule(
     dataSource: NetworkDebugModuleDataSource,
     overlayLogger: OverlayLogger,
     hostPresets: List<HostPreset>,
+    httpCache: Cache? = null,
+    healthCheck: (suspend () -> Map<String, String>)? = null,
 ) {
-    val viewModel = viewModel { NetworkDebugModuleViewModel(dataSource, overlayLogger, hostPresets) }
+    val viewModel = viewModel { NetworkDebugModuleViewModel(dataSource, overlayLogger, hostPresets, httpCache, healthCheck) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val toolsState by viewModel.toolsState.collectAsStateWithLifecycle()
     NetworkModuleContent(
         state = state,
+        toolsState = toolsState,
+        isHealthCheckAvailable = viewModel.isHealthCheckAvailable,
         hostPresets = viewModel.hostPresets,
         onHttpOverlayToggled = viewModel::onHttpOverlayToggled,
         onForceFailureToggled = viewModel::onForceFailureToggled,
@@ -63,12 +80,16 @@ fun DebugMenuScope.NetworkModule(
         onLatencySelected = viewModel::onLatencySelected,
         onHostSelected = viewModel::onHostSelected,
         onCustomHostApplied = viewModel::onCustomHostApplied,
+        onClearHttpCacheClicked = viewModel::onClearHttpCacheClicked,
+        onHealthCheckClicked = viewModel::onHealthCheckClicked,
     )
 }
 
 @Composable
 private fun DebugMenuScope.NetworkModuleContent(
     state: NetworkDebugModuleState,
+    toolsState: NetworkToolsState,
+    isHealthCheckAvailable: Boolean,
     hostPresets: List<HostPreset>,
     onHttpOverlayToggled: (Boolean) -> Unit = {},
     onForceFailureToggled: (Boolean) -> Unit = {},
@@ -76,6 +97,8 @@ private fun DebugMenuScope.NetworkModuleContent(
     onLatencySelected: (LatencyPreset) -> Unit = {},
     onHostSelected: (String) -> Unit = {},
     onCustomHostApplied: (String) -> Boolean = { true },
+    onClearHttpCacheClicked: () -> Unit = {},
+    onHealthCheckClicked: () -> Unit = {},
 ) {
     DebugModule("Network", Icons.Outlined.Wifi, showBadge = state.isAnyFeatureActive()) {
         DebugCell(
@@ -107,7 +130,84 @@ private fun DebugMenuScope.NetworkModuleContent(
             )
         }
         HostSelector(state.hostOverride, hostPresets, onHostSelected, onCustomHostApplied)
+        if (toolsState.httpCache != HttpCacheState.Unavailable) {
+            HttpCacheCell(toolsState.httpCache, onClearHttpCacheClicked)
+        }
+        if (isHealthCheckAvailable) {
+            HealthCheckCell(toolsState.healthCheck, onHealthCheckClicked)
+        }
     }
+}
+
+@Composable
+private fun HttpCacheCell(cacheState: HttpCacheState, onClick: () -> Unit) {
+    val subtitle = when (cacheState) {
+        HttpCacheState.Unavailable, HttpCacheState.Loading -> "Removes cached responses and ETags"
+        is HttpCacheState.Ready -> if (cacheState.justCleared) {
+            "Cleared · ${formatBytes(cacheState.sizeBytes)} in use"
+        } else {
+            "Removes cached responses and ETags · ${formatBytes(cacheState.sizeBytes)} in use"
+        }
+        is HttpCacheState.Error -> cacheState.message
+    }
+    DebugCell(
+        title = "Clear HTTP cache",
+        subtitle = subtitle,
+        enabled = cacheState != HttpCacheState.Loading,
+        onClick = onClick,
+        end = { ActionIndicator(isLoading = cacheState == HttpCacheState.Loading) { Icon(Icons.Outlined.DeleteSweep, contentDescription = null) } },
+    )
+}
+
+@Composable
+private fun HealthCheckCell(healthState: HealthCheckState, onClick: () -> Unit) {
+    val subtitle = when (healthState) {
+        HealthCheckState.Idle, HealthCheckState.Loading -> "Query the server health endpoint"
+        is HealthCheckState.Success -> "Tap to refresh"
+        is HealthCheckState.Error -> healthState.message
+    }
+    DebugCell(
+        title = "Health check",
+        subtitle = subtitle,
+        enabled = healthState != HealthCheckState.Loading,
+        onClick = onClick,
+        end = { ActionIndicator(isLoading = healthState == HealthCheckState.Loading) { Icon(Icons.Outlined.MonitorHeart, contentDescription = null) } },
+    )
+    AnimatedVisibility(visible = healthState is HealthCheckState.Success) {
+        val entries = (healthState as? HealthCheckState.Success)?.entries.orEmpty()
+        Column(Modifier.padding(start = 4.dp, end = 4.dp, bottom = 12.dp)) {
+            entries.forEach { (label, value) ->
+                Row(Modifier.padding(vertical = 2.dp)) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.width(112.dp),
+                    )
+                    Text(
+                        value,
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionIndicator(isLoading: Boolean, icon: @Composable () -> Unit) {
+    if (isLoading) {
+        CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+    } else {
+        icon()
+    }
+}
+
+internal fun formatBytes(bytes: Long): String = when {
+    bytes < 1024 -> "$bytes B"
+    bytes < 1024 * 1024 -> String.format(Locale.US, "%.1f KB", bytes / 1024.0)
+    else -> String.format(Locale.US, "%.1f MB", bytes / (1024.0 * 1024.0))
 }
 
 @Composable
@@ -204,6 +304,11 @@ private fun NetworkModulePreview() {
         DebugMenu {
             NetworkModuleContent(
                 state = NetworkDebugModuleState(isForceFailureEnabled = true, latencyPreset = LatencyPreset.Standard3G),
+                toolsState = NetworkToolsState(
+                    httpCache = HttpCacheState.Ready(sizeBytes = 2_457_600),
+                    healthCheck = HealthCheckState.Success(mapOf("Host" to "prod-1", "Environment" to "production", "Version" to "1.42.0")),
+                ),
+                isHealthCheckAvailable = true,
                 hostPresets = listOf(HostPreset("Prod", "https://prod.example.com"), HostPreset("Dev", "https://dev.example.com")),
             )
         }
