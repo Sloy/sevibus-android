@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.map.states
 
 import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.domain.model.isActiveWithMargin
 import com.sloy.sevibus.domain.model.nudge
 import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.PathRepository
@@ -34,7 +35,8 @@ class OnStopSelectedState(
 
         while (true) {
             coroutineScope {
-                val buses = stopRoutes.map { route ->
+                // Skip lines out of service (e.g. night lines during the day) to avoid requests that return no buses
+                val buses = stopRoutes.filter { it.schedule.isActiveWithMargin() }.map { route ->
                     async { runCatching { busRepository.obtainBuses(route.id) }
                         .onFailure { SevLogger.logE(it, "Error obtaining buses for stop $stopId") }
                         .getOrElse { emptyList() } }
