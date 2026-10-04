@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: "LINES-01 Lines tab lists lines grouped and scrolls to the last group"
+tags:
+  - lines
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Lines"
+- extendedWaitUntil:
+    visible: "Transversales"
+    timeout: 15000
+- assertVisible: "Plg. Norte H. Virgen del Rocio"
+- scrollUntilVisible:
+    element:
+      text: "Barrios y Express"
+    direction: DOWN
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: "Aeropuerto"
+    direction: DOWN
+    timeout: 30000

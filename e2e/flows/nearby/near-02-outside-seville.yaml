@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: "NEAR-02 Nearby shows empty state when located outside Seville"
+tags:
+  - nearby
+  - level1
+---
+- setLocation:
+    latitude: 40.4168
+    longitude: -3.7038
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Nearby"
+- extendedWaitUntil:
+    visible: "No stops near your location.*"
+    timeout: 20000

@@ -1,0 +1,10 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+- runFlow: dismiss-review-dialog.yaml
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000

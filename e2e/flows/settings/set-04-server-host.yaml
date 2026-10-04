@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: "SET-04 Server health check reports the expected backend host"
+tags:
+  - settings
+  - environment
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Profile"
+- scrollUntilVisible:
+    element:
+      text: "Server host"
+    direction: DOWN
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      text: ".*${EXPECTED_HOST}.*"
+    direction: DOWN
+    timeout: 20000

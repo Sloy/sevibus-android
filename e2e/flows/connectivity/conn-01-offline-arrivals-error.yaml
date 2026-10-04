@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+name: "CONN-01 Offline: cached transit data stays searchable and arrivals show a connection error"
+tags:
+  - connectivity
+  - search
+  - stop-detail
+  - level1
+onFlowComplete:
+  - setAirplaneMode: disabled
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Lines"
+- extendedWaitUntil:
+    visible: "Transversales"
+    timeout: 20000
+- tapOn: "For You"
+- setAirplaneMode: enabled
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Stop 844"
+- extendedWaitUntil:
+    visible: "An error occurred while loading arrival times.*"
+    timeout: 20000
+- assertVisible: "San Bernardo"

@@ -1,0 +1,37 @@
+appId: ${APP_ID}
+name: "SET-03 Disabling anonymous analytics survives an app restart"
+tags:
+  - settings
+  - level1
+---
+# The switch has no label of its own, so it is located relative to its title.
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Allow anonymous analytics"
+    timeout: 10000
+- assertVisible:
+    checked: true
+    rightOf: "Allow anonymous analytics"
+- tapOn:
+    checked: true
+    rightOf: "Allow anonymous analytics"
+- assertVisible:
+    checked: false
+    rightOf: "Allow anonymous analytics"
+- stopApp
+- launchApp
+- runFlow: ../../subflows/dismiss-review-dialog.yaml
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Allow anonymous analytics"
+    timeout: 10000
+- assertVisible:
+    checked: false
+    rightOf: "Allow anonymous analytics"
+- assertNotVisible:
+    checked: true
+    rightOf: "Allow anonymous analytics"

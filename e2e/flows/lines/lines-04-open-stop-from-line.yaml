@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: "LINES-04 Tapping a stop in a line route opens the stop detail"
+tags:
+  - lines
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "Rochelambert"
+- tapOn: "Prado San Sebastián - Rochelambert"
+- extendedWaitUntil:
+    visible: "Stop 844"
+    timeout: 15000
+- tapOn: "Stop 844"
+- extendedWaitUntil:
+    visible: "Save as favorite"
+    timeout: 15000
+- assertVisible: "Estación Cercanías"
+- assertVisible: "Stop 844"

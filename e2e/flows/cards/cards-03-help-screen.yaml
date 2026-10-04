@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "CARDS-03 Card help screen opens with FAQs and closes back to Travel Card"
+tags:
+  - cards
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Travel Card"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+# The help button currently uses the "Apply order" content description (CardsScreen.kt).
+- tapOn: "Apply order"
+- extendedWaitUntil:
+    visible: "Frequently asked questions"
+    timeout: 10000
+- tapOn: "Close screen"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000

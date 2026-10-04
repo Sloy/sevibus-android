@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: "NEAR-03 Nearby asks to activate location when permission is not granted"
+tags:
+  - nearby
+  - level1
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: deny
+- runFlow: ../../subflows/dismiss-review-dialog.yaml
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000
+- tapOn: "Nearby"
+- extendedWaitUntil:
+    visible: "Enable location services.*"
+    timeout: 10000
+- assertVisible: "Activate location"

@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      visible: "Ahora no"
+    commands:
+      - tapOn: "Ahora no"

@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+name: "NAV-02 Bottom navigation switches between For You, Lines and Travel Card"
+tags:
+  - navigation
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Lines"
+- extendedWaitUntil:
+    visible: "Transversales"
+    timeout: 15000
+- tapOn: "Travel Card"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+- assertVisible: "Serial number"
+- tapOn: "For You"
+- extendedWaitUntil:
+    visible: "Favorites"
+    timeout: 10000
+- assertVisible: "Nearby"

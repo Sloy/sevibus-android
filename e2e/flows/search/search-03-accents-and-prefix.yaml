@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "SEARCH-03 Search ignores accents and matches word prefixes"
+tags:
+  - search
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "sebastian"
+- assertVisible: "Prado San Sebastián.*"
+- tapOn: "Clear search"
+- inputText: "estacion cercan"
+- extendedWaitUntil:
+    visible: "Stop 844"
+    timeout: 10000

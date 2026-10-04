@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "SEARCH-01 Searching a line name returns the line and opens its route"
+tags:
+  - search
+  - lines
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "Rochelambert"
+- assertVisible: "Lines"
+- assertVisible: "Prado San Sebastián - Rochelambert"
+- tapOn: "Prado San Sebastián - Rochelambert"
+- extendedWaitUntil:
+    visible: "Origen"
+    timeout: 15000
+- assertVisible: "Destino"
+- assertVisible: "Stop 844"

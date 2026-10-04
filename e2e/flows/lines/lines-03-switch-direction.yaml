@@ -1,0 +1,26 @@
+appId: ${APP_ID}
+name: "LINES-03 Switching direction shows the stops of the other route"
+tags:
+  - lines
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "Rochelambert"
+- tapOn: "Prado San Sebastián - Rochelambert"
+- extendedWaitUntil:
+    visible: "Stop 905"
+    timeout: 15000
+- assertVisible: "Destino"
+- tapOn: "Prado"
+- extendedWaitUntil:
+    notVisible: "Stop 905"
+    timeout: 10000
+- assertVisible: "Destino"
+- assertVisible: "Origen"
+- tapOn: "Rochelambert"
+- extendedWaitUntil:
+    visible: "Stop 905"
+    timeout: 10000

@@ -1,0 +1,10 @@
+appId: ${APP_ID}
+name: "FAV-01 Favorites tab invites to sign in when logged out"
+tags:
+  - favorites
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- assertVisible: "Favorite stops"
+- assertVisible: "Save your regular stops to always have them visible."
+- assertVisible: "Sign in with Google"

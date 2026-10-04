@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: "STOP-02 Stop detail loads live arrivals for its lines"
+tags:
+  - stop-detail
+  - live-data
+  - level1
+---
+# Live Tussam data: asserts any arrival estimate, not specific times.
+# Stop 844 is a busy interchange, but outside service hours this can legitimately fail.
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Stop 844"
+- extendedWaitUntil:
+    visible: "\\d+ min|No disponible|Last bus|Último bus"
+    timeout: 20000
+- assertNotVisible: "An error occurred while loading arrival times.*"

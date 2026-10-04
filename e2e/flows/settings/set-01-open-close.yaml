@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "SET-01 Settings opens from the profile button and closes back to home"
+tags:
+  - settings
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 10000
+- assertVisible: "Your profile"
+- assertVisible: "Sign in to save your favorite stops and travel cards."
+- assertVisible: "Sign in with Google"
+- assertVisible: "Appearance"
+- assertVisible: "Services"
+- tapOn: "Close screen"
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 10000

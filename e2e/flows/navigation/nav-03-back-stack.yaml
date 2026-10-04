@@ -1,0 +1,30 @@
+appId: ${APP_ID}
+name: "NAV-03 Back navigation unwinds stop and line screens back to home"
+tags:
+  - navigation
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "Rochelambert"
+- tapOn: "Prado San Sebastián - Rochelambert"
+- extendedWaitUntil:
+    visible: "Stop 844"
+    timeout: 15000
+- tapOn: "San Bernardo"
+- extendedWaitUntil:
+    visible: "Estación Cercanías"
+    timeout: 15000
+- assertVisible: "Stop 844"
+- back
+- extendedWaitUntil:
+    visible: "Origen"
+    timeout: 10000
+- assertVisible: "Prado San Sebastián - Rochelambert"
+- back
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 10000
+- assertVisible: "Favorites"

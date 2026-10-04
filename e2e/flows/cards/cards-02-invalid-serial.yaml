@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "CARDS-02 Entering an unknown 12-digit serial shows a not found error"
+tags:
+  - cards
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Travel Card"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+- tapOn: "Serial number"
+- inputText: "111111111111"
+- extendedWaitUntil:
+    visible: "Tarjeta no encontrada o número inválido"
+    timeout: 15000
+- assertVisible: "Add card"

@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+name: "CARDS-01 Travel Card tab shows the add card form when no cards are saved"
+tags:
+  - cards
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Travel Card"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+- assertVisible: "The serial number is located on the back of the card.*"
+- assertVisible: "Serial number"

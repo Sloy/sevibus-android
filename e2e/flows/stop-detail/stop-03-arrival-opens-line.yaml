@@ -1,0 +1,25 @@
+appId: ${APP_ID}
+name: "STOP-03 Tapping a line arrival opens the line route with the stop highlighted"
+tags:
+  - stop-detail
+  - lines
+  - live-data
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Stop 844"
+- extendedWaitUntil:
+    visible: "Rochelambert"
+    timeout: 20000
+- tapOn:
+    text: "Rochelambert"
+    index: 0
+- extendedWaitUntil:
+    visible: "Origen"
+    timeout: 15000
+- assertVisible: "Destino"
+- assertVisible: "Stop 844"

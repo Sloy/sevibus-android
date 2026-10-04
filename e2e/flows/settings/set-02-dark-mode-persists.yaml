@@ -1,0 +1,29 @@
+appId: ${APP_ID}
+name: "SET-02 Dark mode preference survives an app restart"
+tags:
+  - settings
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Dark mode"
+    timeout: 10000
+- assertVisible: "System default"
+- tapOn: "Dark mode"
+- tapOn: "Always"
+- extendedWaitUntil:
+    notVisible: "Never"
+    timeout: 5000
+- stopApp
+- launchApp
+- runFlow: ../../subflows/dismiss-review-dialog.yaml
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Dark mode"
+    timeout: 10000
+- assertVisible: "Always"
+- assertNotVisible: "System default"

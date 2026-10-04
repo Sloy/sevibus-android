@@ -1,0 +1,4 @@
+flows:
+  - "flows/**"
+executionOrder:
+  continueOnFailure: true

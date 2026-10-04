@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: "NAV-01 Cold start shows For You with tabs and bottom navigation"
+tags:
+  - navigation
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- assertVisible: "For You"
+- assertVisible: "Favorites"
+- assertVisible: "Nearby"
+- assertVisible: "Search lines and stops"
+- assertVisible: "Lines"
+- assertVisible: "Travel Card"
+- assertVisible: "Profile"

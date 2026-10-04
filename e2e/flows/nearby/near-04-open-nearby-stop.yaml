@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "NEAR-04 Tapping a nearby stop opens its detail"
+tags:
+  - nearby
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/set-location-plaza-nueva.yaml
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Nearby"
+- extendedWaitUntil:
+    visible: "Plaza Nueva"
+    timeout: 20000
+- tapOn:
+    text: "Plaza Nueva"
+    index: 0
+- extendedWaitUntil:
+    visible: "Stop 300\\d"
+    timeout: 15000
+- assertVisible: "Save as favorite"

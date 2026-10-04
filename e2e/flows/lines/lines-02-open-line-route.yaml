@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "LINES-02 Opening a line from the list shows its origin, destination and stops"
+tags:
+  - lines
+  - level1
+---
+- runFlow: ../../subflows/launch-fresh.yaml
+- tapOn: "Lines"
+- extendedWaitUntil:
+    visible: "Plg. Norte H. Virgen del Rocio"
+    timeout: 15000
+- tapOn: "Puerta Triana - Heliopolis"
+- extendedWaitUntil:
+    visible: "Origen"
+    timeout: 15000
+- assertVisible: "Destino"
+- assertVisible: "Stop \\d+"

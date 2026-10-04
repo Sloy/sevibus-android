@@ -1,0 +1,7 @@
+appId: ${APP_ID}
+---
+- tapOn: "Search lines and stops"
+- inputText: ${QUERY}
+- extendedWaitUntil:
+    visible: "Lines|Stops"
+    timeout: 10000
