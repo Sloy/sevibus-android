@@ -33,7 +33,14 @@ mkdir -p "$REPORT_DIR"
 
 source "$E2E_DIR/scripts/wiremock.sh"
 wiremock_start "$E2E_DIR/mocks" "$REPORT_DIR/wiremock.log"
-trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop' EXIT
+
+# Mocked flows leave the host override pointing at the local WireMock, which is gone after the run.
+# Clear it so the app is not left broken. The app is stopped first so it does not write its memory state back.
+clear_mock_host_override() {
+  adb -s "$DEVICE" shell am force-stop "$APP_ID" >/dev/null 2>&1 || true
+  adb -s "$DEVICE" shell "run-as $APP_ID sed -i 's|&quot;hostOverride&quot;:&quot;http://localhost:[0-9]*&quot;|\&quot;hostOverride\&quot;:null|' shared_prefs/debug_menu.xml" >/dev/null 2>&1 || true
+}
+trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop; clear_mock_host_override' EXIT
 adb -s "$DEVICE" reverse "tcp:$MOCK_PORT" "tcp:$MOCK_PORT" >/dev/null
 
 TARGET="${1:-$E2E_DIR}"
