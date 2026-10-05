@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.sloy.sevibus.feature.cards.NfcDecoder
+import com.sloy.sevibus.feature.debug.DebugLaunchArguments
 import com.sloy.sevibus.infrastructure.nfc.ListenForNfcStateChanges
 import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        DebugLaunchArguments.apply(intent)
         if ("android.nfc.action.TECH_DISCOVERED" == intent.action) {
             val cardId = NfcDecoder.readCard(intent)
             if (cardId != null) {
