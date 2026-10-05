@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+name: "SYNC-02 A line added on the server appears in Lines and search after restart"
+tags:
+  - transit-sync
+  - lines
+  - mocks
+  - level3
+---
+- runFlow:
+    file: ../../subflows/launch-mocked.yaml
+    env:
+      MOCKS: "lines:original,routes:original"
+- tapOn: "Lines"
+- extendedWaitUntil:
+    visible: "Transversales"
+    timeout: 15000
+- assertNotVisible: ".*E2E Test Line.*"
+- evalScript: ${ output.mocks.setAll('lines:added,routes:added') }
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000
+- tapOn: "Lines"
+- scrollUntilVisible:
+    element:
+      text: ".*E2E Test Line.*"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "For You"
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "e2e test line"
+- assertVisible: ".*E2E Test Line.*"

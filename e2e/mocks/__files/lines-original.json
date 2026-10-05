@@ -1,0 +1,644 @@
+[
+  {
+    "label": "01",
+    "description": "Plg. Norte H. Virgen del Rocio",
+    "color": "Red",
+    "group": "Transversales",
+    "id": 1,
+    "routes": [
+      "1.1",
+      "1.2"
+    ]
+  },
+  {
+    "label": "10",
+    "description": "Ponce de León - San Jerónimo",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 10,
+    "routes": [
+      "10.1",
+      "10.2"
+    ]
+  },
+  {
+    "label": "EA",
+    "description": "Aeropuerto",
+    "color": "Cyan",
+    "group": "Barrios y Express",
+    "id": 100,
+    "routes": [
+      "100.1",
+      "100.2"
+    ]
+  },
+  {
+    "label": "A1",
+    "description": "Prado San Sebastián - Pino Montano",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 101,
+    "routes": [
+      "101.1",
+      "101.2"
+    ]
+  },
+  {
+    "label": "A2",
+    "description": "P.S.Sebastian - Torneo - S.Jeronimo",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 102,
+    "routes": [
+      "102.1",
+      "102.2"
+    ]
+  },
+  {
+    "label": "A3",
+    "description": "P. San Sebastian - Sevilla Este",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 103,
+    "routes": [
+      "103.1",
+      "103.2"
+    ]
+  },
+  {
+    "label": "A4",
+    "description": "P.S.Sebastian - Sta.Aurelia",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 104,
+    "routes": [
+      "104.1",
+      "104.2"
+    ]
+  },
+  {
+    "label": "A5",
+    "description": "P.San Sebastian - Poligono Sur",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 105,
+    "routes": [
+      "105.1",
+      "105.2"
+    ]
+  },
+  {
+    "label": "A6",
+    "description": "P.S.Sebastian -Bellavista",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 106,
+    "routes": [
+      "106.1",
+      "106.2"
+    ]
+  },
+  {
+    "label": "A7",
+    "description": "Circular Nocturno",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 107,
+    "routes": [
+      "107.1",
+      "107.2"
+    ]
+  },
+  {
+    "label": "C6A",
+    "description": "Circular Macarena Norte Sentido A",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 108,
+    "routes": [
+      "108.99"
+    ]
+  },
+  {
+    "label": "C6B",
+    "description": "Circular Macarena Norte Sentido B",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 109,
+    "routes": [
+      "109.99"
+    ]
+  },
+  {
+    "label": "11",
+    "description": "Puerta Osario - Los Principes",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 11,
+    "routes": [
+      "11.1",
+      "11.2"
+    ]
+  },
+  {
+    "label": "A8",
+    "description": "P.S.Sebastian - Alcosa",
+    "color": "Black",
+    "group": "Nocturnas",
+    "id": 110,
+    "routes": [
+      "110.1",
+      "110.2"
+    ]
+  },
+  {
+    "label": "B4",
+    "description": "San Bernardo - Torreblanca - Sevilla Este",
+    "color": "Cyan",
+    "group": "Barrios y Express",
+    "id": 119,
+    "routes": [
+      "119.1",
+      "119.2"
+    ]
+  },
+  {
+    "label": "12",
+    "description": "Ponce de León -  Pino Montano",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 12,
+    "routes": [
+      "12.1",
+      "12.2"
+    ]
+  },
+  {
+    "label": "C5",
+    "description": "Circular Centro",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 121,
+    "routes": [
+      "121.99"
+    ]
+  },
+  {
+    "label": "38A",
+    "description": "Prado - Pitamo - Olavide",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 125,
+    "routes": [
+      "125.1",
+      "125.2"
+    ]
+  },
+  {
+    "label": "LS",
+    "description": "Santa Justa - Bellavista",
+    "color": "Orange",
+    "group": "Barrios y Express",
+    "id": 127,
+    "routes": [
+      "127.1",
+      "127.2"
+    ]
+  },
+  {
+    "label": "CJ",
+    "description": "San Bernardo - Ciudad de La Justicia",
+    "color": "Orange",
+    "group": "Barrios y Express",
+    "id": 128,
+    "routes": [
+      "128.1",
+      "128.2"
+    ]
+  },
+  {
+    "label": "13",
+    "description": "Alameda - Pino Montano",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 13,
+    "routes": [
+      "13.1",
+      "13.2"
+    ]
+  },
+  {
+    "label": "TB1",
+    "description": "Plaza del Duque – Sevilla Este – Torreblanca",
+    "color": "Orange",
+    "group": "Tranvibús",
+    "id": 133,
+    "routes": [
+      "133.1",
+      "133.2"
+    ]
+  },
+  {
+    "label": "60",
+    "description": "Hosp. Macarena - Alcosa - Sevilla Este",
+    "color": "Orange",
+    "group": "Barrios y Express",
+    "id": 134,
+    "routes": [
+      "134.1",
+      "134.2"
+    ]
+  },
+  {
+    "label": "CJ1",
+    "description": "San Bernardo - Prado - Isla Natura",
+    "color": "Orange",
+    "group": "Otras",
+    "id": 135,
+    "routes": [
+      "135.1",
+      "135.2"
+    ]
+  },
+  {
+    "label": "14",
+    "description": "Alameda - Poligono Norte - Las Golondrinas",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 14,
+    "routes": [
+      "14.1",
+      "14.2"
+    ]
+  },
+  {
+    "label": "15",
+    "description": "Puerta Osario - San Diego",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 15,
+    "routes": [
+      "15.1",
+      "15.2"
+    ]
+  },
+  {
+    "label": "16",
+    "description": "Puerta Osario - Valdezorras",
+    "color": "Blue",
+    "group": "Radiales Norte",
+    "id": 16,
+    "routes": [
+      "16.1",
+      "16.2"
+    ]
+  },
+  {
+    "label": "02",
+    "description": "Puerta Triana - Heliopolis",
+    "color": "Red",
+    "group": "Transversales",
+    "id": 2,
+    "routes": [
+      "2.1",
+      "2.2"
+    ]
+  },
+  {
+    "label": "20",
+    "description": "Puerta Osario - Polígono de San Pablo",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 20,
+    "routes": [
+      "20.1",
+      "20.2"
+    ]
+  },
+  {
+    "label": "21",
+    "description": "Plaza de Armas - Polígono San Pablo",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 21,
+    "routes": [
+      "21.1",
+      "21.2"
+    ]
+  },
+  {
+    "label": "22",
+    "description": "Prado San Sebastian - Sevilla Este",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 22,
+    "routes": [
+      "22.1",
+      "22.2"
+    ]
+  },
+  {
+    "label": "24",
+    "description": "Ponce de León - Juan XXIII - Palmete",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 24,
+    "routes": [
+      "24.1",
+      "24.2"
+    ]
+  },
+  {
+    "label": "25",
+    "description": "Prado San Sebastián - Rochelambert",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 25,
+    "routes": [
+      "25.1",
+      "25.2"
+    ]
+  },
+  {
+    "label": "26",
+    "description": "Prado San Sebastián - Cerro del Aguila",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 26,
+    "routes": [
+      "26.1",
+      "26.2"
+    ]
+  },
+  {
+    "label": "27",
+    "description": "Prado San Sebastián - Sevilla Este",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 27,
+    "routes": [
+      "27.1",
+      "27.2"
+    ]
+  },
+  {
+    "label": "28",
+    "description": "Prado San Sebastián - Alcosa",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 28,
+    "routes": [
+      "28.1",
+      "28.2"
+    ]
+  },
+  {
+    "label": "29",
+    "description": "Prado San Sebastián - Torreblanca",
+    "color": "Blue",
+    "group": "Radiales Este",
+    "id": 29,
+    "routes": [
+      "29.1",
+      "29.2"
+    ]
+  },
+  {
+    "label": "03",
+    "description": "Bellavista-S. Jeronimo-Pino Montano",
+    "color": "Orange",
+    "group": "Transversales",
+    "id": 3,
+    "routes": [
+      "3.1",
+      "3.2"
+    ]
+  },
+  {
+    "label": "30",
+    "description": "Prado San Sebastián - La Paz",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 30,
+    "routes": [
+      "30.1",
+      "30.2"
+    ]
+  },
+  {
+    "label": "31",
+    "description": "Prado San Sebastián - Polígono Sur",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 31,
+    "routes": [
+      "31.1",
+      "31.2"
+    ]
+  },
+  {
+    "label": "32",
+    "description": "Ponce de León - Polígono Sur",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 32,
+    "routes": [
+      "32.1",
+      "32.2"
+    ]
+  },
+  {
+    "label": "34",
+    "description": "Prado San Sebastián - Los Bermejales",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 34,
+    "routes": [
+      "34.1",
+      "34.2"
+    ]
+  },
+  {
+    "label": "37",
+    "description": "Pta. Jerez - Pedro Salvador - Bellavista",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 37,
+    "routes": [
+      "37.1",
+      "37.2"
+    ]
+  },
+  {
+    "label": "38",
+    "description": "Prado - Univ. P. Olavide",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 38,
+    "routes": [
+      "38.1",
+      "38.2"
+    ]
+  },
+  {
+    "label": "39",
+    "description": "Los Arcos - Hac. S. Antonio",
+    "color": "Blue",
+    "group": "Radiales Sur",
+    "id": 39,
+    "routes": [
+      "39.1",
+      "39.2"
+    ]
+  },
+  {
+    "label": "40",
+    "description": "Reyes Catolicos - Triana",
+    "color": "Blue",
+    "group": "Radiales Oeste",
+    "id": 40,
+    "routes": [
+      "40.1",
+      "40.2"
+    ]
+  },
+  {
+    "label": "41",
+    "description": "Reyes Catolicos - Tablada",
+    "color": "Blue",
+    "group": "Radiales Oeste",
+    "id": 41,
+    "routes": [
+      "41.1",
+      "41.2"
+    ]
+  },
+  {
+    "label": "43",
+    "description": "San Pablo - El Carmen",
+    "color": "Blue",
+    "group": "Radiales Oeste",
+    "id": 43,
+    "routes": [
+      "43.1",
+      "43.2"
+    ]
+  },
+  {
+    "label": "05",
+    "description": "Puerta Triana - Santa Aurelia",
+    "color": "Red",
+    "group": "Transversales",
+    "id": 5,
+    "routes": [
+      "5.1",
+      "5.2"
+    ]
+  },
+  {
+    "label": "52",
+    "description": "S. Bernardo - Palmete",
+    "color": "Blue",
+    "group": "Periféricas",
+    "id": 52,
+    "routes": [
+      "52.1",
+      "52.2"
+    ]
+  },
+  {
+    "label": "53",
+    "description": "Los Arcos Centro Penitenciario",
+    "color": "Unknown",
+    "group": "Periféricas",
+    "id": 53,
+    "routes": [
+      "53.1",
+      "53.2"
+    ]
+  },
+  {
+    "label": "06",
+    "description": "Gta. S. Lázaro - Hosp. V. Rocio",
+    "color": "Red",
+    "group": "Transversales",
+    "id": 6,
+    "routes": [
+      "6.1",
+      "6.2"
+    ]
+  },
+  {
+    "label": "T1",
+    "description": "Metrocentro",
+    "color": "Wine",
+    "group": "Metroentro",
+    "id": 60,
+    "routes": [
+      "60.1",
+      "60.2"
+    ]
+  },
+  {
+    "label": "LN",
+    "description": "Linea Norte",
+    "color": "Orange",
+    "group": "Barrios y Express",
+    "id": 72,
+    "routes": [
+      "72.1",
+      "72.2"
+    ]
+  },
+  {
+    "label": "C1",
+    "description": "Circular Exterior 1",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 81,
+    "routes": [
+      "81.99"
+    ]
+  },
+  {
+    "label": "C2",
+    "description": "Circular Exterior 2",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 82,
+    "routes": [
+      "82.99"
+    ]
+  },
+  {
+    "label": "C3",
+    "description": "Circular Interior 1",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 83,
+    "routes": [
+      "83.99"
+    ]
+  },
+  {
+    "label": "C4",
+    "description": "Circular Interior 2",
+    "color": "Green",
+    "group": "Circulares",
+    "id": 84,
+    "routes": [
+      "84.99"
+    ]
+  },
+  {
+    "label": "B3",
+    "description": "Gran Plaza - Santa Clara",
+    "color": "Cyan",
+    "group": "Barrios y Express",
+    "id": 87,
+    "routes": [
+      "87.1",
+      "87.2"
+    ]
+  }
+]
