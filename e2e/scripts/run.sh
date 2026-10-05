@@ -34,6 +34,10 @@ mkdir -p "$REPORT_DIR"
 TARGET="${1:-$E2E_DIR}"
 shift || true
 
+FAILED_CONFIG="$REPORT_DIR/failed-config.yaml"
+
+echo "Running maestro..."
+status=0
 maestro --device "$DEVICE" test \
   -e APP_ID="$APP_ID" \
   -e EXPECTED_HOST="$EXPECTED_HOST" \
@@ -41,4 +45,31 @@ maestro --device "$DEVICE" test \
   --output "$REPORT_DIR/junit.xml" \
   --test-output-dir "$REPORT_DIR/artifacts" \
   "$@" \
-  "$TARGET"
+  "$TARGET" || status=$?
+
+# Write a workspace config with the flows that failed, so they can be retried without running the whole suite.
+# The junit "file" attribute is relative to the directory maestro ran from; config paths are relative to E2E_DIR.
+failed_flows=()
+if [[ -f "$REPORT_DIR/junit.xml" ]]; then
+  while IFS= read -r file; do
+    [[ "$file" = /* ]] || file="$PWD/$file"
+    file="$(cd "$(dirname "$file")" && pwd)/$(basename "$file")"
+    failed_flows+=("${file#"$E2E_DIR"/}")
+  done < <(grep '<testcase ' "$REPORT_DIR/junit.xml" | grep -v 'status="SUCCESS"' | sed -n 's/.* file="\([^"]*\)".*/\1/p')
+fi
+
+if (( ${#failed_flows[@]} > 0 )); then
+  {
+    echo "flows:"
+    printf '  - "%s"\n' "${failed_flows[@]}"
+    echo "executionOrder:"
+    echo "  continueOnFailure: true"
+  } > "$FAILED_CONFIG"
+  echo
+  echo "${#failed_flows[@]} flow(s) failed. Retry them with:"
+  echo "  $0 $E2E_DIR --config $FAILED_CONFIG"
+else
+  rm -f "$FAILED_CONFIG"
+fi
+
+exit "$status"
