@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older that API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+   Auto Backup rules for API 30 and lower. Keep in sync with data_extraction_rules.xml.
+   Only app data is included. Third-party SDK state must not be restored on a new device: Firebase Auth
+   stores its session encrypted with an Android Keystore key, which is never backed up, so a restored
+   session can't be decrypted and breaks login.
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <include domain="database" path="sevibus" />
+    <include domain="database" path="sevibus-wal" />
+    <include domain="file" path="datastore/night_mode_prefs.preferences_pb" />
+    <include domain="file" path="datastore/analytics_prefs.preferences_pb" />
+    <include domain="file" path="datastore/app_start_tracking_prefs.preferences_pb" />
 </full-backup-content>
