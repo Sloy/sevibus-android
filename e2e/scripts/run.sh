@@ -41,14 +41,20 @@ shift || true
 
 FAILED_CONFIG="$REPORT_DIR/failed-config.yaml"
 
+# The junit format hides the live step-by-step output. A single flow file runs with the interactive output instead.
+report_args=(--format junit --output "$REPORT_DIR/junit.xml")
+if [[ -f "$TARGET" ]]; then
+  report_args=()
+  rm -f "$REPORT_DIR/junit.xml"
+fi
+
 echo "Running maestro..."
 status=0
 maestro --device "$DEVICE" test \
   -e APP_ID="$APP_ID" \
   -e EXPECTED_HOST="$EXPECTED_HOST" \
   -e MOCK_PORT="$MOCK_PORT" \
-  --format junit \
-  --output "$REPORT_DIR/junit.xml" \
+  ${report_args[@]+"${report_args[@]}"} \
   --test-output-dir "$REPORT_DIR/artifacts" \
   "$@" \
   "$TARGET" || status=$?
