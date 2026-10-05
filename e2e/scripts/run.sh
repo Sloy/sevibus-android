@@ -31,6 +31,11 @@ fi
 
 mkdir -p "$REPORT_DIR"
 
+source "$E2E_DIR/scripts/wiremock.sh"
+wiremock_start "$E2E_DIR/mocks" "$REPORT_DIR/wiremock.log"
+trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop' EXIT
+adb -s "$DEVICE" reverse "tcp:$MOCK_PORT" "tcp:$MOCK_PORT" >/dev/null
+
 TARGET="${1:-$E2E_DIR}"
 shift || true
 
@@ -41,6 +46,7 @@ status=0
 maestro --device "$DEVICE" test \
   -e APP_ID="$APP_ID" \
   -e EXPECTED_HOST="$EXPECTED_HOST" \
+  -e MOCK_PORT="$MOCK_PORT" \
   --format junit \
   --output "$REPORT_DIR/junit.xml" \
   --test-output-dir "$REPORT_DIR/artifacts" \

@@ -1,0 +1,5 @@
+{
+  "priority": 10,
+  "request": { "method": "ANY", "urlPattern": ".*" },
+  "response": { "proxyBaseUrl": "https://appdev-vd4mgiw7ma-no.a.run.app" }
+}
