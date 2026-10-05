@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+---
+# Like launch-fresh.yaml, but the app talks to the local WireMock (see e2e/mocks).
+# Every scenario is reset, so unmocked requests go to dev until the flow selects a variant.
+# Pass MOCKS ("route:variant,...") for responses requested at startup (lines, routes, stops).
+- runScript: ../mocks/api.js
+- evalScript: ${ output.mocks.reset() }
+- evalScript: "${ output.mocks.setAll(typeof MOCKS === 'undefined' ? '' : MOCKS) }"
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+    arguments:
+      debugApiHost: "http://localhost:${MOCK_PORT}"
+- runFlow: dismiss-review-dialog.yaml
+- extendedWaitUntil:
+    visible: "For You"
+    timeout: 30000
