@@ -93,12 +93,12 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.common.math.LinearTransformation.horizontal
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
-import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.extensions.performHapticGestureStart
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.infrastructure.extensions.splitPhrase
@@ -139,7 +139,7 @@ fun CardsScreen(
     EventCollector(nfcStateManager.events) { nfcReadEvent ->
         viewModel.onNewCardNumber(
             CardSerialNumberUtils.calculateVisibleSerialNumber(nfcReadEvent.cardId),
-            scanMethod = Events.CardScanned.ScanMethod.NFC
+            addMethod = CardAddMethod.NFC
         )
         nfcAnimation.animatePulse()
     }
@@ -160,7 +160,7 @@ fun CardsScreen(
         newCardState,
         nfcState,
         onNewCardNumber = { serialNumber ->
-            viewModel.onNewCardNumber(serialNumber, Events.CardScanned.ScanMethod.MANUAL)
+            viewModel.onNewCardNumber(serialNumber, CardAddMethod.MANUAL)
         },
         viewModel::onDeleteCard,
         viewModel::onTopUpClicked,

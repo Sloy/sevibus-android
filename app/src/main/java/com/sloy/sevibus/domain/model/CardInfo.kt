@@ -4,6 +4,11 @@ import com.sloy.sevibus.feature.cards.CardSerialNumberUtils
 
 typealias CardId = Long
 
+enum class CardAddMethod {
+    NFC,
+    MANUAL,
+}
+
 data class CardInfo(
     val serialNumber: CardId,
     val code: Int,
