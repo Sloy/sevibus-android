@@ -5,6 +5,7 @@ import com.sloy.debugmenu.base.DebugMenuScope
 import com.sloy.debugmenu.events.EventsModule
 import com.sloy.debugmenu.network.NetworkModule
 import com.sloy.sevibus.data.api.AdminApi
+import com.sloy.sevibus.feature.debug.admin.AdminDashboardLink
 import com.sloy.sevibus.feature.debug.auth.AuthDebugModule
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModule
 import com.sloy.sevibus.feature.debug.location.LocationDebugModule
@@ -26,4 +27,5 @@ fun DebugMenuScope.SevDebugMenu() {
     LocationDebugModule()
     InAppReviewDebugModule()
     AuthDebugModule()
+    AdminDashboardLink()
 }
