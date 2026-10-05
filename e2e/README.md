@@ -34,7 +34,22 @@ Level 1 runs against the public dev endpoint (Cloud Run, Madrid, `dev-db`), whic
 
 ### Mocked responses
 
-Cases that need specific data (fixed arrival times, errors, empty lists, a server-side change) use WireMock. `run.sh` starts it and runs `adb reverse` for its port, and flows select the response from YAML.
+Cases that need specific data (fixed arrival times, errors, empty lists, a server-side change) use [WireMock](https://wiremock.org). `run.sh` starts it and runs `adb reverse` for its port, and flows select the response from YAML.
+
+How it works:
+
+```
+flow ── output.mocks.set(route, variant) ──▶ WireMock admin API (scenario state)
+app  ── debugApiHost launch argument ─────▶ debug-menu host override ──▶ WireMock
+WireMock: stub for the selected variant, otherwise proxy to the dev backend
+```
+
+1. `run.sh` starts a pinned WireMock jar on `MOCK_PORT` with `e2e/mocks` as its root and forwards the port to the device.
+2. `launch-mocked.yaml` resets every scenario and launches the debug app with the `debugApiHost` argument, so all API calls go to WireMock instead of dev.
+3. Every route that has fixtures is a scenario. Setting a variant (`output.mocks.set('arrivals-844', 'error')`) switches that route's response. Routes without a selected variant, and routes without fixtures, are proxied to dev, so a mocked flow only describes what it needs to control.
+4. The variant can change mid-flow (STOP-05 goes from `error` to `fixed`) or between app restarts (SYNC-01, CARDS-05) to simulate server-side changes.
+
+Available helpers (`mocks/api.js`): `output.mocks.set(route, variant)`, `output.mocks.setAll("route:variant,route:variant")` and `output.mocks.reset()`.
 
 ```
 mocks/api.js           Maestro control layer (output.mocks)
