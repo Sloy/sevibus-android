@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+name: "STOP-04 Stop with no buses shows a no service message"
+tags:
+  - stop-detail
+  - mocks
+  - level3
+---
+# Expected to fail until StopDetailViewModel stops showing the loading skeleton for an empty list.
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('arrivals-844', 'empty') }
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Stop 844"
+- extendedWaitUntil:
+    visible: "(?i).*no (service|buses).*"
+    timeout: 20000

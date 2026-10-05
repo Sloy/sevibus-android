@@ -1,12 +1,12 @@
 appId: ${APP_ID}
-name: "STOP-02 Stop detail shows the arrivals returned by the server"
+name: "STOP-06 The last bus of the day shows the Last bus badge"
 tags:
   - stop-detail
   - mocks
   - level1
 ---
 - runFlow: ../../subflows/launch-mocked.yaml
-- evalScript: ${ output.mocks.set('arrivals-844', 'fixed') }
+- evalScript: ${ output.mocks.set('arrivals-844', 'last-bus') }
 - runFlow:
     file: ../../subflows/search.yaml
     env:
@@ -15,5 +15,4 @@ tags:
 - extendedWaitUntil:
     visible: "2 min"
     timeout: 20000
-- assertVisible: "5 min"
-- assertNotVisible: "An error occurred while loading arrival times.*"
+- assertVisible: "Last bus"

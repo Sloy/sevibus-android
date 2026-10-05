@@ -1,19 +1,22 @@
 appId: ${APP_ID}
-name: "STOP-02 Stop detail shows the arrivals returned by the server"
+name: "STOP-05 Arrivals error recovers on the next poll"
 tags:
   - stop-detail
   - mocks
   - level1
 ---
 - runFlow: ../../subflows/launch-mocked.yaml
-- evalScript: ${ output.mocks.set('arrivals-844', 'fixed') }
+- evalScript: ${ output.mocks.set('arrivals-844', 'error') }
 - runFlow:
     file: ../../subflows/search.yaml
     env:
       QUERY: "estacion cercanias"
 - tapOn: "Stop 844"
 - extendedWaitUntil:
-    visible: "2 min"
+    visible: "An error occurred while loading arrival times.*"
     timeout: 20000
-- assertVisible: "5 min"
+- evalScript: ${ output.mocks.set('arrivals-844', 'fixed') }
+- extendedWaitUntil:
+    visible: "2 min"
+    timeout: 30000
 - assertNotVisible: "An error occurred while loading arrival times.*"

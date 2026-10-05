@@ -3,10 +3,11 @@ name: "STOP-03 Tapping a line arrival opens the line route with the stop highlig
 tags:
   - stop-detail
   - lines
-  - live-data
+  - mocks
   - level1
 ---
-- runFlow: ../../subflows/launch-fresh.yaml
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('arrivals-844', 'fixed') }
 - runFlow:
     file: ../../subflows/search.yaml
     env:
