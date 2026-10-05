@@ -5,7 +5,7 @@ Black-box tests that drive the SeviBus Android app against a real backend. They 
 ## Running
 
 Prerequisites:
-- An Android emulator with Google Play services (e.g. `Medium_Phone`, API 36 `google_apis`). The device language must be **English**.
+- An Android emulator with Google Play services. The device language must be **English**.
 - The build under test installed (`com.sloy.sevibus.debug` by default).
 - Maestro CLI 2.x (`maestro --version`).
 - JDK 21 on `PATH`. WireMock is a jar downloaded on first use into `build/` (SHA-256 checked) and started by `run.sh`.
