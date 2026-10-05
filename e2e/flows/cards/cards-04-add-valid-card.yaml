@@ -1,0 +1,35 @@
+appId: ${APP_ID}
+name: "CARDS-04 Adding a valid card shows its balance and activity, and it can be deleted"
+tags:
+  - cards
+  - mocks
+  - level2
+---
+# The app formats amounts with a non-breaking space before the euro sign, so the selectors use "." for it.
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('card-123456789012', 'valid') }
+- tapOn: "Travel Card"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+- tapOn: "Serial number"
+- inputText: "123456789012"
+- extendedWaitUntil:
+    visible: "12,50.€"
+    timeout: 15000
+- assertVisible: "Bonobús sin transbordo"
+- scrollUntilVisible:
+    element: "Recent activity"
+    direction: DOWN
+    timeout: 10000
+- assertVisible: "Validation"
+- assertVisible: "-0,41.€"
+- scrollUntilVisible:
+    element: "Delete"
+    direction: DOWN
+    timeout: 10000
+- tapOn: "Delete"
+- extendedWaitUntil:
+    visible: "Add card"
+    timeout: 10000
+- assertNotVisible: "12,50.€"
