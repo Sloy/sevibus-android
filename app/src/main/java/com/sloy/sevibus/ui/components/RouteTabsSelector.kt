@@ -51,20 +51,19 @@ fun RouteTabsSegmented(
     modifier: Modifier = Modifier
 ) {
     SegmentedControl(
-        size = 2,
-        content = { index ->
-            val name = if (index == 0) route1.destination else route2.destination
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Default.ArrowForward, contentDescription = null)
-                Text(name)
-            }
-        },
+        segmentCount = 2,
         selectedIndex = if (route1.id == selected) 0 else 1,
         modifier = modifier.fillMaxWidth(),
         onOptionSelected = {
             onRouteClicked(if (it == 0) route1 else route2)
         }
-    )
+    ){ index ->
+        val name = if (index == 0) route1.destination else route2.destination
+        Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            Icon(Icons.Default.ArrowForward, contentDescription = null)
+            Text(name)
+        }
+    }
 }
 
 @Composable
