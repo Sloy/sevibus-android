@@ -9,6 +9,7 @@ import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
 import com.sloy.sevibus.data.database.toDto
 import com.sloy.sevibus.data.database.toEntity
+import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
@@ -81,9 +82,9 @@ class RemoteAndLocalCardsRepository(
 
     }
 
-    override suspend fun checkCard(initialCardId: CardId): CardInfo? {
+    override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId).fromDto()
+            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null
@@ -93,13 +94,13 @@ class RemoteAndLocalCardsRepository(
         }
     }
 
-    override suspend fun addUserCard(cardResult: CardInfo) {
+    override suspend fun addUserCard(cardResult: CardInfo, addMethod: CardAddMethod?) {
         val lastOrder = sevibusDao.getCards().maxByOrNull { it.order }?.order ?: -1
         val card = cardResult.toEntity(order = lastOrder + 1)
         sevibusDao.putCard(card)
         backgroundScope.launch {
             if (sessionService.isLogged()) {
-                runCatching { userApi.addUpdateUserCard(card.serialNumber, card.toDto()) }
+                runCatching { userApi.addUpdateUserCard(card.serialNumber, card.toDto().copy(addedVia = addMethod?.toApiValue())) }
                     .onFailure { SevLogger.logW(it) }
             }
         }
@@ -196,6 +197,11 @@ class RemoteAndLocalCardsRepository(
         }
     }
 
+}
+
+private fun CardAddMethod.toApiValue(): String = when (this) {
+    CardAddMethod.NFC -> "nfc"
+    CardAddMethod.MANUAL -> "manual"
 }
 
 private fun CardInfoDto.fromDto(): CardInfo {

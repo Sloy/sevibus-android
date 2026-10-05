@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.cards
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.repository.CardsRepository
@@ -56,18 +57,18 @@ class CardViewModel(
         CardsScreenState.Error(error)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CardsScreenState.Loading)
 
-    fun onNewCardNumber(serialNumber: String, scanMethod: Events.CardScanned.ScanMethod) {
+    fun onNewCardNumber(serialNumber: String, addMethod: CardAddMethod) {
         newCardState.value = CardsScreenNewCardState.InputForm(serialNumber)
         if (serialNumber.length < 12 || !serialNumber.all { it.isDigit() }) return
         val cardId = serialNumber.toLong()
 
-        analytics.track(Events.CardScanned(scanMethod))
+        analytics.track(Events.CardScanned(addMethod.toScanMethod()))
         newCardState.value = CardsScreenNewCardState.CheckingCard(serialNumber)
         viewModelScope.launch {
-            runCatching { cardsRepository.checkCard(cardId) }
+            runCatching { cardsRepository.checkCard(cardId, addMethod) }
                 .onSuccess { card ->
                     if (card != null) {
-                        onNewCardReceived(card)
+                        onNewCardReceived(card, addMethod)
                     } else {
                         events.emit(CardsScreenEvent.ShowMessage("Tarjeta no encontrada o número inválido"))
                         SevLogger.logW(Exception("Card not found with id $cardId"))
@@ -82,14 +83,14 @@ class CardViewModel(
         }
     }
 
-    private suspend fun onNewCardReceived(card: CardInfo) {
+    private suspend fun onNewCardReceived(card: CardInfo, addMethod: CardAddMethod) {
         val existingCards = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()
         val existingCard = existingCards?.find { it.serialNumber == card.serialNumber }
         if (existingCard != null) {
             scrollToCard.value = existingCard.serialNumber
             events.emit(CardsScreenEvent.ShowMessage("Ya tienes guardada esa tarjeta"))
         } else {
-            cardsRepository.addUserCard(card)
+            cardsRepository.addUserCard(card, addMethod)
             analytics.track(Events.CardAdded(card.type))
             scrollToCard.value = card.serialNumber
         }
@@ -131,4 +132,9 @@ class CardViewModel(
                 }
         }
     }
+}
+
+private fun CardAddMethod.toScanMethod(): Events.CardScanned.ScanMethod = when (this) {
+    CardAddMethod.NFC -> Events.CardScanned.ScanMethod.NFC
+    CardAddMethod.MANUAL -> Events.CardScanned.ScanMethod.MANUAL
 }

@@ -96,6 +96,7 @@ data class CardInfoDto(
     val balance: Int? = null,
     val customName: String? = null,
     val order: Int = -1,
+    val addedVia: String? = null,
 )
 
 @Serializable

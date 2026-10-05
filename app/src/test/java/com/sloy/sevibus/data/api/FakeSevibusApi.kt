@@ -116,7 +116,7 @@ open class FakeSevibusApi : SevibusApi {
         return@withContext busesResponse
     }
 
-    override suspend fun getCardInfo(card: CardId): CardInfoDto = withContext(Dispatchers.IO) {
+    override suspend fun getCardInfo(card: CardId, via: String?): CardInfoDto = withContext(Dispatchers.IO) {
         awaitLatch()
         return@withContext cardInfoResponse!!
     }
