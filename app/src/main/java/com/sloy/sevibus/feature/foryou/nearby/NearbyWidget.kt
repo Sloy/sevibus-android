@@ -150,7 +150,7 @@ private fun NearbyEmptyState(message: String) {
 
 @Preview
 @Composable
-internal fun WithArrivalsPreview() {
+internal fun NearbyWidgetWithArrivalsPreview() {
     ScreenPreview {
         NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), {})
     }
@@ -158,7 +158,7 @@ internal fun WithArrivalsPreview() {
 
 @Preview
 @Composable
-internal fun EmptyPreview() {
+internal fun NearbyWidgetEmptyPreview() {
     ScreenPreview {
         NearbyWidgetHasPermission(NearbyScreenState.Content(emptyList()), {})
     }
@@ -174,7 +174,7 @@ internal fun NearbyWidgetLoadingPreview() {
 
 @Preview
 @Composable
-internal fun NoPemissionPreview() {
+internal fun NearbyWidgetNoPermissionPreview() {
     ScreenPreview {
         NearbyWidgetNoPermission({})
     }

@@ -440,13 +440,16 @@ object Stubs {
     private var cardSerialCounter = 100000000L
     private fun nextCardSerial(): CardId = cardSerialCounter++
 
+    // Fixed date so screenshot tests are deterministic
+    private val transactionsDate = LocalDateTime.of(2025, 12, 31, 14, 46)
+
     @Deprecated("")
     val cardInfoTransactions = listOf(
-        CardTransaction.Validation(700000001, LocalDateTime.now(), 350, lines[4].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000002, LocalDateTime.now(), 350, lines[2].toSummary(), bus = 0, people = 0),
-        CardTransaction.TopUp(700000003, LocalDateTime.now(), 10000),
-        CardTransaction.Validation(700000004, LocalDateTime.now(), 350, lines[34].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000005, LocalDateTime.now(), 350, lines[34].toSummary(), bus = 0, people = 0),
+        CardTransaction.Validation(700000001, transactionsDate, 350, lines[4].toSummary(), bus = 0, people = 2),
+        CardTransaction.Validation(700000002, transactionsDate, 350, lines[2].toSummary(), bus = 0, people = 0),
+        CardTransaction.TopUp(700000003, transactionsDate, 10000),
+        CardTransaction.Validation(700000004, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 2),
+        CardTransaction.Validation(700000005, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 0),
     )
 
     @Deprecated("")

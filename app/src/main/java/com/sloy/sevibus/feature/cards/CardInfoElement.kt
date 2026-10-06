@@ -105,7 +105,7 @@ private fun TitleSubtitleItem(
 
 @Preview
 @Composable
-internal fun CardInfoCardPreview() {
+internal fun CardInfoElementPreview() {
     SevTheme {
         CardInfoElement(Stubs.cardWithAllFields, {})
     }

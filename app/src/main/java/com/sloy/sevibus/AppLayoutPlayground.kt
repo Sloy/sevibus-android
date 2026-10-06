@@ -289,6 +289,6 @@ private fun FullScreenContent() {
 
 @Preview(showSystemUi = true)
 @Composable
-internal fun Preview() {
+internal fun AppLayoutPlaygroundPreview() {
     AppLayoutPlayground()
 }

@@ -205,7 +205,7 @@ private fun NearbyListItemShimmer(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-internal fun LoadedPreview() {
+internal fun NearbyListItemLoadedPreview() {
     SevTheme {
         Column(Modifier.padding(16.dp)) {
             Stubs.nearby.forEach {
@@ -222,7 +222,7 @@ internal fun LoadedPreview() {
 
 @Preview
 @Composable
-internal fun LoadingArrivalsPreview() {
+internal fun NearbyListItemLoadingArrivalsPreview() {
     SevTheme {
         Column(Modifier.padding(16.dp)) {
             Stubs.nearby.forEach {
