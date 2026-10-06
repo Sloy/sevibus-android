@@ -24,6 +24,8 @@ android {
         versionName = VersionConfig.versionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Fallback for test components like screenshotTest, the secrets plugin only fills it for app variants
+        manifestPlaceholders["MAPS_API_KEY"] = ""
         vectorDrawables {
             useSupportLibrary = true
         }
