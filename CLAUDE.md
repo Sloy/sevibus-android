@@ -379,7 +379,11 @@ app/src/
 
 ### CI
 
-`.github/workflows/screenshot-tests.yml` validates the screenshots on pull requests. It's opt-in for now, driven by labels:
+`.github/workflows/screenshot-tests.yml` validates the screenshots.
+
+On pushes to master, if any screenshot fails, it regenerates the failing references on the `screenshots/master-update` branch and opens a PR assigned to the pusher (or refreshes the open one and comments on it). Merge it if the changes are expected, otherwise close it and fix the UI. When master passes again, an open update PR is closed. Opening PRs requires **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**.
+
+On pull requests it's opt-in for now, driven by labels:
 
 - `screenshots`: runs the suite on every push to the PR. Failures are reported in a single PR comment (updated on each run) with the reference, new and diff images. The images are pushed to a `screenshots/pr-<number>` companion branch, deleted when the PR is closed.
 - `update-screenshots`: regenerates the references of the failing tests, commits them to the PR branch and removes the label. Use it instead of running `updateDebugScreenshotTest` locally. Commits pushed by the workflow don't trigger new runs, so push again or re-add a label to validate them.

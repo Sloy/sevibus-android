@@ -1,10 +1,13 @@
 name: Screenshot Tests
 
-# Opt-in while the screenshot suite is being battle tested:
+# - Pushes to master: validate the screenshots, and if any fail, open a PR updating their references
+# Pull requests are opt-in while the screenshot suite is being battle tested:
 # - "screenshots" label: validate the screenshots and report failures in a PR comment
 # - "update-screenshots" label: regenerate the failing references and commit them to the PR
 on:
   workflow_dispatch:
+  push:
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
     types: [ opened, synchronize, reopened, labeled, closed ]
@@ -12,6 +15,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  issues: write
   checks: write
 
 concurrency:
@@ -22,12 +26,14 @@ env:
   PR_NUMBER: ${{ github.event.pull_request.number }}
   # Images of failing tests are pushed here so the PR comment can show them
   COMPANION_BRANCH: screenshots/pr-${{ github.event.pull_request.number }}
+  # Branch of the PR opened when screenshots fail on master
+  MASTER_UPDATE_BRANCH: screenshots/master-update
 
 jobs:
   screenshots:
     name: Validate Screenshots
     if: >-
-      github.event_name == 'workflow_dispatch' || (
+      github.event_name != 'pull_request' || (
         github.event.action != 'closed' &&
         github.event.pull_request.head.repo.full_name == github.repository &&
         (contains(github.event.pull_request.labels.*.name, 'screenshots') || contains(github.event.pull_request.labels.*.name, 'update-screenshots')) &&
@@ -99,23 +105,62 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "test: update screenshot references"
           git push origin "HEAD:$HEAD_REF"
-          sha=$(git rev-parse HEAD)
           {
             echo "<!-- screenshot-tests-report -->"
             echo "### 📸 Screenshot references updated"
             echo ""
-            echo "Updated in $sha. Review the new references:"
+            echo "Updated in $(git rev-parse HEAD). Review the new references:"
             echo ""
-            git diff --name-only HEAD~1 HEAD | while read -r file; do
-              echo "<details open><summary><b>$(basename "$file")</b></summary>"
-              echo ""
-              echo "<img src=\"https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$sha/$file\" width=\"250\">"
-              echo ""
-              echo "</details>"
-              echo ""
-            done
+            .github/scripts/updated_references.sh "$(git rev-parse HEAD~1)" "$(git rev-parse HEAD)"
           } > "$REPORT_DIR/comment.md"
           echo "updated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open PR with updated references
+        if: steps.validate.outcome == 'failure' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        env:
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -f  # keep the --tests patterns from being expanded by the shell
+          ./gradlew :app:updateDebugScreenshotTest $(cat "$REPORT_DIR/update-filters.txt")
+          base=$(git rev-parse HEAD)
+          git switch -c "$MASTER_UPDATE_BRANCH"
+          git add app/src/screenshotTestDebug/reference
+          if git diff --cached --quiet; then
+            echo "No reference changed, the failures aren't image differences"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "test: update screenshot references"
+          git push -f origin "HEAD:$MASTER_UPDATE_BRANCH"
+          {
+            echo "Screenshot tests failed on master at $base. This PR updates the failing references."
+            echo ""
+            echo "Merge it if the changes are expected, otherwise close it and fix the UI. The **Files changed** tab also compares the images."
+            echo ""
+            .github/scripts/updated_references.sh "$base" "$(git rev-parse HEAD)"
+            echo ""
+            echo "[Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          } > "$REPORT_DIR/pr-body.md"
+          pr=$(gh pr list --head "$MASTER_UPDATE_BRANCH" --base master --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --body-file "$REPORT_DIR/pr-body.md"
+            # Editing the body doesn't notify, so leave a comment
+            gh pr comment "$pr" --body "Screenshot tests failed again on master at $base, the references were regenerated. @$ACTOR"
+          else
+            gh pr create --base master --head "$MASTER_UPDATE_BRANCH" \
+              --title "test: update screenshot references" \
+              --body-file "$REPORT_DIR/pr-body.md" \
+              --assignee "$ACTOR"
+          fi
+
+      - name: Close stale update PR
+        if: steps.validate.outcome == 'success' && github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: |
+          pr=$(gh pr list --head "$MASTER_UPDATE_BRANCH" --base master --state open --json number --jq '.[0].number')
+          if [ -n "$pr" ]; then
+            gh pr close "$pr" --delete-branch --comment "Screenshot tests pass on master at $(git rev-parse HEAD), these updates aren't needed anymore."
+          fi
 
       - name: Remove update label
         if: env.UPDATE == 'true' && github.event_name == 'pull_request' && !cancelled()
@@ -123,7 +168,7 @@ jobs:
 
       - name: Push images to companion branch
         id: companion
-        if: steps.validate.outcome == 'failure' && steps.update.outputs.updated != 'true'
+        if: steps.validate.outcome == 'failure' && steps.update.outputs.updated != 'true' && github.event_name == 'pull_request'
         run: |
           if [ ! -d "$IMAGES_DIR" ]; then
             echo "No images to push"
