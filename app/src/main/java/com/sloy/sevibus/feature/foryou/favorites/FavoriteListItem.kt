@@ -33,6 +33,8 @@ import com.sloy.sevibus.ui.components.ArrivalTimeElement
 import com.sloy.sevibus.ui.components.ArrivalTimeElementShimmer
 import com.sloy.sevibus.ui.formatter.formatSubtitle
 import com.sloy.sevibus.ui.formatter.formatTitle
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.shimmerLoadingAnimation
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
@@ -203,6 +205,7 @@ fun FavoriteListItemShimmer(modifier: Modifier = Modifier) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun FavoriteListItemLoadedPreview() {
@@ -222,6 +225,7 @@ internal fun FavoriteListItemLoadedPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun FavoriteListItemLoadingArrivalsPreview() {

@@ -27,6 +27,8 @@ import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -112,6 +114,7 @@ private fun LineGroupTitle(lineGroup: String) {
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun LinesScreenPreview() {

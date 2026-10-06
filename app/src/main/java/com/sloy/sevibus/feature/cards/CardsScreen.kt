@@ -110,6 +110,8 @@ import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.components.InfoBannerComponent
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -747,6 +749,7 @@ private fun CardAddMoreItem(newCardState: CardsScreenNewCardState) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun CardsScreenLoadedWithTransactionsPreview() {
@@ -805,6 +808,7 @@ internal fun CardsScreenLoadedWithTransactionsErrorPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun CardsScreenLoadedPreview() {
@@ -861,6 +865,7 @@ internal fun CardsScreenEmptyNfcDisabledPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun CardsScreenErrorPreview() {

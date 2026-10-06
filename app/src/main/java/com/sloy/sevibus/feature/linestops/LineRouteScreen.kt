@@ -38,6 +38,8 @@ import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.components.RouteTabsSelector
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -169,6 +171,7 @@ private fun RouteContent(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun LineRouteScreenWithRoutesPreview() {
@@ -186,6 +189,7 @@ internal fun LineRouteScreenWithRoutesPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun LineRouteScreenWithoutRoutesPreview() {

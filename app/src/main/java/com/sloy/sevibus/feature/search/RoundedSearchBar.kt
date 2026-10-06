@@ -41,6 +41,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -142,6 +144,7 @@ fun RoundedSearchBar(
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark()
 @Composable
 internal fun RoundedSearchBarTextPreview() {
@@ -155,6 +158,7 @@ internal fun RoundedSearchBarTextPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark()
 @Composable
 internal fun RoundedSearchBarEmptyPreview() {
@@ -177,6 +181,7 @@ internal fun RoundedSearchBarEmptyPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark()
 @Composable
 internal fun RoundedSearchBarStopPreview() {
@@ -190,6 +195,7 @@ internal fun RoundedSearchBarStopPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark()
 @Composable
 internal fun RoundedSearchBarLinePreview() {

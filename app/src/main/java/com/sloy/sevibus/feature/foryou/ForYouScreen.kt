@@ -28,6 +28,8 @@ import com.sloy.sevibus.feature.foryou.nearby.NearbyWidget
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.ui.components.SegmentedControl
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -112,6 +114,7 @@ private fun SlidingContent(
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun ForYouScreenPreview() {

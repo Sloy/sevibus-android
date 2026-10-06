@@ -34,6 +34,8 @@ import com.sloy.sevibus.ui.formatter.formatSubtitle
 import com.sloy.sevibus.ui.formatter.formatTitle
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.shimmerLoadingAnimation
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
@@ -203,6 +205,7 @@ private fun NearbyListItemShimmer(modifier: Modifier = Modifier) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun NearbyListItemLoadedPreview() {
@@ -220,6 +223,7 @@ internal fun NearbyListItemLoadedPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun NearbyListItemLoadingArrivalsPreview() {

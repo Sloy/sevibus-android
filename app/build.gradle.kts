@@ -1,3 +1,4 @@
+import com.android.build.api.variant.HostTestBuilder
 import com.android.compose.screenshot.tasks.PreviewScreenshotValidationTask
 
 plugins {
@@ -86,6 +87,21 @@ android {
 // The screenshot plugin has no DSL for the threshold since AGP 9, so set it on the validation task
 tasks.withType<PreviewScreenshotValidationTask>().configureEach {
     testEngineInput.threshold.set(0.01f)
+}
+
+// Generates the screenshotTest wrappers from the @ScreenshotTest previews in main.
+// Only the screenshotTest compilation depends on it, so regular builds don't run it.
+androidComponents {
+    onVariants { variant ->
+        val screenshotTest = variant.hostTests[HostTestBuilder.SCREENSHOT_TEST_TYPE] ?: return@onVariants
+        val generateTask = tasks.register<GenerateScreenshotTestsTask>(
+            "generate${variant.name.replaceFirstChar { it.uppercase() }}ScreenshotTests"
+        ) {
+            sources.from(fileTree("src/main/java") { include("**/*.kt") })
+            packageName.set("com.sloy.sevibus")
+        }
+        screenshotTest.sources.kotlin?.addGeneratedSourceDirectory(generateTask, GenerateScreenshotTestsTask::outputDir)
+    }
 }
 
 ksp {

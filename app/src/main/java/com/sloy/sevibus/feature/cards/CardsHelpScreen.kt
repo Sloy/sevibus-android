@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,6 +139,7 @@ private fun HtmlText(
     )
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun CardsHelpScreenPreview() {

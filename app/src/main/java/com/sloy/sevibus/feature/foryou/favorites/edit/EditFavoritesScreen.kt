@@ -99,6 +99,8 @@ import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.components.SevTopAppBar
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.delay
@@ -473,6 +475,7 @@ internal fun EditFavoritesScreenPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true, widthDp = 350)
 @Composable
 internal fun EditFavoritesScreenItemPreview() {

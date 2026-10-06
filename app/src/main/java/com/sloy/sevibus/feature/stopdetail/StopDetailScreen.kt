@@ -55,6 +55,8 @@ import com.sloy.sevibus.ui.formatter.formatTitle
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.snackbar.LocalSnackbarHostState
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
@@ -269,6 +271,7 @@ fun ArrivalsFailureBanner(throwable: Throwable) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun StopDetailScreenLoadedArrivalsPreview() {
@@ -287,6 +290,7 @@ internal fun StopDetailScreenLoadedArrivalsPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun StopDetailScreenSelectedLinePreview() {
@@ -318,6 +322,7 @@ internal fun StopDetailScreenLoadingArrivalsPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @PreviewLightDark
 @Composable
 internal fun StopDetailScreenFailedArrivalsPreview() {
@@ -336,6 +341,7 @@ internal fun StopDetailScreenFailedArrivalsPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun StopDetailScreenLoadingStopPreview() {
@@ -349,6 +355,7 @@ internal fun StopDetailScreenLoadingStopPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun StopDetailScreenFailedStopPreview() {

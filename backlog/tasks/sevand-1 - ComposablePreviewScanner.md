@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-06 22:17'
+updated_date: '2026-10-06 22:37'
 labels: []
 dependencies: []
 type: enhancement
@@ -63,4 +63,9 @@ B) Paparazzi + paparazzi-plugin de CPS (layoutlib, pero es un ejemplo sin soport
 C) Mantener el plugin oficial y generar los wrappers con una tarea Gradle en buildSrc: escanea las clases compiladas de main (ClassGraph) buscando una anotación propia, escribe los wrappers en build/generated y los añade al source set screenshotTest. Sin cambiar motor, referencias ni CI. Recomendada.
 D) Plugin de compilador Kotlin: descartado; API de K2 inestable y no puede generar código en otra compilación.
 Extra barato: un test que falle si una preview anotada no tiene wrapper.
+
+Implementado: anotación @ScreenshotTest(ScreenshotSuite.X) en main, GenerateScreenshotTestsTask en buildSrc y conexión vía androidComponents.onVariants + addGeneratedSourceDirectory. 62 previews anotadas, wrappers a mano borrados y referencias renombradas al nombre de la preview (mismo hash b2db1d68).
+Verificación local: validateDebugScreenshotTest da 61/62 antes y después; el único fallo, LineElementPreview, ya existía y viene de que el stub usa la hora actual.
+Rendimiento: assembleDebug, installDebug, testDebugUnitTest, lint y check no ejecutan el generador (--dry-run). Tarda 33 ms forzado y queda UP-TO-DATE sin cambios en los .kt.
+Error controlado comprobado con una preview private.
 <!-- SECTION:NOTES:END -->

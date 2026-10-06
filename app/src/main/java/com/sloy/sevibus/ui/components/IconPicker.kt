@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.toImageVector
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -75,6 +77,7 @@ private fun IconPickerContent(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true, widthDp = 250)
 @Composable
 internal fun IconPickerPreview() {

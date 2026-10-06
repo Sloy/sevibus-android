@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -68,6 +70,7 @@ private fun FormattedBalance(balance: Int) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun CardBalanceItemPreview() {
