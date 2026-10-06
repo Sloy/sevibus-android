@@ -2,12 +2,14 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.IgnoreEmptyDirectories
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +21,7 @@ import java.io.File
  * It reads the Kotlin sources instead of the compiled classes, so it doesn't depend on compiling main.
  * Each suite becomes a `<Suite>ScreenshotTests` class with one `@PreviewTest` function per preview, named after it.
  * Previews with `@PreviewLightDark` or a night `uiMode` get a dark `@Preview` too, next to or instead of the light one.
+ * It also lists the reference images the generated tests expect, for [OrphanScreenshotReferencesTask].
  */
 @CacheableTask
 abstract class GenerateScreenshotTestsTask : DefaultTask() {
@@ -35,6 +38,10 @@ abstract class GenerateScreenshotTestsTask : DefaultTask() {
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
+    /** Expected reference images, one `<package path>/<class>/<test>_<hash>` per line. */
+    @get:OutputFile
+    abstract val referencesFile: RegularFileProperty
+
     @TaskAction
     fun generate() {
         val previews = sources.files.sortedBy { it.path }.flatMap { parsePreviews(it) }
@@ -48,12 +55,18 @@ abstract class GenerateScreenshotTestsTask : DefaultTask() {
         val packageDir = outputDir.get().asFile.resolve(packageName.get().replace('.', '/'))
         packageDir.deleteRecursively()
         packageDir.mkdirs()
+        val references = mutableListOf<String>()
         SUITES.forEach { suite ->
             val className = "${suite}ScreenshotTests"
-            packageDir.resolve("$className.kt").writeText(
-                generateSuite(className, previews.filter { it.suite == suite }.sortedBy { it.name })
-            )
+            val suitePreviews = previews.filter { it.suite == suite }.sortedBy { it.name }
+            packageDir.resolve("$className.kt").writeText(generateSuite(className, suitePreviews))
+            suitePreviews.forEach { preview ->
+                val classPath = "${packageName.get().replace('.', '/')}/$className"
+                if (preview.light) references += "$classPath/${preview.name}_$LIGHT_HASH"
+                if (preview.dark) references += "$classPath/${preview.name}_$DARK_HASH"
+            }
         }
+        referencesFile.get().asFile.writeText(references.joinToString("\n", postfix = "\n"))
     }
 
     private fun parsePreviews(file: File): List<AnnotatedPreview> {
@@ -105,10 +118,8 @@ abstract class GenerateScreenshotTestsTask : DefaultTask() {
         appendLine("class $className {")
         previews.forEach { preview ->
             appendLine()
-            if (preview.light) appendLine("    @Preview(locale = \"es\")")
-            if (preview.dark) {
-                appendLine("    @Preview(locale = \"es\", uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)")
-            }
+            if (preview.light) appendLine("    $LIGHT_PREVIEW")
+            if (preview.dark) appendLine("    $DARK_PREVIEW")
             appendLine("    @PreviewTest")
             appendLine("    @Composable")
             appendLine("    fun ${preview.name}() {")
@@ -128,6 +139,15 @@ abstract class GenerateScreenshotTestsTask : DefaultTask() {
 
     private companion object {
         val SUITES = listOf("Components", "Screens")
+
+        // The plugin names each reference <test>_<hash of the @Preview parameters>_<index>.png.
+        // Changing these annotations changes the hashes, update them with the new reference file names.
+        const val LIGHT_PREVIEW = """@Preview(locale = "es")"""
+        const val LIGHT_HASH = "b2db1d68"
+        const val DARK_PREVIEW =
+            """@Preview(locale = "es", uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL)"""
+        const val DARK_HASH = "f6f1fda3"
+
         val ANNOTATION_REGEX = Regex("""^[ \t]*@ScreenshotTest\(([^)]*)\)""", RegexOption.MULTILINE)
         val SUITE_REGEX = Regex("""\s*(?:suite\s*=\s*)?(?:ScreenshotSuite\.)?(\w+)\s*""")
         val FUNCTION_REGEX = Regex("""\bfun\s+(\w+)\s*\(([^)]*)\)""")

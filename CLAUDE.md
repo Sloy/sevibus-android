@@ -158,6 +158,10 @@ The plugin only discovers `@PreviewTest` functions in the `screenshotTest` sourc
   - Each wrapper is named after its preview and calls it with `@Preview(locale = "es")` and `@PreviewTest`
   - Previews with `@PreviewLightDark` or a `@Preview(uiMode = UI_MODE_NIGHT_YES)` also get a dark `@Preview`, so they produce a light and a dark screenshot
   - The build fails if an annotated preview is `private`, has parameters, or two previews in a suite share a name
+- **Orphan references**: reference images no generated test uses (a deleted or renamed preview, or a lost dark variant)
+  - `validateDebugScreenshotTest` fails listing them, through `checkDebugScreenshotReferences`
+  - `updateDebugScreenshotTest` deletes them, and so does `./gradlew deleteDebugOrphanScreenshotReferences`
+  - The generator knows the reference names from the hashes of its two `@Preview` configurations (`LIGHT_HASH` and `DARK_HASH` in `GenerateScreenshotTestsTask`). Update them if the plugin or those annotations change
 - Tests are grouped in two classes, which act as suites:
   - `ComponentsScreenshotTests` - reusable components and screen sections (widgets, list items, icons)
   - `ScreensScreenshotTests` - full screens
@@ -374,6 +378,7 @@ The comment is built by `.github/scripts/screenshot_report.py` from the JUnit re
 - **Test data**: `app/src/main/java/com/sloy/sevibus/Stubs.kt` (deterministic test data)
 - **Annotation**: `app/src/main/java/com/sloy/sevibus/ui/preview/ScreenshotTest.kt`
 - **Test generator**: `buildSrc/src/main/kotlin/GenerateScreenshotTestsTask.kt`, wired in `app/build.gradle.kts`
+- **Orphan references check**: `buildSrc/src/main/kotlin/OrphanScreenshotReferencesTask.kt`
 - **Reference screenshots**: `app/src/screenshotTestDebug/reference/`
 
 ## Analytics & Event Tracking
