@@ -1,9 +1,8 @@
 name: Screenshot Tests
 
+# - Pull requests: validate the screenshots and report failures in a PR comment
+#   - "update-screenshots" label: regenerate the failing references and commit them to the PR
 # - Pushes to master: validate the screenshots, and if any fail, open a PR updating their references
-# Pull requests are opt-in while the screenshot suite is being battle tested:
-# - "screenshots" label: validate the screenshots and report failures in a PR comment
-# - "update-screenshots" label: regenerate the failing references and commit them to the PR
 on:
   workflow_dispatch:
   push:
@@ -36,8 +35,7 @@ jobs:
       github.event_name != 'pull_request' || (
         github.event.action != 'closed' &&
         github.event.pull_request.head.repo.full_name == github.repository &&
-        (contains(github.event.pull_request.labels.*.name, 'screenshots') || contains(github.event.pull_request.labels.*.name, 'update-screenshots')) &&
-        (github.event.action != 'labeled' || github.event.label.name == 'screenshots' || github.event.label.name == 'update-screenshots')
+        (github.event.action != 'labeled' || github.event.label.name == 'update-screenshots')
       )
     runs-on: ubuntu-latest
     env:
