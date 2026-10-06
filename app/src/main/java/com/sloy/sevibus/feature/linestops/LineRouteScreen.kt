@@ -3,14 +3,11 @@ package com.sloy.sevibus.feature.linestops
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +30,6 @@ import com.sloy.sevibus.feature.linestops.component.HighlightPosition
 import com.sloy.sevibus.feature.linestops.component.ListPosition
 import com.sloy.sevibus.feature.linestops.component.StopTimelineElement
 import com.sloy.sevibus.ui.components.LineIndicator
-import com.sloy.sevibus.ui.components.RouteTabsSegmented
 import com.sloy.sevibus.ui.components.RouteTabsSelector
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -75,7 +71,7 @@ private fun LineRouteScreen(
                 Text(state.line.description, style = SevTheme.typography.headingSmall, maxLines = 1)
             }
             if (state.line.routes.size > 1) {
-                RouteTabsSegmented(
+                RouteTabsSelector(
                     route1 = state.line.routes[0], route2 = state.line.routes[1], selected = state.selectedRoute.id, onRouteClicked = {
                         onRouteSelected(it)
                     },
