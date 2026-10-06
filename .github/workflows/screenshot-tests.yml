@@ -1,24 +1,50 @@
 name: Screenshot Tests
 
 # Opt-in while the screenshot suite is being battle tested:
-# run it manually, or add the "screenshots" label to a pull request.
+# - "screenshots" label: validate the screenshots and report failures in a PR comment
+# - "update-screenshots" label: regenerate the failing references and commit them to the PR
 on:
   workflow_dispatch:
   pull_request:
     branches: [ "master" ]
-    types: [ opened, synchronize, reopened, labeled ]
+    types: [ opened, synchronize, reopened, labeled, closed ]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
   checks: write
+
+concurrency:
+  group: screenshots-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  # Images of failing tests are pushed here so the PR comment can show them
+  COMPANION_BRANCH: screenshots/pr-${{ github.event.pull_request.number }}
 
 jobs:
   screenshots:
     name: Validate Screenshots
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'screenshots')
+    if: >-
+      github.event_name == 'workflow_dispatch' || (
+        github.event.action != 'closed' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        (contains(github.event.pull_request.labels.*.name, 'screenshots') || contains(github.event.pull_request.labels.*.name, 'update-screenshots')) &&
+        (github.event.action != 'labeled' || github.event.label.name == 'screenshots' || github.event.label.name == 'update-screenshots')
+      )
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      UPDATE: ${{ contains(github.event.pull_request.labels.*.name, 'update-screenshots') }}
+      REPORT_DIR: /tmp/screenshot-report
+      IMAGES_DIR: /tmp/screenshot-images
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The PR branch instead of the merge commit, so updated references can be pushed to it
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - name: set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -34,8 +60,12 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: false
+
       - name: Validate screenshots
+        id: validate
+        continue-on-error: true
         run: ./gradlew :app:validateDebugScreenshotTest
+
       - name: Publish test results
         if: ${{ !cancelled() }}
         uses: mikepenz/action-junit-report@v6
@@ -44,8 +74,85 @@ jobs:
           report_paths: app/build/test-results/validateDebugScreenshotTest/*.xml
           detailed_summary: true
           include_passed: false
+
+      - name: Build report
+        id: report
+        run: |
+          python3 -I .github/scripts/screenshot_report.py \
+            --results-dir app/build/test-results/validateDebugScreenshotTest \
+            --images-dir "$IMAGES_DIR" \
+            --output-dir "$REPORT_DIR" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Update failing references
+        id: update
+        if: env.UPDATE == 'true' && steps.validate.outcome == 'failure' && github.event_name == 'pull_request'
+        run: |
+          set -f  # keep the --tests patterns from being expanded by the shell
+          ./gradlew :app:updateDebugScreenshotTest $(cat "$REPORT_DIR/update-filters.txt")
+          git add app/src/screenshotTestDebug/reference
+          if git diff --cached --quiet; then
+            echo "No reference changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "test: update screenshot references"
+          git push origin "HEAD:$HEAD_REF"
+          sha=$(git rev-parse HEAD)
+          {
+            echo "<!-- screenshot-tests-report -->"
+            echo "### 📸 Screenshot references updated"
+            echo ""
+            echo "Updated in $sha. Review the new references:"
+            echo ""
+            git diff --name-only HEAD~1 HEAD | while read -r file; do
+              echo "<details open><summary><b>$(basename "$file")</b></summary>"
+              echo ""
+              echo "<img src=\"https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$sha/$file\" width=\"250\">"
+              echo ""
+              echo "</details>"
+              echo ""
+            done
+          } > "$REPORT_DIR/comment.md"
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Remove update label
+        if: env.UPDATE == 'true' && github.event_name == 'pull_request' && !cancelled()
+        run: gh pr edit "$PR_NUMBER" --remove-label update-screenshots
+
+      - name: Push images to companion branch
+        id: companion
+        if: steps.validate.outcome == 'failure' && steps.update.outputs.updated != 'true'
+        run: |
+          if [ ! -d "$IMAGES_DIR" ]; then
+            echo "No images to push"
+            exit 0
+          fi
+          cd "$IMAGES_DIR"
+          git init -q -b images
+          git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Screenshots for PR #$PR_NUMBER"
+          git push -qf "https://x-access-token:$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" "HEAD:refs/heads/$COMPANION_BRANCH"
+          echo "url=https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && steps.report.outcome == 'success'
+        env:
+          IMAGES_URL: ${{ steps.companion.outputs.url }}
+        run: |
+          sed "s|{IMAGES_URL}|$IMAGES_URL|g" "$REPORT_DIR/comment.md" > "$REPORT_DIR/comment-final.md"
+          comment_id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" --paginate \
+            --jq '.[] | select(.body | contains("<!-- screenshot-tests-report -->")) | .id' | head -n 1)
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment_id" -F body=@"$REPORT_DIR/comment-final.md" > /dev/null
+          else
+            gh pr comment "$PR_NUMBER" --body-file "$REPORT_DIR/comment-final.md"
+          fi
+
       - name: Upload screenshot report
-        if: failure()
+        if: steps.validate.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: screenshot-report
@@ -53,3 +160,16 @@ jobs:
             app/build/reports/screenshotTest/
             app/build/outputs/screenshotTest-results/
           retention-days: 14
+
+      - name: Fail on screenshot differences
+        if: steps.validate.outcome == 'failure' && steps.update.outputs.updated != 'true'
+        run: exit 1
+
+  cleanup:
+    name: Delete companion branch
+    if: github.event.action == 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$COMPANION_BRANCH" || echo "No companion branch to delete"
