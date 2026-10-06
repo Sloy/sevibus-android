@@ -2,12 +2,14 @@ package com.sloy.sevibus
 
 import android.R.attr.bottom
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -294,10 +296,25 @@ private fun AnimatedBottomSheetContent(
     WithRetainedDestination(
         currentDestination,
         shouldShow = { it.type == NavigationDestinationType.MAP_BOTTOM_SHEET }) { targetDestination, visible ->
-        Crossfade(targetState = targetDestination, label = "BottomSheetContent", modifier = modifier) { destination ->
+        AnimatedContent(
+            targetState = targetDestination,
+            modifier = modifier,
+            contentKey = { it.sheetContentKey() },
+            transitionSpec = { fadeIn(tween()) togetherWith fadeOut(tween()) using null },
+            label = "BottomSheetContent",
+        ) { destination ->
             content(destination)
         }
     }
+}
+
+/**
+ * Destinations with the same key are considered the same screen, so changing between them doesn't crossfade the sheet content.
+ * The screen is responsible for animating its own internal changes (e.g. switching routes of the same line).
+ */
+private fun NavigationDestination.sheetContentKey(): Any = when (this) {
+    is NavigationDestination.LineStops -> NavigationDestination.LineStops::class to lineId
+    else -> this
 }
 
 
