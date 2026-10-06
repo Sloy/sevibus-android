@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-06 23:04'
-updated_date: '2026-10-06 23:11'
+updated_date: '2026-10-06 23:12'
 labels: []
 dependencies: []
 type: enhancement
@@ -46,4 +46,6 @@ When a @ScreenshotTest preview is deleted, renamed, or loses its dark variant, i
 <!-- SECTION:NOTES:BEGIN -->
 Decisión: no borrar en validate ni en la generación; solo fallar. El borrado es un cambio en el código fuente y solo ocurre con acciones explícitas (update, la tarea delete o la etiqueta de CI).
 Verificado en local: validate 73/73 con 0 huérfanas. Quitar @ScreenshotTest de AlertWidgetPreview hace fallar check listando la imagen, y la tarea delete la borra. Cambiar @PreviewLightDark por @Preview en StopTimelineElementPreview y lanzar update de ese test borra la referencia oscura y deja la clara idéntica. assembleDebug, testDebugUnitTest y check no ejecutan las tareas nuevas. Script del informe probado con y sin huérfanas.
+
+Bloqueo: la GitHub App de la sesión no tiene permiso workflows, así que no pudo subir .github/workflows/screenshot-tests.yml. Los cambios de CI (screenshot_report.py, workflow y las frases de CI en CLAUDE.md) quedan en un parche para aplicarlo a mano. El AC #3 sigue pendiente de ese parche.
 <!-- SECTION:NOTES:END -->
