@@ -308,7 +308,7 @@ android.experimental.enableScreenshotTest=true
 **gradle/libs.versions.toml:**
 ```toml
 [versions]
-composeScreenshot = "0.0.1-alpha12"
+composeScreenshot = "0.0.1-alpha16"
 
 [libraries]
 compose-screenshot-validation = { module = "com.android.tools.screenshot:screenshot-validation-api", version.ref = "composeScreenshot" }
@@ -325,12 +325,11 @@ plugins {
 
 android {
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
+}
 
-    testOptions {
-        screenshotTests {
-            imageDifferenceThreshold = 0.01f  // 1% tolerance for image differences
-        }
-    }
+// No DSL for the threshold since AGP 9, so it's set on the validation task
+tasks.withType<PreviewScreenshotValidationTask>().configureEach {
+    testEngineInput.threshold.set(0.01f)  // 1% tolerance for image differences
 }
 
 dependencies {

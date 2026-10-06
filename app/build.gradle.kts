@@ -1,6 +1,7 @@
+import com.android.compose.screenshot.tasks.PreviewScreenshotValidationTask
+
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.googleServices)
     alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.firebasePerformance)
@@ -68,9 +69,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
     buildFeatures {
         compose = true
     }
@@ -81,12 +79,11 @@ android {
     }
 
     experimentalProperties["android.experimental.enableScreenshotTest"] = true
+}
 
-    testOptions {
-        screenshotTests {
-            imageDifferenceThreshold = 0.01f
-        }
-    }
+// The screenshot plugin has no DSL for the threshold since AGP 9, so set it on the validation task
+tasks.withType<PreviewScreenshotValidationTask>().configureEach {
+    testEngineInput.threshold.set(0.01f)
 }
 
 ksp {
