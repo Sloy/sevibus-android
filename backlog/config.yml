@@ -1,0 +1,17 @@
+project_name: "SeviBus Android"
+default_status: "To Do"
+statuses: ["To Do", "In Progress", "Done"]
+labels: []
+definition_of_done: ["Pushed to remote's master branch", "Screenshot tests passed"]
+date_format: yyyy-mm-dd
+max_column_width: 20
+default_editor: "vim"
+auto_open_browser: true
+default_port: 6420
+remote_operations: true
+auto_commit: false
+filesystem_only: false
+bypass_git_hooks: false
+check_active_branches: true
+active_branch_days: 15
+task_prefix: "SEVAND"
