@@ -183,7 +183,7 @@ private fun TopUpItem(transaction: CardTransaction.TopUp) {
 
 @Preview
 @Composable
-internal fun CardTransactionsCardPreview() {
+internal fun CardTransactionsElementPreview() {
     ScreenPreview {
         CardTransactionsElement(Stubs.cardInfoTransactions)
     }
@@ -191,7 +191,7 @@ internal fun CardTransactionsCardPreview() {
 
 @Preview
 @Composable
-internal fun CardTransactionsLoadingPreview() {
+internal fun CardTransactionsElementLoadingPreview() {
     ScreenPreview {
         CardTransactionsShimmer()
     }

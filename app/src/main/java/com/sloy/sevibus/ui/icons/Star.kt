@@ -73,7 +73,7 @@ private var _star: ImageVector? = null
 
 @Preview
 @Composable
-internal fun Preview() {
+internal fun StarPreview() {
     Box(modifier = Modifier.padding(12.dp)) {
         Image(imageVector = SevIcons.Star, contentDescription = "")
     }

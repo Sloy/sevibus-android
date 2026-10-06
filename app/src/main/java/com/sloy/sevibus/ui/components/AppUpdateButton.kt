@@ -191,7 +191,7 @@ private fun ReadyIcon() {
 
 @Preview
 @Composable
-internal fun AvailablePreview() {
+internal fun AppUpdateButtonAvailablePreview() {
     SevTheme {
         AppUpdateButton(AppUpdateButtonState.Available({}), Modifier.padding(8.dp))
     }
@@ -199,7 +199,7 @@ internal fun AvailablePreview() {
 
 @Preview
 @Composable
-internal fun DownloadingZeroPreview() {
+internal fun AppUpdateButtonDownloadingZeroPreview() {
     SevTheme {
         AppUpdateButton(AppUpdateButtonState.Downloading(0L, 0L), Modifier.padding(8.dp))
     }
@@ -207,7 +207,7 @@ internal fun DownloadingZeroPreview() {
 
 @Preview
 @Composable
-internal fun DownloadingPreview() {
+internal fun AppUpdateButtonDownloadingPreview() {
     SevTheme {
         AppUpdateButton(AppUpdateButtonState.Downloading(30L, 100L), Modifier.padding(8.dp))
     }
@@ -215,7 +215,7 @@ internal fun DownloadingPreview() {
 
 @Preview
 @Composable
-internal fun ReadyPreview() {
+internal fun AppUpdateButtonReadyPreview() {
     SevTheme {
         AppUpdateButton(AppUpdateButtonState.Ready({}), Modifier.padding(8.dp))
     }

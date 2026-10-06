@@ -156,7 +156,7 @@ private fun EditButton(onClick: () -> Unit) {
 
 @Preview
 @Composable
-internal fun WithArrivalsPreview() {
+internal fun FavoritesWidgetWithArrivalsPreview() {
     ScreenPreview {
         FavoritesWidget(FavoritesListState.Content(Stubs.favorites.take(3)), false, {}, {}, {})
     }
@@ -164,7 +164,7 @@ internal fun WithArrivalsPreview() {
 
 @Preview
 @Composable
-internal fun EmptyPreview() {
+internal fun FavoritesWidgetEmptyPreview() {
     ScreenPreview {
         FavoritesWidget(FavoritesListState.Content(emptyList()), false, {}, {}, {})
     }
@@ -172,7 +172,7 @@ internal fun EmptyPreview() {
 
 @Preview
 @Composable
-internal fun NotLoggedPreview() {
+internal fun FavoritesWidgetNotLoggedPreview() {
     ScreenPreview {
         FavoritesWidget(FavoritesListState.NotLogged, false, {}, {}, {})
     }

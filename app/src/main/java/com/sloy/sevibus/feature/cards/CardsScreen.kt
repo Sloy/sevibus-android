@@ -749,7 +749,7 @@ private fun CardAddMoreItem(newCardState: CardsScreenNewCardState) {
 
 @Preview
 @Composable
-internal fun LoadedWithTransactionsPreview() {
+internal fun CardsScreenLoadedWithTransactionsPreview() {
     ScreenPreview {
         // Use only first 3 cards to avoid overwhelming the layoutlib renderer
         val cards = Stubs.cards.take(3)
@@ -765,7 +765,7 @@ internal fun LoadedWithTransactionsPreview() {
 
 @Preview
 @Composable
-internal fun LoadedWithTransactionsLoadingPreview() {
+internal fun CardsScreenLoadedWithTransactionsLoadingPreview() {
     ScreenPreview {
         val cards = Stubs.cards
         val transactions = cards.associate { it.serialNumber to TransactionsState.Loading }
@@ -779,7 +779,7 @@ internal fun LoadedWithTransactionsLoadingPreview() {
 
 @Preview
 @Composable
-internal fun LoadedWithTransactionsEmptyPreview() {
+internal fun CardsScreenLoadedWithTransactionsEmptyPreview() {
     ScreenPreview {
         val cards = Stubs.cards
         val transactions = cards.associate { it.serialNumber to TransactionsState.Empty }
@@ -793,7 +793,7 @@ internal fun LoadedWithTransactionsEmptyPreview() {
 
 @Preview
 @Composable
-internal fun LoadedWithTransactionsErrorPreview() {
+internal fun CardsScreenLoadedWithTransactionsErrorPreview() {
     ScreenPreview {
         val cards = Stubs.cards
         val transactions = cards.associate { it.serialNumber to TransactionsState.Error(Exception("Preview error")) }
@@ -807,7 +807,7 @@ internal fun LoadedWithTransactionsErrorPreview() {
 
 @Preview
 @Composable
-internal fun LoadedPreview() {
+internal fun CardsScreenLoadedPreview() {
     ScreenPreview {
         CardsScreen(CardsScreenState.Content(Stubs.cards.andTransactions()), CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
@@ -815,7 +815,7 @@ internal fun LoadedPreview() {
 
 @Preview
 @Composable
-internal fun ReorderingPreview() {
+internal fun CardsScreenReorderingPreview() {
     ScreenPreview {
         CardsScreen(
             CardsScreenState.Content(Stubs.cards.andTransactions(), isReordering = true),
@@ -827,7 +827,7 @@ internal fun ReorderingPreview() {
 
 @Preview
 @Composable
-internal fun LoadingPreview() {
+internal fun CardsScreenLoadingPreview() {
     ScreenPreview {
         CardsScreen(CardsScreenState.Loading, CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
@@ -835,7 +835,7 @@ internal fun LoadingPreview() {
 
 @Preview
 @Composable
-internal fun EmptyNfcEnabledPreview() {
+internal fun CardsScreenEmptyNfcEnabledPreview() {
     ScreenPreview {
         CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
@@ -843,7 +843,7 @@ internal fun EmptyNfcEnabledPreview() {
 
 @Preview
 @Composable
-internal fun EmptyCheckingCardPreview() {
+internal fun CardsScreenEmptyCheckingCardPreview() {
     ScreenPreview {
         CardsScreen(
             CardsScreenState.Empty,
@@ -855,7 +855,7 @@ internal fun EmptyCheckingCardPreview() {
 
 @Preview
 @Composable
-internal fun EmptyNfcDisabledPreview() {
+internal fun CardsScreenEmptyNfcDisabledPreview() {
     ScreenPreview {
         CardsScreen(CardsScreenState.Empty, CardsScreenNewCardState.InputForm(), NfcState.DISABLED)
     }
@@ -863,7 +863,7 @@ internal fun EmptyNfcDisabledPreview() {
 
 @Preview
 @Composable
-internal fun ErrorPreview() {
+internal fun CardsScreenErrorPreview() {
     ScreenPreview {
         CardsScreen(
             CardsScreenState.Error(Exception("Preview error")),

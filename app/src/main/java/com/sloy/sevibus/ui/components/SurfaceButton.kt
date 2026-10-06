@@ -87,7 +87,7 @@ fun SmallSurfaceButton(text: String, onClick: () -> Unit, modifier: Modifier = M
 
 @Preview(showBackground = true)
 @Composable
-internal fun TextPreview() {
+internal fun SurfaceButtonTextPreview() {
     SevTheme {
         Box(Modifier.padding(16.dp)) {
             SurfaceButton("Hello world", {})
@@ -98,7 +98,7 @@ internal fun TextPreview() {
 
 @Preview(showBackground = true)
 @Composable
-internal fun IconPreview() {
+internal fun SurfaceButtonIconPreview() {
     SevTheme {
         Box(Modifier.padding(16.dp)) {
             SurfaceButton("Hello world", {}, icon = {
@@ -116,7 +116,7 @@ internal fun IconPreview() {
 
 @Preview(showBackground = true)
 @Composable
-internal fun SmallIconPreview() {
+internal fun SurfaceButtonSmallIconPreview() {
     SevTheme {
         Box(Modifier.padding(16.dp)) {
             SmallSurfaceButton("Hello world", {}, icon = {

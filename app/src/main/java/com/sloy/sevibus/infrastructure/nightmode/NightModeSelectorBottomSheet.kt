@@ -71,7 +71,7 @@ fun NightModeSelectorBottomSheet(
 
 @Preview
 @Composable
-internal fun Preview() {
+internal fun NightModeSelectorBottomSheetPreview() {
     SevTheme {
         NightModeSelectorBottomSheet(
             sheetState = rememberStandardBottomSheetState(

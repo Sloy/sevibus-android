@@ -171,7 +171,7 @@ private fun RouteContent(
 
 @Preview
 @Composable
-internal fun PreviewWithRoutes() {
+internal fun LineRouteScreenWithRoutesPreview() {
     ScreenPreview {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
@@ -188,7 +188,7 @@ internal fun PreviewWithRoutes() {
 
 @Preview
 @Composable
-internal fun PreviewWithoutRoutes() {
+internal fun LineRouteScreenWithoutRoutesPreview() {
     ScreenPreview {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(

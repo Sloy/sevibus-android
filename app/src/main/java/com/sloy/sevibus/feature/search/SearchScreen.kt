@@ -175,7 +175,7 @@ private fun StopResultItem(stop: Stop, onStopClick: (Stop) -> Unit) {
 
 @Preview
 @Composable
-internal fun PreviewResults() {
+internal fun SearchScreenResultsPreview() {
     ScreenPreview {
         SearchScreen(Stubs.searchResults, {})
     }
@@ -183,7 +183,7 @@ internal fun PreviewResults() {
 
 @Preview
 @Composable
-internal fun PreviewEmpty() {
+internal fun SearchScreenEmptyPreview() {
     ScreenPreview {
         SearchScreen(emptyList(), {})
     }

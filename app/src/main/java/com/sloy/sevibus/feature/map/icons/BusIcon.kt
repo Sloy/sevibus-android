@@ -73,7 +73,7 @@ private fun LineIndicatorChevron(line: LineSummary, modifier: Modifier = Modifie
 
 @Preview()
 @Composable
-internal fun Preview() {
+internal fun BusIconPreview() {
     SevTheme {
         BusMapIcon(Stubs.lines.first().toSummary())
     }

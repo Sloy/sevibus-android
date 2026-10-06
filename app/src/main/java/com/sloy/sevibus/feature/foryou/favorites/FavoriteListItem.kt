@@ -205,7 +205,7 @@ fun FavoriteListItemShimmer(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-internal fun LoadedPreview() {
+internal fun FavoriteListItemLoadedPreview() {
     SevTheme {
         Surface {
             Column(Modifier.padding(16.dp)) {
@@ -224,7 +224,7 @@ internal fun LoadedPreview() {
 
 @Preview
 @Composable
-internal fun LoadingArrivalsPreview() {
+internal fun FavoriteListItemLoadingArrivalsPreview() {
     SevTheme {
         Surface {
             Column(Modifier.padding(16.dp)) {
