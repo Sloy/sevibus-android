@@ -158,11 +158,6 @@ fun StopDetailScreen(
                                 style = SevTheme.typography.headingSmall,
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
-                            Text(
-                                stringResource(R.string.stopdetail_lines_section),
-                                style = SevTheme.typography.headingSmall,
-                                modifier = Modifier.padding(bottom = 4.dp)
-                            )
                             ArrivalsFailureBanner(state.arrivalsState.throwable)
                             Spacer(Modifier.height(16.dp))
                             state.arrivalsState.failedArrivals.forEach {
