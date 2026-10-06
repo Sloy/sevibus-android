@@ -41,8 +41,6 @@ import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
-import com.sloy.sevibus.domain.model.description1
-import com.sloy.sevibus.domain.model.description2
 import com.sloy.sevibus.domain.model.toImageVector
 import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.infrastructure.BuildVariant
@@ -100,7 +98,6 @@ fun StopDetailScreen(
     onFavoriteClick: () -> Unit
 ) {
     Column {
-
         if (state is StopDetailScreenState.Loaded) {
             val title = stringResource(R.string.common_stop_with_code, state.stop.code)
             StopDetailsHeader(state, title, onFavoriteClick)
@@ -110,24 +107,57 @@ fun StopDetailScreen(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             when (state) {
                 is StopDetailScreenState.Loaded -> {
-                    Text(stringResource(R.string.stopdetail_lines_section), style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
                     when (state.arrivalsState) {
                         is ArrivalsState.Loaded -> {
-                            state.arrivalsState.arrivals.forEach {
-                                BusArrivalListItem(
-                                    it,
-                                    isHighlighted = it.line.id == highlighedLine,
-                                    onClick = { onArrivalClick(it) })
+                            if (highlighedLine == null) {
+                                Text(
+                                    stringResource(R.string.stopdetail_lines_section),
+                                    style = SevTheme.typography.headingSmall,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                state.arrivalsState.arrivals.forEach {
+                                    BusArrivalListItem(
+                                        it,
+                                        isHighlighted = false,
+                                        onClick = { onArrivalClick(it) })
+                                }
+                            } else {
+                                Text("Viendo ahora", style = SevTheme.typography.headingSmall, modifier = Modifier.padding(bottom = 4.dp))
+                                state.arrivalsState.arrivals.filter { it.line.id == highlighedLine }.forEach {
+                                    BusArrivalListItem(
+                                        it,
+                                        isHighlighted = true,
+                                        onClick = { onArrivalClick(it) })
+                                }
+                                Text(
+                                    "Otras líneas",
+                                    style = SevTheme.typography.headingSmall,
+                                    modifier = Modifier.padding(bottom = 4.dp, top = 8.dp)
+                                )
+                                state.arrivalsState.arrivals.filter { it.line.id != highlighedLine }.forEach {
+                                    BusArrivalListItem(
+                                        it,
+                                        isHighlighted = false,
+                                        onClick = { onArrivalClick(it) })
+                                }
                             }
                         }
 
-                        is ArrivalsState.Loading -> state.stop.lines.forEach { line -> BusArrivalListItemLoading(line) }
+                        is ArrivalsState.Loading -> {
+                            Text(
+                                stringResource(R.string.stopdetail_lines_section),
+                                style = SevTheme.typography.headingSmall,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            state.stop.lines.forEach { line -> BusArrivalListItemLoading(line) }
+                        }
 
                         is ArrivalsState.Failed -> {
                             ArrivalsFailureBanner(state.arrivalsState.throwable)
                             Spacer(Modifier.height(16.dp))
                             state.arrivalsState.failedArrivals.forEach {
-                                BusArrivalListItem(it, isHighlighted = false,
+                                BusArrivalListItem(
+                                    it, isHighlighted = false,
                                     onClick = { onArrivalClick(it) })
                             }
                         }
@@ -197,7 +227,7 @@ private fun StopDetailsHeader(stopState: StopDetailScreenState.Loaded, title: St
                     tint = color,
                 )
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 16.dp)){
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 16.dp)) {
                 stopState.stop.lines.forEach { LineIndicator(it) }
             }
 
@@ -245,6 +275,24 @@ internal fun StopDetailScreenLoadedArrivalsPreview() {
                 favorite = FavoriteStop(Stubs.stops[1], "Casa", CustomIcon.Home),
                 arrivalsState = ArrivalsState.Loaded(arrivals)
             ),
+            highlighedLine = null,
+            {},
+            {},
+        )
+    }
+}
+
+@Preview
+@Composable
+internal fun StopDetailScreenSelectedLinePreview() {
+    ScreenPreview {
+        val arrivals = Stubs.arrivals
+        StopDetailScreen(
+            StopDetailScreenState.Loaded(
+                Stubs.stops[1],
+                favorite = FavoriteStop(Stubs.stops[1], "Casa", CustomIcon.Home),
+                arrivalsState = ArrivalsState.Loaded(arrivals)
+            ),
             highlighedLine = arrivals[2].line.id,
             {},
             {},
@@ -269,7 +317,8 @@ internal fun StopDetailScreenLoadingArrivalsPreview() {
 @Composable
 internal fun StopDetailScreenFailedArrivalsPreview() {
     ScreenPreview {
-        val failedArrivals = listOf(Stubs.lines[0], Stubs.lines[1], Stubs.lines[2]).map { BusArrival.NotAvailable(it.toSummary(), it.routes.first()) }
+        val failedArrivals =
+            listOf(Stubs.lines[0], Stubs.lines[1], Stubs.lines[2]).map { BusArrival.NotAvailable(it.toSummary(), it.routes.first()) }
         StopDetailScreen(
             StopDetailScreenState.Loaded(
                 Stubs.stops[1],

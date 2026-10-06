@@ -62,6 +62,8 @@
     <!-- Stop Detail Screen -->
     <!-- ================== -->
     <string name="stopdetail_lines_section">Lines</string>
+    <string name="stopdetail_lines_section_now_seeing">Now seeing</string>
+    <string name="stopdetail_lines_section_other_lines">Other lines</string>
     <string name="stopdetail_login_required">You must sign in to save favorite stops</string>
     <string name="stopdetail_error_loading_arrivals">An error occurred while loading arrival times, check your connection</string>
 

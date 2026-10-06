@@ -567,7 +567,7 @@ object Stubs {
             bus = 3,
             distance = 100,
             seconds = 10 * 60,
-            line = lines[3].toSummary(),
+            line = lines[2].toSummary(),
             route = routes[1],
             isLastBus = false
         ),

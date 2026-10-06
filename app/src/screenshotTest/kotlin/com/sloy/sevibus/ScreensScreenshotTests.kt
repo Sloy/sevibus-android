@@ -18,6 +18,7 @@ import com.sloy.sevibus.feature.stopdetail.StopDetailScreenFailedArrivalsPreview
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreenFailedStopPreview
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreenLoadedArrivalsPreview
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreenLoadingStopPreview
+import com.sloy.sevibus.feature.stopdetail.StopDetailScreenSelectedLinePreview
 
 /**
  * Screenshot tests for full screens.
@@ -108,6 +109,13 @@ class ScreensScreenshotTests {
     @Composable
     fun stopDetailLoaded() {
         StopDetailScreenLoadedArrivalsPreview()
+    }
+
+    @Preview(locale = "es")
+    @PreviewTest
+    @Composable
+    fun stopDetailSelectedLine() {
+        StopDetailScreenSelectedLinePreview()
     }
 
     @Preview(locale = "es")
