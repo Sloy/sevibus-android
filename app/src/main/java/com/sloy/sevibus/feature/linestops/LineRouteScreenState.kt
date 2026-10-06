@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.linestops
 
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.Route
+import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.Stop
 
 sealed interface LineRouteScreenState {
@@ -19,7 +20,7 @@ sealed interface LineRouteScreenState {
         data class Full(
             override val line: Line,
             override val selectedRoute: Route,
-            val stops: List<Stop>,
+            val stopsByRoute: Map<RouteId, List<Stop>>,
         ) : Content(line, selectedRoute)
     }
 

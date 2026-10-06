@@ -1,5 +1,9 @@
 package com.sloy.sevibus.feature.linestops
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -29,6 +34,7 @@ import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.feature.linestops.component.HighlightPosition
 import com.sloy.sevibus.feature.linestops.component.ListPosition
 import com.sloy.sevibus.feature.linestops.component.StopTimelineElement
+import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.components.RouteTabsSelector
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -71,9 +77,11 @@ private fun LineRouteScreen(
                 Text(state.line.description, style = SevTheme.typography.headingSmall, maxLines = 1)
             }
             if (state.line.routes.size > 1) {
+                val view = LocalView.current
                 RouteTabsSelector(
                     route1 = state.line.routes[0], route2 = state.line.routes[1], selected = state.selectedRoute.id, onRouteClicked = {
                         onRouteSelected(it)
+                        view.performHapticSegmentTick()
                     },
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -86,11 +94,41 @@ private fun LineRouteScreen(
             LineRouteScreenState.Error -> Text(stringResource(R.string.common_error))
             LineRouteScreenState.Loading -> CircularProgressIndicator()
             is LineRouteScreenState.Content.Full -> {
-                RouteContent(state.stops, state.line, highlightedStopId, onStopClick)
+                SlidingRouteContent(state, highlightedStopId, onStopClick)
             }
 
             else -> {}
         }
+    }
+}
+
+@Composable
+private fun SlidingRouteContent(
+    state: LineRouteScreenState.Content.Full,
+    highlightedStopId: StopId?,
+    onStopClick: (Stop) -> Unit,
+) {
+    // The highlighted stop only applies to the route that was selected when it was set
+    val highlightedRouteId = remember(highlightedStopId) { state.selectedRoute.id }
+    AnimatedContent(
+        targetState = state.selectedRoute,
+        contentKey = { it.id },
+        transitionSpec = {
+            val forward = state.line.routes.indexOf(targetState) > state.line.routes.indexOf(initialState)
+            if (forward) {
+                slideInHorizontally(initialOffsetX = { it }) togetherWith slideOutHorizontally(targetOffsetX = { -it })
+            } else {
+                slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(targetOffsetX = { it })
+            }
+        },
+        label = "RouteContent",
+    ) { route ->
+        RouteContent(
+            stops = state.stopsByRoute[route.id].orEmpty(),
+            line = state.line,
+            highlightedStopId = highlightedStopId.takeIf { route.id == highlightedRouteId },
+            onStopClick = onStopClick,
+        )
     }
 }
 
@@ -138,7 +176,7 @@ internal fun PreviewWithRoutes() {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
                 line = Stubs.lines[0],
-                stops = Stubs.stops,
+                stopsByRoute = Stubs.lines[0].routes.associate { it.id to Stubs.stops },
                 selectedRoute = Stubs.lines[0].routes.first(),
             ),
             highlightedStopId = null,
@@ -155,7 +193,7 @@ internal fun PreviewWithoutRoutes() {
         LineRouteScreen(
             state = LineRouteScreenState.Content.Full(
                 line = Stubs.lines.first { it.routes.size == 1 },
-                stops = Stubs.stops,
+                stopsByRoute = mapOf(Stubs.lines[2].routes.first().id to Stubs.stops),
                 selectedRoute = Stubs.lines[2].routes.first(),
             ),
             highlightedStopId = null,

@@ -31,7 +31,7 @@ class LineRouteViewModel(
                 state.value = LineRouteScreenState.Content.Partial(line, selectedRoute)
 
                 stopsFromRoute = line.routes.associate { it.id to stopRepository.obtainStops(it.stops) }
-                state.value = LineRouteScreenState.Content.Full(line, selectedRoute, stopsFromRoute[selectedRoute.id]!!)
+                state.value = LineRouteScreenState.Content.Full(line, selectedRoute, stopsFromRoute)
             }.onFailure {
                 state.value = LineRouteScreenState.Error
             }
@@ -42,7 +42,7 @@ class LineRouteViewModel(
         selectedRoute = route
         state.update { state ->
             check(state is LineRouteScreenState.Content.Full)
-            state.copy(selectedRoute = selectedRoute, stops = stopsFromRoute[selectedRoute.id]!!)
+            state.copy(selectedRoute = selectedRoute)
         }
     }
 
