@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-06 22:14'
+updated_date: '2026-10-06 22:17'
 labels: []
 dependencies: []
 type: enhancement
@@ -40,12 +40,12 @@ alternative is writing a custom kotlin compiler plugin to auto generate the scre
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-1. Crear anotación @ScreenshotTest en main (retención BINARY), con el suite como parámetro (SCREEN / COMPONENT).
-2. Tarea Gradle en buildSrc: tras compileDebugKotlin, escanea las clases de main con ClassGraph, busca funciones con @ScreenshotTest y genera ScreensScreenshotTests.kt y ComponentsScreenshotTests.kt en build/generated/screenshotTest, con @Preview(locale = "es") + @PreviewTest.
-3. Registrar el directorio generado en el source set screenshotTest y hacer que su compilación dependa de la tarea.
-4. Fallar el build si una preview anotada es private.
+1. Crear anotación @ScreenshotTest en main, con el suite como parámetro (SCREEN / COMPONENT).
+2. Tarea Gradle en buildSrc que lee los .kt de main (sin compilar) y genera ScreensScreenshotTests.kt y ComponentsScreenshotTests.kt en build/generated/screenshotTest, con @Preview(locale = "es") + @PreviewTest. Cacheable y compatible con configuration cache.
+3. Conectarla solo a la compilación de screenshotTest (registro lazy), para que assembleDebug, installDebug y test no la ejecuten.
+4. Fallar el build si una preview anotada es private o no se puede interpretar.
 5. Anotar las 62 previews que hoy tienen wrapper y borrar los wrappers escritos a mano.
-6. Nombres de test derivados de la preview (CardsScreenLoadedPreview -> cardsScreenLoaded); las referencias se renombran una vez sin cambiar su contenido.
+6. Medir con --scan o --profile que assembleDebug no ejecuta la tarea y cuánto tarda en validateDebugScreenshotTest.
 7. Validar con validateDebugScreenshotTest y actualizar CLAUDE.md.
 <!-- SECTION:PLAN:END -->
 
