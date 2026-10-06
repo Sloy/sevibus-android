@@ -14,5 +14,5 @@ appId: ${APP_ID}
       debugApiHost: "http://localhost:${MOCK_PORT}"
 - runFlow: dismiss-review-dialog.yaml
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000

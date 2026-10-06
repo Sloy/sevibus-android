@@ -11,20 +11,20 @@ tags:
       QUERY: "Rochelambert"
 - tapOn: "Prado San Sebastián - Rochelambert"
 - extendedWaitUntil:
-    visible: "Stop 844"
+    visible: "Parada 844"
     timeout: 15000
 - tapOn: "San Bernardo"
 - extendedWaitUntil:
     visible: "Estación Cercanías"
     timeout: 15000
-- assertVisible: "Stop 844"
+- assertVisible: "Parada 844"
 - back
 - extendedWaitUntil:
-    visible: "Origen"
+    visible: "Prado San Sebastián - Rochelambert"
     timeout: 10000
 - assertVisible: "Prado San Sebastián - Rochelambert"
 - back
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 10000
-- assertVisible: "Favorites"
+- assertVisible: "Favoritas"

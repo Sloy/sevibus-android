@@ -13,5 +13,5 @@ tags:
 - tapOn: "Clear search"
 - inputText: "estacion cercan"
 - extendedWaitUntil:
-    visible: "Stop 844"
+    visible: "Parada 844"
     timeout: 10000

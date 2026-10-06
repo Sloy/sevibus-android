@@ -10,11 +10,11 @@ tags:
     file: ../../subflows/search.yaml
     env:
       QUERY: "Rochelambert"
-- assertVisible: "Lines"
+- assertVisible: "Líneas"
 - assertVisible: "Prado San Sebastián - Rochelambert"
 - tapOn: "Prado San Sebastián - Rochelambert"
 - extendedWaitUntil:
-    visible: "Origen"
+    visible: "Prado"
     timeout: 15000
-- assertVisible: "Destino"
-- assertVisible: "Stop 844"
+- assertVisible: "Rochelambert"
+- assertVisible: "Parada 844"

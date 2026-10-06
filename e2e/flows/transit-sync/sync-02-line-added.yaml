@@ -10,7 +10,7 @@ tags:
     file: ../../subflows/launch-mocked.yaml
     env:
       MOCKS: "lines:original,routes:original"
-- tapOn: "Lines"
+- tapOn: "Líneas"
 - extendedWaitUntil:
     visible: "Transversales"
     timeout: 15000
@@ -19,15 +19,15 @@ tags:
 - stopApp
 - launchApp
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000
-- tapOn: "Lines"
+- tapOn: "Líneas"
 - scrollUntilVisible:
     element:
       text: ".*E2E Test Line.*"
     direction: DOWN
     timeout: 30000
-- tapOn: "For You"
+- tapOn: "Para ti"
 - runFlow:
     file: ../../subflows/search.yaml
     env:

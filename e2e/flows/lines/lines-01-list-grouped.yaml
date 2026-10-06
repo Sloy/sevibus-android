@@ -5,7 +5,7 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Lines"
+- tapOn: "Líneas"
 - extendedWaitUntil:
     visible: "Transversales"
     timeout: 15000

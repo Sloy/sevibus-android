@@ -7,14 +7,14 @@ tags:
 - runFlow: ../../subflows/launch-fresh.yaml
 - tapOn: "Profile"
 - extendedWaitUntil:
-    visible: "Settings"
+    visible: "Ajustes"
     timeout: 10000
-- assertVisible: "Your profile"
-- assertVisible: "Sign in to save your favorite stops and travel cards."
-- assertVisible: "Sign in with Google"
-- assertVisible: "Appearance"
-- assertVisible: "Services"
+- assertVisible: "Tu perfil"
+- assertVisible: "Inicia sesión para guardar tus paradas favoritas y tus tarjetas de bonobús."
+- assertVisible: "Inicia sesión con Google"
+- assertVisible: "Apariencia"
+- assertVisible: "Servicios"
 - tapOn: "Close screen"
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 10000

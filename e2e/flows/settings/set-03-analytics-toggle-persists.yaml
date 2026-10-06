@@ -8,30 +8,30 @@ tags:
 - runFlow: ../../subflows/launch-fresh.yaml
 - tapOn: "Profile"
 - extendedWaitUntil:
-    visible: "Allow anonymous analytics"
+    visible: "Permitir estadísticas anónimas"
     timeout: 10000
 - assertVisible:
     checked: true
-    rightOf: "Allow anonymous analytics"
+    rightOf: "Permitir estadísticas anónimas"
 - tapOn:
     checked: true
-    rightOf: "Allow anonymous analytics"
+    rightOf: "Permitir estadísticas anónimas"
 - assertVisible:
     checked: false
-    rightOf: "Allow anonymous analytics"
+    rightOf: "Permitir estadísticas anónimas"
 - stopApp
 - launchApp
 - runFlow: ../../subflows/dismiss-review-dialog.yaml
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000
 - tapOn: "Profile"
 - extendedWaitUntil:
-    visible: "Allow anonymous analytics"
+    visible: "Permitir estadísticas anónimas"
     timeout: 10000
 - assertVisible:
     checked: false
-    rightOf: "Allow anonymous analytics"
+    rightOf: "Permitir estadísticas anónimas"
 - assertNotVisible:
     checked: true
-    rightOf: "Allow anonymous analytics"
+    rightOf: "Permitir estadísticas anónimas"

@@ -7,23 +7,23 @@ tags:
 - runFlow: ../../subflows/launch-fresh.yaml
 - tapOn: "Profile"
 - extendedWaitUntil:
-    visible: "Dark mode"
+    visible: "Modo oscuro"
     timeout: 10000
-- assertVisible: "System default"
-- tapOn: "Dark mode"
-- tapOn: "Always"
+- assertVisible: "Predeterminado del sistema"
+- tapOn: "Modo oscuro"
+- tapOn: "Siempre"
 - extendedWaitUntil:
-    notVisible: "Never"
+    notVisible: "Nunca"
     timeout: 5000
 - stopApp
 - launchApp
 - runFlow: ../../subflows/dismiss-review-dialog.yaml
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000
 - tapOn: "Profile"
 - extendedWaitUntil:
-    visible: "Dark mode"
+    visible: "Modo oscuro"
     timeout: 10000
-- assertVisible: "Always"
-- assertNotVisible: "System default"
+- assertVisible: "Siempre"
+- assertNotVisible: "Predeterminado del sistema"

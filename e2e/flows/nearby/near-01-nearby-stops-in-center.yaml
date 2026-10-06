@@ -6,7 +6,7 @@ tags:
 ---
 - runFlow: ../../subflows/set-location-plaza-nueva.yaml
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Nearby"
+- tapOn: "Cercanas"
 - extendedWaitUntil:
     visible: "Plaza Nueva"
     timeout: 20000

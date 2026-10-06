@@ -5,13 +5,13 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Lines"
+- tapOn: "Líneas"
 - extendedWaitUntil:
     visible: "Plg. Norte H. Virgen del Rocio"
     timeout: 15000
 - tapOn: "Puerta Triana - Heliopolis"
 - extendedWaitUntil:
-    visible: "Origen"
+    visible: "Heliopolis"
     timeout: 15000
-- assertVisible: "Destino"
-- assertVisible: "Stop \\d+"
+- assertVisible: "Puerta Triana"
+- assertVisible: "Parada \\d+"

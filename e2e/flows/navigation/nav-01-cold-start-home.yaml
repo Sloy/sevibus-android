@@ -5,10 +5,10 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- assertVisible: "For You"
-- assertVisible: "Favorites"
-- assertVisible: "Nearby"
-- assertVisible: "Search lines and stops"
-- assertVisible: "Lines"
-- assertVisible: "Travel Card"
+- assertVisible: "Para ti"
+- assertVisible: "Favoritas"
+- assertVisible: "Cercanas"
+- assertVisible: "Busca líneas y paradas"
+- assertVisible: "Líneas"
+- assertVisible: "Bonobús"
 - assertVisible: "Profile"

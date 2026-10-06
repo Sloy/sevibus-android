@@ -19,10 +19,30 @@ fi
 
 LOCALE="$(adb -s "$DEVICE" shell getprop persist.sys.locale | tr -d '\r')"
 LOCALE="${LOCALE:-$(adb -s "$DEVICE" shell getprop ro.product.locale | tr -d '\r')}"
-if [[ "$LOCALE" != en-* ]]; then
-  echo "Device locale is '$LOCALE'. Flows use English copies, set the device language to English (en-US)." >&2
+if [[ "$LOCALE" != es-* ]]; then
+  echo "Device locale is '$LOCALE'. Flows use Spanish copies. Set the device language to Spanish (es-ES)." >&2
+  echo "On an emulator: Settings > System > Languages > Add a language > Espanol (Espana), moved above English (see README)." >&2
   exit 1
 fi
+
+# The device must be awake and unlocked. A pattern or PIN can't be bypassed from here.
+adb -s "$DEVICE" shell input keyevent KEYCODE_WAKEUP
+adb -s "$DEVICE" shell wm dismiss-keyguard >/dev/null 2>&1 || true
+sleep 1
+if adb -s "$DEVICE" shell dumpsys window | grep -qE 'mDreamingLockscreen=true|isKeyguardShowing=true|mShowingLockscreen=true'; then
+  echo "Device $DEVICE is locked. Unlock it and run again." >&2
+  exit 1
+fi
+
+# Keep the screen on for the whole run, otherwise the device locks and every flow fails.
+# stay_on_while_plugged_in doesn't work over wireless adb, so the screen timeout is extended instead.
+OLD_SCREEN_TIMEOUT="$(adb -s "$DEVICE" shell settings get system screen_off_timeout | tr -d '\r')"
+adb -s "$DEVICE" shell settings put system screen_off_timeout 2147483647
+echo "Screen timeout extended for the run. If the run is killed, restore it with:"
+echo "  adb -s $DEVICE shell settings put system screen_off_timeout $OLD_SCREEN_TIMEOUT"
+restore_screen_timeout() {
+  adb -s "$DEVICE" shell settings put system screen_off_timeout "$OLD_SCREEN_TIMEOUT" >/dev/null 2>&1 || true
+}
 
 if lsof -nP -iTCP:7001 -sTCP:LISTEN >/dev/null 2>&1 && ps -o command= -p "$(lsof -nP -iTCP:7001 -sTCP:LISTEN -t | head -1)" | grep -q "maestro.cli.AppKt mcp"; then
   echo "A Maestro MCP server is holding port 7001. Stop it (or disconnect it in /mcp) before running the CLI." >&2
@@ -40,7 +60,7 @@ clear_mock_host_override() {
   adb -s "$DEVICE" shell am force-stop "$APP_ID" >/dev/null 2>&1 || true
   adb -s "$DEVICE" shell "run-as $APP_ID sed -i 's|&quot;hostOverride&quot;:&quot;http://localhost:[0-9]*&quot;|\&quot;hostOverride\&quot;:null|' shared_prefs/debug_menu.xml" >/dev/null 2>&1 || true
 }
-trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop; clear_mock_host_override' EXIT
+trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop; clear_mock_host_override; restore_screen_timeout' EXIT
 adb -s "$DEVICE" reverse "tcp:$MOCK_PORT" "tcp:$MOCK_PORT" >/dev/null
 
 TARGET="${1:-$E2E_DIR}"

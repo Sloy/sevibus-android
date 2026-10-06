@@ -14,6 +14,6 @@ tags:
 - assertNotVisible: "Prado San Sebastián - Rochelambert"
 - tapOn: "Cerrar"
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 10000
-- assertVisible: "Search lines and stops"
+- assertVisible: "Busca líneas y paradas"

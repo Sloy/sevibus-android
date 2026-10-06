@@ -6,5 +6,5 @@ appId: ${APP_ID}
       location: allow
 - runFlow: dismiss-review-dialog.yaml
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000

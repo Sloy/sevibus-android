@@ -5,6 +5,6 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- assertVisible: "Favorite stops"
-- assertVisible: "Save your regular stops to always have them visible."
-- assertVisible: "Sign in with Google"
+- assertVisible: "Paradas favoritas"
+- assertVisible: "Guarda tus paradas habituales para tenerlas siempre visibles."
+- assertVisible: "Inicia sesión con Google"

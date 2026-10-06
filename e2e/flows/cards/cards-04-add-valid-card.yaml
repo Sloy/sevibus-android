@@ -8,28 +8,28 @@ tags:
 # The app formats amounts with a non-breaking space before the euro sign, so the selectors use "." for it.
 - runFlow: ../../subflows/launch-mocked.yaml
 - evalScript: ${ output.mocks.set('card-123456789012', 'valid') }
-- tapOn: "Travel Card"
+- tapOn: "Bonobús"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
-- tapOn: "Serial number"
+- tapOn: "Número de serie"
 - inputText: "123456789012"
 - extendedWaitUntil:
     visible: "12,50.€"
     timeout: 15000
 - assertVisible: "Bonobús sin transbordo"
 - scrollUntilVisible:
-    element: "Recent activity"
+    element: "Actividad reciente"
     direction: DOWN
     timeout: 10000
-- assertVisible: "Validation"
+- assertVisible: "Validación"
 - assertVisible: "-0,41.€"
 - scrollUntilVisible:
-    element: "Delete"
+    element: "Eliminar"
     direction: DOWN
     timeout: 10000
-- tapOn: "Delete"
+- tapOn: "Eliminar"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
 - assertNotVisible: "12,50.€"

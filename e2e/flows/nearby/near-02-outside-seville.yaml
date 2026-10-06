@@ -8,7 +8,7 @@ tags:
     latitude: 40.4168
     longitude: -3.7038
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Nearby"
+- tapOn: "Cercanas"
 - extendedWaitUntil:
-    visible: "No stops near your location.*"
+    visible: "No hay paradas cercanas.*"
     timeout: 20000

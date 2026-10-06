@@ -5,9 +5,9 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Travel Card"
+- tapOn: "Bonobús"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
-- assertVisible: "The serial number is located on the back of the card.*"
-- assertVisible: "Serial number"
+- assertVisible: "El número de serie se encuentra.*"
+- assertVisible: "Número de serie"

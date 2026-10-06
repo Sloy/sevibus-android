@@ -11,12 +11,12 @@ tags:
     file: ../../subflows/search.yaml
     env:
       QUERY: "estacion cercanias"
-- tapOn: "Stop 844"
+- tapOn: "Parada 844"
 - extendedWaitUntil:
-    visible: "An error occurred while loading arrival times.*"
+    visible: "Ocurrió un error al cargar los tiempos.*"
     timeout: 20000
 - evalScript: ${ output.mocks.set('arrivals-844', 'fixed') }
 - extendedWaitUntil:
     visible: "2 min"
     timeout: 30000
-- assertNotVisible: "An error occurred while loading arrival times.*"
+- assertNotVisible: "Ocurrió un error al cargar los tiempos.*"

@@ -5,13 +5,13 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Travel Card"
+- tapOn: "Bonobús"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
-- tapOn: "Serial number"
+- tapOn: "Número de serie"
 - inputText: "111111111111"
 - extendedWaitUntil:
     visible: "Tarjeta no encontrada o número inválido"
     timeout: 15000
-- assertVisible: "Add card"
+- assertVisible: "Añadir tarjeta"

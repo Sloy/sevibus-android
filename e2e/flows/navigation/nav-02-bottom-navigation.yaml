@@ -5,17 +5,17 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Lines"
+- tapOn: "Líneas"
 - extendedWaitUntil:
     visible: "Transversales"
     timeout: 15000
-- tapOn: "Travel Card"
+- tapOn: "Bonobús"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
-- assertVisible: "Serial number"
-- tapOn: "For You"
+- assertVisible: "Número de serie"
+- tapOn: "Para ti"
 - extendedWaitUntil:
-    visible: "Favorites"
+    visible: "Favoritas"
     timeout: 10000
-- assertVisible: "Nearby"
+- assertVisible: "Cercanas"

@@ -7,7 +7,7 @@ tags:
 ---
 - runFlow: ../../subflows/set-location-plaza-nueva.yaml
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Nearby"
+- tapOn: "Cercanas"
 - extendedWaitUntil:
     visible: "Plaza Nueva"
     timeout: 20000
@@ -15,6 +15,6 @@ tags:
     text: "Plaza Nueva"
     index: 0
 - extendedWaitUntil:
-    visible: "Stop 300\\d"
+    visible: "Parada 300\\d"
     timeout: 15000
-- assertVisible: "Save as favorite"
+- assertVisible: "Guardar como favorito"

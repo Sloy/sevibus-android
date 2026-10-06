@@ -5,11 +5,22 @@ Black-box tests that drive the SeviBus Android app against a real backend. They 
 ## Running
 
 Prerequisites:
-- An Android emulator with Google Play services. The device language must be **English**.
+- An Android emulator with Google Play services, or a real device. The device language must be **Spanish (Spain, `es-ES`)**, the app's default language. `run.sh` refuses to run with any other locale.
+- At least 4 GB of RAM for the emulator (`emulator -avd <name> -memory 4096`). With 2 GB the app gets killed under the Maps load and flows stall on a blank screen.
+- A real device must be awake and unlocked when the run starts.
 - The build under test installed (`com.sloy.sevibus.debug` by default).
 - Maestro CLI 2.x (`maestro --version`).
 - JDK 21 on `PATH`. WireMock is a jar downloaded on first use into `build/` (SHA-256 checked) and started by `run.sh`.
 - No Maestro MCP server connected. It holds host port 7001 and the CLI hangs (`DEADLINE_EXCEEDED`). Disconnect it in `/mcp` first.
+
+### Device language and screen
+
+`run.sh` checks the locale and the screen before starting:
+
+- It wakes the device and stops if it is locked. A pattern or PIN can't be bypassed, unlock it first.
+- It extends the screen timeout for the whole run, because wireless adb can't use `svc power stayon`. The previous value is restored when the run ends. If the run is killed, the script printed the command to restore it at the start.
+
+Setting Spanish on an emulator (no root on Play images, so use the UI): Settings → System → Languages & input → Languages → Add a language → Español (España), then drag it above English.
 
 ```bash
 ./scripts/run.sh                                  # whole suite (config.yaml)
@@ -85,13 +96,15 @@ Conventions:
 - One test case per file, named `<prefix>-<nn>-<slug>.yaml`, with `name: "<ID> <description>"`.
 - Tags: the category, the level (`level1`, …), `live-data` when the flow depends on real-time Tussam data and `mocks` when it uses WireMock.
 - Every flow starts from a clean state with `subflows/launch-fresh.yaml` (clears app data, grants location, dismisses the debug in-app review dialog), or `subflows/launch-mocked.yaml` for mocked flows.
-- Select by visible copy. Use regex for dynamic parts (`"Stop \\d+"`, `".*3003"`).
+- Select by visible copy, in Spanish as in `app/src/main/res/values/strings.xml`. Use regex for dynamic parts (`"Parada \\d+"`, `".*3003"`).
 
 ### Maestro gotchas
 
 - `inputText` can't type non-ASCII characters on Android ("Unknown error"). Search with ASCII queries; the app ignores accents.
 - `hideKeyboard` sends Back on Android and leaves full-screen destinations (Travel Card, Search). Don't use it.
 - `clearState` resets the per-app locale, which is why the suite relies on the device language.
+- Some labels are hardcoded in the app code and don't come from `strings.xml` (`Profile`, `Close screen`, `Clear search`, `N min`). They stay as they are.
+- Never turn airplane mode on from a flow. A real device is usually connected through wireless adb and the connection drops. Simulate offline by relaunching with `debugApiHost: "http://localhost:9"` (see CONN-01).
 - Amounts use a non-breaking space before `€`. Match them with `"."` (`"12,50.€"`), a plain space does not match.
 - Map markers are invisible to Maestro (Google Maps). Map interactions are out of scope for now.
 
@@ -203,10 +216,10 @@ Stop markers, bus markers and polylines aren't reachable through the accessibili
 ## Findings from the suite
 
 Recorded while building Level 1. They need app changes, which are owned outside this suite.
-- Stop with an empty arrivals list stays in the loading skeleton forever (`StopDetailViewModel.kt:62`).
-- Card serials lose leading zeros (`000000000000` requests `/api/card/0`).
+- Stop with an empty arrivals list stays in the loading skeleton forever (`StopDetailViewModel.kt:62`, SEVAND-7).
+- Card serials lose leading zeros (`000000000000` requests `/api/card/0`, SEVAND-6).
 - The Travel Card help button's content description is "Apply order" (`CardsScreen.kt:212`).
-- Hardcoded Spanish under the English locale: "Origen"/"Destino", "No disponible", card messages, all FAQ entries.
+- Hardcoded Spanish under the English locale: "No disponible", card messages, all FAQ entries.
 - The analytics switch has no accessible label; tests locate it relative to its title.
 - The search box keeps the previous stop name when reopened from a stop.
 - Arrivals keep polling after leaving the stop detail.

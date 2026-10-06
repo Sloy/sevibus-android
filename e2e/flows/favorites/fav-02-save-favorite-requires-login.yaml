@@ -10,12 +10,12 @@ tags:
     file: ../../subflows/search.yaml
     env:
       QUERY: "estacion cercanias"
-- tapOn: "Stop 844"
+- tapOn: "Parada 844"
 - extendedWaitUntil:
-    visible: "Save as favorite"
+    visible: "Guardar como favorito"
     timeout: 15000
-- tapOn: "Save as favorite"
+- tapOn: "Guardar como favorito"
 - extendedWaitUntil:
-    visible: "You must sign in to save favorite stops"
+    visible: "Debes iniciar sesión para guardar paradas favoritas"
     timeout: 5000
-- assertVisible: "Sign in"
+- assertVisible: "Iniciar sesión"

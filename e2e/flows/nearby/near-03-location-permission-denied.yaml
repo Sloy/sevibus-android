@@ -10,10 +10,10 @@ tags:
       location: deny
 - runFlow: ../../subflows/dismiss-review-dialog.yaml
 - extendedWaitUntil:
-    visible: "For You"
+    visible: "Para ti"
     timeout: 30000
-- tapOn: "Nearby"
+- tapOn: "Cercanas"
 - extendedWaitUntil:
-    visible: "Enable location services.*"
+    visible: "Activa los servicios de localización.*"
     timeout: 10000
-- assertVisible: "Activate location"
+- assertVisible: "Activar localización"

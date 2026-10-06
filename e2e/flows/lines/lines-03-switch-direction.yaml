@@ -11,16 +11,16 @@ tags:
       QUERY: "Rochelambert"
 - tapOn: "Prado San Sebastián - Rochelambert"
 - extendedWaitUntil:
-    visible: "Stop 905"
+    visible: "Parada 905"
     timeout: 15000
-- assertVisible: "Destino"
+- assertVisible: "Rochelambert"
 - tapOn: "Prado"
 - extendedWaitUntil:
-    notVisible: "Stop 905"
+    notVisible: "Parada 905"
     timeout: 10000
-- assertVisible: "Destino"
-- assertVisible: "Origen"
+- assertVisible: "Prado"
+- assertVisible: "Rochelambert"
 - tapOn: "Rochelambert"
 - extendedWaitUntil:
-    visible: "Stop 905"
+    visible: "Parada 905"
     timeout: 10000

@@ -5,7 +5,7 @@
       "requiredScenarioState": "valid",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012"
+        "urlPath": "/api/card/123456789012"
       },
       "response": {
         "status": 200,
@@ -20,7 +20,7 @@
       "requiredScenarioState": "low",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012"
+        "urlPath": "/api/card/123456789012"
       },
       "response": {
         "status": 200,
@@ -35,7 +35,7 @@
       "requiredScenarioState": "valid",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012/transactions"
+        "urlPath": "/api/card/123456789012/transactions"
       },
       "response": {
         "status": 200,
@@ -50,7 +50,7 @@
       "requiredScenarioState": "low",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012/transactions"
+        "urlPath": "/api/card/123456789012/transactions"
       },
       "response": {
         "status": 200,
@@ -65,7 +65,7 @@
       "requiredScenarioState": "recovered",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012"
+        "urlPath": "/api/card/123456789012"
       },
       "response": {
         "status": 200,
@@ -80,7 +80,7 @@
       "requiredScenarioState": "recovered",
       "request": {
         "method": "GET",
-        "url": "/api/card/123456789012/transactions"
+        "urlPath": "/api/card/123456789012/transactions"
       },
       "response": {
         "status": 200,

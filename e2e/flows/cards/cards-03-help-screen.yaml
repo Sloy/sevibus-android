@@ -5,16 +5,16 @@ tags:
   - level1
 ---
 - runFlow: ../../subflows/launch-fresh.yaml
-- tapOn: "Travel Card"
+- tapOn: "Bonobús"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000
 # The help button currently uses the "Apply order" content description (CardsScreen.kt).
 - tapOn: "Apply order"
 - extendedWaitUntil:
-    visible: "Frequently asked questions"
+    visible: "Preguntas frecuentes"
     timeout: 10000
 - tapOn: "Close screen"
 - extendedWaitUntil:
-    visible: "Add card"
+    visible: "Añadir tarjeta"
     timeout: 10000

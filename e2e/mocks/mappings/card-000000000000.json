@@ -5,7 +5,7 @@
       "requiredScenarioState": "valid",
       "request": {
         "method": "GET",
-        "url": "/api/card/000000000000"
+        "urlPath": "/api/card/000000000000"
       },
       "response": {
         "status": 200,
@@ -20,7 +20,7 @@
       "requiredScenarioState": "valid",
       "request": {
         "method": "GET",
-        "url": "/api/card/000000000000/transactions"
+        "urlPath": "/api/card/000000000000/transactions"
       },
       "response": {
         "status": 200,
