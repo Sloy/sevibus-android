@@ -20,9 +20,13 @@ import com.sloy.sevibus.feature.foryou.nearby.NearbyStop
 import com.sloy.sevibus.feature.lines.LinesScreenState
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Deprecated("")
 object Stubs {
+
+    // Fixed instead of the default LocalTime.now(), so previews render the same at any time of day
+    private val allDaySchedule = Route.Schedule(LocalTime.MIN, LocalTime.MAX)
 
     @Deprecated("")
     val routes: List<Route> = listOf(
@@ -32,6 +36,7 @@ object Stubs {
             destination = "Hospital V. Rocío",
             line = 1,
             stops = listOf(1, 2, 3, 4, 5),
+            schedule = allDaySchedule,
         ),
         Route(
             id = "1.2",
@@ -39,6 +44,7 @@ object Stubs {
             destination = "Polígono Norte",
             line = 1,
             stops = listOf(10, 9, 8, 7, 6),
+            schedule = allDaySchedule,
         ),
     )
 

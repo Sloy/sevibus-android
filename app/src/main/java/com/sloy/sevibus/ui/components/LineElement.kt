@@ -35,7 +35,7 @@ fun LineElement(line: Line, onLineClick: (Line) -> Unit) {
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-fun LineElementPreview() {
+internal fun LineElementPreview() {
     SevTheme {
         val line = Stubs.lines[0]
         Surface {

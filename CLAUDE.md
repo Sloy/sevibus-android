@@ -156,6 +156,7 @@ The plugin only discovers `@PreviewTest` functions in the `screenshotTest` sourc
   - It reads the main Kotlin sources, so it doesn't depend on compiling main
   - Only the screenshotTest compilation depends on it: `assembleDebug`, `installDebug` or `test` don't run it
   - Each wrapper is named after its preview and calls it with `@Preview(locale = "es")` and `@PreviewTest`
+  - Previews with `@PreviewLightDark` or a `@Preview(uiMode = UI_MODE_NIGHT_YES)` also get a dark `@Preview`, so they produce a light and a dark screenshot
   - The build fails if an annotated preview is `private`, has parameters, or two previews in a suite share a name
 - Tests are grouped in two classes, which act as suites:
   - `ComponentsScreenshotTests` - reusable components and screen sections (widgets, list items, icons)
@@ -204,7 +205,7 @@ internal fun MyComponentDefaultPreview() {
 - Name previews `<ScreenName><Scenario>Preview` for screens (e.g. `StopDetailScreenFailedArrivalsPreview`) and `<ComponentName><Scenario>Preview` for components (e.g. `AppUpdateButtonReadyPreview`), so names are unique across packages and identifiable on their own
 - Use **deterministic test data** (no `.random()`, `.shuffled()`, `Random.nextInt()`, etc.)
 - Wrap in `SevTheme` for consistent theming
-- `@Preview` parameters and multi-preview annotations like `@PreviewLightDark` on the main preview are not picked up, the generated wrapper's `@Preview(locale = "es")` decides the configuration
+- Only day/night is picked up from the main preview (`@PreviewLightDark` or a night `uiMode`). Other `@Preview` parameters are ignored, the generated wrapper's `@Preview(locale = "es")` decides the configuration
 
 #### 2. Generate Reference Screenshots
 
@@ -212,7 +213,7 @@ internal fun MyComponentDefaultPreview() {
 ./gradlew updateDebugScreenshotTest
 ```
 
-This creates PNG files in `app/src/screenshotTestDebug/reference/com/sloy/sevibus/ComponentsScreenshotTests/`. Non-default `@Preview` parameters add a hash to the file name, e.g. `MyComponentDefaultPreview_b2db1d68_0.png`.
+This creates PNG files in `app/src/screenshotTestDebug/reference/com/sloy/sevibus/ComponentsScreenshotTests/`. Non-default `@Preview` parameters add a hash to the file name, e.g. `MyComponentDefaultPreview_b2db1d68_0.png` for light and `MyComponentDefaultPreview_f6f1fda3_0.png` for dark.
 
 #### 3. Validate Screenshots
 
