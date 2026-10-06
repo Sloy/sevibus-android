@@ -4,6 +4,7 @@ import android.app.Activity
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Events
@@ -31,7 +32,9 @@ class InAppReviewViewModel(
             val result = inAppReviewManager.launchReviewFlow(activity)
             result.onSuccess { duration ->
                 SevLogger.logD("Review dialog was displayed for: $duration")
-                Toast.makeText(activity, "Displayed for: ${duration.inWholeSeconds} seconds", Toast.LENGTH_LONG).show()
+                if (BuildVariant.isDebug()) {
+                    Toast.makeText(activity, "Displayed for: ${duration.inWholeSeconds} seconds", Toast.LENGTH_LONG).show()
+                }
                 analytics.track(Events.ReviewDialogDismissed(duration.inWholeSeconds.toInt()))
             }.onFailure { error ->
                 SevLogger.logW(error, "Review flow failed: ${error.message}")
