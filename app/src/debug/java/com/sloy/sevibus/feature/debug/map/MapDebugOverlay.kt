@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.maps.android.compose.CameraPositionState
@@ -39,7 +38,8 @@ fun rememberMapDebugOptions(): MapDebugOptions {
 }
 
 /**
- * Debug drawings over the map. [contentPadding] is the map padding, so the overlay matches what the camera sees.
+ * Debug drawings over the map. [contentPadding] is the map padding and [fitArea] the area, from the map edges, where the
+ * camera fits lines and stops.
  */
 @Composable
 fun MapDebugOverlay(
@@ -47,18 +47,18 @@ fun MapDebugOverlay(
     state: MapScreenState,
     cameraPositionState: CameraPositionState,
     contentPadding: PaddingValues,
-    fitPadding: Dp,
+    fitArea: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    if (options.showVisibleArea) {
+        VisibleAreaGuide(contentPadding, fitArea, modifier.clearAndSetSemantics {})
+    }
     Box(
         modifier
             .fillMaxSize()
             .padding(contentPadding)
             .clearAndSetSemantics {}
     ) {
-        if (options.showVisibleArea) {
-            VisibleAreaGuide(fitPadding)
-        }
         Column(
             Modifier
                 .align(Alignment.BottomStart)
@@ -85,18 +85,23 @@ private fun DebugChip(text: String) {
 }
 
 @Composable
-private fun VisibleAreaGuide(fitPadding: Dp) {
-    Canvas(Modifier.fillMaxSize()) {
-        val inset = fitPadding.toPx()
-        val dash = PathEffect.dashPathEffect(floatArrayOf(12f, 8f))
-        drawRect(VisibleAreaColor, style = Stroke(width = 2.dp.toPx()))
-        drawRect(
-            FitAreaColor,
-            topLeft = Offset(inset, inset),
-            size = size.copy(width = size.width - inset * 2, height = size.height - inset * 2),
-            style = Stroke(width = 1.dp.toPx(), pathEffect = dash),
-        )
-        drawCrosshair(center, VisibleAreaColor)
+private fun VisibleAreaGuide(contentPadding: PaddingValues, fitArea: PaddingValues, modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxSize()) {
+        AreaOutline(contentPadding, VisibleAreaColor, dashed = false)
+        AreaOutline(fitArea, FitAreaColor, dashed = true)
+    }
+}
+
+@Composable
+private fun AreaOutline(padding: PaddingValues, color: Color, dashed: Boolean) {
+    Canvas(
+        Modifier
+            .fillMaxSize()
+            .padding(padding)
+    ) {
+        val pathEffect = if (dashed) PathEffect.dashPathEffect(floatArrayOf(12f, 8f)) else null
+        drawRect(color, style = Stroke(width = 2.dp.toPx(), pathEffect = pathEffect))
+        drawCrosshair(center, color)
     }
 }
 

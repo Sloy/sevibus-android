@@ -54,3 +54,14 @@ val SEVILLA_BOUNDS = LatLngBounds.builder()
     .include(SEVILLA_NORTHWEST_CORNER)
     .include(SEVILLA_SOUTHEAST_CORNER)
     .build()
+
+/**
+ * Where the map camera target can go. Google Maps applies the restriction to the center of the whole map, not of its
+ * padded area, so with the sheet open and the camera zoomed out the center can be well south of what the user sees.
+ * The margin keeps it from pushing the camera north when a line reaches the edge of Sevilla.
+ */
+private const val CAMERA_TARGET_MARGIN = 0.15
+val SEVILLA_CAMERA_TARGET_BOUNDS = LatLngBounds.builder()
+    .include(LatLng(SEVILLA_NORTHWEST_CORNER.latitude + CAMERA_TARGET_MARGIN, SEVILLA_NORTHWEST_CORNER.longitude - CAMERA_TARGET_MARGIN))
+    .include(LatLng(SEVILLA_SOUTHEAST_CORNER.latitude - CAMERA_TARGET_MARGIN, SEVILLA_SOUTHEAST_CORNER.longitude + CAMERA_TARGET_MARGIN))
+    .build()

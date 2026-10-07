@@ -1,6 +1,17 @@
 package com.sloy.sevibus.feature.map
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import com.sloy.sevibus.domain.model.PositionBounds
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +41,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.R
-import com.sloy.sevibus.domain.model.SEVILLA_BOUNDS
+import com.sloy.sevibus.domain.model.SEVILLA_CAMERA_TARGET_BOUNDS
 import com.sloy.sevibus.domain.model.SEVILLA_CENTER
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
@@ -79,38 +90,47 @@ fun SevMap(
         }
     }
 
-    suspend fun centerMapOn(cameraUpdate: CameraUpdate?) {
-        if (cameraUpdate == null) return
+    suspend fun centerMapOn(cameraUpdate: () -> CameraUpdate) {
         delay(20)
         while (!sheetState.isIdle) {
             delay(10)
         }
-        cameraPositionState.animate(cameraUpdate, MAP_CAMERA_ANIMATION_DURATION)
+        cameraPositionState.animate(cameraUpdate(), MAP_CAMERA_ANIMATION_DURATION)
     }
 
     val density = LocalDensity.current
-    val boundsPadding = with(density) { BOUNDS_PADDING.toPx() }.toInt()
+    val layoutDirection = LocalLayoutDirection.current
+    var mapSize by remember { mutableStateOf(IntSize.Zero) }
+    val fitArea = PaddingValues(
+        start = FIT_MARGIN_HORIZONTAL,
+        end = FIT_MARGIN_HORIZONTAL,
+        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + FIT_MARGIN_VERTICAL,
+        bottom = contentPadding.calculateBottomPadding() + FIT_MARGIN_VERTICAL,
+    )
+    val viewport by rememberUpdatedState(
+        MapViewport(
+            width = mapSize.width.toFloat(),
+            height = mapSize.height.toFloat(),
+            cameraPadding = contentPadding.toEdgeInsets(density, layoutDirection),
+            fitArea = fitArea.toEdgeInsets(density, layoutDirection),
+            density = density.density,
+        )
+    )
 
-    when (state) {
-        is MapScreenState.StopSelected -> {
-            LaunchedEffect(state.selectedStop) {
-                centerMapOn(CameraUpdateFactory.newLatLngZoom(state.selectedStop.position.toLatLng(), ZoomLevel.Close.minimumLevel.toFloat()))
-            }
+    fun fitCamera(bounds: PositionBounds): CameraUpdate {
+        val camera = CameraFit.fit(bounds, viewport, MIN_ZOOM, FIT_MAX_ZOOM)
+        return CameraUpdateFactory.newLatLngZoom(camera.target.toLatLng(), camera.zoom)
+    }
+
+    val fitBounds = state.cameraFitBounds()
+    if (state is MapScreenState.StopSelected) {
+        LaunchedEffect(state.selectedStop) {
+            centerMapOn { CameraUpdateFactory.newLatLngZoom(state.selectedStop.position.toLatLng(), ZoomLevel.Close.minimumLevel.toFloat()) }
         }
-
-        is MapScreenState.LineSelected -> {
-            LaunchedEffect(state.lineStops) {
-                centerMapOn(CameraUpdateFactory.newLatLngBounds(state.lineStops.toBounds().toLatLngBounds(), boundsPadding))
-            }
+    } else if (fitBounds != null) {
+        LaunchedEffect(fitBounds) {
+            centerMapOn { fitCamera(fitBounds) }
         }
-
-        is MapScreenState.StopAndLineSelected -> {
-            LaunchedEffect(state.selectedStop) {
-                centerMapOn(CameraUpdateFactory.newLatLngBounds(state.selectedStops().toBounds().toLatLngBounds(), boundsPadding))
-            }
-        }
-
-        else -> {}
     }
 
     EventCollector(locationButtonClickFlow) {
@@ -140,19 +160,23 @@ fun SevMap(
     val mapProperties by remember(hasLocationPermission) {
         mutableStateOf(
             MapProperties(
-                minZoomPreference = 13f,
+                minZoomPreference = MIN_ZOOM,
                 isMyLocationEnabled = hasLocationPermission,
                 mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
                     context,
                     if (isSystemInDarkTheme) R.raw.map_style_night else R.raw.map_style_default
                 ),
-                latLngBoundsForCameraTarget = SEVILLA_BOUNDS
+                latLngBoundsForCameraTarget = SEVILLA_CAMERA_TARGET_BOUNDS
             )
         )
     }
 
     val locationSource = koinInjectOnUI<LocationSource>()
-    Box(modifier.fillMaxSize()) {
+    Box(
+        modifier
+            .fillMaxSize()
+            .onSizeChanged { mapSize = it }
+    ) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
             uiSettings = mapUiSettings,
@@ -163,19 +187,29 @@ fun SevMap(
             locationSource = locationSource,
         ) {
             val zoomLevel = ZoomLevel(cameraPositionState.position.zoom.toInt())
-            MarkerLayersByState(state, zoomLevel, onStopSelected, debugOptions)
-            if (debugOptions.showFitBounds) {
-                state.fitBounds()?.let { FitBoundsOutline(it) }
+            val showBuses = cameraPositionState.position.zoom >= BUS_MARKERS_MIN_ZOOM
+            MarkerLayersByState(state, zoomLevel, onStopSelected, showBuses, debugOptions)
+            if (debugOptions.showFitBounds && fitBounds != null) {
+                FitBoundsOutline(fitBounds.toLatLngBounds())
             }
         }
-        MapDebugOverlay(debugOptions, state, cameraPositionState, contentPadding, BOUNDS_PADDING)
+        MapDebugOverlay(debugOptions, state, cameraPositionState, contentPadding, fitArea)
     }
 }
 
-private fun MapScreenState.fitBounds(): LatLngBounds? = when (this) {
-    is MapScreenState.LineSelected -> lineStops.toBounds().toLatLngBounds()
-    is MapScreenState.StopAndLineSelected -> selectedStops().toBounds().toLatLngBounds()
+private fun MapScreenState.cameraFitBounds(): PositionBounds? = when (this) {
+    is MapScreenState.LineSelected -> (lineStops.map { it.position } + path?.points.orEmpty()).toBounds()
+    is MapScreenState.StopAndLineSelected -> selectedStops().map { it.position }.toBounds()
     else -> null
+}
+
+private fun PaddingValues.toEdgeInsets(density: Density, layoutDirection: LayoutDirection) = with(density) {
+    EdgeInsets(
+        left = calculateLeftPadding(layoutDirection).toPx(),
+        top = calculateTopPadding().toPx(),
+        right = calculateRightPadding(layoutDirection).toPx(),
+        bottom = calculateBottomPadding().toPx(),
+    )
 }
 
 @Composable
@@ -195,6 +229,10 @@ private fun FitBoundsOutline(bounds: LatLngBounds) {
     )
 }
 
-private val BOUNDS_PADDING = 40.dp
+private const val MIN_ZOOM = 11f
+private const val FIT_MAX_ZOOM = 16f
+private const val BUS_MARKERS_MIN_ZOOM = 13f
+private val FIT_MARGIN_HORIZONTAL = 24.dp
+private val FIT_MARGIN_VERTICAL = 8.dp
 private const val MY_LOCATION_ZOOM = 17f
 private const val MAP_CAMERA_ANIMATION_DURATION = 200
