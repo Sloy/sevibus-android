@@ -4,9 +4,10 @@ title: ComposablePreviewScanner
 status: To Do
 assignee: []
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-06 15:46'
+updated_date: '2026-10-06 16:15'
 labels: []
 dependencies: []
+priority: low
 type: enhancement
 ordinal: 1000
 ---
