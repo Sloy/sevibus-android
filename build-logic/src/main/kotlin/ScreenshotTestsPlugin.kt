@@ -3,35 +3,35 @@ import com.android.build.api.variant.HostTestBuilder
 import com.android.build.api.variant.SourceDirectories
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 
 /**
  * Generates the screenshotTest wrappers from the @ScreenshotTest previews in main, and checks for orphan references.
  *
  * Only the screenshotTest compilation depends on the generator, so regular builds don't run it.
  * Reference images no test uses anymore fail validation and are deleted when updating the references.
+ * The generated test classes go in the app namespace.
  */
 class ScreenshotTestsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create("screenshotTests", ScreenshotTestsExtension::class.java)
         project.pluginManager.withPlugin("com.android.application") {
             project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java).onVariants { variant ->
                 val screenshotTest = variant.hostTests[HostTestBuilder.SCREENSHOT_TEST_TYPE] ?: return@onVariants
-                project.registerTasks(variant.name, extension, screenshotTest.sources.kotlin)
+                project.registerTasks(variant.name, variant.namespace, screenshotTest.sources.kotlin)
             }
         }
     }
 
     private fun Project.registerTasks(
         variant: String,
-        extension: ScreenshotTestsExtension,
+        namespace: Provider<String>,
         kotlinSources: SourceDirectories.Flat?,
     ) {
         val variantName = variant.replaceFirstChar { it.uppercase() }
         val generateTask = tasks.register("generate${variantName}ScreenshotTests", GenerateScreenshotTestsTask::class.java) {
             sources.from(fileTree("src/main/java") { include("**/*.kt") })
-            packageName.set(extension.packageName)
+            packageName.set(namespace)
             referencesFile.set(layout.buildDirectory.file("intermediates/screenshotReferences/$variant/expected.txt"))
         }
         kotlinSources?.addGeneratedSourceDirectory(generateTask, GenerateScreenshotTestsTask::outputDir)
@@ -51,9 +51,4 @@ class ScreenshotTestsPlugin : Plugin<Project> {
         tasks.matching { it.name == "validate${variantName}ScreenshotTest" }.configureEach { finalizedBy(checkTask) }
         tasks.matching { it.name == "update${variantName}ScreenshotTest" }.configureEach { finalizedBy(deleteTask) }
     }
-}
-
-abstract class ScreenshotTestsExtension {
-    /** Package of the generated test classes. */
-    abstract val packageName: Property<String>
 }

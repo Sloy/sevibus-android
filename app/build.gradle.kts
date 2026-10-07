@@ -89,10 +89,6 @@ tasks.withType<PreviewScreenshotValidationTask>().configureEach {
     testEngineInput.threshold.set(0.01f)
 }
 
-screenshotTests {
-    packageName = "com.sloy.sevibus"
-}
-
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
