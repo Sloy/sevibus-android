@@ -12,7 +12,7 @@ appId: ${APP_ID}
       location: allow
     arguments:
       debugApiHost: "http://localhost:${MOCK_PORT}"
-- runFlow: dismiss-review-dialog.yaml
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

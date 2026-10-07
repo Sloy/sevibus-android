@@ -4,7 +4,8 @@ appId: ${APP_ID}
     clearState: true
     permissions:
       location: allow
-- runFlow: dismiss-review-dialog.yaml
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

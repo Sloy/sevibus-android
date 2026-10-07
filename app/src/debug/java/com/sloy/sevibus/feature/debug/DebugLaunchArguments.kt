@@ -11,8 +11,13 @@ import org.koin.core.component.get
  */
 object DebugLaunchArguments : KoinComponent {
     const val EXTRA_API_HOST = "debugApiHost"
+    const val EXTRA_MAP_MODE = "debugMapMode"
+
+    var mapMode: DebugMapMode = DebugMapMode.Full
+        private set
 
     fun apply(intent: Intent) {
         get<NetworkDebugModuleDataSource>().applyLaunchHost(intent.getStringExtra(EXTRA_API_HOST))
+        DebugMapMode.fromArgument(intent.getStringExtra(EXTRA_MAP_MODE))?.let { mapMode = it }
     }
 }

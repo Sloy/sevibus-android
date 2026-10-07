@@ -6,6 +6,9 @@ APP_ID="${APP_ID:-com.sloy.sevibus.debug}"
 EXPECTED_HOST="${EXPECTED_HOST:-appdev-vd4mgiw7ma-no.a.run.app}"
 DEVICE="${DEVICE:-$(adb devices | awk 'NR>1 && $2=="device" {print $1; exit}')}"
 REPORT_DIR="${REPORT_DIR:-$E2E_DIR/build/reports}"
+# The map is disabled by default: drawing its markers keeps the device busy and makes flows slow and flaky.
+# No flow uses it. MAP_MODE=full brings it back.
+MAP_MODE="${MAP_MODE:-disabled}"
 
 if [[ -z "$DEVICE" ]]; then
   echo "No connected device found" >&2
@@ -16,6 +19,11 @@ if ! adb -s "$DEVICE" shell pm list packages | grep -q "package:$APP_ID$"; then
   echo "$APP_ID is not installed on $DEVICE. Install the build under test first." >&2
   exit 1
 fi
+
+# A fresh install runs interpreted until the device compiles it in the background, and every cold start takes ~20s
+# on an emulator. Compile it ahead of time: it takes ~30s after an install and is a no-op afterwards.
+echo "Compiling $APP_ID ahead of time..."
+adb -s "$DEVICE" shell cmd package compile -m speed "$APP_ID" >/dev/null
 
 LOCALE="$(adb -s "$DEVICE" shell getprop persist.sys.locale | tr -d '\r')"
 LOCALE="${LOCALE:-$(adb -s "$DEVICE" shell getprop ro.product.locale | tr -d '\r')}"
@@ -44,6 +52,27 @@ restore_screen_timeout() {
   adb -s "$DEVICE" shell settings put system screen_off_timeout "$OLD_SCREEN_TIMEOUT" >/dev/null 2>&1 || true
 }
 
+# Animations keep the screen changing, and Maestro waits for it to settle before and after every tap.
+# Maestro's disableAnimations config only applies to Maestro Cloud, so the scales are set here.
+ANIMATION_SCALES=(window_animation_scale transition_animation_scale animator_duration_scale)
+OLD_ANIMATION_SCALES=()
+for scale in "${ANIMATION_SCALES[@]}"; do
+  OLD_ANIMATION_SCALES+=("$(adb -s "$DEVICE" shell settings get global "$scale" | tr -d '\r')")
+  adb -s "$DEVICE" shell settings put global "$scale" 0
+done
+restore_animations() {
+  local i value
+  for i in "${!ANIMATION_SCALES[@]}"; do
+    value="${OLD_ANIMATION_SCALES[$i]}"
+    # A scale that was never set reads as "null" and defaults to 1
+    [[ "$value" == "null" ]] && value=1
+    adb -s "$DEVICE" shell settings put global "${ANIMATION_SCALES[$i]}" "$value" >/dev/null 2>&1 || true
+  done
+}
+echo "Animations disabled for the run. If the run is killed, restore them in Developer options."
+# Restore the device if the script exits before the full cleanup trap below is set
+trap 'restore_screen_timeout; restore_animations' EXIT
+
 if lsof -nP -iTCP:7001 -sTCP:LISTEN >/dev/null 2>&1 && ps -o command= -p "$(lsof -nP -iTCP:7001 -sTCP:LISTEN -t | head -1)" | grep -q "maestro.cli.AppKt mcp"; then
   echo "A Maestro MCP server is holding port 7001. Stop it (or disconnect it in /mcp) before running the CLI." >&2
   exit 1
@@ -60,7 +89,7 @@ clear_mock_host_override() {
   adb -s "$DEVICE" shell am force-stop "$APP_ID" >/dev/null 2>&1 || true
   adb -s "$DEVICE" shell "run-as $APP_ID sed -i 's|&quot;hostOverride&quot;:&quot;http://localhost:[0-9]*&quot;|\&quot;hostOverride\&quot;:null|' shared_prefs/debug_menu.xml" >/dev/null 2>&1 || true
 }
-trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop; clear_mock_host_override; restore_screen_timeout' EXIT
+trap 'wiremock_dump_requests "$REPORT_DIR/wiremock-requests.json"; wiremock_stop; clear_mock_host_override; restore_screen_timeout; restore_animations' EXIT
 adb -s "$DEVICE" reverse "tcp:$MOCK_PORT" "tcp:$MOCK_PORT" >/dev/null
 
 TARGET="${1:-$E2E_DIR}"
@@ -81,6 +110,7 @@ maestro --device "$DEVICE" test \
   -e APP_ID="$APP_ID" \
   -e EXPECTED_HOST="$EXPECTED_HOST" \
   -e MOCK_PORT="$MOCK_PORT" \
+  -e MAP_MODE="$MAP_MODE" \
   ${report_args[@]+"${report_args[@]}"} \
   --test-output-dir "$REPORT_DIR/artifacts" \
   "$@" \

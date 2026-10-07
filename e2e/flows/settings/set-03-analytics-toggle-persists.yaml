@@ -20,8 +20,9 @@ tags:
     checked: false
     rightOf: "Permitir estadísticas anónimas"
 - stopApp
-- launchApp
-- runFlow: ../../subflows/dismiss-review-dialog.yaml
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

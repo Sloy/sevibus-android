@@ -16,8 +16,9 @@ tags:
     notVisible: "Nunca"
     timeout: 5000
 - stopApp
-- launchApp
-- runFlow: ../../subflows/dismiss-review-dialog.yaml
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

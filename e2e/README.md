@@ -5,22 +5,50 @@ Black-box tests that drive the SeviBus Android app against a real backend. They 
 ## Running
 
 Prerequisites:
-- An Android emulator with Google Play services, or a real device. The device language must be **Spanish (Spain, `es-ES`)**, the app's default language. `run.sh` refuses to run with any other locale.
-- At least 4 GB of RAM for the emulator (`emulator -avd <name> -memory 4096`). With 2 GB the app gets killed under the Maps load and flows stall on a blank screen.
+- An Android emulator with Google Play services, or a real device. The device language must be **Spanish (Spain, `es-ES`)**, the app's default language. `run.sh` refuses to run with any other locale. See [Emulator](#emulator) for the recommended setup.
 - A real device must be awake and unlocked when the run starts.
 - The build under test installed (`com.sloy.sevibus.debug` by default).
 - Maestro CLI 2.x (`maestro --version`).
 - JDK 21 on `PATH`. WireMock is a jar downloaded on first use into `build/` (SHA-256 checked) and started by `run.sh`.
 - No Maestro MCP server connected. It holds host port 7001 and the CLI hangs (`DEADLINE_EXCEEDED`). Disconnect it in `/mcp` first.
 
-### Device language and screen
+### Emulator
 
-`run.sh` checks the locale and the screen before starting:
+Use a **Google APIs** image without the Play Store, API 30, x86_64 (on Apple Silicon, arm64-v8a), with 4 GB of RAM:
+
+```bash
+sdkmanager "system-images;android-30;google_apis;x86_64"
+avdmanager create avd -n E2E_API_30 -k "system-images;android-30;google_apis;x86_64" -d pixel_5
+# In ~/.android/avd/E2E_API_30.avd/config.ini: hw.ramSize=4096, hw.gpu.enabled=yes, hw.keyboard=yes
+emulator -avd E2E_API_30 -no-snapshot-save -no-boot-anim
+```
+
+Google APIs images allow `adb root`, so the language is set without the UI:
+
+```bash
+adb root
+adb shell 'setprop persist.sys.locale es-ES && setprop ctl.restart zygote'
+```
+
+Why this image:
+- Play Store images run Google apps and updates in the background. The emulator stays at a load average of 9 to 15 during a run, and flows stall waiting for the app.
+- ATD images (`google_atd`) don't render: screenshots are black, which breaks Maestro and the map.
+- With 2 GB of RAM the app gets killed and flows stall on a blank screen.
+
+On a Play Store image, `adb root` is refused. Set the language from Settings → System → Languages & input → Languages → Add a language → Español (España), then drag it above English.
+
+### What `run.sh` does to the device
+
+Before starting, `run.sh` checks the locale and the screen, and prepares the device:
 
 - It wakes the device and stops if it is locked. A pattern or PIN can't be bypassed, unlock it first.
-- It extends the screen timeout for the whole run, because wireless adb can't use `svc power stayon`. The previous value is restored when the run ends. If the run is killed, the script printed the command to restore it at the start.
+- It extends the screen timeout for the whole run, because wireless adb can't use `svc power stayon`. If the run is killed, the script printed the command to restore it at the start.
+- It disables window, transition and animator animations. Maestro waits for the screen to settle before and after every tap, and animations delay that. Maestro's own `disableAnimations` option only works on Maestro Cloud.
+- It compiles the app ahead of time (`cmd package compile -m speed`). A fresh install runs interpreted, and every cold start takes about 20s on an emulator. It takes about 30s after an install and nothing afterwards.
 
-Setting Spanish on an emulator (no root on Play images, so use the UI): Settings → System → Languages & input → Languages → Add a language → Español (España), then drag it above English.
+The screen timeout and the animation scales are restored when the run ends.
+
+The app is also launched with the home map disabled (see `MAP_MODE`). Drawing the stop markers keeps an emulator busy, and with the map on, searches and scrolls time out. No flow uses the map.
 
 ```bash
 ./scripts/run.sh                                  # whole suite (config.yaml)
@@ -37,6 +65,7 @@ Environment variables:
 | `EXPECTED_HOST` | `appdev-vd4mgiw7ma-no.a.run.app` | Backend host the app must report (SET-04) |
 | `DEVICE` | first `adb` device | Target device serial |
 | `MOCK_PORT` | `8089` | WireMock port. An existing WireMock on it is reused, any other listener makes `run.sh` pick the next free port |
+| `MAP_MODE` | `disabled` | `debugMapMode` launch argument. `disabled` keeps the home map out of the composition, `full` shows it |
 | `REPORT_DIR` | `build/reports` | JUnit report (`junit.xml`), failure screenshots, `wiremock.log` and `wiremock-requests.json` |
 
 ### Backend
@@ -95,7 +124,8 @@ flows/<category>/      one folder per feature, one file per test case
 Conventions:
 - One test case per file, named `<prefix>-<nn>-<slug>.yaml`, with `name: "<ID> <description>"`.
 - Tags: the category, the level (`level1`, …), `live-data` when the flow depends on real-time Tussam data and `mocks` when it uses WireMock.
-- Every flow starts from a clean state with `subflows/launch-fresh.yaml` (clears app data, grants location, dismisses the debug in-app review dialog), or `subflows/launch-mocked.yaml` for mocked flows.
+- Every flow starts from a clean state with `subflows/launch-fresh.yaml` (clears app data and grants location; debug builds never show the in-app review dialog), or `subflows/launch-mocked.yaml` for mocked flows.
+- A flow that calls `launchApp` itself passes `debugMapMode: ${MAP_MODE}` in its `arguments`, otherwise the map comes back after a restart.
 - Select by visible copy, in Spanish as in `app/src/main/res/values/strings.xml`. Use regex for dynamic parts (`"Parada \\d+"`, `".*3003"`).
 
 ### Maestro gotchas
@@ -106,7 +136,7 @@ Conventions:
 - Some labels are hardcoded in the app code and don't come from `strings.xml` (`Profile`, `Close screen`, `Clear search`, `N min`). They stay as they are.
 - Never turn airplane mode on from a flow. A real device is usually connected through wireless adb and the connection drops. Simulate offline by relaunching with `debugApiHost: "http://localhost:9"` (see CONN-01).
 - Amounts use a non-breaking space before `€`. Match them with `"."` (`"12,50.€"`), a plain space does not match.
-- Map markers are invisible to Maestro (Google Maps). Map interactions are out of scope for now.
+- The map is disabled by default (`MAP_MODE`). With `MAP_MODE=full`, each stop marker shows up as an unlabeled node in the view hierarchy (about 600 of them). Map interactions are out of scope for now.
 
 ## Test catalog
 
