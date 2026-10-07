@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -327,6 +328,7 @@ private fun SharedTransitionScope.CardsScreenContent(
                 ExistingCardsDetail(
                     currentCardAndTransactions.card,
                     currentCardAndTransactions.transactions,
+                    previousCardHadBalance = true,
                     onTopUpClicked,
                     onDeleteCard = {
                         onDeleteCard(it)
@@ -347,17 +349,17 @@ private fun SharedTransitionScope.CardsScreenContent(
 private fun ExistingCardsDetail(
     currentCard: CardInfo,
     transactionsState: TransactionsState,
+    previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
     Column {
+        CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
         if (FeatureFlags.showCardUpdateWarning) {
-            WarningNotice()
-            Spacer(Modifier.size(16.dp))
+            InfoNote(Modifier.padding(top = 10.dp))
         }
-        CardBalanceItem(currentCard)
-        Spacer(Modifier.size(16.dp))
-        CardInfoElement(currentCard, onTopUpClicked)
+        Spacer(Modifier.size(24.dp))
+        CardInfoElement(currentCard)
         Spacer(Modifier.size(32.dp))
         Text(
             stringResource(R.string.cards_recent_activity),
@@ -604,14 +606,28 @@ private fun CardsEmptyState(nfcState: NfcState, newCardState: CardsScreenNewCard
 }
 
 @Composable
-private fun WarningNotice() {
-    InfoBannerComponent(
-        text = stringResource(R.string.cards_today_operations_notice),
-        icon = Icons.Outlined.Info,
-        containerColor = SevTheme.colorScheme.surfaceContainer,
-        iconColor = SevTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(horizontal = 16.dp),
-    )
+private fun InfoNote(modifier: Modifier = Modifier) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+    ) {
+        Icon(
+            Icons.Outlined.Info,
+            contentDescription = null,
+            tint = SevTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            stringResource(R.string.cards_operations_delay_note),
+            style = SevTheme.typography.bodySmall,
+            color = SevTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+    }
 }
 
 @Composable

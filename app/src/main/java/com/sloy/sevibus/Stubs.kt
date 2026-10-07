@@ -459,6 +459,12 @@ object Stubs {
     )
 
     @Deprecated("")
+    val cardTripTransactions = listOf(
+        CardTransaction.Validation(700000011, transactionsDate, 41, lines[4].toSummary(), bus = 0, people = 1),
+        CardTransaction.Validation(700000012, transactionsDate.minusDays(1), 41, lines[2].toSummary(), bus = 0, people = 1),
+    )
+
+    @Deprecated("")
     val searchResults: List<SearchResult>
         get() {
             val stops = listOf(stops[0], stops[2], stops[5], stops[8], stops[11])

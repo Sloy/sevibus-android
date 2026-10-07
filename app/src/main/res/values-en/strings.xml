@@ -80,16 +80,20 @@
     <string name="cards_activate_nfc">Activate NFC</string>
     <string name="cards_nfc_instruction_1">Activate NFC to easily read the card by bringing it close to your phone</string>
     <string name="cards_nfc_instruction_2">Or tap the card on the back of your phone</string>
+    <string name="cards_available_balance">Available balance</string>
+    <string name="cards_top_up_button">Top up on the Tussam website</string>
+    <string name="cards_operations_delay_note">Transactions can take up to 24h to show up</string>
+    <plurals name="cards_trips_left">
+        <item quantity="one">%d trip left</item>
+        <item quantity="other">About %d trips left</item>
+    </plurals>
     <string name="cards_recent_activity">Recent activity</string>
     <string name="cards_no_recent_activity">No recent activity</string>
-    <string name="cards_today_operations_notice">Today\'s transactions won\'t be reflected until tomorrow</string>
     <string name="cards_error_loading">There was an error loading your cards</string>
     <string name="cards_error_loading_recent_activity">Couldn\'t load recent activity, try again later</string>
     <string name="cards_data_section">Data</string>
     <string name="cards_serial_number_label">Serial number</string>
     <string name="cards_type_label">Card type</string>
-    <string name="cards_top_up">Top up</string>
-    <string name="cards_top_up_description">Top up your card from the official website</string>
     <string name="cards_validation">Validation</string>
     <string name="cards_transfer">Transfer</string>
     <string name="cards_top_up_transaction">Top up</string>
