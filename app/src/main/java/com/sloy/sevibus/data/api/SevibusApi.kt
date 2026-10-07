@@ -8,7 +8,6 @@ import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
-import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
 import retrofit2.http.GET
@@ -38,8 +37,8 @@ interface SevibusApi {
     suspend fun getBuses(@Path("route") route: RouteId): List<BusDto>
 
     @GET("card/{card}")
-    suspend fun getCardInfo(@Path("card") card: CardId, @Query("via") via: String? = null): CardInfoDto
+    suspend fun getCardInfo(@Path("card") card: String, @Query("via") via: String? = null): CardInfoDto
 
     @GET("card/{card}/transactions")
-    suspend fun getCardTransactions(@Path("card") card: CardId): List<CardTransactionDto>
+    suspend fun getCardTransactions(@Path("card") card: String): List<CardTransactionDto>
 }

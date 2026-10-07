@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.FavoriteStop
+import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.domain.repository.FavoriteRepository
+import com.sloy.sevibus.domain.repository.RouteRepository
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
@@ -28,6 +30,7 @@ import kotlin.time.Duration.Companion.seconds
 class StopDetailViewModel(
     private val stopId: StopId,
     private val stopRepository: StopRepository,
+    private val routeRepository: RouteRepository,
     private val busRepository: BusRepository,
     private val favoriteRepository: FavoriteRepository,
     private val sessionService: SessionService,
@@ -37,8 +40,9 @@ class StopDetailViewModel(
     private val favorite: Flow<FavoriteStop?> = favoriteRepository.observeFavorites()
         .map { it.find { favorite -> favorite.stop.code == stopId } }
 
-    private val arrivals: Flow<Result<List<BusArrival>>> = flow {
-        emit(Result.success(emptyList()))
+    /** Emits null until the first response arrives. */
+    private val arrivals: Flow<Result<List<BusArrival>?>> = flow {
+        emit(Result.success(null))
         while (true) {
             try {
                 val arrivals = busRepository.obtainBusArrivals(stopId)
@@ -59,16 +63,24 @@ class StopDetailViewModel(
         arrivals
     ) { stop, isFavorite, arrivalsResult ->
         arrivalsResult.map { arrivals ->
-            if (arrivals.isEmpty()) {
-                StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loading(stop.lines))
-            } else {
-                StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals))
+            when {
+                arrivals == null -> StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loading(stop.lines))
+                arrivals.isEmpty() -> StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(outOfServiceArrivals(stop)))
+                else -> StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals))
             }
         }.recover {
             StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Failed(emptyList(), arrivalsResult.exceptionOrNull()!!))
         }.getOrThrow()
     }.catch { StopDetailScreenState.Failed(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(2000), StopDetailScreenState.Loading)
+
+    /** A stop without any bus expected is treated as out of service: every line is not available. */
+    private suspend fun outOfServiceArrivals(stop: Stop): List<BusArrival> {
+        val routes = routeRepository.obtainRoutesOfStop(stop.code)
+        return stop.lines.mapNotNull { line ->
+            routes.find { it.line == line.id }?.let { route -> BusArrival.NotAvailable(line, route) }
+        }
+    }
 
     fun onFavoriteClick() = viewModelScope.launch {
         if (sessionService.isLogged()) {

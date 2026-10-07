@@ -84,7 +84,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
+            api.getCardInfo(initialCardId.toApiPath(), addMethod?.toApiValue()).fromDto()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null
@@ -100,7 +100,7 @@ class RemoteAndLocalCardsRepository(
         sevibusDao.putCard(card)
         backgroundScope.launch {
             if (sessionService.isLogged()) {
-                runCatching { userApi.addUpdateUserCard(card.serialNumber, card.toDto().copy(addedVia = addMethod?.toApiValue())) }
+                runCatching { userApi.addUpdateUserCard(card.serialNumber.toApiPath(), card.toDto().copy(addedVia = addMethod?.toApiValue())) }
                     .onFailure { SevLogger.logW(it) }
             }
         }
@@ -111,7 +111,7 @@ class RemoteAndLocalCardsRepository(
         sevibusDao.deleteCard(card)
         backgroundScope.launch {
             if (sessionService.isLogged()) {
-                runCatching { userApi.deleteUserCard(card) }
+                runCatching { userApi.deleteUserCard(card.toApiPath()) }
                     .onFailure { SevLogger.logW(it) }
             }
         }
@@ -119,7 +119,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun obtainTransactions(cardId: CardId): List<CardTransaction> {
         val lines = lineRepository.obtainLines()
-        return api.getCardTransactions(cardId).mapNotNull { it.fromDto(lines) }
+        return api.getCardTransactions(cardId.toApiPath()).mapNotNull { it.fromDto(lines) }
     }
 
     override suspend fun dismissAlertForCards(cardIds: List<CardId>) {
@@ -177,7 +177,7 @@ class RemoteAndLocalCardsRepository(
                 remoteCards.none { it.serialNumber == localFavorite.serialNumber }
             }
             missingFromRemote.forEach { local ->
-                userApi.addUpdateUserCard(local.serialNumber, local.toDto())
+                userApi.addUpdateUserCard(local.serialNumber.toApiPath(), local.toDto())
             }
 
             // Check for balance changes that should clear dismissed alerts
@@ -263,4 +263,5 @@ private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
     }
 }
 
-
+/** The backend identifies cards by their 12 digits serial, leading zeros included. */
+internal fun CardId.toApiPath(): String = toString().padStart(12, '0')

@@ -3,7 +3,6 @@ package com.sloy.sevibus.data.api
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LoggedUserDto
-import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.StopId
 import retrofit2.http.Body
@@ -37,13 +36,13 @@ interface SevibusUserApi {
     suspend fun obtainUserCards(): List<CardInfoDto>
 
     @POST("user/addUpdateCard/{cardId}")
-    suspend fun addUpdateUserCard(@Path("cardId") cardId: CardId, @Body card: CardInfoDto)
+    suspend fun addUpdateUserCard(@Path("cardId") cardId: String, @Body card: CardInfoDto)
 
     @POST("user/replaceCards")
     suspend fun replaceUserCards(@Body cards: List<CardInfoDto>)
 
     @DELETE("user/deleteCard/{card}")
-    suspend fun deleteUserCard(@Path("card") card: CardId)
+    suspend fun deleteUserCard(@Path("card") card: String)
 
 
 }
