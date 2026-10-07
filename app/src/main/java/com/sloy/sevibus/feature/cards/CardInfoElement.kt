@@ -21,11 +21,6 @@ import com.sloy.sevibus.ui.theme.SevTheme
 @Composable
 fun CardInfoElement(card: CardInfo) {
     Column {
-        Text(
-            stringResource(R.string.cards_data_section),
-            style = SevTheme.typography.headingSmall,
-            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp)
-        )
         Card(
             Modifier
                 .padding(horizontal = 16.dp)
