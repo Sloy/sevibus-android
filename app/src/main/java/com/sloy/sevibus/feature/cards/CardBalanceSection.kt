@@ -56,7 +56,7 @@ import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
-private val CssEase = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
+internal val CssEase = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
 private val ExpandEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 private val CollapseEasing = CubicBezierEasing(0.3f, 0f, 0.1f, 1f)
 private val ShrinkContentEasing = CubicBezierEasing(0.4f, 0f, 1f, 1f)

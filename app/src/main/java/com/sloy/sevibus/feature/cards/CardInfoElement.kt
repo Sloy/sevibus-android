@@ -1,5 +1,12 @@
 package com.sloy.sevibus.feature.cards
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -7,7 +14,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -17,6 +27,9 @@ import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
+
+private const val SUBTITLE_TRANSITION_MILLIS = 220
+private val SUBTITLE_MAX_BLUR = 6.dp
 
 @Composable
 fun CardInfoElement(card: CardInfo) {
@@ -47,11 +60,25 @@ private fun TitleSubtitleItem(
             .padding(16.dp)
     ) {
         Text(title, style = SevTheme.typography.bodySmallBold)
-        Text(
-            subtitle,
-            style = SevTheme.typography.bodyStandard,
-            color = SevTheme.colorScheme.onSurfaceVariant
-        )
+        AnimatedContent(
+            targetState = subtitle,
+            transitionSpec = {
+                fadeIn(tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase)) togetherWith
+                    fadeOut(tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase))
+            },
+            label = "subtitle",
+        ) { value ->
+            val blurRadius by transition.animateDp(
+                transitionSpec = { tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase) },
+                label = "subtitleBlur",
+            ) { if (it == EnterExitState.Visible) 0.dp else SUBTITLE_MAX_BLUR }
+            Text(
+                value,
+                modifier = Modifier.blur(blurRadius, BlurredEdgeTreatment.Unbounded).fillMaxWidth(),
+                style = SevTheme.typography.bodyStandard,
+                color = SevTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
