@@ -218,7 +218,7 @@ One table per area. Status: ✅ implemented and passing · ⏳ pending · 🚫 b
 | STOP-01 | 1 | Header with name, code, line badges and favorite action | ✅ |
 | STOP-02 | 1 | Opening stop 844 shows the arrival times of the fixture (2, 5, 10 and 15 min) | ✅ |
 | STOP-03 | 1 | Tapping the Rochelambert arrival opens the line route with the stop highlighted | ✅ |
-| STOP-04 | 3 | Stop with no buses shows a "no service" message instead of loading placeholders. Fails until the app has such a message (the skeleton never ends) | ⏳ |
+| STOP-04 | 3 | Stop with no buses (empty arrivals list) shows "No disponible" for every line | ✅ |
 | STOP-05 | 3 | Arrivals error, then recovery on the next 20 s poll once the server answers again | ✅ |
 | STOP-06 | 3 | An arrival flagged as the last bus shows the "Last bus" badge | ✅ |
 
@@ -246,7 +246,7 @@ One table per area. Status: ✅ implemented and passing · ⏳ pending · 🚫 b
 | CARDS-04 | 2 | Add a valid card: balance and recent activity; delete it. Rename does not exist in the app yet and reorder is not covered | ✅ |
 | CARDS-05 | 2 | Low balance alert: "View" opens the card, "Dismiss" hides it, it returns after the balance recovers and drops again (card balances refresh on app start) | ✅ |
 | CARDS-06 | 2 | Cards sync to the server on login and survive logout | 🚫 needs e2e login |
-| CARDS-07 | 1 | Serial with leading zeros is sent intact (currently `000…` becomes `/api/card/0`). Fails until the app is fixed | ⏳ |
+| CARDS-07 | 1 | Serial with leading zeros finds the card. The app sends it as a number (`/api/card/0`), which the backend also does with `parseInt`, so the mock matches any number of zeros | ✅ |
 
 #### Settings (`integration/settings/`)
 
@@ -277,8 +277,6 @@ Stop markers, bus markers and polylines aren't reachable through the accessibili
 ## Findings from the suite
 
 Recorded while building Level 1. They need app changes, which are owned outside this suite.
-- Stop with an empty arrivals list stays in the loading skeleton forever (`StopDetailViewModel.kt:62`, SEVAND-7).
-- Card serials lose leading zeros (`000000000000` requests `/api/card/0`, SEVAND-6).
 - The Travel Card help button's content description is "Apply order" (`CardsScreen.kt:212`).
 - Hardcoded Spanish under the English locale: "No disponible", card messages, all FAQ entries.
 - The analytics switch has no accessible label; tests locate it relative to its title.

@@ -37,11 +37,14 @@ class StopDetailViewModel(
     private val favorite: Flow<FavoriteStop?> = favoriteRepository.observeFavorites()
         .map { it.find { favorite -> favorite.stop.code == stopId } }
 
-    private val arrivals: Flow<Result<List<BusArrival>>> = flow {
-        emit(Result.success(emptyList()))
+    /** Emits null until the first response arrives. */
+    private val arrivals: Flow<Result<List<BusArrival>?>> = flow {
+        emit(Result.success(null))
         while (true) {
             try {
                 val arrivals = busRepository.obtainBusArrivals(stopId)
+                // The repository returns every line of the stop, even without buses, so an empty list means broken data
+                if (arrivals.isEmpty()) throw EmptyArrivalsException(stopId)
                 emit(Result.success(arrivals))
             } catch (e: Exception) {
                 SevLogger.logW(e)
@@ -59,7 +62,7 @@ class StopDetailViewModel(
         arrivals
     ) { stop, isFavorite, arrivalsResult ->
         arrivalsResult.map { arrivals ->
-            if (arrivals.isEmpty()) {
+            if (arrivals == null) {
                 StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loading(stop.lines))
             } else {
                 StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals))
@@ -86,3 +89,5 @@ class StopDetailViewModel(
         }
     }
 }
+
+private class EmptyArrivalsException(stopId: StopId) : IllegalStateException("No arrivals or lines for stop $stopId")
