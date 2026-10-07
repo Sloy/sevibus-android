@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.debug.map
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.maps.android.compose.CameraPositionState
 import com.sloy.debugmenu.overlay.OverlayPill
-import com.sloy.debugmenu.overlay.OverlayPillText
 import com.sloy.sevibus.feature.debug.MapDebugOptions
 import com.sloy.sevibus.feature.map.MapScreenState
 import org.koin.compose.koinInject
@@ -62,19 +62,16 @@ fun MapDebugOverlay(
         Column(
             Modifier
                 .align(Alignment.BottomStart)
-                .padding(4.dp)
+                .padding(4.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             if (options.showMapState) {
                 DebugChip(state::class.simpleName.orEmpty())
             }
             if (options.showCamera) {
                 val position = cameraPositionState.position
-                DebugChip(
-                    String.format(
-                        Locale.US, "zoom %.2f · %.5f, %.5f",
-                        position.zoom, position.target.latitude, position.target.longitude,
-                    )
-                )
+                DebugChip(String.format(Locale.US, "zoom %.2f", position.zoom))
+                DebugChip(String.format(Locale.US, "%.5f, %.5f", position.target.latitude, position.target.longitude))
             }
         }
     }
@@ -82,8 +79,8 @@ fun MapDebugOverlay(
 
 @Composable
 private fun DebugChip(text: String) {
-    OverlayPill {
-        Text(text, style = MaterialTheme.typography.labelSmall, color = OverlayPillText, maxLines = 1)
+    OverlayPill(background = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.8f)) {
+        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.inverseOnSurface, maxLines = 1)
     }
 }
 

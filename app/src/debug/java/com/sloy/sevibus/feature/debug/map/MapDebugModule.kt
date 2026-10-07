@@ -48,8 +48,8 @@ fun DebugMenuScope.MapDebugModule() {
             onShowCameraToggled = vm::onShowCameraToggled,
             onShowVisibleAreaToggled = vm::onShowVisibleAreaToggled,
             onShowFitBoundsToggled = vm::onShowFitBoundsToggled,
-            onShowStopsToggled = vm::onShowStopsToggled,
-            onShowBusesToggled = vm::onShowBusesToggled,
+            onHideStopsToggled = vm::onHideStopsToggled,
+            onHideBusesToggled = vm::onHideBusesToggled,
         ),
     )
 }
@@ -60,8 +60,8 @@ private class MapDebugModuleActions(
     val onShowCameraToggled: (Boolean) -> Unit = {},
     val onShowVisibleAreaToggled: (Boolean) -> Unit = {},
     val onShowFitBoundsToggled: (Boolean) -> Unit = {},
-    val onShowStopsToggled: (Boolean) -> Unit = {},
-    val onShowBusesToggled: (Boolean) -> Unit = {},
+    val onHideStopsToggled: (Boolean) -> Unit = {},
+    val onHideBusesToggled: (Boolean) -> Unit = {},
 )
 
 @Composable
@@ -80,8 +80,8 @@ private fun DebugMenuScope.MapDebugModuleContent(
             actions.onShowVisibleAreaToggled,
         )
         SwitchCell("Fit bounds", "Draw the bounds the camera fits for a line or stop", state.showFitBounds, actions.onShowFitBoundsToggled)
-        SwitchCell("Stop markers", "Stops outside the selected line or stop. Turn off to speed up the map", state.showStops, actions.onShowStopsToggled)
-        SwitchCell("Bus markers", "Turn off to see the line paths", state.showBuses, actions.onShowBusesToggled)
+        SwitchCell("Hide stop markers", "Stops outside the selected line or stop, to speed up the map", state.hideStops, actions.onHideStopsToggled)
+        SwitchCell("Hide bus markers", "To see the line paths", state.hideBuses, actions.onHideBusesToggled)
     }
 }
 
@@ -150,7 +150,7 @@ private fun MapDebugModulePreview() {
     SevTheme {
         Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
             DebugMenu {
-                MapDebugModuleContent(MapDebugModuleState(fakeLocation = FakeLocation.Centro, showCamera = true, showBuses = false))
+                MapDebugModuleContent(MapDebugModuleState(fakeLocation = FakeLocation.Centro, showCamera = true, hideBuses = true))
             }
         }
     }

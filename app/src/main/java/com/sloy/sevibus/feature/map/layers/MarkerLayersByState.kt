@@ -26,8 +26,8 @@ fun MarkerLayersByState(
 }
 
 private fun MapScreenState.withoutHiddenMarkers(options: MapDebugOptions): MapScreenState {
-    val withoutStops = if (options.showStops) this else withoutStops()
-    return if (options.showBuses) withoutStops else withoutStops.withoutBuses()
+    val withoutStops = if (options.hideStops) withoutStops() else this
+    return if (options.hideBuses) withoutStops.withoutBuses() else withoutStops
 }
 
 private fun MapScreenState.withoutStops(): MapScreenState = when (this) {

@@ -13,8 +13,8 @@ class MapDebugModuleViewModel(private val dataSource: MapDebugModuleDataSource) 
     fun onShowCameraToggled(enabled: Boolean) = update { copy(showCamera = enabled) }
     fun onShowVisibleAreaToggled(enabled: Boolean) = update { copy(showVisibleArea = enabled) }
     fun onShowFitBoundsToggled(enabled: Boolean) = update { copy(showFitBounds = enabled) }
-    fun onShowStopsToggled(enabled: Boolean) = update { copy(showStops = enabled) }
-    fun onShowBusesToggled(enabled: Boolean) = update { copy(showBuses = enabled) }
+    fun onHideStopsToggled(enabled: Boolean) = update { copy(hideStops = enabled) }
+    fun onHideBusesToggled(enabled: Boolean) = update { copy(hideBuses = enabled) }
 
     private fun update(change: MapDebugModuleState.() -> MapDebugModuleState) {
         dataSource.updateState(state.value.change())
@@ -28,18 +28,18 @@ data class MapDebugModuleState(
     val showCamera: Boolean = false,
     val showVisibleArea: Boolean = false,
     val showFitBounds: Boolean = false,
-    val showStops: Boolean = true,
-    val showBuses: Boolean = true,
+    val hideStops: Boolean = false,
+    val hideBuses: Boolean = false,
 ) {
     val hasChanges: Boolean
         get() = this != MapDebugModuleState()
 
     fun toOptions() = MapDebugOptions(
-        showStops = showStops,
-        showBuses = showBuses,
         showMapState = showMapState,
         showCamera = showCamera,
         showVisibleArea = showVisibleArea,
         showFitBounds = showFitBounds,
+        hideStops = hideStops,
+        hideBuses = hideBuses,
     )
 }
