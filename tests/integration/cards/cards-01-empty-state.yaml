@@ -1,0 +1,13 @@
+appId: ${APP_ID}
+name: "CARDS-01 Travel Card tab shows the add card form when no cards are saved"
+tags:
+  - cards
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Bonobús"
+- extendedWaitUntil:
+    visible: "Añadir tarjeta"
+    timeout: 10000
+- assertVisible: "El número de serie se encuentra.*"
+- assertVisible: "Número de serie"

@@ -1,0 +1,23 @@
+appId: ${APP_ID}
+name: "E2E-03 Searching a stop opens its detail and loads live arrivals without errors"
+tags:
+  - e2e
+---
+# Live arrivals change all the time, and at night a stop may have no buses at all.
+# The flow only checks that the request doesn't fail.
+- runFlow: ../subflows/launch-dev.yaml
+- runFlow:
+    file: ../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "Guardar como favorito"
+    timeout: 15000
+- assertVisible: "San Bernardo"
+# Give the arrivals response time to arrive: wait up to 5 s for the error, then check it never showed up.
+- extendedWaitUntil:
+    visible: "Ocurrió un error al cargar los tiempos.*"
+    timeout: 5000
+    optional: true
+- assertNotVisible: "Ocurrió un error al cargar los tiempos.*"

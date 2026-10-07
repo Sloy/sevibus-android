@@ -1,0 +1,29 @@
+[
+  {
+    "serialNumber": 0,
+    "date": "2026-03-10T08:15:30",
+    "operation": "validation",
+    "amount": 41,
+    "lineLabel": "27",
+    "busId": 1001,
+    "people": 1
+  },
+  {
+    "serialNumber": 0,
+    "date": "2026-03-10T08:15:27",
+    "operation": "validation",
+    "amount": 41,
+    "lineLabel": "27",
+    "busId": 1001,
+    "people": 2
+  },
+  {
+    "serialNumber": 0,
+    "date": "2026-03-03T18:40:12",
+    "operation": "validation",
+    "amount": 41,
+    "lineLabel": "C1",
+    "busId": 1002,
+    "people": 1
+  }
+]

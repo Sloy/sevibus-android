@@ -1,0 +1,5 @@
+appId: ${APP_ID}
+---
+- setLocation:
+    latitude: 37.3886
+    longitude: -5.9930

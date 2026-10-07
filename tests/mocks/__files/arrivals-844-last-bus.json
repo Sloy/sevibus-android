@@ -1,0 +1,6 @@
+[
+  { "bus": 1923, "distance": 584, "seconds": 120, "line": 25, "isLastBus": false },
+  { "bus": 1924, "distance": 3984, "seconds": 900, "line": 25, "isLastBus": false },
+  { "bus": 242, "distance": 543, "seconds": 300, "line": 26, "isLastBus": false },
+  { "bus": 1937, "distance": 2640, "seconds": 600, "line": 26, "isLastBus": true }
+]

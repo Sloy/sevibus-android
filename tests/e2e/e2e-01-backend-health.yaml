@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "E2E-01 The app reaches the dev backend and its health check reports the dev host"
+tags:
+  - e2e
+---
+- runFlow: ../subflows/launch-dev.yaml
+- tapOn: "Profile"
+- scrollUntilVisible:
+    element:
+      text: "Server host"
+    direction: DOWN
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      text: ".*${EXPECTED_HOST}.*"
+    direction: DOWN
+    timeout: 20000

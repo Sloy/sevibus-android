@@ -1,0 +1,30 @@
+appId: ${APP_ID}
+name: "SET-02 Dark mode preference survives an app restart"
+tags:
+  - settings
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Modo oscuro"
+    timeout: 10000
+- assertVisible: "Predeterminado del sistema"
+- tapOn: "Modo oscuro"
+- tapOn: "Siempre"
+- extendedWaitUntil:
+    notVisible: "Nunca"
+    timeout: 5000
+- stopApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Modo oscuro"
+    timeout: 10000
+- assertVisible: "Siempre"
+- assertNotVisible: "Predeterminado del sistema"

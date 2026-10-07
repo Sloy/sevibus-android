@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: "STOP-01 Stop detail shows name, code, line badges and favorite action"
+tags:
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "Guardar como favorito"
+    timeout: 15000
+- assertVisible: "San Bernardo"
+- assertVisible: "Estación Cercanías"
+- assertVisible: "Parada 844"
+- assertVisible: "25"
+- assertVisible: "26"
+- assertVisible: "A5"
+- assertVisible: "Líneas"

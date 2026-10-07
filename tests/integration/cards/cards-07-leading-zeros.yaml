@@ -1,0 +1,18 @@
+appId: ${APP_ID}
+name: "CARDS-07 A serial with leading zeros is sent intact"
+tags:
+  - cards
+  - level1
+---
+# Expected to fail until card serials keep leading zeros (today 000000000000 requests /api/card/0).
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('card-000000000000', 'valid') }
+- tapOn: "Bonobús"
+- extendedWaitUntil:
+    visible: "Añadir tarjeta"
+    timeout: 10000
+- tapOn: "Número de serie"
+- inputText: "000000000000"
+- extendedWaitUntil:
+    visible: "Actividad reciente"
+    timeout: 15000

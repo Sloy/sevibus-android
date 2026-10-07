@@ -1,0 +1,21 @@
+appId: ${APP_ID}
+name: "FAV-02 Saving a favorite while logged out asks to sign in"
+tags:
+  - favorites
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "Guardar como favorito"
+    timeout: 15000
+- tapOn: "Guardar como favorito"
+- extendedWaitUntil:
+    visible: "Debes iniciar sesión para guardar paradas favoritas"
+    timeout: 5000
+- assertVisible: "Iniciar sesión"
