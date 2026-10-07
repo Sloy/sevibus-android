@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-07 06:05'
+updated_date: '2026-10-07 07:12'
 labels: []
 dependencies: []
 type: enhancement
@@ -66,6 +66,8 @@ Verification:
 - Performance: assembleDebug, installDebug, testDebugUnitTest, lint and check don't run the generator (--dry-run). 33 ms with --rerun, UP-TO-DATE with no .kt changes.
 - Controlled failure checked with a private preview.
 - CI on PR Sloy/sevibus-android#18: Run Tests, Build APK and Screenshot test results green.
+
+Review follow-up: the setup moved from app/build.gradle.kts to the sevibus.screenshot-tests convention plugin in the build-logic included build (ScreenshotTestsPlugin, GenerateScreenshotTestsTask, OrphanScreenshotReferencesTask). It compiles against the AGP API as compileOnly, because putting AGP on the buildSrc classpath clashes with the versioned com.android.application declaration in the root build. The app only applies the plugin and sets packageName. Generated tests are byte-identical, and validate passes 73/73.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

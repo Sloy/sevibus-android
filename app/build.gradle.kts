@@ -1,4 +1,3 @@
-import com.android.build.api.variant.HostTestBuilder
 import com.android.compose.screenshot.tasks.PreviewScreenshotValidationTask
 
 plugins {
@@ -10,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.screenshot)
+    id("sevibus.screenshot-tests")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -89,35 +89,8 @@ tasks.withType<PreviewScreenshotValidationTask>().configureEach {
     testEngineInput.threshold.set(0.01f)
 }
 
-// Generates the screenshotTest wrappers from the @ScreenshotTest previews in main.
-// Only the screenshotTest compilation depends on it, so regular builds don't run it.
-// Reference images no test uses anymore fail validation and are deleted when updating the references.
-androidComponents {
-    onVariants { variant ->
-        val screenshotTest = variant.hostTests[HostTestBuilder.SCREENSHOT_TEST_TYPE] ?: return@onVariants
-        val variantName = variant.name.replaceFirstChar { it.uppercase() }
-        val generateTask = tasks.register<GenerateScreenshotTestsTask>("generate${variantName}ScreenshotTests") {
-            sources.from(fileTree("src/main/java") { include("**/*.kt") })
-            packageName.set("com.sloy.sevibus")
-            referencesFile.set(layout.buildDirectory.file("intermediates/screenshotReferences/${variant.name}/expected.txt"))
-        }
-        screenshotTest.sources.kotlin?.addGeneratedSourceDirectory(generateTask, GenerateScreenshotTestsTask::outputDir)
-
-        val deleteTaskName = "delete${variantName}OrphanScreenshotReferences"
-        fun TaskContainer.registerOrphanTask(name: String, delete: Boolean) =
-            register<OrphanScreenshotReferencesTask>(name) {
-                expectedReferences.set(generateTask.flatMap { it.referencesFile })
-                referenceDir.set(layout.projectDirectory.dir("src/screenshotTest$variantName/reference"))
-                baseDir.set(rootProject.layout.projectDirectory)
-                this.delete.set(delete)
-                this.deleteTaskName.set(deleteTaskName)
-                reportFile.set(layout.buildDirectory.file("reports/screenshotTest/orphans-${variant.name}.txt"))
-            }
-        val checkTask = tasks.registerOrphanTask("check${variantName}ScreenshotReferences", delete = false)
-        val deleteTask = tasks.registerOrphanTask(deleteTaskName, delete = true)
-        tasks.matching { it.name == "validate${variantName}ScreenshotTest" }.configureEach { finalizedBy(checkTask) }
-        tasks.matching { it.name == "update${variantName}ScreenshotTest" }.configureEach { finalizedBy(deleteTask) }
-    }
+screenshotTests {
+    packageName = "com.sloy.sevibus"
 }
 
 ksp {

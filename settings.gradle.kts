@@ -1,4 +1,6 @@
 pluginManagement {
+    // Convention plugins, like the screenshot tests generation
+    includeBuild("build-logic")
     repositories {
         google {
             content {
