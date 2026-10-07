@@ -25,8 +25,8 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.R
-import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.SEVILLA_BOUNDS
+import com.sloy.sevibus.domain.model.SEVILLA_CENTER
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toBounds
@@ -54,7 +54,7 @@ fun SevMap(
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(Stubs.locationInitial.toLatLng(), ZoomLevel.Far.minimumLevel.toFloat())
+        position = CameraPosition.fromLatLngZoom(SEVILLA_CENTER, ZoomLevel.Far.minimumLevel.toFloat())
     }
 
     LaunchedEffect(hasLocationPermission) {

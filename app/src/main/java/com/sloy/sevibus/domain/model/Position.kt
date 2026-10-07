@@ -46,6 +46,8 @@ fun Position.manhattanDistance(other: Position): Double {
     return latDiff + lonDiff
 }
 
+val SEVILLA_CENTER = LatLng(37.3886, -5.9900)
+
 private val SEVILLA_NORTHWEST_CORNER = LatLng(37.472174, -6.043031)
 private val SEVILLA_SOUTHEAST_CORNER = LatLng(37.289951, -5.822207)
 val SEVILLA_BOUNDS = LatLngBounds.builder()
