@@ -39,7 +39,6 @@ import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.infrastructure.EventCollector
-import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.extensions.isApproximatelyEqualTo
@@ -125,14 +124,6 @@ private fun MapUI(
         Modifier
             .fillMaxSize()
             .graphicsLayer { translationX = shakeAnim.value }) {
-        if (FeatureFlags.showMapDebugInfo) {
-            DebugInfo(
-                state,
-                Modifier
-                    .zIndex(1f)
-                    .padding(contentPadding)
-            )
-        }
         Column(
             Modifier
                 .padding(contentPadding)
@@ -227,22 +218,6 @@ private fun LocationButton(
         Icon(if (isCameraInCurrentPosition) Icons.Filled.MyLocation else Icons.Filled.LocationSearching, "Search Location")
     }
 }
-
-@Composable
-private fun DebugInfo(
-    state: MapScreenState,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        verticalArrangement = Arrangement.Bottom, horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        Text(state::class.simpleName!!)
-        Text("Debug Info")
-    }
-}
-
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Preview

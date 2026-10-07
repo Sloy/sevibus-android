@@ -1,4 +1,4 @@
-package com.sloy.sevibus.feature.debug.location
+package com.sloy.sevibus.feature.debug.map
 
 import com.sloy.sevibus.domain.model.Position
 import kotlinx.serialization.Serializable

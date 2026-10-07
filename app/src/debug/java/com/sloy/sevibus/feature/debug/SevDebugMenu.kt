@@ -8,7 +8,7 @@ import com.sloy.sevibus.data.api.AdminApi
 import com.sloy.sevibus.feature.debug.admin.AdminDashboardLink
 import com.sloy.sevibus.feature.debug.auth.AuthDebugModule
 import com.sloy.sevibus.feature.debug.inappreview.InAppReviewDebugModule
-import com.sloy.sevibus.feature.debug.location.LocationDebugModule
+import com.sloy.sevibus.feature.debug.map.MapDebugModule
 import com.sloy.sevibus.feature.debug.network.SevHostPresets
 import com.sloy.sevibus.feature.debug.network.toDebugEntries
 import org.koin.compose.koinInject
@@ -24,7 +24,7 @@ fun DebugMenuScope.SevDebugMenu() {
         healthCheck = { adminApi.healthCheck().toDebugEntries() },
     )
     EventsModule(koinInject(), koinInject(), koinInject())
-    LocationDebugModule()
+    MapDebugModule()
     InAppReviewDebugModule()
     AuthDebugModule()
     AdminDashboardLink()
