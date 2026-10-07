@@ -1,10 +1,11 @@
 appId: ${APP_ID}
-name: "CARDS-07 A serial with leading zeros is sent intact"
+name: "CARDS-07 A serial with leading zeros finds the card"
 tags:
   - cards
   - level1
 ---
-# Expected to fail until card serials keep leading zeros (today 000000000000 requests /api/card/0).
+# The app sends the serial as a number (000000000000 requests /api/card/0). The backend parses it with parseInt,
+# so zeros carry no information and the mock matches /api/card/0+.
 - runFlow: ../../subflows/launch-mocked.yaml
 - evalScript: ${ output.mocks.set('card-000000000000', 'valid') }
 - tapOn: "Bonobús"
@@ -14,5 +15,10 @@ tags:
 - tapOn: "Número de serie"
 - inputText: "000000000000"
 - extendedWaitUntil:
-    visible: "Actividad reciente"
+    visible: "0000 0000 0000"
     timeout: 15000
+- scrollUntilVisible:
+    element: "Actividad reciente"
+    direction: DOWN
+    timeout: 10000
+- assertVisible: "Validación"

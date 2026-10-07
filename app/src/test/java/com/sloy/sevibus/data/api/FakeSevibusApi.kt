@@ -8,6 +8,7 @@ import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.StopDto
+import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.StopId
 import kotlinx.coroutines.CompletableDeferred
@@ -115,12 +116,12 @@ open class FakeSevibusApi : SevibusApi {
         return@withContext busesResponse
     }
 
-    override suspend fun getCardInfo(card: String, via: String?): CardInfoDto = withContext(Dispatchers.IO) {
+    override suspend fun getCardInfo(card: CardId, via: String?): CardInfoDto = withContext(Dispatchers.IO) {
         awaitLatch()
         return@withContext cardInfoResponse!!
     }
 
-    override suspend fun getCardTransactions(card: String): List<CardTransactionDto> = withContext(Dispatchers.IO) {
+    override suspend fun getCardTransactions(card: CardId): List<CardTransactionDto> = withContext(Dispatchers.IO) {
         awaitLatch()
         return@withContext cardTransactionsResponse
     }
