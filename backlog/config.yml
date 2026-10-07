@@ -2,7 +2,7 @@ project_name: "SeviBus Android"
 default_status: "To Do"
 statuses: ["To Do", "In Progress", "Done"]
 labels: []
-definition_of_done: ["Pushed to remote's master branch", "Screenshot tests passed"]
+definition_of_done: ["Submitted to master, or to an open PR that will merge to master.", "(For changes affecting UI) Screenshot test pass"]
 date_format: yyyy-mm-dd
 max_column_width: 20
 default_editor: "vim"

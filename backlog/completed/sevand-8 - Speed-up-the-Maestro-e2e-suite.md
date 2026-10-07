@@ -1,11 +1,11 @@
 ---
 id: SEVAND-8
 title: Speed up the Maestro e2e suite
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-07 00:07'
-updated_date: '2026-10-07 06:03'
+updated_date: '2026-10-07 14:59'
 labels:
   - e2e
 dependencies: []
