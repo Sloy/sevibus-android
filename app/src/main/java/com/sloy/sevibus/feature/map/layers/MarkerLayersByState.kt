@@ -3,20 +3,47 @@ package com.sloy.sevibus.feature.map.layers
 import androidx.compose.runtime.Composable
 import com.google.maps.android.compose.GoogleMapComposable
 import com.sloy.sevibus.domain.model.Stop
+import com.sloy.sevibus.feature.debug.MapDebugOptions
 import com.sloy.sevibus.feature.map.MapScreenState
 import com.sloy.sevibus.feature.map.ZoomLevel
 
 @Composable
 @GoogleMapComposable
-fun MarkerLayersByState(state: MapScreenState, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
-    when (state) {
+fun MarkerLayersByState(
+    state: MapScreenState,
+    zoomLevel: ZoomLevel,
+    onStopClick: (Stop) -> Unit,
+    debugOptions: MapDebugOptions = MapDebugOptions(),
+) {
+    when (val filtered = state.withoutHiddenMarkers(debugOptions)) {
         is MapScreenState.Initial -> {}
-        is MapScreenState.Idle -> IdleMarkerLayers(state, zoomLevel, onStopClick)
-        is MapScreenState.LinesOverview -> LinesOverviewMarkerLayers(state, zoomLevel, onStopClick)
-        is MapScreenState.LineSelected -> LineSelectedMarkerLayers(state, zoomLevel, onStopClick)
-        is MapScreenState.StopSelected -> StopSelectedMarkerLayers(state, zoomLevel, onStopClick)
-        is MapScreenState.StopAndLineSelected -> StopAndLineSelectedMarkerLayers(state, zoomLevel, onStopClick)
+        is MapScreenState.Idle -> IdleMarkerLayers(filtered, zoomLevel, onStopClick)
+        is MapScreenState.LinesOverview -> LinesOverviewMarkerLayers(filtered, zoomLevel, onStopClick)
+        is MapScreenState.LineSelected -> LineSelectedMarkerLayers(filtered, zoomLevel, onStopClick)
+        is MapScreenState.StopSelected -> StopSelectedMarkerLayers(filtered, zoomLevel, onStopClick)
+        is MapScreenState.StopAndLineSelected -> StopAndLineSelectedMarkerLayers(filtered, zoomLevel, onStopClick)
     }
+}
+
+private fun MapScreenState.withoutHiddenMarkers(options: MapDebugOptions): MapScreenState {
+    val withoutStops = if (options.hideStops) withoutStops() else this
+    return if (options.hideBuses) withoutStops.withoutBuses() else withoutStops
+}
+
+private fun MapScreenState.withoutStops(): MapScreenState = when (this) {
+    is MapScreenState.Initial -> this
+    is MapScreenState.Idle -> copy(allStops = emptyList())
+    is MapScreenState.LinesOverview -> copy(allStops = emptyList())
+    is MapScreenState.LineSelected -> copy(otherStops = emptyList())
+    is MapScreenState.StopSelected -> copy(otherStops = emptyList())
+    is MapScreenState.StopAndLineSelected -> copy(lineSelectedState = lineSelectedState.copy(otherStops = emptyList()))
+}
+
+private fun MapScreenState.withoutBuses(): MapScreenState = when (this) {
+    is MapScreenState.LineSelected -> copy(buses = null)
+    is MapScreenState.StopSelected -> copy(buses = null)
+    is MapScreenState.StopAndLineSelected -> copy(lineSelectedState = lineSelectedState.copy(buses = null))
+    else -> this
 }
 
 @Composable

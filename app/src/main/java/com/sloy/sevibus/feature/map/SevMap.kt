@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.map
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -9,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -17,12 +19,15 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraMoveStartedReason
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.SEVILLA_BOUNDS
@@ -32,6 +37,8 @@ import com.sloy.sevibus.domain.model.isInsideSevilla
 import com.sloy.sevibus.domain.model.toBounds
 import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.domain.model.toLatLngBounds
+import com.sloy.sevibus.feature.debug.map.MapDebugOverlay
+import com.sloy.sevibus.feature.debug.map.rememberMapDebugOptions
 import com.sloy.sevibus.feature.map.layers.MarkerLayersByState
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
@@ -53,6 +60,7 @@ fun SevMap(
     modifier: Modifier = Modifier,
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
+    val debugOptions = rememberMapDebugOptions()
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(SEVILLA_CENTER, ZoomLevel.Far.minimumLevel.toFloat())
     }
@@ -81,7 +89,7 @@ fun SevMap(
     }
 
     val density = LocalDensity.current
-    val boundsPadding = with(density) { 40.dp.toPx() }.toInt()
+    val boundsPadding = with(density) { BOUNDS_PADDING.toPx() }.toInt()
 
     when (state) {
         is MapScreenState.StopSelected -> {
@@ -144,19 +152,49 @@ fun SevMap(
     }
 
     val locationSource = koinInjectOnUI<LocationSource>()
-    GoogleMap(
-        modifier = modifier.fillMaxSize(),
-        uiSettings = mapUiSettings,
-        properties = mapProperties,
-        contentPadding = contentPadding,
-        cameraPositionState = cameraPositionState,
-        onMapClick = { onMapClick() },
-        locationSource = locationSource,
-    ) {
-        val zoomLevel = ZoomLevel(cameraPositionState.position.zoom.toInt())
-        MarkerLayersByState(state, zoomLevel, onStopSelected)
+    Box(modifier.fillMaxSize()) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            uiSettings = mapUiSettings,
+            properties = mapProperties,
+            contentPadding = contentPadding,
+            cameraPositionState = cameraPositionState,
+            onMapClick = { onMapClick() },
+            locationSource = locationSource,
+        ) {
+            val zoomLevel = ZoomLevel(cameraPositionState.position.zoom.toInt())
+            MarkerLayersByState(state, zoomLevel, onStopSelected, debugOptions)
+            if (debugOptions.showFitBounds) {
+                state.fitBounds()?.let { FitBoundsOutline(it) }
+            }
+        }
+        MapDebugOverlay(debugOptions, state, cameraPositionState, contentPadding, BOUNDS_PADDING)
     }
 }
 
+private fun MapScreenState.fitBounds(): LatLngBounds? = when (this) {
+    is MapScreenState.LineSelected -> lineStops.toBounds().toLatLngBounds()
+    is MapScreenState.StopAndLineSelected -> selectedStops().toBounds().toLatLngBounds()
+    else -> null
+}
+
+@Composable
+@GoogleMapComposable
+private fun FitBoundsOutline(bounds: LatLngBounds) {
+    Polygon(
+        points = listOf(
+            bounds.southwest,
+            LatLng(bounds.southwest.latitude, bounds.northeast.longitude),
+            bounds.northeast,
+            LatLng(bounds.northeast.latitude, bounds.southwest.longitude),
+        ),
+        fillColor = Color.Transparent,
+        strokeColor = Color(0xFF2196F3),
+        strokeWidth = 4f,
+        zIndex = Float.MAX_VALUE,
+    )
+}
+
+private val BOUNDS_PADDING = 40.dp
 private const val MY_LOCATION_ZOOM = 17f
 private const val MAP_CAMERA_ANIMATION_DURATION = 200

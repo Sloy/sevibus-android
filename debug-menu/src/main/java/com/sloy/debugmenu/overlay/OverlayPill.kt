@@ -13,11 +13,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-internal val OverlayPillBackground = Color(0xFFEEEEEE).copy(alpha = 0.8f)
-internal val OverlayPillText = Color(0xFF212121)
+val OverlayPillBackground = Color(0xFFEEEEEE).copy(alpha = 0.8f)
+val OverlayPillText = Color(0xFF212121)
 
+/**
+ * Small translucent chip used by the overlay items, also available to app overlays drawn over its own content.
+ */
 @Composable
-internal fun OverlayPill(
+fun OverlayPill(
     modifier: Modifier = Modifier,
     background: Color = OverlayPillBackground,
     content: @Composable RowScope.() -> Unit,
