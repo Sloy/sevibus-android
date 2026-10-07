@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-06 23:01'
+updated_date: '2026-10-07 06:05'
 labels: []
 dependencies: []
 type: enhancement
@@ -37,44 +37,39 @@ alternative is writing a custom kotlin compiler plugin to auto generate the scre
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-1. Crear anotación @ScreenshotTest en main, con el suite como parámetro (SCREEN / COMPONENT).
-2. Tarea Gradle en buildSrc que lee los .kt de main (sin compilar) y genera ScreensScreenshotTests.kt y ComponentsScreenshotTests.kt en build/generated/screenshotTest, con @Preview(locale = "es") + @PreviewTest. Cacheable y compatible con configuration cache.
-3. Conectarla solo a la compilación de screenshotTest (registro lazy), para que assembleDebug, installDebug y test no la ejecuten.
-4. Fallar el build si una preview anotada es private o no se puede interpretar.
-5. Anotar las 62 previews que hoy tienen wrapper y borrar los wrappers escritos a mano.
-6. Medir con --scan o --profile que assembleDebug no ejecuta la tarea y cuánto tarda en validateDebugScreenshotTest.
-7. Validar con validateDebugScreenshotTest y actualizar CLAUDE.md.
-
-8. Respetar previews día/noche: @PreviewLightDark o uiMode nocturno generan también un @Preview oscuro. Arreglar en la misma PR el stub dependiente del reloj que hacía fallar LineElementPreview.
+1. Add a @ScreenshotTest annotation in main, with the suite as a parameter (Screens / Components).
+2. Add a Gradle task in buildSrc that reads the main .kt files (no compilation) and generates ScreensScreenshotTests.kt and ComponentsScreenshotTests.kt in build/generated/screenshotTest, with @Preview(locale = "es") + @PreviewTest. Cacheable and configuration-cache compatible.
+3. Wire it only into the screenshotTest compilation (lazy registration), so assembleDebug, installDebug and test don't run it.
+4. Fail the build if an annotated preview is private or can't be parsed.
+5. Annotate the 62 previews that have a wrapper today and delete the hand-written wrappers.
+6. Measure with --profile / --dry-run that assembleDebug doesn't run the task, and how long it takes in validateDebugScreenshotTest.
+7. Validate with validateDebugScreenshotTest and update CLAUDE.md.
+8. Support day/night previews: @PreviewLightDark or a night uiMode also generates a dark @Preview. Fix the clock-dependent stub that made LineElementPreview fail, in the same PR.
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Investigación ComposablePreviewScanner (CPS):
-- CPS solo escanea previews (ClassGraph) en runtime y devuelve objetos ComposablePreview; no renderiza. Hay que combinarlo con Roborazzi, Paparazzi o tests instrumentados.
-- No se integra con Compose Preview Screenshot Testing (plugin oficial): ese plugin solo descubre funciones @PreviewTest compiladas en el source set screenshotTest. Tampoco en alpha16 con AGP test suites (requiere AGP 9.5.0-alpha03; el proyecto usa 9.4.1).
-- Conclusión: CPS no sirve tal cual con el setup actual. Adoptarlo implica cambiar de motor de render.
-Situación actual: 62 wrappers @PreviewTest, todos con @Preview(locale = "es") idéntico, y 92 previews en main.
-Opciones:
-A) Roborazzi + generateComposePreviewRobolectricTests (usa CPS por dentro, opt-in con @RoboPreviewInclude). Robolectric: hay que regenerar todas las referencias y adaptar el workflow de CI y screenshot_report.py.
-B) Paparazzi + paparazzi-plugin de CPS (layoutlib, pero es un ejemplo sin soporte que hay que copiar). Compatibilidad con AGP 9 sin verificar.
-C) Mantener el plugin oficial y generar los wrappers con una tarea Gradle en buildSrc: escanea las clases compiladas de main (ClassGraph) buscando una anotación propia, escribe los wrappers en build/generated y los añade al source set screenshotTest. Sin cambiar motor, referencias ni CI. Recomendada.
-D) Plugin de compilador Kotlin: descartado; API de K2 inestable y no puede generar código en otra compilación.
-Extra barato: un test que falle si una preview anotada no tiene wrapper.
+Investigation of ComposablePreviewScanner (CPS):
+- CPS only scans previews at runtime (ClassGraph) and returns ComposablePreview objects. It doesn't render, so it needs Roborazzi, Paparazzi or instrumentation tests.
+- It doesn't integrate with Compose Preview Screenshot Testing (the official plugin), which only discovers @PreviewTest functions compiled in the screenshotTest source set. Same with alpha16 and AGP test suites (needs AGP 9.5.0-alpha03, the project uses 9.4.1).
+- Conclusion: CPS doesn't fit while keeping the official plugin. Generating the wrappers with a Gradle task in buildSrc does. A Kotlin compiler plugin was discarded: unstable K2 API, it would run on every main compilation, and it can't add code to the screenshotTest compilation.
 
-Implementado: anotación @ScreenshotTest(ScreenshotSuite.X) en main, GenerateScreenshotTestsTask en buildSrc y conexión vía androidComponents.onVariants + addGeneratedSourceDirectory. 62 previews anotadas, wrappers a mano borrados y referencias renombradas al nombre de la preview (mismo hash b2db1d68).
-Verificación local: validateDebugScreenshotTest da 61/62 antes y después; el único fallo, LineElementPreview, ya existía y viene de que el stub usa la hora actual.
-Rendimiento: assembleDebug, installDebug, testDebugUnitTest, lint y check no ejecutan el generador (--dry-run). Tarda 33 ms forzado y queda UP-TO-DATE sin cambios en los .kt.
-Error controlado comprobado con una preview private.
+Implementation:
+- @ScreenshotTest(ScreenshotSuite.X) annotation in main, GenerateScreenshotTestsTask in buildSrc, wired with androidComponents.onVariants + addGeneratedSourceDirectory.
+- 62 previews annotated, hand-written wrappers deleted, references renamed after the preview (same hash b2db1d68).
+- Day/night: 11 previews generate a dark variant (*_f6f1fda3_0.png). The light variant keeps its hash.
+- Stubs: fixed LocalTime.MIN–MAX schedule instead of LocalTime.now(). Updated the LineElementPreview, LinesScreenPreview and SearchScreenResultsPreview references, which depended on the time of day.
 
-Día/noche: 11 previews generan variante oscura (*_f6f1fda3_0.png). La variante clara se mantiene, con el mismo hash.
-Stubs: horario fijo LocalTime.MIN–MAX en lugar de LocalTime.now(). Se actualizan las referencias de LineElementPreview, LinesScreenPreview y SearchScreenResultsPreview, que dependían de la hora.
-Validación local: validateDebugScreenshotTest 73/73 y testDebugUnitTest OK. CI de la PR Sloy/sevibus-android#18: Run Tests, Build APK y Screenshot test results en verde.
+Verification:
+- Local validateDebugScreenshotTest: 73/73. testDebugUnitTest passing.
+- Performance: assembleDebug, installDebug, testDebugUnitTest, lint and check don't run the generator (--dry-run). 33 ms with --rerun, UP-TO-DATE with no .kt changes.
+- Controlled failure checked with a private preview.
+- CI on PR Sloy/sevibus-android#18: Run Tests, Build APK and Screenshot test results green.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Los tests de screenshots se generan a partir de previews anotadas con @ScreenshotTest(ScreenshotSuite.X), con una tarea Gradle en buildSrc que lee los .kt de main y solo se ejecuta al compilar screenshotTest (33 ms; assembleDebug, test, lint y check no la ejecutan). Se mantiene el plugin oficial y se soportan previews día/noche. Se arregla un stub dependiente del reloj. Verificado con 73/73 screenshots en local y en la CI de la PR Sloy/sevibus-android#18. El DoD #1 (en master) se completa al mergear la PR.
+Screenshot tests are generated from previews annotated with @ScreenshotTest(ScreenshotSuite.X), using a buildSrc Gradle task that reads the main .kt files and only runs when screenshotTest compiles (33 ms; assembleDebug, test, lint and check don't run it). The official plugin is kept and day/night previews are supported. A clock-dependent stub was fixed. Verified with 73/73 screenshots locally and in the CI of PR Sloy/sevibus-android#18. DoD #1 (on master) completes when the PR is merged.
 <!-- SECTION:FINAL_SUMMARY:END -->

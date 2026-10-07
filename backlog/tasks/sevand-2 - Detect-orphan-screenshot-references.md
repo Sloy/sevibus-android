@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-06 23:04'
-updated_date: '2026-10-06 23:12'
+updated_date: '2026-10-07 06:05'
 labels: []
 dependencies: []
 type: enhancement
@@ -34,18 +34,17 @@ When a @ScreenshotTest preview is deleted, renamed, or loses its dark variant, i
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
-1. El generador escribe la lista de referencias esperadas (<paquete>/<clase>/<test>_<hash>), con los hashes de sus dos configuraciones @Preview.
-2. OrphanScreenshotReferencesTask compara esa lista con src/screenshotTest<Variant>/reference: falla listando las huérfanas o las borra.
-3. check<Variant>ScreenshotReferences finaliza validate (falla) y delete<Variant>OrphanScreenshotReferences finaliza update (borra).
-4. CI: el comentario lista las huérfanas y la etiqueta update-screenshots (y la PR de master) las borra.
+1. The generator writes the list of expected references (<package path>/<class>/<test>_<hash>), using the hashes of its two @Preview configurations.
+2. OrphanScreenshotReferencesTask compares that list with src/screenshotTest<Variant>/reference: it fails listing the orphans, or deletes them.
+3. check<Variant>ScreenshotReferences finalizes validate (fails) and delete<Variant>OrphanScreenshotReferences finalizes update (deletes).
+4. CI: the PR comment lists the orphans, and the update-screenshots label (and the master update PR) deletes them.
 5. CLAUDE.md.
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Decisión: no borrar en validate ni en la generación; solo fallar. El borrado es un cambio en el código fuente y solo ocurre con acciones explícitas (update, la tarea delete o la etiqueta de CI).
-Verificado en local: validate 73/73 con 0 huérfanas. Quitar @ScreenshotTest de AlertWidgetPreview hace fallar check listando la imagen, y la tarea delete la borra. Cambiar @PreviewLightDark por @Preview en StopTimelineElementPreview y lanzar update de ese test borra la referencia oscura y deja la clara idéntica. assembleDebug, testDebugUnitTest y check no ejecutan las tareas nuevas. Script del informe probado con y sin huérfanas.
-
-Bloqueo: la GitHub App de la sesión no tiene permiso workflows, así que no pudo subir .github/workflows/screenshot-tests.yml. Los cambios de CI (screenshot_report.py, workflow y las frases de CI en CLAUDE.md) quedan en un parche para aplicarlo a mano. El AC #3 sigue pendiente de ese parche.
+Decision: neither validation nor generation deletes anything, they only fail. Deleting is a source change, so it only happens on explicit actions (update, the delete task or the CI label).
+Verified locally: validate 73/73 with 0 orphans. Removing @ScreenshotTest from AlertWidgetPreview makes the check fail listing its image, and the delete task removes it. Replacing @PreviewLightDark with @Preview in StopTimelineElementPreview and updating that test deletes the dark reference and leaves the light one byte-identical. assembleDebug, testDebugUnitTest and check don't run the new tasks. Report script tested with and without orphans.
+Blocker: this session's GitHub App lacks the workflows permission, so it can't push .github/workflows/screenshot-tests.yml (rejected by both git push and the API). The CI changes (screenshot_report.py, the workflow and the CI paragraph in CLAUDE.md) are in ci-orphans.patch, to be applied manually. AC #3 is pending on that patch.
 <!-- SECTION:NOTES:END -->
