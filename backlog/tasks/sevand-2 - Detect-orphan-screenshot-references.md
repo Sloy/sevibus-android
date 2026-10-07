@@ -1,11 +1,10 @@
 ---
 id: SEVAND-2
 title: Detect orphan screenshot references
-status: In Progress
-assignee:
-  - '@claude'
+status: To Do
+assignee: []
 created_date: '2026-10-06 23:04'
-updated_date: '2026-10-07 06:05'
+updated_date: '2026-10-07 06:19'
 labels: []
 dependencies: []
 type: enhancement
@@ -44,7 +43,10 @@ When a @ScreenshotTest preview is deleted, renamed, or loses its dark variant, i
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Decision: neither validation nor generation deletes anything, they only fail. Deleting is a source change, so it only happens on explicit actions (update, the delete task or the CI label).
-Verified locally: validate 73/73 with 0 orphans. Removing @ScreenshotTest from AlertWidgetPreview makes the check fail listing its image, and the delete task removes it. Replacing @PreviewLightDark with @Preview in StopTimelineElementPreview and updating that test deletes the dark reference and leaves the light one byte-identical. assembleDebug, testDebugUnitTest and check don't run the new tasks. Report script tested with and without orphans.
-Blocker: this session's GitHub App lacks the workflows permission, so it can't push .github/workflows/screenshot-tests.yml (rejected by both git push and the API). The CI changes (screenshot_report.py, the workflow and the CI paragraph in CLAUDE.md) are in ci-orphans.patch, to be applied manually. AC #3 is pending on that patch.
+Done in the SEVAND-1 PR (Sloy/sevibus-android#18):
+- The generator lists the expected references, using the hashes of its two @Preview configurations.
+- OrphanScreenshotReferencesTask: validateDebugScreenshotTest fails listing the orphans (checkDebugScreenshotReferences). updateDebugScreenshotTest and deleteDebugOrphanScreenshotReferences delete them.
+- Verified locally: deleting a preview's annotation fails the check, and the delete task removes its image. Dropping a dark variant and updating deletes the dark image and leaves the light one byte-identical. Builds outside the screenshot tasks don't run it.
+
+Remaining (AC #3): the CI side. The diff is in backlog doc-1 (CI changes for orphan screenshot references). It updates .github/scripts/screenshot_report.py, .github/workflows/screenshot-tests.yml and the CI section of CLAUDE.md. It must be pushed from a local clone, because GitHub rejects workflow changes from a GitHub App without the workflows permission. Until then, CI still fails when there's an orphan, but the PR comment doesn't list it and the update-screenshots label doesn't delete it.
 <!-- SECTION:NOTES:END -->
