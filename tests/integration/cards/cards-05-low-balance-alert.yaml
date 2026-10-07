@@ -15,22 +15,24 @@ tags:
 - tapOn: "Número de serie"
 - inputText: "123456789012"
 - extendedWaitUntil:
-    visible: "1,50.€"
+    visible: "0,80.€"
     timeout: 15000
 - tapOn: "Para ti"
 - extendedWaitUntil:
-    visible: "Poco saldo"
+    visible: "Saldo bajo"
     timeout: 15000
-- tapOn: "Ver"
+- tapOn: "Saldo bajo"
 - extendedWaitUntil:
-    visible: "1,50.€"
+    visible: "Saldo disponible"
     timeout: 10000
+- assertVisible: "Te quedan unos 3 viajes"
+- assertVisible: "Recargar en la web de Tussam"
 - tapOn: "Para ti"
 - extendedWaitUntil:
-    visible: "Ocultar"
+    visible: "Saldo bajo"
     timeout: 10000
-- tapOn: "Ocultar"
-- assertNotVisible: "Poco saldo"
+- tapOn: "Ocultar aviso"
+- assertNotVisible: "Saldo bajo"
 # The balance recovers: the app clears the dismissal on its next refresh.
 - evalScript: ${ output.mocks.set('card-123456789012', 'recovered') }
 - stopApp
@@ -55,5 +57,5 @@ tags:
     timeout: 30000
 - tapOn: "Para ti"
 - extendedWaitUntil:
-    visible: "Poco saldo"
+    visible: "Saldo bajo"
     timeout: 15000

@@ -616,6 +616,21 @@ Where the type can be,
 The scope is optional. Only add it when the commit is limited to a very specific domain area, for instance, chore(ci) or feat(favorites). Do
 not add it if the title is intuitive enough
 
+## Backlog Conventions
+
+These notes live outside the managed Backlog.md guidelines block below, so they survive its regeneration.
+
+### Referencing tickets
+
+When mentioning a ticket by its number (like SEVAND-5), also include its title at least once, for example `SEVAND-5 (Speed up the Maestro e2e suite)`, in case the reader doesn't know which ticket it is from the number alone. If the same ticket is mentioned several times in the same output, only the first mention needs the title.
+
+### Running the CLI when it is not installed
+
+If the `backlog` CLI is not installed (common in ephemeral environments like Claude Cloud), run it with one of the recommended ways from the Backlog.md repository instead of giving up:
+
+- `nix run github:MrLesk/Backlog.md -- <args>`
+- `npm i -g backlog.md`, then use `backlog <args>`
+
 <!-- BACKLOG.MD GUIDELINES START -->
 <!-- backlog.md-instructions-version: 1.53.0 -->
 <CRITICAL_INSTRUCTION>
