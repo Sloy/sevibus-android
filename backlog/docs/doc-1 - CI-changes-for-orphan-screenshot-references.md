@@ -3,9 +3,9 @@ id: doc-1
 title: CI changes for orphan screenshot references
 type: specification
 created_date: '2026-10-07 06:19'
-updated_date: '2026-10-07 06:19'
+updated_date: '2026-10-07 07:49'
 ---
-Pending part of SEVAND-2. The Gradle side (orphan check and delete tasks) is part of PR Sloy/sevibus-android#18. This diff makes the screenshot CI use it: the PR comment lists orphan references, and the `update-screenshots` label (and the master update PR) deletes them.
+Pending part of SEVAND-9. The Gradle side (orphan check and delete tasks) is part of PR Sloy/sevibus-android#18. This diff makes the screenshot CI use it: the PR comment lists orphan references, and the `update-screenshots` label (and the master update PR) deletes them.
 
 It could not be pushed from a Claude Code remote session: GitHub rejects changes to `.github/workflows/` from a GitHub App without the `workflows` permission. Push it from a local clone with `git apply` on this diff.
 
