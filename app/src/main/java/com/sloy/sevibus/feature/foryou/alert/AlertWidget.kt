@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
+import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.components.SmallSurfaceButton
@@ -67,8 +68,8 @@ private fun AlertWidget(
 ) {
     when (state) {
         AlertState.Hidden -> return
-        is AlertState.LowBalance -> AlertCard(state.cardId, false, onDismissAlert, onAlertClicked, modifier)
-        is AlertState.NegativeBalance -> AlertCard(state.cardId, true, onDismissAlert, onAlertClicked, modifier)
+        is AlertState.LowBalance -> AlertCard(state.card.serialNumber, false, onDismissAlert, onAlertClicked, modifier)
+        is AlertState.NegativeBalance -> AlertCard(state.card.serialNumber, true, onDismissAlert, onAlertClicked, modifier)
     }
 }
 
@@ -144,7 +145,7 @@ private fun AlertCard(
 internal fun AlertWidgetPreview() {
     ScreenPreview {
         AlertWidget(
-            state = AlertState.LowBalance(cardId = 123456L),
+            state = AlertState.LowBalance(Stubs.cards[0].copy(balance = 150)),
             onAlertClicked = {},
             onDismissAlert = {}
         )

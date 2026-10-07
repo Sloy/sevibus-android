@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.hasBalance
+import com.sloy.sevibus.domain.model.isLowBalance
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
@@ -30,17 +32,12 @@ class AlertViewModel(
 
         clearDismissedAlertsWithHighBalance(cards, dismissedCardIds)
 
-        val cardsWithAlerts = cards
-            .filterLowBalance()
+        cards
+            .filter { it.isLowBalance }
             .filterNot { it.serialNumber in dismissedCardIds }
-
-        cardsWithAlerts
             .firstOrNull()
             ?.let { card ->
-                when {
-                    card.balance!! < 0 -> AlertState.NegativeBalance(card.serialNumber)
-                    else -> AlertState.LowBalance(card.serialNumber)
-                }
+                if (card.balance!! < 0) AlertState.NegativeBalance(card) else AlertState.LowBalance(card)
             } ?: AlertState.Hidden
     }
         .distinctUntilChanged()
@@ -62,7 +59,7 @@ class AlertViewModel(
     fun onDismissAlert() {
         viewModelScope.launch {
             runCatching {
-                val lowBalanceCardIds = cardsRepository.obtainUserCards().filterLowBalance()
+                val lowBalanceCardIds = cardsRepository.obtainUserCards().filter { it.isLowBalance }
                 if (lowBalanceCardIds.isNotEmpty()) {
                     cardsRepository.dismissAlertForCards(lowBalanceCardIds.map { it.serialNumber })
                 }
@@ -76,15 +73,12 @@ class AlertViewModel(
         analytics.track(event)
     }
 
-    private fun List<CardInfo>.filterLowBalance(): List<CardInfo> = filter { it.balance != null && it.balance < BALANCE_THRESHOLD }
-    private fun List<CardInfo>.filterHighBalance(): List<CardInfo> = filter { it.balance != null && it.balance >= BALANCE_THRESHOLD }
-
     private suspend fun clearDismissedAlertsWithHighBalance(
         cards: List<CardInfo>,
         dismissedCardIds: List<CardId>
     ) {
         cards
-            .filterHighBalance()
+            .filter { it.hasBalance && !it.isLowBalance }
             .filter { it.serialNumber in dismissedCardIds }
             .forEach {
                 SevLogger.logD("Clearing dismissed alerts for: $it")
@@ -92,5 +86,3 @@ class AlertViewModel(
             }
     }
 }
-
-private const val BALANCE_THRESHOLD = 300
