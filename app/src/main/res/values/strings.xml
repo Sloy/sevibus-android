@@ -65,7 +65,7 @@
     <string name="stopdetail_lines_section_now_seeing">Ahora viendo</string>
     <string name="stopdetail_lines_section_other_lines">Otras líneas</string>
     <string name="stopdetail_login_required">Debes iniciar sesión para guardar paradas favoritas</string>
-    <string name="stopdetail_error_loading_arrivals">Ocurrió un error al cargar los tiempos, comprueba tu conexión</string>
+    <string name="stopdetail_error_loading_arrivals">Ocurrió un error al cargar los tiempos. Comprueba tu conexión o inténtalo más tarde</string>
 
     <!-- ================== -->
     <!-- Bus Arrivals -->

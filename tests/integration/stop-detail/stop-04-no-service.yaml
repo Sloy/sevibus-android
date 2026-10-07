@@ -1,10 +1,9 @@
 appId: ${APP_ID}
-name: "STOP-04 Stop with no buses shows a no service message"
+name: "STOP-04 Stop with no buses shows every line as not available"
 tags:
   - stop-detail
   - level3
 ---
-# Expected to fail until StopDetailViewModel stops showing the loading skeleton for an empty list.
 - runFlow: ../../subflows/launch-mocked.yaml
 - evalScript: ${ output.mocks.set('arrivals-844', 'empty') }
 - runFlow:
@@ -13,5 +12,11 @@ tags:
       QUERY: "estacion cercanias"
 - tapOn: "Parada 844"
 - extendedWaitUntil:
-    visible: "(?i).*no (service|buses).*"
+    visible:
+      text: "No disponible"
+      index: 2
     timeout: 20000
+- assertVisible: "Rochelambert"
+- assertVisible: "Cerro Del Aguila"
+- assertVisible: "Poligono Sur"
+- assertNotVisible: "Ocurrió un error al cargar los tiempos.*"

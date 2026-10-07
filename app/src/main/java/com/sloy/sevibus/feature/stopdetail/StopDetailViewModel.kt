@@ -37,11 +37,12 @@ class StopDetailViewModel(
     private val favorite: Flow<FavoriteStop?> = favoriteRepository.observeFavorites()
         .map { it.find { favorite -> favorite.stop.code == stopId } }
 
-    private val arrivals: Flow<Result<List<BusArrival>>> = flow {
-        emit(Result.success(emptyList()))
+    private val arrivals: Flow<Result<List<BusArrival>?>> = flow {
+        emit(Result.success(null))
         while (true) {
             try {
                 val arrivals = busRepository.obtainBusArrivals(stopId)
+                if (arrivals.isEmpty()) throw StopWithoutRoutesException(stopId)
                 emit(Result.success(arrivals))
             } catch (e: Exception) {
                 SevLogger.logW(e)
@@ -59,7 +60,7 @@ class StopDetailViewModel(
         arrivals
     ) { stop, isFavorite, arrivalsResult ->
         arrivalsResult.map { arrivals ->
-            if (arrivals.isEmpty()) {
+            if (arrivals == null) {
                 StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loading(stop.lines))
             } else {
                 StopDetailScreenState.Loaded(stop, isFavorite, ArrivalsState.Loaded(arrivals))
@@ -86,3 +87,5 @@ class StopDetailViewModel(
         }
     }
 }
+
+private class StopWithoutRoutesException(stopId: StopId) : IllegalStateException("Stop $stopId has no routes")
