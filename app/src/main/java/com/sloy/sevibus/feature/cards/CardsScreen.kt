@@ -803,7 +803,7 @@ internal fun CardsScreenLoadedWithTransactionsPreview() {
 @Composable
 internal fun CardsScreenLowBalancePreview() {
     ScreenPreview {
-        val cards = listOf(Stubs.cards[0].copy(balance = 150), Stubs.cards[1])
+        val cards = listOf(Stubs.cards[0].copy(balance = 80), Stubs.cards[1])
         val transactions = cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardTripTransactions) }
         CardsScreen(
             CardsScreenState.Content(cards.andTransactions(transactions)),

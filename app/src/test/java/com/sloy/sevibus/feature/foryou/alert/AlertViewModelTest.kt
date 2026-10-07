@@ -59,7 +59,7 @@ class AlertViewModelTest {
 
     @Test
     fun `shows the first low balance card in user order`() = runTest {
-        val first = card(1, 150)
+        val first = card(1, 80)
         cards.value = listOf(card(3, 1250), first, card(2, 20))
 
         val state = collectState()
@@ -79,8 +79,8 @@ class AlertViewModelTest {
 
     @Test
     fun `skips dismissed cards`() = runTest {
-        val second = card(2, 100)
-        cards.value = listOf(card(1, 150), second)
+        val second = card(2, 60)
+        cards.value = listOf(card(1, 80), second)
         dismissed.value = listOf(1L)
 
         val state = collectState()
@@ -90,7 +90,7 @@ class AlertViewModelTest {
 
     @Test
     fun `updates the alert card when its balance changes`() = runTest {
-        cards.value = listOf(card(1, 150))
+        cards.value = listOf(card(1, 80))
         val state = collectState()
 
         cards.value = listOf(card(1, 90))
@@ -100,7 +100,7 @@ class AlertViewModelTest {
 
     @Test
     fun `tracks the alert once while the same card stays low`() = runTest {
-        cards.value = listOf(card(1, 150))
+        cards.value = listOf(card(1, 80))
         collectState()
 
         cards.value = listOf(card(1, 90))

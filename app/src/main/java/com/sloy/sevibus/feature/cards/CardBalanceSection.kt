@@ -214,7 +214,7 @@ internal fun CardBalanceSectionLowBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(balance = 150),
+                card = Stubs.cards[0].copy(balance = 80),
                 transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
@@ -230,7 +230,7 @@ internal fun CardBalanceSectionLowBalanceWithoutTripsPreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(balance = 150),
+                card = Stubs.cards[0].copy(balance = 80),
                 transactionsState = TransactionsState.Loading,
                 previousCardHadBalance = true,
                 onTopUpClicked = {},

@@ -15,7 +15,7 @@ tags:
 - tapOn: "Número de serie"
 - inputText: "123456789012"
 - extendedWaitUntil:
-    visible: "1,50.€"
+    visible: "0,80.€"
     timeout: 15000
 - tapOn: "Para ti"
 - extendedWaitUntil:

@@ -12,6 +12,7 @@ import com.sloy.sevibus.data.database.toEntity
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.LOW_BALANCE_THRESHOLD
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.toSummary
@@ -158,7 +159,7 @@ class RemoteAndLocalCardsRepository(
                     // Check if balance changed from below threshold to above threshold
                     val oldBalance = card.balance ?: 0
                     val newBalance = updated.balance ?: 0
-                    if (oldBalance < 300 && newBalance >= 300) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
                         sevibusDao.clearDismissedAlert(card.serialNumber)
                     }
                     sevibusDao.putCard(updated)
@@ -187,7 +188,7 @@ class RemoteAndLocalCardsRepository(
                 if (localCard != null) {
                     val oldBalance = localCard.balance ?: 0
                     val newBalance = remoteCard.balance ?: 0
-                    if (oldBalance < 300 && newBalance >= 300) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
                         sevibusDao.clearDismissedAlert(remoteCard.serialNumber)
                     }
                 }

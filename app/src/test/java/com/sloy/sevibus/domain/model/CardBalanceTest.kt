@@ -28,12 +28,12 @@ class CardBalanceTest {
 
     @Test
     fun `balance just below the threshold is low`() {
-        expectThat(card(299).isLowBalance).isTrue()
+        expectThat(card(99).isLowBalance).isTrue()
     }
 
     @Test
     fun `balance at the threshold is not low`() {
-        expectThat(card(300).isLowBalance).isFalse()
+        expectThat(card(100).isLowBalance).isFalse()
     }
 
     @Test
@@ -44,7 +44,7 @@ class CardBalanceTest {
     @Test
     fun `trips use the most recent validation with an amount`() {
         val transactions = listOf(validation(100, earlier), validation(41, later))
-        expectThat(estimatedTrips(150, transactions)).isEqualTo(3)
+        expectThat(estimatedTrips(150, transactions)).isEqualTo(4)
     }
 
     @Test
@@ -73,8 +73,18 @@ class CardBalanceTest {
     }
 
     @Test
-    fun `trips are unavailable when the balance does not cover one trip`() {
-        expectThat(estimatedTrips(40, listOf(validation(41)))).isNull()
+    fun `a positive balance below the trip cost still allows one trip`() {
+        expectThat(estimatedTrips(15, listOf(validation(40)))).isEqualTo(1)
+    }
+
+    @Test
+    fun `a partial last trip counts as a trip`() {
+        expectThat(estimatedTrips(60, listOf(validation(40)))).isEqualTo(2)
+    }
+
+    @Test
+    fun `trips are unavailable with a zero balance`() {
+        expectThat(estimatedTrips(0, listOf(validation(40)))).isNull()
     }
 
     @Test
