@@ -162,7 +162,7 @@ The plugin only discovers `@PreviewTest` functions in the `screenshotTest` sourc
 - **Orphan references**: reference images no generated test uses (a deleted or renamed preview, or a lost dark variant)
   - `validateDebugScreenshotTest` fails listing them, through `checkDebugScreenshotReferences`
   - `updateDebugScreenshotTest` deletes them, and so does `./gradlew deleteDebugOrphanScreenshotReferences`
-  - The generator knows the reference names from the hashes of its two `@Preview` configurations (`LIGHT_HASH` and `DARK_HASH` in `GenerateScreenshotTestsTask`). Update them if the plugin or those annotations change
+  - The generator knows the reference names from the hashes of its two `@Preview` configurations (`LIGHT_HASH` and `DARK_HASH` in `ScreenshotTestsGenerator`). Update them if the plugin or those annotations change
 - Tests are grouped in two classes, which act as suites:
   - `ComponentsScreenshotTests` - reusable components and screen sections (widgets, list items, icons)
   - `ScreensScreenshotTests` - full screens
@@ -182,6 +182,8 @@ The plugin only discovers `@PreviewTest` functions in the `screenshotTest` sourc
 ./gradlew validateDebugScreenshotTest --tests '*ComponentsScreenshotTests'
 ./gradlew updateDebugScreenshotTest --tests '*ScreensScreenshotTests.ForYouScreenPreview'
 ```
+
+The plugin's own unit tests live in `build-logic/src/test/` and cover the parsing, code generation and orphan detection in `ScreenshotTestsGenerator`. They aren't part of the root build, so run them with `./gradlew -p build-logic test`.
 
 The HTML report with reference, rendered and diff images is in `app/build/reports/screenshotTest/preview/debug/`.
 
@@ -381,6 +383,7 @@ The comment is built by `.github/scripts/screenshot_report.py` from the JUnit re
 - **Screenshot tests plugin**: `build-logic/src/main/kotlin/ScreenshotTestsPlugin.kt`, applied in `app/build.gradle.kts`
 - **Test generator**: `build-logic/src/main/kotlin/GenerateScreenshotTestsTask.kt`
 - **Orphan references check**: `build-logic/src/main/kotlin/OrphanScreenshotReferencesTask.kt`
+- **Generator logic and its tests**: `build-logic/src/main/kotlin/ScreenshotTestsGenerator.kt`, `build-logic/src/test/kotlin/ScreenshotTestsGeneratorTest.kt`
 - **Reference screenshots**: `app/src/screenshotTestDebug/reference/`
 
 ## Analytics & Event Tracking

@@ -52,11 +52,8 @@ abstract class OrphanScreenshotReferencesTask : DefaultTask() {
     fun run() {
         val expected = expectedReferences.get().asFile.readLines().filter { it.isNotBlank() }.toSet()
         val root = referenceDir.get().asFile
-        val orphans = root.walk()
-            .filter { it.isFile && it.extension == "png" }
-            .filter { it.relativeTo(root).invariantSeparatorsPath.replace(INDEX_SUFFIX, "") !in expected }
-            .sortedBy { it.path }
-            .toList()
+        val referencePaths = root.walk().filter { it.isFile }.map { it.relativeTo(root).invariantSeparatorsPath }.toList()
+        val orphans = ScreenshotTestsGenerator.findOrphans(expected, referencePaths).map { root.resolve(it) }
         val paths = orphans.map { it.relativeTo(baseDir.get().asFile).invariantSeparatorsPath }
         reportFile.get().asFile.writeText(paths.joinToString("") { "$it\n" })
         if (orphans.isEmpty()) return
@@ -72,9 +69,5 @@ abstract class OrphanScreenshotReferencesTask : DefaultTask() {
                     "or the update-screenshots label in a PR."
             )
         }
-    }
-
-    private companion object {
-        val INDEX_SUFFIX = Regex("""_\d+\.png$""")
     }
 }

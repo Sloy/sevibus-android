@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-06 15:38'
-updated_date: '2026-10-07 07:12'
+updated_date: '2026-10-07 08:08'
 labels: []
 dependencies: []
 priority: low
@@ -69,6 +69,8 @@ Verification:
 - CI on PR Sloy/sevibus-android#18: Run Tests, Build APK and Screenshot test results green.
 
 Review follow-up: the setup moved from app/build.gradle.kts to the sevibus.screenshot-tests convention plugin in the build-logic included build (ScreenshotTestsPlugin, GenerateScreenshotTestsTask, OrphanScreenshotReferencesTask). It compiles against the AGP API as compileOnly, because putting AGP on the buildSrc classpath clashes with the versioned com.android.application declaration in the root build. The app only applies the plugin and sets packageName. Generated tests are byte-identical, and validate passes 73/73.
+
+Plugin unit tests: the parsing, generation and orphan logic moved to ScreenshotTestsGenerator (pure functions, called by the tasks) with 18 JUnit/Strikt tests in build-logic/src/test (./gradlew -p build-logic test). They found that a ')' inside a @Preview string argument hid a later uiMode = UI_MODE_NIGHT_YES, losing the dark variant. Fixed by reading each annotation up to the next one. App output unchanged and validate passes 73/73.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
