@@ -13,7 +13,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -120,7 +119,7 @@ private fun BalanceContent(
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.cards_available_balance), style = SevTheme.typography.bodySmallBold)
         FormattedBalance(balance)
-        TripsChip(chipVisibility, rememberLastNonNull(trips) ?: 0, revealDelay)
+        TripsChip(chipVisibility, rememberLastNonNull(trips.takeIf { showChip }) ?: 0, revealDelay)
         TopUpButton(
             lowBalanceProgress = lowBalanceProgress.value,
             onClick = { onTopUpClicked(card) },
@@ -176,24 +175,22 @@ private fun TopUpButton(lowBalanceProgress: Float, onClick: () -> Unit, modifier
     val colors = SevTheme.extendedColors
     val containerColor = lerp(SevTheme.colorScheme.outlineVariant, colors.tussamRed, lowBalanceProgress)
     val contentColor = lerp(SevTheme.colorScheme.onSurface, Color.White, lowBalanceProgress)
-    val iconColor = lerp(SevTheme.colorScheme.primary, Color.White, lowBalanceProgress)
     Button(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 52.dp),
+        modifier = modifier.heightIn(min = 48.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor),
-        contentPadding = PaddingValues(start = 22.dp, end = 24.dp),
     ) {
         Text(
             text = stringResource(R.string.cards_top_up_button),
-            style = SevTheme.typography.headingSmall.copy(fontSize = 17.sp),
+            style = SevTheme.typography.bodyStandardBold,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(8.dp))
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
             contentDescription = null,
-            tint = iconColor,
+            tint = contentColor,
             modifier = Modifier.size(18.dp),
         )
     }
