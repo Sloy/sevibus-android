@@ -46,6 +46,7 @@ class DebugNetworkInterceptorTest {
 
     @Test
     fun `reports pending and finished request when overlay is enabled`() {
+        store.updateState(NetworkDebugModuleState(isHttpOverlayEnabled = true))
         val chain = chainReturning(200)
 
         val response = interceptor.intercept(chain)
@@ -84,7 +85,7 @@ class DebugNetworkInterceptorTest {
 
     @Test
     fun `forced failure returns 500 without hitting the network`() {
-        store.updateState(NetworkDebugModuleState(isForceFailureEnabled = true))
+        store.updateState(NetworkDebugModuleState(isHttpOverlayEnabled = true, isForceFailureEnabled = true))
         val chain = chainReturning(200)
 
         val response = interceptor.intercept(chain)
@@ -161,6 +162,7 @@ class DebugNetworkInterceptorTest {
 
     @Test
     fun `io errors are reported and rethrown`() {
+        store.updateState(NetworkDebugModuleState(isHttpOverlayEnabled = true))
         val chain = mock<Interceptor.Chain> {
             on { request() } doReturn request
             on { proceed(any()) } doThrow IOException("timeout")
@@ -181,6 +183,7 @@ class DebugNetworkInterceptorTest {
 
     @Test
     fun `unexpected errors are reported and rethrown`() {
+        store.updateState(NetworkDebugModuleState(isHttpOverlayEnabled = true))
         val chain = mock<Interceptor.Chain> {
             on { request() } doReturn request
             on { proceed(any()) } doThrow IllegalStateException("boom")

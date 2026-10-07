@@ -21,7 +21,13 @@ class NetworkDebugModuleViewModelTest {
     private val viewModel = NetworkDebugModuleViewModel(dataSource, overlayLogger, presets)
 
     @Test
+    fun `http overlay is disabled by default`() {
+        expectThat(dataSource.getCurrentState().isHttpOverlayEnabled).isFalse()
+    }
+
+    @Test
     fun `disabling http overlay clears http items`() {
+        viewModel.onHttpOverlayToggled(true)
         viewModel.onHttpOverlayToggled(false)
 
         expectThat(dataSource.getCurrentState().isHttpOverlayEnabled).isFalse()
