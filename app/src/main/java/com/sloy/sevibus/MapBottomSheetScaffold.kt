@@ -60,6 +60,8 @@ import com.composables.core.BottomSheetState
 import com.composables.core.DragIndication
 import com.composables.core.SheetDetent
 import com.composables.core.rememberBottomSheetState
+import com.sloy.sevibus.feature.debug.DebugLaunchArguments
+import com.sloy.sevibus.feature.debug.DebugMapMode
 import com.sloy.sevibus.feature.map.MapScreen
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.navigation.NavigationDestination
@@ -224,6 +226,7 @@ fun BottomSheetContainer(modifier: Modifier = Modifier) {
 
 @Composable
 private fun MapContainer(sheetState: BottomSheetState, scaffoldInnerPadding: PaddingValues, onNavigate: (NavigationDestination) -> Unit, onMapClick: ()->Unit) {
+    if (DebugLaunchArguments.mapMode == DebugMapMode.Disabled) return
     with(LocalDensity.current) {
         // Map padded content
         val topSystemBarPadding = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
