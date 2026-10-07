@@ -41,6 +41,8 @@ import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -173,6 +175,7 @@ private fun StopResultItem(stop: Stop, onStopClick: (Stop) -> Unit) {
 
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
 internal fun SearchScreenResultsPreview() {

@@ -37,6 +37,8 @@ import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 
@@ -189,6 +191,7 @@ private fun ReadyIcon() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun AppUpdateButtonAvailablePreview() {
@@ -205,6 +208,7 @@ internal fun AppUpdateButtonDownloadingZeroPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun AppUpdateButtonDownloadingPreview() {
@@ -213,6 +217,7 @@ internal fun AppUpdateButtonDownloadingPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun AppUpdateButtonReadyPreview() {

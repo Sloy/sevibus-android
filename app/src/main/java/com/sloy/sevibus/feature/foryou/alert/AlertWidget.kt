@@ -28,6 +28,8 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.components.SmallSurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -136,6 +138,7 @@ private fun AlertCard(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun AlertWidgetPreview() {

@@ -27,6 +27,8 @@ import com.sloy.sevibus.ui.components.StopCardElement
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.icons.StopFilled
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 
@@ -128,6 +130,7 @@ enum class HighlightPosition {
     None, BeforeHighlighted, Highlighted, AfterHighlighted
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark
 @Composable
 internal fun StopTimelineElementPreview() {

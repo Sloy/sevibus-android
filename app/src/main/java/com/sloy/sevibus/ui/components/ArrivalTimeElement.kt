@@ -18,6 +18,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.toSummary
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.shimmerLoadingAnimation
 import com.sloy.sevibus.ui.theme.SevTheme
 
@@ -75,6 +77,7 @@ private fun BusArrival.toText() = when (this) {
     is BusArrival.NotAvailable -> "No disponible"
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun ArrivalTimeElementPreview() {

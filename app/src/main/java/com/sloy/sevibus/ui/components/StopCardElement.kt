@@ -22,6 +22,8 @@ import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.model.description1
 import com.sloy.sevibus.domain.model.description2
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -62,6 +64,7 @@ private fun SupportingLines(lines: List<LineSummary>) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun StopCardElementSingleLinePreview() {
@@ -78,6 +81,7 @@ internal fun StopCardElementDoubleLinePreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun StopCardElementHighlightedPreview() {

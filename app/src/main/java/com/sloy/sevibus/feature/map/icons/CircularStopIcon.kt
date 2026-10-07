@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.GoogleMapComposable
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.primary
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -25,6 +27,7 @@ fun CircularStopIcon(stopColor: Color, iconSize: Dp) {
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL)
 @Composable

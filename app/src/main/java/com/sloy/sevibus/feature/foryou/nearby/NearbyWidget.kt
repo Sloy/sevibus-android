@@ -32,6 +32,8 @@ import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.extensions.rememberPermissionStateOnUI
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -148,6 +150,7 @@ private fun NearbyEmptyState(message: String) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun NearbyWidgetWithArrivalsPreview() {
@@ -156,6 +159,7 @@ internal fun NearbyWidgetWithArrivalsPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun NearbyWidgetEmptyPreview() {
@@ -172,6 +176,7 @@ internal fun NearbyWidgetLoadingPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun NearbyWidgetNoPermissionPreview() {

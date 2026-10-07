@@ -20,6 +20,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.toSummary
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -47,6 +49,7 @@ fun LineIndicator(line: LineSummary, modifier: Modifier = Modifier) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @OptIn(ExperimentalLayoutApi::class)
 @Preview
 @Composable

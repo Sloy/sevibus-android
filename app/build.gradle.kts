@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.screenshot)
+    id("sevibus.screenshot-tests")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 

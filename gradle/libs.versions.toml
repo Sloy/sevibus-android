@@ -119,6 +119,7 @@ inAppUpdateCompose = { group = "se.warting.in-app-update", name = "in-app-update
 inAppUpdateCompose-material = { group = "se.warting.in-app-update", name = "in-app-update-compose-mui", version.ref = "inAppUpdate" }
 statsig-sdk = { group = "com.statsig", name = "android-sdk", version.ref = "statsig" }
 
+android-gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "agp" }
 compose-screenshot-validation = { module = "com.android.tools.screenshot:screenshot-validation-api", version.ref = "composeScreenshot" }
 
 [plugins]

@@ -20,6 +20,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -73,6 +75,7 @@ internal fun InfoBannerTwoLinesPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark
 @Composable
 internal fun InfoBannerTwoLinesActionPreview() {
@@ -87,6 +90,7 @@ internal fun InfoBannerTwoLinesActionPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun InfoBannerOneLinePreview() {

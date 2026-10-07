@@ -24,6 +24,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.toSummary
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.theme.SevTheme
 
@@ -97,6 +99,7 @@ fun BusArrivalListItem(arrival: BusArrival, isHighlighted: Boolean, onClick: (Bu
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun BusArrivalAvailablePreview() {
@@ -111,6 +114,7 @@ internal fun BusArrivalAvailablePreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun BusArrivalLastBusPreview() {
@@ -132,6 +136,7 @@ internal fun BusArrivalLastBusPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun BusArrivalHighlightedPreview() {
@@ -146,6 +151,7 @@ internal fun BusArrivalHighlightedPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun BusArrivalNotAvailablePreview() {
@@ -175,6 +181,7 @@ internal fun BusArrivalLoadingWithLinePreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun BusArrivalLoadingPreview() {

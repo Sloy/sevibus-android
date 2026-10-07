@@ -19,6 +19,8 @@ import com.sloy.sevibus.domain.model.primary
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
 import com.sloy.sevibus.ui.icons.StopFilled
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -47,6 +49,7 @@ fun ShapedStopIcon(stopColor: Color, iconSize: Dp) {
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Light", uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0xFF00FFFF, name = "Dark", uiMode = UI_MODE_NIGHT_YES)
 @Composable

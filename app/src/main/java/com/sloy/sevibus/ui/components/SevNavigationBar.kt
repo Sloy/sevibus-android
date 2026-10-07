@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.TopLevelDestination
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -54,6 +56,7 @@ fun SevNavigationBar(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun SevNavigationBarPreview() {

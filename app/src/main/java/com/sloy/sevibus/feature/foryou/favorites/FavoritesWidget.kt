@@ -33,6 +33,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -154,6 +156,7 @@ private fun EditButton(onClick: () -> Unit) {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun FavoritesWidgetWithArrivalsPreview() {
@@ -162,6 +165,7 @@ internal fun FavoritesWidgetWithArrivalsPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun FavoritesWidgetEmptyPreview() {
@@ -170,6 +174,7 @@ internal fun FavoritesWidgetEmptyPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun FavoritesWidgetNotLoggedPreview() {

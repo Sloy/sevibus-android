@@ -30,6 +30,8 @@ import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.formatter.DateFormatter
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.theme.SevTheme
 
@@ -181,6 +183,7 @@ private fun TopUpItem(transaction: CardTransaction.TopUp) {
 }
 
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun CardTransactionsElementPreview() {
@@ -189,6 +192,7 @@ internal fun CardTransactionsElementPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
 internal fun CardTransactionsElementLoadingPreview() {

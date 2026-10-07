@@ -19,6 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -85,6 +87,7 @@ fun SmallSurfaceButton(text: String, onClick: () -> Unit, modifier: Modifier = M
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun SurfaceButtonTextPreview() {
@@ -96,6 +99,7 @@ internal fun SurfaceButtonTextPreview() {
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview(showBackground = true)
 @Composable
 internal fun SurfaceButtonIconPreview() {

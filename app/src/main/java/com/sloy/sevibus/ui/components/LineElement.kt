@@ -14,6 +14,8 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.isCurrentyActive
 import com.sloy.sevibus.ui.formatter.TimeFormatter
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
@@ -30,9 +32,10 @@ fun LineElement(line: Line, onLineClick: (Line) -> Unit) {
     )
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-fun LineElementPreview() {
+internal fun LineElementPreview() {
     SevTheme {
         val line = Stubs.lines[0]
         Surface {
