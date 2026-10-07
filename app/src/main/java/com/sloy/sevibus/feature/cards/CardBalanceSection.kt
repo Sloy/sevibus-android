@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,6 +41,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -98,7 +99,13 @@ private fun BalanceContent(
 ) {
     val balance = card.balance ?: return
     val isLow = card.isLowBalance
-    val trips = (transactionsState as? TransactionsState.Loaded)?.let { estimatedTrips(balance, it.transactions) }
+    val tripsMemory = remember(card.serialNumber) { TripsMemory() }
+    val trips = when (transactionsState) {
+        is TransactionsState.Loading -> tripsMemory.lastKnownTrips
+        is TransactionsState.Loaded -> estimatedTrips(balance, transactionsState.transactions)
+        else -> null
+    }
+    tripsMemory.lastKnownTrips = trips
     val showChip = isLow && trips != null
     val revealDelay = if (previousCardHadBalance) 0 else SECTION_REVEAL_DELAY_MILLIS
 
@@ -172,7 +179,7 @@ private fun TopUpButton(lowBalanceProgress: Float, onClick: () -> Unit, modifier
     val iconColor = lerp(SevTheme.colorScheme.primary, Color.White, lowBalanceProgress)
     Button(
         onClick = onClick,
-        modifier = modifier.height(52.dp),
+        modifier = modifier.heightIn(min = 52.dp),
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColor),
         contentPadding = PaddingValues(start = 22.dp, end = 24.dp),
@@ -180,6 +187,7 @@ private fun TopUpButton(lowBalanceProgress: Float, onClick: () -> Unit, modifier
         Text(
             text = stringResource(R.string.cards_top_up_button),
             style = SevTheme.typography.headingSmall.copy(fontSize = 17.sp),
+            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.width(10.dp))
         Icon(
@@ -189,6 +197,10 @@ private fun TopUpButton(lowBalanceProgress: Float, onClick: () -> Unit, modifier
             modifier = Modifier.size(18.dp),
         )
     }
+}
+
+private class TripsMemory {
+    var lastKnownTrips: Int? = null
 }
 
 @Composable

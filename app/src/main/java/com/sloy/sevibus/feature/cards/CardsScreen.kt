@@ -67,6 +67,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -276,7 +277,7 @@ fun CardsScreen(
     }
 }
 
-private data class CommittedPage(val page: Int, val previousPage: Int)
+private data class CommittedPage(val page: Int, val previousCardHadBalance: Boolean)
 
 @Composable
 private fun SharedTransitionScope.CardsScreenContent(
@@ -305,12 +306,14 @@ private fun SharedTransitionScope.CardsScreenContent(
         }
 
         val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
-        var committedPage by remember { mutableStateOf(CommittedPage(pagerState.currentPage, pagerState.currentPage)) }
+        var committedPage by remember { mutableStateOf(CommittedPage(pagerState.currentPage, previousCardHadBalance = true)) }
+        val latestCards by rememberUpdatedState(cards)
         LaunchedEffect(pagerState) {
             snapshotFlow { pagerState.targetPage to isDragged }
                 .collect { (targetPage, dragged) ->
                     if (!dragged && targetPage != committedPage.page) {
-                        committedPage = CommittedPage(targetPage, committedPage.page)
+                        val committedCardHadBalance = latestCards.getOrNull(committedPage.page)?.hasBalance ?: true
+                        committedPage = CommittedPage(targetPage, committedCardHadBalance)
                     }
                 }
         }
@@ -338,12 +341,11 @@ private fun SharedTransitionScope.CardsScreenContent(
         }
 
         val currentCardAndTransactions = cardsTransactions.getOrNull(committedPage.page)
-        val previousCardHadBalance = cards.getOrNull(committedPage.previousPage)?.hasBalance ?: true
         if (currentCardAndTransactions != null) {
             ExistingCardsDetail(
                 currentCardAndTransactions.card,
                 currentCardAndTransactions.transactions,
-                previousCardHadBalance,
+                committedPage.previousCardHadBalance,
                 onTopUpClicked,
                 onDeleteCard = {
                     onDeleteCard(it)
