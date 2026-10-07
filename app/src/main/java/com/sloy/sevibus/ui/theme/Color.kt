@@ -32,6 +32,17 @@ object SevColors {
     val OpacityMedium_Dark = Color(0x3D000000)
     val OpacitySoft = Color(0x0A000000)
     val OpacitySoft_Dark = Color(0x29000000)
+    val WarningSurface = Color(0xFFFFF3E0)
+    val WarningSurface_Dark = Color(0xFF3A2F22)
+    val OnWarningSurface = Color(0xFF3D3226)
+    val OnWarningSurface_Dark = Color(0xFFF2E3CF)
+    val OnWarningSurfaceVariant = Color(0xFF7A6248)
+    val OnWarningSurfaceVariant_Dark = Color(0xFFC9AE8C)
+    val WarningContainer = Color(0xFFFFD99A)
+    val WarningContainer_Dark = Color(0xFF5C4214)
+    val OnWarningContainer = Color(0xFF6A3D00)
+    val OnWarningContainer_Dark = Color(0xFFFFD99A)
+    val TussamRed = Color(0xFFB5003A)
 
 }
 

@@ -1,34 +1,38 @@
 package com.sloy.sevibus.feature.foryou.alert
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
+import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.feature.cards.CardThumbnail
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
-import com.sloy.sevibus.ui.components.SmallSurfaceButton
-import com.sloy.sevibus.ui.preview.ScreenPreview
+import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -68,86 +72,124 @@ private fun AlertWidget(
 ) {
     when (state) {
         AlertState.Hidden -> return
-        is AlertState.LowBalance -> AlertCard(state.card.serialNumber, false, onDismissAlert, onAlertClicked, modifier)
-        is AlertState.NegativeBalance -> AlertCard(state.card.serialNumber, true, onDismissAlert, onAlertClicked, modifier)
+        is AlertState.LowBalance -> LowBalanceCard(
+            card = state.card,
+            title = R.string.foryou_card_alert_low_balance_title,
+            onClick = { onAlertClicked(state.card.serialNumber) },
+            onDismiss = onDismissAlert,
+            modifier = modifier,
+        )
+
+        is AlertState.NegativeBalance -> LowBalanceCard(
+            card = state.card,
+            title = R.string.foryou_card_alert_negative_balance_title,
+            onClick = { onAlertClicked(state.card.serialNumber) },
+            onDismiss = onDismissAlert,
+            modifier = modifier,
+        )
     }
 }
 
 @Composable
-private fun AlertCard(
-    cardId: CardId,
-    isNegative: Boolean,
-    onDismissAlert: () -> Unit,
-    onAlertClicked: (CardId) -> Unit,
+private fun LowBalanceCard(
+    card: CardInfo,
+    @StringRes title: Int,
+    onClick: () -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = SevTheme.extendedColors
     Surface(
-        modifier
+        onClick = onClick,
+        modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        color = SevTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(8.dp)
+        color = colors.warningSurface,
+        shape = RoundedCornerShape(20.dp),
     ) {
-        Row(
-            Modifier
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.WarningAmber,
-                tint = SevTheme.colorScheme.error.takeOrElse { SevTheme.colorScheme.error },
-                modifier = Modifier.padding(end = 16.dp),
-                contentDescription = null,
-            )
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.foryou_card_alert_title),
-                    style = SevTheme.typography.headingSmall,
-                )
-                Text(
-                    style = SevTheme.typography.bodySmall,
-                    text = stringResource(
-                        if (isNegative) R.string.foryou_card_alert_negative_balance_description
-                        else R.string.foryou_card_alert_low_balance_description
-                    ),
-                    color = SevTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                Row(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+        Row(verticalAlignment = Alignment.Top) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 14.dp, top = 14.dp, bottom = 14.dp, end = 4.dp),
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.widthIn(min = 52.dp),
                 ) {
-                    SmallSurfaceButton(
-                        onClick = { onDismissAlert() }, text = stringResource(R.string.foryou_card_alert_action_dismiss),
-                        icon = {
-                            Icon(Icons.Outlined.Close, contentDescription = null, tint = SevTheme.colorScheme.primary)
-                        }
+                    CardThumbnail(card)
+                    Text(
+                        text = MoneyFormatter.fromCents(card.balance ?: 0),
+                        style = SevTheme.typography.bodySmallBold.copy(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFeatureSettings = "tnum",
+                        ),
+                        color = colors.onWarningSurface,
+                        maxLines = 1,
+                        softWrap = false,
                     )
-                    SmallSurfaceButton(
-                        onClick = { onAlertClicked(cardId) }, text = stringResource(R.string.foryou_card_alert_action_see),
-                        icon = {
-                            Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = SevTheme.colorScheme.primary)
-                        }
+                }
+                Column {
+                    Text(
+                        text = stringResource(title),
+                        style = SevTheme.typography.headingSmall,
+                        color = SevTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.foryou_card_alert_tap_to_top_up),
+                        style = SevTheme.typography.bodySmall,
+                        color = colors.onWarningSurfaceVariant,
+                        modifier = Modifier.padding(top = 2.dp),
                     )
                 }
             }
-
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(top = 6.dp, end = 4.dp)
+                    .size(44.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(R.string.foryou_card_alert_dismiss),
+                    tint = SevTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         }
     }
 }
 
 @ScreenshotTest(ScreenshotSuite.Components)
-@Preview
+@PreviewLightDark
 @Composable
-internal fun AlertWidgetPreview() {
-    ScreenPreview {
-        AlertWidget(
-            state = AlertState.LowBalance(Stubs.cards[0].copy(balance = 150)),
-            onAlertClicked = {},
-            onDismissAlert = {}
-        )
+internal fun AlertWidgetLowBalancePreview() {
+    SevTheme {
+        Surface {
+            AlertWidget(
+                state = AlertState.LowBalance(Stubs.cards[0].copy(balance = 164)),
+                onAlertClicked = {},
+                onDismissAlert = {},
+            )
+        }
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@PreviewLightDark
+@Composable
+internal fun AlertWidgetNegativeBalancePreview() {
+    SevTheme {
+        Surface {
+            AlertWidget(
+                state = AlertState.NegativeBalance(Stubs.cards[3]),
+                onAlertClicked = {},
+                onDismissAlert = {},
+            )
+        }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.primary
@@ -98,15 +99,17 @@ fun SevTheme(
         LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content,
-        typography = Typography(
-            // Used for the LargeTopAppBar
-            titleLarge = SevTheme.typography.headingSmall,
-            headlineMedium = SevTheme.typography.headingLarge,
+    CompositionLocalProvider(LocalSevExtendedColors provides if (darkTheme) DarkExtendedColors else LightExtendedColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content,
+            typography = Typography(
+                // Used for the LargeTopAppBar
+                titleLarge = SevTheme.typography.headingSmall,
+                headlineMedium = SevTheme.typography.headingLarge,
+            )
         )
-    )
+    }
 }
 
 object SevTheme {
@@ -114,6 +117,11 @@ object SevTheme {
         @Composable
         @ReadOnlyComposable
         get() = MaterialTheme.colorScheme
+
+    val extendedColors: SevExtendedColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalSevExtendedColors.current
 
     val typography: SevTypography = SevTypography
 
