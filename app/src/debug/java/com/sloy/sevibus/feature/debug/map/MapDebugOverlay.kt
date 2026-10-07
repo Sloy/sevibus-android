@@ -1,5 +1,6 @@
 package com.sloy.sevibus.feature.debug.map
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -19,6 +24,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,6 +34,7 @@ import com.sloy.sevibus.feature.debug.MapDebugOptions
 import com.sloy.sevibus.feature.map.MapScreenState
 import org.koin.compose.koinInject
 import java.util.Locale
+import kotlin.math.floor
 
 @Composable
 fun rememberMapDebugOptions(): MapDebugOptions {
@@ -50,6 +57,9 @@ fun MapDebugOverlay(
     fitArea: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    if (options.showCamera) {
+        ZoomLevelTicks(cameraPositionState)
+    }
     if (options.showVisibleArea) {
         VisibleAreaGuide(contentPadding, fitArea, modifier.clearAndSetSemantics {})
     }
@@ -73,6 +83,22 @@ fun MapDebugOverlay(
                 DebugChip(String.format(Locale.US, "zoom %.2f", position.zoom))
                 DebugChip(String.format(Locale.US, "%.5f, %.5f", position.target.latitude, position.target.longitude))
             }
+        }
+    }
+}
+
+/**
+ * Ticks every time the zoom crosses a whole level, so zoom thresholds can be felt while pinching.
+ */
+@Composable
+private fun ZoomLevelTicks(cameraPositionState: CameraPositionState) {
+    val view = LocalView.current
+    val wholeZoom = floor(cameraPositionState.position.zoom).toInt()
+    var previousWholeZoom by remember { mutableIntStateOf(wholeZoom) }
+    LaunchedEffect(wholeZoom) {
+        if (wholeZoom != previousWholeZoom) {
+            view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+            previousWholeZoom = wholeZoom
         }
     }
 }
