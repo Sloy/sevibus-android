@@ -41,20 +41,30 @@ class AlertViewModel(
             } ?: AlertState.Hidden
     }
         .distinctUntilChanged()
-        .onEach { state ->
-            if (state is AlertState.LowBalance) {
-                onTrack(Events.CardAlertDisplayed("low"))
-            } else if (state is AlertState.NegativeBalance) {
-                onTrack(Events.CardAlertDisplayed("negative"))
-            }
-        }.catch { error ->
+        .onEach(::trackAlertDisplayed)
+        .catch { error ->
             SevLogger.logW(error, "Error observing card balances")
             emit(AlertState.Hidden)
-        }.stateIn(
+        }
+        .stateIn(
             scope = viewModelScope,
             started = WhileSubscribed(5000),
             initialValue = AlertState.Hidden
         )
+
+    private var trackedAlert: Pair<String, CardId>? = null
+
+    private fun trackAlertDisplayed(state: AlertState) {
+        val alert = when (state) {
+            is AlertState.LowBalance -> "low" to state.card.serialNumber
+            is AlertState.NegativeBalance -> "negative" to state.card.serialNumber
+            AlertState.Hidden -> null
+        }
+        if (alert != null && alert != trackedAlert) {
+            onTrack(Events.CardAlertDisplayed(alert.first))
+        }
+        trackedAlert = alert
+    }
 
     fun onDismissAlert() {
         viewModelScope.launch {

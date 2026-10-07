@@ -3,6 +3,8 @@ package com.sloy.sevibus.feature.foryou.alert
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.repository.CardsRepository
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +19,8 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
@@ -29,6 +33,8 @@ class AlertViewModelTest {
         on { observeUserCards() } doReturn cards
         on { observeDismissedCardIds() } doReturn dismissed
     }
+
+    private val analytics = mock<Analytics>()
 
     private fun card(serial: CardId, balance: Int?) = CardInfo(serialNumber = serial, code = 31, type = "Bonobús", balance = balance)
 
@@ -92,8 +98,18 @@ class AlertViewModelTest {
         expectThat(state()).isEqualTo(AlertState.LowBalance(card(1, 90)))
     }
 
+    @Test
+    fun `tracks the alert once while the same card stays low`() = runTest {
+        cards.value = listOf(card(1, 150))
+        collectState()
+
+        cards.value = listOf(card(1, 90))
+
+        verify(analytics, times(1)).track(Events.CardAlertDisplayed("low"))
+    }
+
     private fun TestScope.collectState(): () -> AlertState {
-        val viewModel = AlertViewModel(cardsRepository, mock())
+        val viewModel = AlertViewModel(cardsRepository, analytics)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.state.collect {} }
         return { viewModel.state.value }
     }
