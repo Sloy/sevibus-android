@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "SEARCH-02 Searching a stop name returns the stop and opens its detail"
+tags:
+  - search
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- assertVisible: "Paradas"
+- assertVisible: "Parada 844"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "San Bernardo"
+    timeout: 15000
+- assertVisible: "Estación Cercanías"
+- assertVisible: "Guardar como favorito"

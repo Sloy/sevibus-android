@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+name: "SEARCH-04 Clearing the query empties results and closing returns home"
+tags:
+  - search
+  - navigation
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "Rochelambert"
+- tapOn: "Clear search"
+- assertNotVisible: "Prado San Sebastián - Rochelambert"
+- tapOn: "Cerrar"
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 10000
+- assertVisible: "Busca líneas y paradas"

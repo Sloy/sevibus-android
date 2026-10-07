@@ -1,0 +1,32 @@
+appId: ${APP_ID}
+name: "SYNC-01 A stop renamed on the server shows its new name after restart"
+tags:
+  - transit-sync
+  - level3
+---
+# The server renames a stop between two launches: the stop list switches from "original" to "renamed".
+- runFlow:
+    file: ../../subflows/launch-mocked.yaml
+    env:
+      MOCKS: "stops:original"
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- assertVisible: "Parada 844"
+- evalScript: ${ output.mocks.set('stops', 'renamed') }
+- stopApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "e2e renamed"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "E2E Renamed Stop"
+    timeout: 15000

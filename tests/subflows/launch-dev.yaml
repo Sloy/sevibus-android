@@ -1,0 +1,12 @@
+appId: ${APP_ID}
+---
+# Fresh launch for e2e flows: the app talks to the dev backend, its default host.
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000

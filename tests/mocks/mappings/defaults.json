@@ -1,0 +1,52 @@
+{
+  "mappings": [
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/api/lines" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "lines-original.json" }
+    },
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/api/stops" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "stops-original.json" }
+    },
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/api/routes" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "routes-original.json" }
+    },
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/api/paths" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "paths.json" }
+    },
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/admin/health" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "health.json" }
+    },
+    {
+      "priority": 8,
+      "request": { "method": "GET", "url": "/api/arrivals/844" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "bodyFileName": "arrivals-844-fixed.json" }
+    },
+    {
+      "priority": 9,
+      "request": { "method": "GET", "urlPathPattern": "/api/arrivals/[0-9]+" },
+      "response": { "status": 200, "headers": { "Content-Type": "application/json" }, "jsonBody": [] }
+    },
+    {
+      "priority": 9,
+      "request": { "method": "GET", "urlPathPattern": "/api/card/[0-9]+" },
+      "response": {
+        "status": 404,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "error": "External API Error",
+          "message": "Request failed with status code 404",
+          "response": { "estado": "NOT_FOUND", "mensaje": "Número de tarjeta incorrecto", "detalles": [""] }
+        }
+      }
+    }
+  ]
+}

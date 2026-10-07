@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+# Fresh launch for integration flows: the app talks to the local WireMock (see mocks/) and never to dev.
+# Every scenario is reset, so each route answers with its default mock until the flow selects a variant.
+# Pass MOCKS ("route:variant,...") for responses requested at startup (lines, routes, stops).
+# Pass LOCATION=deny to launch without the location permission.
+- runScript: ../mocks/api.js
+- evalScript: ${ output.mocks.reset() }
+- evalScript: "${ output.mocks.setAll(typeof MOCKS === 'undefined' ? '' : MOCKS) }"
+- launchApp:
+    clearState: true
+    permissions:
+      location: "${typeof LOCATION === 'undefined' ? 'allow' : LOCATION}"
+    arguments:
+      debugApiHost: "http://localhost:${MOCK_PORT}"
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000

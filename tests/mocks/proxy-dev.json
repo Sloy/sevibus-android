@@ -1,0 +1,6 @@
+{
+  "id": "8f6b1d2e-0000-4000-8000-00000000d3e7",
+  "priority": 1,
+  "request": { "method": "ANY", "urlPattern": ".*" },
+  "response": { "proxyBaseUrl": "https://appdev-vd4mgiw7ma-no.a.run.app" }
+}

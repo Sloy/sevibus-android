@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "LINES-02 Opening a line from the list shows its origin, destination and stops"
+tags:
+  - lines
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Líneas"
+- extendedWaitUntil:
+    visible: "Plg. Norte H. Virgen del Rocio"
+    timeout: 15000
+- tapOn: "Puerta Triana - Heliopolis"
+- extendedWaitUntil:
+    visible: "Heliopolis"
+    timeout: 15000
+- assertVisible: "Puerta Triana"
+- assertVisible: "Parada \\d+"

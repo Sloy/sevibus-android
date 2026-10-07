@@ -1,0 +1,60 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "arrivals-844",
+      "requiredScenarioState": "error",
+      "request": {
+        "method": "GET",
+        "url": "/api/arrivals/844"
+      },
+      "response": {
+        "status": 500,
+        "jsonBody": {
+          "error": "Mocked server error"
+        }
+      }
+    },
+    {
+      "scenarioName": "arrivals-844",
+      "requiredScenarioState": "empty",
+      "request": {
+        "method": "GET",
+        "url": "/api/arrivals/844"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": []
+      }
+    },
+    {
+      "scenarioName": "arrivals-844",
+      "requiredScenarioState": "fixed",
+      "request": {
+        "method": "GET",
+        "url": "/api/arrivals/844"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "arrivals-844-fixed.json"
+      }
+    },
+    {
+      "scenarioName": "arrivals-844",
+      "requiredScenarioState": "last-bus",
+      "request": {
+        "method": "GET",
+        "url": "/api/arrivals/844"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "arrivals-844-last-bus.json"
+      }
+    }
+  ]
+}

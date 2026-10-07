@@ -1,0 +1,38 @@
+appId: ${APP_ID}
+name: "SET-03 Disabling anonymous analytics survives an app restart"
+tags:
+  - settings
+  - level1
+---
+# The switch has no label of its own, so it is located relative to its title.
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Permitir estadísticas anónimas"
+    timeout: 10000
+- assertVisible:
+    checked: true
+    rightOf: "Permitir estadísticas anónimas"
+- tapOn:
+    checked: true
+    rightOf: "Permitir estadísticas anónimas"
+- assertVisible:
+    checked: false
+    rightOf: "Permitir estadísticas anónimas"
+- stopApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Permitir estadísticas anónimas"
+    timeout: 10000
+- assertVisible:
+    checked: false
+    rightOf: "Permitir estadísticas anónimas"
+- assertNotVisible:
+    checked: true
+    rightOf: "Permitir estadísticas anónimas"

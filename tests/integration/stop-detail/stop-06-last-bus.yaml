@@ -1,0 +1,17 @@
+appId: ${APP_ID}
+name: "STOP-06 The last bus of the day shows the Last bus badge"
+tags:
+  - stop-detail
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('arrivals-844', 'last-bus') }
+- runFlow:
+    file: ../../subflows/search.yaml
+    env:
+      QUERY: "estacion cercanias"
+- tapOn: "Parada 844"
+- extendedWaitUntil:
+    visible: "2 min"
+    timeout: 20000
+- assertVisible: "Último bus"

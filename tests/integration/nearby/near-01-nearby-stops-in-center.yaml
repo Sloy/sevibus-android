@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: "NEAR-01 Nearby lists closest stops with distance when located at Plaza Nueva"
+tags:
+  - nearby
+  - level1
+---
+- runFlow: ../../subflows/set-location-plaza-nueva.yaml
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Cercanas"
+- extendedWaitUntil:
+    visible: "Plaza Nueva"
+    timeout: 20000
+- assertVisible: ".*3003"
+- assertVisible: "\\d+ m"

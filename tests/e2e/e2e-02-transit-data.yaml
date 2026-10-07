@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: "E2E-02 Transit data downloads from dev: Lines lists the line groups and a line opens its route"
+tags:
+  - e2e
+---
+- runFlow: ../subflows/launch-dev.yaml
+- tapOn: "Líneas"
+- extendedWaitUntil:
+    visible: "Transversales"
+    timeout: 30000
+- tapOn: "Puerta Triana - Heliopolis"
+- extendedWaitUntil:
+    visible: "Parada \\d+"
+    timeout: 15000

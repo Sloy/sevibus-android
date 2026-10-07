@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "CARDS-03 Card help screen opens with FAQs and closes back to Travel Card"
+tags:
+  - cards
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Bonobús"
+- extendedWaitUntil:
+    visible: "Añadir tarjeta"
+    timeout: 10000
+# The help button currently uses the "Apply order" content description (CardsScreen.kt).
+- tapOn: "Apply order"
+- extendedWaitUntil:
+    visible: "Preguntas frecuentes"
+    timeout: 10000
+- tapOn: "Close screen"
+- extendedWaitUntil:
+    visible: "Añadir tarjeta"
+    timeout: 10000

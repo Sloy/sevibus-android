@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NetworkDebugModuleState(
-    val isHttpOverlayEnabled: Boolean = true,
+    val isHttpOverlayEnabled: Boolean = false,
     val isForceFailureEnabled: Boolean = false,
     val autoResetForceFailure: Boolean = false,
     val latencyPreset: LatencyPreset = LatencyPreset.Off,

@@ -1,0 +1,20 @@
+appId: ${APP_ID}
+name: "SET-01 Settings opens from the profile button and closes back to home"
+tags:
+  - settings
+  - level1
+---
+- runFlow: ../../subflows/launch-mocked.yaml
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Ajustes"
+    timeout: 10000
+- assertVisible: "Tu perfil"
+- assertVisible: "Inicia sesión para guardar tus paradas favoritas y tus tarjetas de bonobús."
+- assertVisible: "Inicia sesión con Google"
+- assertVisible: "Apariencia"
+- assertVisible: "Servicios"
+- tapOn: "Close screen"
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 10000

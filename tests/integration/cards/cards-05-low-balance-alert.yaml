@@ -1,0 +1,59 @@
+appId: ${APP_ID}
+name: "CARDS-05 Low balance alert opens the card, can be dismissed, and returns after recovery"
+tags:
+  - cards
+  - foryou
+  - level2
+---
+# Card balances refresh when the app process starts, so each balance change needs an app restart.
+- runFlow: ../../subflows/launch-mocked.yaml
+- evalScript: ${ output.mocks.set('card-123456789012', 'low') }
+- tapOn: "Bonobús"
+- extendedWaitUntil:
+    visible: "Añadir tarjeta"
+    timeout: 10000
+- tapOn: "Número de serie"
+- inputText: "123456789012"
+- extendedWaitUntil:
+    visible: "1,50.€"
+    timeout: 15000
+- tapOn: "Para ti"
+- extendedWaitUntil:
+    visible: "Poco saldo"
+    timeout: 15000
+- tapOn: "Ver"
+- extendedWaitUntil:
+    visible: "1,50.€"
+    timeout: 10000
+- tapOn: "Para ti"
+- extendedWaitUntil:
+    visible: "Ocultar"
+    timeout: 10000
+- tapOn: "Ocultar"
+- assertNotVisible: "Poco saldo"
+# The balance recovers: the app clears the dismissal on its next refresh.
+- evalScript: ${ output.mocks.set('card-123456789012', 'recovered') }
+- stopApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000
+- tapOn: "Bonobús"
+- extendedWaitUntil:
+    visible: "12,50.€"
+    timeout: 15000
+# The balance drops again: the alert returns.
+- evalScript: ${ output.mocks.set('card-123456789012', 'low') }
+- stopApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
+- extendedWaitUntil:
+    visible: "Para ti"
+    timeout: 30000
+- tapOn: "Para ti"
+- extendedWaitUntil:
+    visible: "Poco saldo"
+    timeout: 15000

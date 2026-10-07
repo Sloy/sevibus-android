@@ -1,0 +1,94 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "valid",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-valid.json"
+      }
+    },
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "low",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-low.json"
+      }
+    },
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "valid",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012/transactions"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-transactions.json"
+      }
+    },
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "low",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012/transactions"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-transactions.json"
+      }
+    },
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "recovered",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-valid.json"
+      }
+    },
+    {
+      "scenarioName": "card-123456789012",
+      "requiredScenarioState": "recovered",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/card/123456789012/transactions"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "bodyFileName": "card-123456789012-transactions.json"
+      }
+    }
+  ]
+}
