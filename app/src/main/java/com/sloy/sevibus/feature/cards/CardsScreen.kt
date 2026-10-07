@@ -18,6 +18,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,6 +68,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -84,6 +86,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
@@ -97,6 +100,7 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.hasBalance
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
@@ -121,7 +125,6 @@ import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
-import kotlin.math.abs
 
 
 @Composable
@@ -273,6 +276,8 @@ fun CardsScreen(
     }
 }
 
+private data class CommittedPage(val page: Int, val previousPage: Int)
+
 @Composable
 private fun SharedTransitionScope.CardsScreenContent(
     state: CardsScreenState.Content,
@@ -299,6 +304,17 @@ private fun SharedTransitionScope.CardsScreenContent(
             }
         }
 
+        val isDragged by pagerState.interactionSource.collectIsDraggedAsState()
+        var committedPage by remember { mutableStateOf(CommittedPage(pagerState.currentPage, pagerState.currentPage)) }
+        LaunchedEffect(pagerState) {
+            snapshotFlow { pagerState.targetPage to isDragged }
+                .collect { (targetPage, dragged) ->
+                    if (!dragged && targetPage != committedPage.page) {
+                        committedPage = CommittedPage(targetPage, committedPage.page)
+                    }
+                }
+        }
+
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = 48.dp, vertical = 36.dp),
@@ -321,25 +337,23 @@ private fun SharedTransitionScope.CardsScreenContent(
             }
         }
 
-        val currentCardAndTransactions = cardsTransactions.getOrNull(pagerState.currentPage)
-        val contentAlpha = 1 - abs(pagerState.currentPageOffsetFraction) * 2
-        Box(Modifier.alpha(contentAlpha)) {
-            if (currentCardAndTransactions != null) {
-                ExistingCardsDetail(
-                    currentCardAndTransactions.card,
-                    currentCardAndTransactions.transactions,
-                    previousCardHadBalance = true,
-                    onTopUpClicked,
-                    onDeleteCard = {
-                        onDeleteCard(it)
-                        scope.launch {
-                            scrollState.animateScrollTo(0)
-                        }
-                    },
-                )
-            } else {
-                NewCardDetail(nfcState, newCardState, onNewCardNumber)
-            }
+        val currentCardAndTransactions = cardsTransactions.getOrNull(committedPage.page)
+        val previousCardHadBalance = cards.getOrNull(committedPage.previousPage)?.hasBalance ?: true
+        if (currentCardAndTransactions != null) {
+            ExistingCardsDetail(
+                currentCardAndTransactions.card,
+                currentCardAndTransactions.transactions,
+                previousCardHadBalance,
+                onTopUpClicked,
+                onDeleteCard = {
+                    onDeleteCard(it)
+                    scope.launch {
+                        scrollState.animateScrollTo(0)
+                    }
+                },
+            )
+        } else {
+            NewCardDetail(nfcState, newCardState, onNewCardNumber)
         }
         Spacer(Modifier.height(80.dp)) // Bottom sheet padding
     }
@@ -774,6 +788,36 @@ internal fun CardsScreenLoadedWithTransactionsPreview() {
         val cards = Stubs.cards.take(3)
         val transactions: Map<CardId, TransactionsState.Loaded> =
             cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardInfoTransactions) }
+        CardsScreen(
+            CardsScreenState.Content(cards.andTransactions(transactions)),
+            CardsScreenNewCardState.InputForm(),
+            NfcState.ENABLED,
+        )
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@PreviewLightDark
+@Composable
+internal fun CardsScreenLowBalancePreview() {
+    ScreenPreview {
+        val cards = listOf(Stubs.cards[0].copy(balance = 150), Stubs.cards[1])
+        val transactions = cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardTripTransactions) }
+        CardsScreen(
+            CardsScreenState.Content(cards.andTransactions(transactions)),
+            CardsScreenNewCardState.InputForm(),
+            NfcState.ENABLED,
+        )
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@PreviewLightDark
+@Composable
+internal fun CardsScreenNoBalancePreview() {
+    ScreenPreview {
+        val cards = listOf(Stubs.cards[1], Stubs.cards[0])
+        val transactions = cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardInfoTransactions) }
         CardsScreen(
             CardsScreenState.Content(cards.andTransactions(transactions)),
             CardsScreenNewCardState.InputForm(),
