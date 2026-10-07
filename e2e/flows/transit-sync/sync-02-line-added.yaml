@@ -17,7 +17,9 @@ tags:
 - assertNotVisible: ".*E2E Test Line.*"
 - evalScript: ${ output.mocks.setAll('lines:added,routes:added') }
 - stopApp
-- launchApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

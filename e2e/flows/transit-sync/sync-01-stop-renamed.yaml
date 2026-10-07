@@ -18,7 +18,9 @@ tags:
 - assertVisible: "Parada 844"
 - evalScript: ${ output.mocks.set('stops', 'renamed') }
 - stopApp
-- launchApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

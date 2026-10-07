@@ -18,6 +18,7 @@ tags:
 - launchApp:
     arguments:
       debugApiHost: "http://localhost:9"
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000

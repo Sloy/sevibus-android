@@ -35,7 +35,9 @@ tags:
 # The balance recovers: the app clears the dismissal on its next refresh.
 - evalScript: ${ output.mocks.set('card-123456789012', 'recovered') }
 - stopApp
-- launchApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000
@@ -46,7 +48,9 @@ tags:
 # The balance drops again: the alert returns.
 - evalScript: ${ output.mocks.set('card-123456789012', 'low') }
 - stopApp
-- launchApp
+- launchApp:
+    arguments:
+      debugMapMode: ${MAP_MODE}
 - extendedWaitUntil:
     visible: "Para ti"
     timeout: 30000
