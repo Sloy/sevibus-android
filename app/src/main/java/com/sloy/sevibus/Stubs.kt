@@ -595,7 +595,6 @@ object Stubs {
     @Deprecated("Be careful using Stubs")
     val locationRecaredo = Position(37.389083, -5.984483)
 
-    val locationInitial = Position(37.36141564194854, -5.983843356370926)
     val locationSouth = Position(37.34274628939858, -5.982401669025421)
 
     val userLaura = LoggedUser(
