@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language
+
+All code, comments, documentation, commit messages and PR descriptions must be written in English. User-facing app strings follow the app's own localization (Spanish default).
+
 ## Development Commands
 
 ### Building
