@@ -1,8 +1,6 @@
 package com.sloy.sevibus.feature.map
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -104,7 +102,7 @@ fun SevMap(
     val fitArea = PaddingValues(
         start = FIT_MARGIN_HORIZONTAL,
         end = FIT_MARGIN_HORIZONTAL,
-        top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + FIT_MARGIN_VERTICAL,
+        top = FIT_MARGIN_VERTICAL,
         bottom = contentPadding.calculateBottomPadding() + FIT_MARGIN_VERTICAL,
     )
     val viewport by rememberUpdatedState(
