@@ -75,7 +75,7 @@ private fun DebugMenuScope.MapDebugModuleContent(
         SwitchCell("Camera", "Chip with the zoom level and the camera target", state.showCamera, actions.onShowCameraToggled)
         SwitchCell(
             "Visible area",
-            "Outline the area not covered by the sheet and bars, the fit area inside it and their centers",
+            "Outline the map padding (solid) and the area where lines and stops are fitted (dashed), with their centers",
             state.showVisibleArea,
             actions.onShowVisibleAreaToggled,
         )

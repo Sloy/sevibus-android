@@ -13,9 +13,10 @@ fun MarkerLayersByState(
     state: MapScreenState,
     zoomLevel: ZoomLevel,
     onStopClick: (Stop) -> Unit,
+    showBuses: Boolean = true,
     debugOptions: MapDebugOptions = MapDebugOptions(),
 ) {
-    when (val filtered = state.withoutHiddenMarkers(debugOptions)) {
+    when (val filtered = state.withoutHiddenMarkers(showBuses, debugOptions)) {
         is MapScreenState.Initial -> {}
         is MapScreenState.Idle -> IdleMarkerLayers(filtered, zoomLevel, onStopClick)
         is MapScreenState.LinesOverview -> LinesOverviewMarkerLayers(filtered, zoomLevel, onStopClick)
@@ -25,9 +26,9 @@ fun MarkerLayersByState(
     }
 }
 
-private fun MapScreenState.withoutHiddenMarkers(options: MapDebugOptions): MapScreenState {
+private fun MapScreenState.withoutHiddenMarkers(showBuses: Boolean, options: MapDebugOptions): MapScreenState {
     val withoutStops = if (options.hideStops) withoutStops() else this
-    return if (options.hideBuses) withoutStops.withoutBuses() else withoutStops
+    return if (showBuses && !options.hideBuses) withoutStops else withoutStops.withoutBuses()
 }
 
 private fun MapScreenState.withoutStops(): MapScreenState = when (this) {
