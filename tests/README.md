@@ -244,7 +244,7 @@ One table per area. Status: ✅ implemented and passing · ⏳ pending · 🚫 b
 | CARDS-02 | 1 | Unknown 12-digit serial shows a not found error | ✅ |
 | CARDS-03 | 1 | Help screen opens and closes | ✅ |
 | CARDS-04 | 2 | Add a valid card: balance and recent activity; delete it. Rename does not exist in the app yet and reorder is not covered | ✅ |
-| CARDS-05 | 2 | Low balance alert: "View" opens the card, "Dismiss" hides it, it returns after the balance recovers and drops again (card balances refresh on app start) | ✅ |
+| CARDS-05 | 2 | Low balance alert: tapping the card opens the detail with the trips chip and top-up button, the dismiss button hides it, it returns after the balance recovers and drops again (card balances refresh on app start) | ✅ |
 | CARDS-06 | 2 | Cards sync to the server on login and survive logout | 🚫 needs e2e login |
 | CARDS-07 | 1 | Serial with leading zeros finds the card. The app sends it as a number (`/api/card/0`), which the backend also does with `parseInt`, so the mock matches any number of zeros | ✅ |
 
