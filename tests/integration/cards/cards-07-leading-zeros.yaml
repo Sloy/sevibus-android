@@ -4,8 +4,6 @@ tags:
   - cards
   - level1
 ---
-# The app sends the serial as a number (000000000000 requests /api/card/0). The backend parses it with parseInt,
-# so zeros carry no information and the mock matches /api/card/0+.
 - runFlow: ../../subflows/launch-mocked.yaml
 - evalScript: ${ output.mocks.set('card-000000000000', 'valid') }
 - tapOn: "Bonobús"

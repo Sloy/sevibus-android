@@ -4,7 +4,6 @@ tags:
   - stop-detail
   - level3
 ---
-# An empty arrivals list means no bus is expected: every line of the stop shows "No disponible".
 - runFlow: ../../subflows/launch-mocked.yaml
 - evalScript: ${ output.mocks.set('arrivals-844', 'empty') }
 - runFlow:
