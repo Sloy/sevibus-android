@@ -113,6 +113,7 @@ private fun BalanceContent(
 
     val lowBalanceProgress = remember { Animatable(if (isLow && previousCardHadBalance) 1f else 0f) }
     LaunchedEffect(isLow) {
+        if (!previousCardHadBalance) lowBalanceProgress.snapTo(0f)
         lowBalanceProgress.animateTo(if (isLow) 1f else 0f, tween(220, delayMillis = revealDelay, easing = CssEase))
     }
 
