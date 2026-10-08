@@ -28,7 +28,6 @@ import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
-private const val SUBTITLE_TRANSITION_MILLIS = 220
 private val SUBTITLE_MAX_BLUR = 6.dp
 
 @Composable
@@ -63,13 +62,13 @@ private fun TitleSubtitleItem(
         AnimatedContent(
             targetState = subtitle,
             transitionSpec = {
-                fadeIn(tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase)) togetherWith
-                    fadeOut(tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase))
+                fadeIn(tween(SevTheme.motion.duration.d200, easing = SevTheme.motion.easing.ease)) togetherWith
+                    fadeOut(tween(SevTheme.motion.duration.d200, easing = SevTheme.motion.easing.ease))
             },
             label = "subtitle",
         ) { value ->
             val blurRadius by transition.animateDp(
-                transitionSpec = { tween(SUBTITLE_TRANSITION_MILLIS, easing = CssEase) },
+                transitionSpec = { tween(SevTheme.motion.duration.d200, easing = SevTheme.motion.easing.ease) },
                 label = "subtitleBlur",
             ) { if (it == EnterExitState.Visible) 0.dp else SUBTITLE_MAX_BLUR }
             Text(

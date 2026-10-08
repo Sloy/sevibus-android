@@ -2,15 +2,8 @@ package com.sloy.sevibus.feature.cards
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -56,13 +49,7 @@ import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 
-internal val CssEase = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
-private val ExpandEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
-private val CollapseEasing = CubicBezierEasing(0.3f, 0f, 0.1f, 1f)
-private val ShrinkContentEasing = CubicBezierEasing(0.4f, 0f, 1f, 1f)
-private val OvershootEasing = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1f)
 private val ContentPivot = TransformOrigin(0.5f, 0.4f)
-private const val SECTION_REVEAL_DELAY_MILLIS = 260
 
 @Composable
 fun CardBalanceSection(
@@ -73,15 +60,30 @@ fun CardBalanceSection(
     modifier: Modifier = Modifier,
 ) {
     val displayed = rememberLastNonNull(if (card.hasBalance) card to transactionsState else null)
+    val duration = SevTheme.motion.duration
+    val easing = SevTheme.motion.easing
+    val anim = SevTheme.motion.anim
     AnimatedVisibility(
         visible = card.hasBalance,
         modifier = modifier.fillMaxWidth(),
-        enter = expandVertically(tween(380, easing = ExpandEasing), expandFrom = Alignment.Top) +
-            fadeIn(tween(220, delayMillis = 160, easing = CssEase)) +
-            scaleIn(tween(560, delayMillis = 160, easing = OvershootEasing), initialScale = 0.82f, transformOrigin = ContentPivot),
-        exit = fadeOut(tween(170, easing = CssEase)) +
-            scaleOut(tween(230, easing = ShrinkContentEasing), targetScale = 0.82f, transformOrigin = ContentPivot) +
-            shrinkVertically(tween(360, delayMillis = 150, easing = CollapseEasing), shrinkTowards = Alignment.Top),
+        enter = anim.fadeAndScaleIn(
+            expandDuration = duration.d400,
+            fadeDuration = duration.d200,
+            scaleDuration = duration.d550,
+            initialScale = 0.82f,
+            contentDelay = duration.d150,
+            scaleEasing = easing.overshoot,
+            transformOrigin = ContentPivot,
+        ),
+        exit = anim.fadeAndScaleOut(
+            fadeDuration = duration.d150,
+            scaleDuration = duration.d250,
+            shrinkDuration = duration.d350,
+            targetScale = 0.82f,
+            shrinkDelay = duration.d150,
+            scaleEasing = easing.accelerate,
+            transformOrigin = ContentPivot,
+        ),
     ) {
         displayed?.let { (displayedCard, displayedTransactions) ->
             BalanceContent(displayedCard, displayedTransactions, previousCardHadBalance, onTopUpClicked)
@@ -106,7 +108,7 @@ private fun BalanceContent(
     }
     tripsMemory.lastKnownTrips = trips
     val showChip = isLow && trips != null
-    val revealDelay = if (previousCardHadBalance) 0 else SECTION_REVEAL_DELAY_MILLIS
+    val revealDelay = if (previousCardHadBalance) 0 else SevTheme.motion.duration.d250
 
     val chipVisibility = remember { MutableTransitionState(showChip && previousCardHadBalance) }
     chipVisibility.targetState = showChip
@@ -114,7 +116,10 @@ private fun BalanceContent(
     val lowBalanceProgress = remember { Animatable(if (isLow && previousCardHadBalance) 1f else 0f) }
     LaunchedEffect(isLow) {
         if (!previousCardHadBalance) lowBalanceProgress.snapTo(0f)
-        lowBalanceProgress.animateTo(if (isLow) 1f else 0f, tween(220, delayMillis = revealDelay, easing = CssEase))
+        lowBalanceProgress.animateTo(
+            if (isLow) 1f else 0f,
+            tween(SevTheme.motion.duration.d200, delayMillis = revealDelay, easing = SevTheme.motion.easing.ease),
+        )
     }
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -150,14 +155,25 @@ private fun FormattedBalance(balance: Int) {
 @Composable
 private fun TripsChip(visibility: MutableTransitionState<Boolean>, trips: Int, revealDelay: Int) {
     val colors = SevTheme.extendedColors
+    val duration = SevTheme.motion.duration
+    val anim = SevTheme.motion.anim
     AnimatedVisibility(
         visibleState = visibility,
-        enter = expandVertically(tween(300, delayMillis = revealDelay, easing = ExpandEasing), expandFrom = Alignment.Top) +
-            fadeIn(tween(200, delayMillis = revealDelay + 60, easing = CssEase)) +
-            scaleIn(tween(260, delayMillis = revealDelay + 60, easing = ExpandEasing), initialScale = 0.85f),
-        exit = fadeOut(tween(140, easing = CssEase)) +
-            scaleOut(tween(200, easing = CssEase), targetScale = 0.85f) +
-            shrinkVertically(tween(260, delayMillis = 80, easing = CollapseEasing), shrinkTowards = Alignment.Top),
+        enter = anim.fadeAndScaleIn(
+            expandDuration = duration.d300,
+            fadeDuration = duration.d200,
+            scaleDuration = duration.d250,
+            initialScale = 0.85f,
+            delay = revealDelay,
+            contentDelay = duration.d50,
+        ),
+        exit = anim.fadeAndScaleOut(
+            fadeDuration = duration.d150,
+            scaleDuration = duration.d200,
+            shrinkDuration = duration.d250,
+            targetScale = 0.85f,
+            shrinkDelay = duration.d100,
+        ),
     ) {
         Text(
             text = pluralStringResource(R.plurals.cards_trips_left, trips, trips),

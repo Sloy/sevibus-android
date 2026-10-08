@@ -125,6 +125,8 @@ object SevTheme {
 
     val typography: SevTypography = SevTypography
 
+    val motion: SevMotion = SevMotion
+
     val shapes: Shapes
         @Composable
         @ReadOnlyComposable
