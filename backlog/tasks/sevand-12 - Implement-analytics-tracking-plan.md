@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-10-08 01:00'
-updated_date: '2026-10-08 12:14'
+updated_date: '2026-10-08 13:02'
 labels: []
 dependencies: []
 type: enhancement
@@ -130,4 +130,6 @@ Review follow-up:
 - Added Session Summary.lastScreen (destination at ON_STOP, snake_case: for_you, lines, line_stops, stop_detail, cards, cards_help, edit_favorites, search, settings). Added to doc-2. Values chosen to match the for_you example in the plan; confirm they match the Amplitude tracking plan.
 - Card Top Up Clicked: the branch already sends cardType (Clicks.kt). The event seen at 12:11 with type came from a build without the rename (Clicks.kt was changed at 12:21, and the branch was never installed on a device). Added RenamedPropertiesTest to lock the F5 property names.
 - ./gradlew :app:testDebugUnitTest: 144 tests, 0 failures. compileReleaseKotlin OK.
+
+Opened PR #28 from feat/analytics-tracking-plan.
 <!-- SECTION:NOTES:END -->
