@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 All code, comments, documentation, commit messages and PR descriptions must be written in English. User-facing app strings follow the app's own localization (Spanish default).
 
+## Public Repository
+
+This repository is public. Never commit or publish private information: not in code, commit messages, PR or issue descriptions, comments or backlog tasks. This includes:
+
+- Links to Claude sessions (claude.ai/code or similar), even as attribution lines
+- API keys, tokens, passwords, keystores or any other credential
+- The contents of `secret.properties`, `app/google-services.json` or `local.properties`
+- Personal data like emails, names or device identifiers
+
 ## Development Commands
 
 ### Building
