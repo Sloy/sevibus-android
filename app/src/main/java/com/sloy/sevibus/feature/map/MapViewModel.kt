@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.repository.StopRepository
 import com.sloy.sevibus.feature.map.states.OnLineSelectedState
 import com.sloy.sevibus.feature.map.states.OnLinesSectionSelected
@@ -10,6 +11,9 @@ import com.sloy.sevibus.feature.map.states.OnStopSelectedState
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.session.SessionTracker
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.SevNavigator
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +41,7 @@ class MapViewModel(
     private val onStopAndLineSelected: OnStopAndLineSelected,
     private val onLinesSectionSelected: OnLinesSectionSelected,
     private val analytics: Analytics,
+    private val sessionTracker: SessionTracker,
 ) : ViewModel() {
 
     val state = sevNavigator.observeDestination().distinctUntilChanged().transformLatest { destination ->
@@ -59,6 +64,16 @@ class MapViewModel(
 
     fun onTrack(event: SevEvent) {
         analytics.track(event)
+    }
+
+    fun onStopSelected(stop: Stop) {
+        analytics.track(Clicks.MapStopClicked(stop.code))
+    }
+
+    fun onMapExplored() {
+        if (sessionTracker.markMapExplored()) {
+            analytics.track(Events.MapExplored)
+        }
     }
 
     private fun mapDestination(destination: NavigationDestination): Flow<MapScreenState> = flow {

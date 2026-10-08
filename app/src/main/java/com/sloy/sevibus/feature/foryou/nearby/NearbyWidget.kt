@@ -27,8 +27,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.feature.foryou.rememberArrivalsDisplayReporter
 import com.sloy.sevibus.feature.foryou.favorites.FavoriteListItemShimmer
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.toPermissionResult
 import com.sloy.sevibus.infrastructure.extensions.rememberPermissionStateOnUI
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -40,52 +44,58 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun NearbyWidget(onStopClicked: (code: Int) -> Unit) {
-    val permissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
-    val hasPermission = permissionState?.status?.isGranted == true
-
+fun NearbyWidget(isShown: Boolean, onStopClicked: (code: Int) -> Unit) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<NearbyViewModel>()
-        NearbyWidget(onStopClicked, hasPermission, onPermissionButton = {
+        val permissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION) { isGranted ->
+            viewModel.onTrack(Events.LocationPermissionResult(isGranted.toPermissionResult(), Events.LocationPermissionResult.Context.NEARBY))
+        }
+        val hasPermission = permissionState?.status?.isGranted == true
+        NearbyWidget(isShown, onStopClicked, hasPermission, onPermissionButton = {
             viewModel.onTrack(Clicks.NearbyStopsLocationPermissionClicked)
             permissionState?.launchPermissionRequest()
         })
     } else {
-        NearbyWidget(onStopClicked, hasPermission, onPermissionButton = {
+        val permissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
+        NearbyWidget(isShown, onStopClicked, permissionState?.status?.isGranted == true, onPermissionButton = {
             permissionState?.launchPermissionRequest()
         })
     }
 }
 
 @Composable
-fun NearbyWidget(onStopClicked: (code: Int) -> Unit, hasPermission: Boolean, onPermissionButton: () -> Unit) {
+fun NearbyWidget(isShown: Boolean, onStopClicked: (code: Int) -> Unit, hasPermission: Boolean, onPermissionButton: () -> Unit) {
     if (hasPermission) {
-        NearbyWidgetHasPermission(onStopClicked)
+        NearbyWidgetHasPermission(isShown, onStopClicked)
     } else {
         NearbyWidgetNoPermission(onPermissionButton)
     }
 }
 
 @Composable
-private fun NearbyWidgetHasPermission(onStopClicked: (code: Int) -> Unit) {
+private fun NearbyWidgetHasPermission(isShown: Boolean, onStopClicked: (code: Int) -> Unit) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<NearbyViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val stopIds = (state as? NearbyScreenState.Content)?.stops.orEmpty().map { it.stop.code }
+        val onArrivalsChanged = rememberArrivalsDisplayReporter(Events.ArrivalsScreen.NEARBY, stopIds, isShown, viewModel::onTrack)
         NearbyWidgetHasPermission(
             state = state,
+            onArrivalsChanged = onArrivalsChanged,
             onStopClicked = { stopId ->
                 viewModel.onTrack(Clicks.NearbyStopClicked(stopId))
                 onStopClicked(stopId)
             }
         )
     } else {
-        NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), onStopClicked)
+        NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), { _, _ -> }, onStopClicked)
     }
 }
 
 @Composable
 private fun NearbyWidgetHasPermission(
     state: NearbyScreenState,
+    onArrivalsChanged: (StopId, Int?) -> Unit,
     onStopClicked: (code: Int) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
@@ -102,7 +112,7 @@ private fun NearbyWidgetHasPermission(
                     NearbyEmptyState(stringResource(R.string.foryou_nearby_no_stops))
                 } else {
                     state.stops.forEach { stop ->
-                        NearbyListItem(stop, onStopClicked, Modifier.padding(horizontal = 16.dp))
+                        NearbyListItem(stop, onStopClicked, onArrivalsChanged, Modifier.padding(horizontal = 16.dp))
                         Spacer(Modifier.height(16.dp))
                     }
                 }
@@ -155,7 +165,7 @@ private fun NearbyEmptyState(message: String) {
 @Composable
 internal fun NearbyWidgetWithArrivalsPreview() {
     ScreenPreview {
-        NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), {})
+        NearbyWidgetHasPermission(NearbyScreenState.Content(Stubs.nearby), { _, _ -> }, {})
     }
 }
 
@@ -164,7 +174,7 @@ internal fun NearbyWidgetWithArrivalsPreview() {
 @Composable
 internal fun NearbyWidgetEmptyPreview() {
     ScreenPreview {
-        NearbyWidgetHasPermission(NearbyScreenState.Content(emptyList()), {})
+        NearbyWidgetHasPermission(NearbyScreenState.Content(emptyList()), { _, _ -> }, {})
     }
 }
 
@@ -172,7 +182,7 @@ internal fun NearbyWidgetEmptyPreview() {
 @Composable
 internal fun NearbyWidgetLoadingPreview() {
     ScreenPreview {
-        NearbyWidgetHasPermission(NearbyScreenState.Loading, {})
+        NearbyWidgetHasPermission(NearbyScreenState.Loading, { _, _ -> }, {})
     }
 }
 

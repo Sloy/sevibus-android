@@ -1,5 +1,6 @@
 package com.sloy.sevibus.navigation
 
+import androidx.annotation.Keep
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.CardId
@@ -57,7 +58,11 @@ sealed interface NavigationDestination {
     }
 
     @Serializable
-    data class StopDetail(val stopId: StopId, val highlightedLine: LineId? = null) : NavigationDestination {
+    data class StopDetail(
+        val stopId: StopId,
+        val highlightedLine: LineId? = null,
+        val source: StopDetailSource = StopDetailSource.OTHER,
+    ) : NavigationDestination {
         override val type: NavigationDestinationType = NavigationDestinationType.MAP_BOTTOM_SHEET
     }
 
@@ -76,6 +81,12 @@ sealed interface NavigationDestination {
         override val type: NavigationDestinationType = NavigationDestinationType.FULL_SCREEN
     }
 
+}
+
+@Keep
+@Serializable
+enum class StopDetailSource {
+    FAVORITES, NEARBY, MAP, SEARCH, LINE_ROUTE, OTHER
 }
 
 interface TopLevelDestination : NavigationDestination {

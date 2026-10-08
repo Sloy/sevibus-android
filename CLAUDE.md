@@ -403,6 +403,8 @@ The comment is built by `.github/scripts/screenshot_report.py` from the JUnit re
 
 SeviBus uses a multi-tracker analytics system with a type-safe event model.
 
+The tracking plan in `backlog/docs/doc-2 - Analytics-tracking-plan.md` is the source of truth for event names, properties, enum values and user properties. Amplitude's tracking plan mirrors it, so anything sent with a different name shows up as unexpected. Update the doc whenever an event changes.
+
 ### Analytics Services
 
 - **Amplitude** - Main analytics service with session tracking, frustration detection, and deep links
@@ -410,6 +412,10 @@ SeviBus uses a multi-tracker analytics system with a type-safe event model.
 - **HappyMomentTracker** - Internal tracker for triggering in-app review prompts based on user behavior
 - **LoggerTracker** - Development-only tracker that logs events to Logcat
 - **OverlayTracker** - Debug-only tracker that displays events in an on-screen overlay (debug builds only)
+- **SessionTracker** - Sends `Session Summary` when the app goes to background (`ProcessLifecycleOwner`) and updates the `usageProfile` and `isCommuter` user properties from a 30-day local history. The classification rules live in `session/SessionClassifier.kt`
+- **UserPropertiesTracker** - Keeps the user properties (login, favorites, cards, NFC, night mode, location permission) up to date
+
+`SessionTracker` and `UserPropertiesTracker` receive `Analytics` lazily, since they are also trackers. They are started, along with `ScreenViewTracker`, in `SevApplication.onCreate`.
 
 ### Core Architecture
 
@@ -419,6 +425,9 @@ SeviBus uses a multi-tracker analytics system with a type-safe event model.
 - Respects user opt-in/opt-out preference (defaults to enabled)
 - Uses Kotlin Coroutines with `Dispatchers.Default` for async, non-blocking tracking
 - Broadcasts events to all registered tracker implementations
+- `setUserProperty(UserProperty)` sets user properties (`events/UserProperties.kt`): `identify()` in Amplitude, `setUserProperty` in Firebase. It isn't gated by the opt-out because both SDKs already drop data while opted out
+- Enum property values are sent lowercase with `Enum.analyticsValue` (e.g. `LINE_ROUTE` → `line_route`)
+- Null properties are not sent. Firebase receives booleans as `1`/`0` and lists as comma-separated strings
 
 **Base Event Model:** `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/SevEvent.kt`
 
@@ -522,19 +531,20 @@ fun MyScreen() {
 
 **Automatic: Navigation**
 
-- Screen views are automatically tracked via `AppState` in `App.kt`
-- Define screen event in `events/Screens.kt`
-- Add mapping in `Screens.kt` helper function:
+- Screen views are tracked once per navigation by `ScreenViewTracker`, which collects `SevNavigator.transitions` for the whole process. Recreating the activity doesn't track the current screen again
+- Each `NavigationTransition` has a `trigger`: `LAUNCH` (start destination), `NAVIGATION` (forward) or `BACK` (`navigateBack()` and `popToRoot()`). Every screen view event sends it as `trigger`
+- Define the screen event in `events/Screens.kt` and map it in `NavigationTransition.toScreenViewEvent()`:
 
 ```kotlin
-fun Analytics.track(destination: NavigationDestination) {
-   val event = when (destination) {
-      is NavigationDestination.MyNewScreen -> Screens.MyNewScreenViewed
+fun NavigationTransition.toScreenViewEvent(): SevEvent? {
+   return when (destination) {
+      is NavigationDestination.MyNewScreen -> Screens.MyNewScreenViewed(trigger)
       // ... other mappings
    }
-   track(event)
 }
 ```
+
+- `StopDetail` carries a `source` (`StopDetailSource`) set by each call site; `Stop Details Viewed` sends `back` instead when the trigger is back
 
 ### Privacy & User Consent
 
@@ -599,6 +609,10 @@ fun `should track event when button clicked`() {
    - `Events.kt` - General events
 - **Base event class**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/SevEvent.kt`
 - **Tracker implementations**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/tracker/`
+- **Screen views**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/ScreenViewTracker.kt`
+- **User properties**: `events/UserProperties.kt` and `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/UserPropertiesTracker.kt`
+- **Session Summary**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/session/`
+- **Tracking plan**: `backlog/docs/doc-2 - Analytics-tracking-plan.md`
 - **DI configuration**: `app/src/main/java/com/sloy/sevibus/infrastructure/DI.kt`
 - **User preferences**: `app/src/main/java/com/sloy/sevibus/infrastructure/analytics/AnalyticsSettingsDataSource.kt`
 

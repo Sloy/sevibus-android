@@ -6,6 +6,10 @@ import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.onePerLine
 import com.sloy.sevibus.domain.repository.BusRepository
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.toArrivalsErrorType
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +20,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class NearbyItemViewModel(
     private val nearbyStop: NearbyStop,
-    private val busRepository: BusRepository
+    private val busRepository: BusRepository,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,7 +34,9 @@ class NearbyItemViewModel(
             }.onSuccess { arrivals ->
                 emit(NearbyItemState.Loaded(nearbyStop, arrivals))
             }.onFailure {
+                if (it is CancellationException) throw it
                 SevLogger.logW(it, "Error loading arrivals for nearby stop ${nearbyStop.stop.code}")
+                analytics.track(Events.ArrivalsFailed(Events.ArrivalsScreen.NEARBY, nearbyStop.stop.code, it.toArrivalsErrorType()))
             }
             delay(20.seconds)
         }

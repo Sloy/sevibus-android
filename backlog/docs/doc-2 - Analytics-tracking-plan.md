@@ -3,7 +3,7 @@ id: doc-2
 title: Analytics tracking plan
 type: specification
 created_date: '2026-10-08 01:00'
-updated_date: '2026-10-08 01:00'
+updated_date: '2026-10-08 12:14'
 ---
 Source of truth for Amplitude (and Firebase Analytics) events in the Android app. Implemented by SEVAND-12. Discussion and dashboards live in the "SeviBus — Amplitude analytics plan" doc (Tracking plan tab). Keep this file, the code in `infrastructure/analytics/events/` and the Amplitude tracking plan (project SeviBus Prod) in sync.
 
@@ -53,7 +53,7 @@ Computed in the app for `Session Summary.sessionType`. Thresholds are first gues
 | --- | --- | --- | --- |
 | App Started | Changed | Once per process, on cold start (Application.onCreate or first Activity creation). Not on recomposition or configuration change. | — |
 | App Opened From NFC | New | MainActivity receives an NFC TECH_DISCOVERED intent (a transport card tapped on the phone). | `launchType` enum (cold, warm) |
-| Session Summary | New | App goes to background (ProcessLifecycleOwner ON_STOP), once per foreground period. Built from counters kept in memory during the session. | `sessionType` enum (glancer, waiter, explorer, card_checker, other); `durationSeconds` number (seconds in foreground); `stopViews` number (Stop Details Viewed count); `distinctStops` number (distinct stopIds viewed); `arrivalsViews` number (Arrivals Displayed count); `entrySources` string[] (distinct Stop Details Viewed sources); `featuresUsed` string[] (favorites, nearby, map, lines, search, cards, settings) |
+| Session Summary | New | App goes to background (ProcessLifecycleOwner ON_STOP), once per foreground period. Built from counters kept in memory during the session. | `sessionType` enum (glancer, waiter, explorer, card_checker, other); `durationSeconds` number (seconds in foreground); `stopViews` number (Stop Details Viewed count); `distinctStops` number (distinct stopIds viewed); `arrivalsViews` number (Arrivals Displayed count); `entrySources` string[] (distinct Stop Details Viewed sources); `featuresUsed` string[] (favorites, nearby, map, lines, search, cards, settings); `lastScreen` enum (for_you, lines, line_stops, stop_detail, cards, cards_help, edit_favorites, search, settings; destination shown when the app goes to background) |
 
 ### Screens
 
@@ -62,7 +62,7 @@ Computed in the app for `Session Summary.sessionType`. Thresholds are first gues
 | For You Viewed | Changed | Destination becomes For You. | `trigger` enum (navigation, back, launch) |
 | Lines Viewed | Changed | Destination becomes Lines. | `trigger` enum (navigation, back, launch) |
 | Line Stops Viewed | Changed | Destination becomes LineStops with a different lineId than the current one. Not on route direction switch or highlighted stop change. | `lineId` number; `routeId` string, optional; `trigger` enum (navigation, back, launch) |
-| Stop Details Viewed | Changed | Destination becomes StopDetail. | `stopId` number; `source` enum (favorites, nearby, map, search, line_route, arrival_line, back, other); `highlightedLineId` number, optional; `trigger` enum (navigation, back, launch) |
+| Stop Details Viewed | Changed | Destination becomes StopDetail. | `stopId` number; `source` enum (favorites, nearby, map, search, line_route, arrival_line, back, other; arrival_line has no entry point yet); `highlightedLineId` number, optional; `trigger` enum (navigation, back, launch) |
 | Cards Viewed | Changed | Destination becomes Cards. | `trigger` enum (navigation, back, launch) |
 | Cards Help Viewed | Changed | Destination becomes CardsHelp. | `trigger` enum (navigation, back, launch) |
 | Edit Favorites Viewed | Changed | Destination becomes EditFavorites. | `trigger` enum (navigation, back, launch) |
@@ -152,3 +152,19 @@ Computed in the app for `Session Summary.sessionType`. Thresholds are first gues
 | Review Dialog Requested | Existing | Happy moment reached; review flow launched. | — |
 | Review Dialog Dismissed | Changed | Review flow returns success. | `durationSeconds` number (renamed from `duration`) |
 | Review Dialog Failed | Existing | Review flow fails. | `reason` string |
+
+## Implementation notes
+
+Decisions taken while implementing SEVAND-12, where the plan above left room for interpretation:
+
+- `Stop Details Viewed.source`: `arrival_line` is not sent. Tapping an arrival opens the line (LineStops), not a stop, so no navigation to Stop Details comes from an arrival. Stops opened from a line route send `line_route`.
+- `trigger` = back also covers cancelling the search, which returns to For You.
+- `Login Started` / `Completed` / `Failed` with trigger `favorite` are also sent from the "Log in with Google" button in the favorites widget, shown to anonymous users.
+- `Bottom Sheet Changed` only fires when the sheet settles on a different `state` value. Both intermediate detents (40% and 60% of the screen) are `partial`, so moving between them is not tracked.
+- `Session Summary`: `card_checker` requires every screen shown during the session to be Cards or Cards Help, including the screen shown when the session starts. A cold start shows For You, so only sessions resumed on Cards or opened by an NFC tap qualify.
+- `Session Summary`: a stop shown when the session starts (the app resumed on Stop Details) counts toward the 180 s stay of `waiter`, but not toward `stopViews` or `distinctStops`.
+- `usageProfile` leaves `other` sessions out, since it has no `other` value. It isn't set until there is at least one classified session.
+- `Stop Details Closed` also fires when the activity stops, including configuration changes.
+- `App Opened From NFC` with `warm` also fires for cards tapped while the app is in foreground, since they arrive through the same intent.
+- `locationPermission` is `denied` only after the app has seen a dialog result; before that, a missing permission is `not_asked`.
+- `Session Summary.lastScreen` values are the destination names in snake_case. A session with `lastScreen` = for_you, `stopViews` = 0 and `arrivalsViews` > 0 is a user who glanced at favorites and left.

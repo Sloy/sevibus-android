@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
@@ -63,8 +64,14 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun StopDetailScreen(code: StopId, highlighedLine: LineId?, onArrivalClick: (BusArrival, StopId) -> Unit) {
+fun StopDetailScreen(code: StopId, highlighedLine: LineId?, isShown: Boolean, onArrivalClick: (BusArrival, StopId) -> Unit) {
     val viewModel = koinViewModel<StopDetailViewModel>(key = code.toString()) { parametersOf(code) }
+    if (isShown) {
+        LifecycleStartEffect(viewModel) {
+            viewModel.onScreenStarted()
+            onStopOrDispose { viewModel.onScreenStopped() }
+        }
+    }
     val snackbarHost = LocalSnackbarHostState.current
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -88,7 +95,10 @@ fun StopDetailScreen(code: StopId, highlighedLine: LineId?, onArrivalClick: (Bus
     StopDetailScreen(
         state,
         highlighedLine,
-        onArrivalClick = { onArrivalClick(it, code) },
+        onArrivalClick = {
+            viewModel.onArrivalClick(it)
+            onArrivalClick(it, code)
+        },
         onFavoriteClick = { viewModel.onFavoriteClick() })
 }
 

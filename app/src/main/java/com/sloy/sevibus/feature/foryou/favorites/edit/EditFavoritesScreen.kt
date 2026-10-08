@@ -2,6 +2,7 @@
 
 package com.sloy.sevibus.feature.foryou.favorites.edit
 
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,6 +58,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -114,6 +116,13 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 fun EditFavoritesScreen() {
     val snackBar = LocalSnackbarHostState.current
     val viewModel = koinViewModel<EditFavoritesViewModel>()
+    val activity = LocalActivity.current
+    DisposableEffect(viewModel) {
+        viewModel.onScreenOpened()
+        onDispose {
+            if (activity?.isChangingConfigurations != true) viewModel.onScreenClosed()
+        }
+    }
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     EventCollector(viewModel.events) {
         when (it) {

@@ -70,12 +70,14 @@ class CardViewModel(
                     if (card != null) {
                         onNewCardReceived(card, addMethod)
                     } else {
+                        trackCardCheck(addMethod, Events.CardCheckCompleted.Result.NOT_FOUND)
                         events.emit(CardsScreenEvent.ShowMessage("Tarjeta no encontrada o número inválido"))
                         SevLogger.logW(Exception("Card not found with id $cardId"))
                         newCardState.value = CardsScreenNewCardState.InputForm(serialNumber)
                     }
                 }
                 .onFailure { error ->
+                    trackCardCheck(addMethod, Events.CardCheckCompleted.Result.ERROR)
                     events.emit(CardsScreenEvent.ShowMessage("Hubo un error al buscar la tarjeta, inténtalo más tarde"))
                     SevLogger.logE(error)
                     newCardState.value = CardsScreenNewCardState.InputForm(serialNumber)
@@ -87,10 +89,12 @@ class CardViewModel(
         val existingCards = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()
         val existingCard = existingCards?.find { it.serialNumber == card.serialNumber }
         if (existingCard != null) {
+            trackCardCheck(addMethod, Events.CardCheckCompleted.Result.ALREADY_SAVED)
             scrollToCard.value = existingCard.serialNumber
             events.emit(CardsScreenEvent.ShowMessage("Ya tienes guardada esa tarjeta"))
         } else {
             cardsRepository.addUserCard(card, addMethod)
+            trackCardCheck(addMethod, Events.CardCheckCompleted.Result.ADDED)
             analytics.track(Events.CardAdded(card.type))
             scrollToCard.value = card.serialNumber
         }
@@ -104,9 +108,13 @@ class CardViewModel(
         }
     }
     fun onDeleteCard(cardId: CardId) {
+        val cardType = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()?.find { it.serialNumber == cardId }?.type
         viewModelScope.launch {
             runCatching { cardsRepository.deleteUserCard(cardId) }
-                .onSuccess { events.emit(CardsScreenEvent.ShowMessage("Tarjeta eliminada")) }
+                .onSuccess {
+                    cardType?.let { analytics.track(Events.CardDeleted(it)) }
+                    events.emit(CardsScreenEvent.ShowMessage("Tarjeta eliminada"))
+                }
                 .onFailure { error ->
                     events.emit(CardsScreenEvent.ShowMessage("Hubo un error al eliminar la tarjeta, inténtalo más tarde"))
                     SevLogger.logE(error, "Error deleting card")
@@ -124,6 +132,7 @@ class CardViewModel(
         viewModelScope.launch {
             runCatching { cardsRepository.replaceUserCards(updatedList) }
                 .onSuccess {
+                    analytics.track(Events.CardsReordered(updatedList.size))
                     isReordering.value = false
                 }
                 .onFailure { error ->
@@ -131,6 +140,10 @@ class CardViewModel(
                     SevLogger.logE(error, "Error updating cards")
                 }
         }
+    }
+
+    private fun trackCardCheck(addMethod: CardAddMethod, result: Events.CardCheckCompleted.Result) {
+        analytics.track(Events.CardCheckCompleted(addMethod.toScanMethod(), result))
     }
 }
 

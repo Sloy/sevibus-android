@@ -51,7 +51,11 @@ import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.stopdetail.StopDetailViewModel
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
+import com.sloy.sevibus.infrastructure.analytics.ScreenViewTracker
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.analytics.UserPropertiesTracker
+import com.sloy.sevibus.infrastructure.analytics.session.SessionHistoryDataSource
+import com.sloy.sevibus.infrastructure.analytics.session.SessionTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.AmplitudeTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.FirebaseTracker
 import com.sloy.sevibus.infrastructure.analytics.tracker.HappyMomentTracker
@@ -98,17 +102,17 @@ import java.io.File
 object DI {
     val viewModelModule = module {
         viewModel { LinesViewModel(get()) }
-        viewModel { parameters -> LineRouteViewModel(parameters.get(), parameters.getOrNull<RouteId>(), get(), get()) }
+        viewModel { parameters -> LineRouteViewModel(parameters.get(), parameters.getOrNull<RouteId>(), get(), get(), get()) }
         viewModel { parameters -> StopDetailViewModel(parameters.get(), get(), get(), get(), get(), get()) }
         viewModel { FavoritesListViewModel(get(), get(), get()) }
         viewModel { NearbyViewModel(get(), get(), get()) }
-        viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get()) }
-        viewModel { parameters -> NearbyItemViewModel(parameters.get(), get()) }
+        viewModel { parameters -> FavoriteItemViewModel(parameters.get(), get(), get(), get()) }
+        viewModel { parameters -> NearbyItemViewModel(parameters.get(), get(), get()) }
         viewModel { EditFavoritesViewModel(get(), get(), get()) }
         viewModel { ForYouViewModel(get()) }
         viewModel { AlertViewModel(get(), get()) }
-        viewModel { SearchViewModel(get(), get(), get()) }
-        viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get()) }
+        viewModel { SearchViewModel(get(), get(), get(), get()) }
+        viewModel { MapViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
         viewModel { LineSelectorViewModel(get()) }
         viewModel { SettingsViewModel(get(), get(), get(), get(), get()) }
         viewModel { parameters -> CardViewModel(get(), get(), parameters.getOrNull()) }
@@ -131,6 +135,7 @@ object DI {
         single<NightModeDataSource> { NightModeDataSource(androidContext()) }
         single<AppStartTrackingDataSource> { AppStartTrackingDataSource(androidContext()) }
         single<AnalyticsSettingsDataSource> { AnalyticsSettingsDataSource(androidContext()) }
+        single<SessionHistoryDataSource> { SessionHistoryDataSource(androidContext()) }
 
         single<SevibusDatabase> {
             Room.databaseBuilder(
@@ -235,6 +240,9 @@ object DI {
         }
 
         single { HappyMomentTracker(getAll()) }.bind(Tracker::class)
+        single { SessionTracker(lazy { get<Analytics>() }, get(), get(), get()) }.bind(Tracker::class)
+        single { UserPropertiesTracker(androidContext(), lazy { get<Analytics>() }, get(), get(), get(), get(), get()) }.bind(Tracker::class)
+        single { ScreenViewTracker(get(), get()) }
         single { AmplitudeTracker(get(), get(), get()) }.bind(Tracker::class)
         single { FirebaseTracker(get(), get()) }.bind(Tracker::class)
         single { LoggerTracker() }.bind(Tracker::class)

@@ -30,7 +30,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.StopId
+import com.sloy.sevibus.feature.foryou.rememberArrivalsDisplayReporter
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.ui.components.SurfaceButton
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
@@ -40,14 +43,17 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun FavoritesWidget(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () -> Unit) {
+fun FavoritesWidget(isShown: Boolean, onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: () -> Unit) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<FavoritesListViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val isLoginLoading by viewModel.isLoginLoading.collectAsStateWithLifecycle()
+        val stopIds = (state as? FavoritesListState.Content)?.favorites.orEmpty().map { it.stop.code }
+        val onArrivalsChanged = rememberArrivalsDisplayReporter(Events.ArrivalsScreen.FAVORITES, stopIds, isShown, viewModel::onTrack)
         FavoritesWidget(
             state = state,
             isLoginLoading = isLoginLoading,
+            onArrivalsChanged = onArrivalsChanged,
             onStopClicked = { stopId ->
                 viewModel.onTrack(Clicks.FavoriteStopClicked(stopId))
                 onStopClicked(stopId)
@@ -60,7 +66,7 @@ fun FavoritesWidget(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: 
         )
     } else {
         FavoritesWidget(
-            FavoritesListState.Content(Stubs.favorites), false, onStopClicked, onEditFavoritesClicked, {}
+            FavoritesListState.Content(Stubs.favorites), false, { _, _ -> }, onStopClicked, onEditFavoritesClicked, {}
         )
     }
 }
@@ -69,6 +75,7 @@ fun FavoritesWidget(onStopClicked: (code: Int) -> Unit, onEditFavoritesClicked: 
 fun FavoritesWidget(
     state: FavoritesListState,
     isLoginLoading: Boolean,
+    onArrivalsChanged: (StopId, Int?) -> Unit,
     onStopClicked: (code: Int) -> Unit,
     onEditFavoritesClicked: () -> Unit,
     onLoginClicked: (Context) -> Unit,
@@ -85,7 +92,7 @@ fun FavoritesWidget(
             is FavoritesListState.Content -> {
                 if (state.favorites.isNotEmpty()) {
                     state.favorites.forEach { favorite ->
-                        FavoriteListItem(favorite, onStopClicked, Modifier.padding(horizontal = 16.dp))
+                        FavoriteListItem(favorite, onStopClicked, onArrivalsChanged, Modifier.padding(horizontal = 16.dp))
                         Spacer(Modifier.size(16.dp))
                     }
                     EditButton(onClick = onEditFavoritesClicked)
@@ -161,7 +168,7 @@ private fun EditButton(onClick: () -> Unit) {
 @Composable
 internal fun FavoritesWidgetWithArrivalsPreview() {
     ScreenPreview {
-        FavoritesWidget(FavoritesListState.Content(Stubs.favorites.take(3)), false, {}, {}, {})
+        FavoritesWidget(FavoritesListState.Content(Stubs.favorites.take(3)), false, { _, _ -> }, {}, {}, {})
     }
 }
 
@@ -170,7 +177,7 @@ internal fun FavoritesWidgetWithArrivalsPreview() {
 @Composable
 internal fun FavoritesWidgetEmptyPreview() {
     ScreenPreview {
-        FavoritesWidget(FavoritesListState.Content(emptyList()), false, {}, {}, {})
+        FavoritesWidget(FavoritesListState.Content(emptyList()), false, { _, _ -> }, {}, {}, {})
     }
 }
 
@@ -179,7 +186,7 @@ internal fun FavoritesWidgetEmptyPreview() {
 @Composable
 internal fun FavoritesWidgetNotLoggedPreview() {
     ScreenPreview {
-        FavoritesWidget(FavoritesListState.NotLogged, false, {}, {}, {})
+        FavoritesWidget(FavoritesListState.NotLogged, false, { _, _ -> }, {}, {}, {})
     }
 }
 
@@ -187,6 +194,6 @@ internal fun FavoritesWidgetNotLoggedPreview() {
 @Composable
 internal fun FavoritesWidgetLoadingPreview() {
     ScreenPreview {
-        FavoritesWidget(FavoritesListState.Loading, false, {}, {}, {})
+        FavoritesWidget(FavoritesListState.Loading, false, { _, _ -> }, {}, {}, {})
     }
 }

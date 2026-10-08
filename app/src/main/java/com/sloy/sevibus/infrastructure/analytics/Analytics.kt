@@ -1,5 +1,6 @@
 package com.sloy.sevibus.infrastructure.analytics
 
+import com.sloy.sevibus.infrastructure.analytics.events.UserProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,6 +16,14 @@ class Analytics(
         scope.launch {
             if (analyticsSettingsDataSource.isAnalyticsEnabled()) {
                 trackers.forEach { it.track(event) }
+            }
+        }
+    }
+
+    fun setUserProperty(property: UserProperty) {
+        scope.launch {
+            if (analyticsSettingsDataSource.isAnalyticsEnabled()) {
+                trackers.forEach { it.setUserProperty(property) }
             }
         }
     }

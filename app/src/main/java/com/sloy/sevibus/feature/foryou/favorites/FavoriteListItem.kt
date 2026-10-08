@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,11 +47,15 @@ import org.koin.core.parameter.parametersOf
 fun FavoriteListItem(
     favoriteStop: FavoriteStop,
     onStopClicked: (code: StopId) -> Unit,
+    onArrivalsChanged: (StopId, arrivalsCount: Int?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (!LocalView.current.isInEditMode) {
         val viewModel = koinViewModel<FavoriteItemViewModel>(key = favoriteStop.viewModelKey()) { parametersOf(favoriteStop) }
         val state by viewModel.state.collectAsStateWithLifecycle()
+        LaunchedEffect(state) {
+            onArrivalsChanged(favoriteStop.stop.code, (state as? FavoriteItemState.Loaded)?.arrivals?.size)
+        }
         FavoriteListItem(state, onStopClicked, modifier)
     } else {
         FavoriteListItem(

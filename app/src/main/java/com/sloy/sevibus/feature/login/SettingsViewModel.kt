@@ -10,6 +10,8 @@ import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.trackLogin
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
 import com.sloy.sevibus.infrastructure.nightmode.NightModeSetting
 import com.sloy.sevibus.infrastructure.session.SessionService
@@ -58,13 +60,14 @@ class SettingsViewModel(
     fun onLoginClick(context: Context) {
         viewModelScope.launch {
             isInProgress.value = true
-            sessionService.manualSignIn(context)
+            analytics.trackLogin(Events.LoginTrigger.SETTINGS) { sessionService.manualSignIn(context) }
             //TODO show some error message if the login fails
             isInProgress.value = false
         }
     }
 
     fun onLogoutClick(context: Context) {
+        analytics.track(Clicks.LogoutClicked)
         viewModelScope.launch {
             sessionService.signOut(context)
         }
@@ -72,7 +75,9 @@ class SettingsViewModel(
 
     fun onNightModeChange(mode: NightModeSetting) {
         viewModelScope.launch {
+            if (mode == nightModeDataSource.obtainCurrentNightMode()) return@launch
             nightModeDataSource.setNightMode(mode)
+            analytics.track(Events.NightModeChanged(mode))
         }
     }
 

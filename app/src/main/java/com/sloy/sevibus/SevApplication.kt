@@ -7,6 +7,11 @@ import com.sloy.sevibus.infrastructure.AndroidLogger
 import com.sloy.sevibus.infrastructure.BuildVariantDI
 import com.sloy.sevibus.infrastructure.DI
 import com.sloy.sevibus.infrastructure.SevLogger
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.ScreenViewTracker
+import com.sloy.sevibus.infrastructure.analytics.UserPropertiesTracker
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.session.SessionTracker
 import com.sloy.sevibus.infrastructure.config.RemoteConfigService
 import com.sloy.sevibus.infrastructure.session.FirebaseAuthStorageRepair
 import org.koin.android.ext.android.inject
@@ -17,6 +22,10 @@ import org.koin.core.context.startKoin
 class SevApplication : Application() {
 
     private val remoteConfigService: RemoteConfigService by inject()
+    private val analytics: Analytics by inject()
+    private val screenViewTracker: ScreenViewTracker by inject()
+    private val sessionTracker: SessionTracker by inject()
+    private val userPropertiesTracker: UserPropertiesTracker by inject()
 
     private var repairedAuthStorage: Result<List<String>> = Result.success(emptyList())
 
@@ -39,5 +48,10 @@ class SevApplication : Application() {
         }
 
         remoteConfigService.initialize()
+
+        analytics.track(Events.AppStarted)
+        screenViewTracker.start()
+        sessionTracker.start()
+        userPropertiesTracker.start()
     }
 }

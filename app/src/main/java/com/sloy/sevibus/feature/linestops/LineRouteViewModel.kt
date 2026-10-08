@@ -8,6 +8,9 @@ import com.sloy.sevibus.domain.model.RouteId
 import com.sloy.sevibus.domain.model.Stop
 import com.sloy.sevibus.domain.repository.LineRepository
 import com.sloy.sevibus.domain.repository.StopRepository
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,6 +20,7 @@ class LineRouteViewModel(
     private val initialRouteId: RouteId?,
     private val lineRepository: LineRepository,
     private val stopRepository: StopRepository,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     val state = MutableStateFlow<LineRouteScreenState>(LineRouteScreenState.Loading)
@@ -39,6 +43,9 @@ class LineRouteViewModel(
     }
 
     fun onRouteSelected(route: Route) {
+        if (route.id != selectedRoute.id) {
+            analytics.track(Events.RouteDirectionSwitched(lineId, route.id))
+        }
         selectedRoute = route
         state.update { state ->
             check(state is LineRouteScreenState.Content.Full)
@@ -46,4 +53,7 @@ class LineRouteViewModel(
         }
     }
 
+    fun onStopClicked(stop: Stop) {
+        analytics.track(Clicks.LineRouteStopClicked(lineId, stop.code))
+    }
 }

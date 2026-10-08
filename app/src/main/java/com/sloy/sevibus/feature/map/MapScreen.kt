@@ -41,6 +41,8 @@ import com.sloy.sevibus.domain.model.toLatLng
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.toPermissionResult
 import com.sloy.sevibus.infrastructure.extensions.isApproximatelyEqualTo
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.infrastructure.extensions.performHapticReject
@@ -67,14 +69,26 @@ fun MapScreen(
         val mapViewModel: MapViewModel = koinViewModel()
         val state by mapViewModel.state.collectAsStateWithLifecycle()
         val snackbarState = LocalSnackbarHostState.current
-        MapScreen(sheetState, state, contentPadding, onStopSelected, onMapClick, mapViewModel::onTrack, snackbarState)
+        MapScreen(
+            sheetState,
+            state,
+            contentPadding,
+            onStopSelected = {
+                mapViewModel.onStopSelected(it)
+                onStopSelected(it)
+            },
+            onMapClick,
+            mapViewModel::onMapExplored,
+            mapViewModel::onTrack,
+            snackbarState,
+        )
         EventCollector(mapViewModel.events) { event ->
             when (event) {
                 is MapScreenEvent.Error -> snackbarState.showSnackbar(event.message, withDismissAction = true)
             }
         }
     } else {
-        MapScreen(sheetState, MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { }, SnackbarHostState())
+        MapScreen(sheetState, MapScreenState.Initial, contentPadding, onStopSelected, onMapClick, { }, { }, SnackbarHostState())
     }
 }
 
@@ -86,10 +100,13 @@ private fun MapScreen(
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
+    onMapExplored: () -> Unit,
     onTrack: (SevEvent) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
-    val locationPermissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION)
+    val locationPermissionState = rememberPermissionStateOnUI(Manifest.permission.ACCESS_FINE_LOCATION) { isGranted ->
+        onTrack(Events.LocationPermissionResult(isGranted.toPermissionResult(), Events.LocationPermissionResult.Context.MAP))
+    }
 
     MapUI(
         sheetState,
@@ -99,6 +116,7 @@ private fun MapScreen(
         contentPadding,
         onStopSelected,
         onMapClick,
+        onMapExplored,
         onTrack,
     )
 }
@@ -113,6 +131,7 @@ private fun MapUI(
     contentPadding: PaddingValues,
     onStopSelected: (stop: Stop) -> Unit,
     onMapClick: () -> Unit,
+    onMapExplored: () -> Unit,
     onTrack: (SevEvent) -> Unit,
 ) {
     val locationService: LocationService = koinInjectOnUI() ?: NoopLocationService
@@ -151,6 +170,7 @@ private fun MapUI(
             hasLocationPermission = locationPermissionState?.status?.isGranted ?: false,
             onStopSelected = onStopSelected,
             onMapClick = onMapClick,
+            onMapExplored = onMapExplored,
             contentPadding = contentPadding,
             sheetState = sheetState,
             locationButtonClickFlow = locationButtonClickFlow,

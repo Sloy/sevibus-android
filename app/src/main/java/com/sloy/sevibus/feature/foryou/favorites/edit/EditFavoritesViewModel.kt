@@ -7,6 +7,7 @@ import com.sloy.sevibus.domain.repository.FavoriteRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,7 +29,19 @@ class EditFavoritesViewModel(
 
     val events = MutableSharedFlow<EditFavoritesEvent>()
 
+    private var isSaved = false
+
+    fun onScreenOpened() {
+        isSaved = false
+    }
+
+    fun onScreenClosed() {
+        if (!isSaved) analytics.track(Events.EditFavoritesCancelled)
+    }
+
     fun onFavoritesChanged(favorites: List<FavoriteStop>) {
+        isSaved = true
+        analytics.track(favoritesDiff(state.value.favorites, favorites))
         viewModelScope.launch {
             favoriteRepository.replaceFavorites(favorites)
             events.emit(EditFavoritesEvent.Done)
@@ -38,6 +51,19 @@ class EditFavoritesViewModel(
     fun track(event: SevEvent) {
         analytics.track(event)
     }
+}
+
+fun favoritesDiff(old: List<FavoriteStop>, new: List<FavoriteStop>): Events.EditFavoritesSaved {
+    val oldByStop = old.associateBy { it.stop.code }
+    val newStops = new.map { it.stop.code }.toSet()
+    val kept = new.mapNotNull { favorite -> oldByStop[favorite.stop.code]?.let { previous -> previous to favorite } }
+    return Events.EditFavoritesSaved(
+        renamed = kept.count { (previous, current) -> previous.customName != current.customName },
+        iconChanged = kept.count { (previous, current) -> previous.customIcon != current.customIcon },
+        deleted = old.count { it.stop.code !in newStops },
+        linesChanged = kept.count { (previous, current) -> previous.selectedLineIds != current.selectedLineIds },
+        reordered = kept.map { (_, current) -> current.stop.code } != old.map { it.stop.code }.filter { it in newStops },
+    )
 }
 
 data class EditFavoritesState(val favorites: List<FavoriteStop>)

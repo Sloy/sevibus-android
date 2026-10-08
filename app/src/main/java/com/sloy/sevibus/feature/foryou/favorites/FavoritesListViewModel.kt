@@ -8,6 +8,8 @@ import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.analytics.events.trackLogin
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +48,7 @@ class FavoritesListViewModel(
     fun onLoginClick(context: Context) {
         viewModelScope.launch {
             isLoginLoading.value = true
-            sessionService.manualSignIn(context)
+            analytics.trackLogin(Events.LoginTrigger.FAVORITE) { sessionService.manualSignIn(context) }
             //TODO show some error message if the login fails
             isLoginLoading.value = false
         }
