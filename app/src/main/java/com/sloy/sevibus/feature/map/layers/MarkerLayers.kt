@@ -1,12 +1,18 @@
 package com.sloy.sevibus.feature.map.layers
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.maps.android.compose.GoogleMapComposable
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
+import com.google.maps.android.compose.currentCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.sloy.sevibus.domain.model.Bus
 import com.sloy.sevibus.domain.model.Line
@@ -14,8 +20,10 @@ import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Stop
+import com.sloy.sevibus.domain.model.fromLatLng
 import com.sloy.sevibus.domain.model.primary
 import com.sloy.sevibus.domain.model.toLatLng
+import com.sloy.sevibus.domain.model.toPositionBounds
 import com.sloy.sevibus.feature.map.ZoomLevel
 import com.sloy.sevibus.feature.map.icons.BusMapIcon
 import com.sloy.sevibus.feature.map.icons.CircularStopIcon
@@ -24,6 +32,8 @@ import com.sloy.sevibus.feature.map.icons.ShapedStopIcon
 import com.sloy.sevibus.feature.map.icons.rememberComposeBitmapDescriptor
 import com.sloy.sevibus.feature.map.lineWidth
 import com.sloy.sevibus.ui.theme.SevTheme
+
+private const val STOP_MARKERS_PER_FRAME = 40
 
 @Composable
 @GoogleMapComposable
@@ -42,22 +52,36 @@ fun GenericStopsMakerLayer(
             ZoomLevel.Medium -> CircularStopIcon(stopColor, 8.dp)
         }
     }
-    val isVisible = zoomLevel !in hideOnZoom
-    if (!isVisible) return
-    stops.forEach { stop ->
-        // TODO replace with MarkerComposable when issue is resolved: https://github.com/googlemaps/android-maps-compose/issues/685
-        Marker(
-            state = rememberUpdatedMarkerState(position = stop.position.toLatLng()),
-            anchor = Offset(0.5f, 0.8f),
-            visible = isVisible,
-            onClick = {
-                onStopClick(stop)
-                false
-            },
-            zIndex = MapZIndex.STOP_GENERIC,
-            icon = icon
-        )
+    val targetIcon = icon.takeIf { zoomLevel !in hideOnZoom }
+    val stopIcons = remember { ProgressiveStopIcons(STOP_MARKERS_PER_FRAME) }
+    val cameraPositionState = currentCameraPositionState
+    LaunchedEffect(stops, targetIcon) {
+        val visibleArea = cameraPositionState.projection?.visibleRegion?.latLngBounds?.toPositionBounds()
+        val cameraTarget = cameraPositionState.position.target.fromLatLng()
+        stopIcons.update(stops.sortedByCameraPriority(visibleArea, cameraTarget), targetIcon)
     }
+    stops.forEach { stop ->
+        key(stop.code) {
+            GenericStopMarker(stop, stopIcons.iconOf(stop), onStopClick)
+        }
+    }
+}
+
+@Composable
+@GoogleMapComposable
+private fun GenericStopMarker(stop: Stop, icon: State<BitmapDescriptor?>, onStopClick: (Stop) -> Unit) {
+    val currentIcon = icon.value ?: return
+    // TODO replace with MarkerComposable when issue is resolved: https://github.com/googlemaps/android-maps-compose/issues/685
+    Marker(
+        state = rememberUpdatedMarkerState(position = stop.position.toLatLng()),
+        anchor = Offset(0.5f, 0.8f),
+        onClick = {
+            onStopClick(stop)
+            false
+        },
+        zIndex = MapZIndex.STOP_GENERIC,
+        icon = currentIcon
+    )
 }
 
 @Composable
