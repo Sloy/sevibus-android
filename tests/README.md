@@ -158,6 +158,7 @@ Conventions:
 - Never turn airplane mode on from a flow. A real device is usually connected through wireless adb and the connection drops. Simulate offline by relaunching with `debugApiHost: "http://localhost:9"` (see CONN-01).
 - Amounts use a non-breaking space before `€`. Match them with `"."` (`"12,50.€"`), a plain space does not match.
 - The map is disabled by default (`MAP_MODE`). With `MAP_MODE=full`, each stop marker shows up as an unlabeled node in the view hierarchy (about 600 of them). Map interactions are out of scope for now.
+- The `debugHideStops` and `debugHideBuses` boolean launch arguments set the debug Map module toggles of the same name, for example `adb shell am start -n com.sloy.sevibus.debug/com.sloy.sevibus.MainActivity --ez debugHideStops false`. Like the toggles, they persist across launches.
 
 ## Test catalog
 
