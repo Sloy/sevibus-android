@@ -1,10 +1,11 @@
 ---
 id: SEVAND-11
 title: Redesign the low-balance warning and Bonobús balance section
-status: In Progress
+status: Done
 assignee:
   - '@rafa'
 created_date: '2026-10-07 18:54'
+updated_date: '2026-10-08 14:50'
 labels: []
 dependencies: []
 ordinal: 10000

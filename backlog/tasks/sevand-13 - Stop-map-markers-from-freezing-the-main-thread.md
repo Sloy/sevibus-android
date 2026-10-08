@@ -1,11 +1,11 @@
 ---
 id: SEVAND-13
 title: Stop map markers from freezing the main thread
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-10-08 08:35'
-updated_date: '2026-10-08 09:21'
+updated_date: '2026-10-08 14:50'
 labels:
   - map
   - performance
