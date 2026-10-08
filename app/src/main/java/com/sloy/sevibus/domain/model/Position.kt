@@ -20,6 +20,15 @@ fun List<Position>.toBounds(): PositionBounds {
     return PositionBounds(northeast, southwest)
 }
 
+fun PositionBounds.contains(position: Position): Boolean {
+    return position.latitude in southwest.latitude..northeast.latitude &&
+        position.longitude in southwest.longitude..northeast.longitude
+}
+
+fun LatLngBounds.toPositionBounds(): PositionBounds {
+    return PositionBounds(northeast.fromLatLng(), southwest.fromLatLng())
+}
+
 fun PositionBounds.toLatLngBounds(): LatLngBounds {
     return LatLngBounds(southwest.toLatLng(), northeast.toLatLng())
 }

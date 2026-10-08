@@ -16,9 +16,16 @@ fun MarkerLayersByState(
     showBuses: Boolean = true,
     debugOptions: MapDebugOptions = MapDebugOptions(),
 ) {
-    when (val filtered = state.withoutHiddenMarkers(showBuses, debugOptions)) {
-        is MapScreenState.Initial -> {}
-        is MapScreenState.Idle -> IdleMarkerLayers(filtered, zoomLevel, onStopClick)
+    val filtered = state.withoutHiddenMarkers(showBuses, debugOptions)
+    GenericStopsMakerLayer(
+        stops = filtered.genericStops(),
+        zoomLevel = zoomLevel,
+        onStopClick = onStopClick,
+        hideOnZoom = filtered.genericStopsHiddenZooms,
+        colored = !filtered.hasLineSelected,
+    )
+    when (filtered) {
+        is MapScreenState.Initial, is MapScreenState.Idle -> {}
         is MapScreenState.LinesOverview -> LinesOverviewMarkerLayers(filtered, zoomLevel, onStopClick)
         is MapScreenState.LineSelected -> LineSelectedMarkerLayers(filtered, zoomLevel, onStopClick)
         is MapScreenState.StopSelected -> StopSelectedMarkerLayers(filtered, zoomLevel, onStopClick)
@@ -40,6 +47,23 @@ private fun MapScreenState.withoutStops(): MapScreenState = when (this) {
     is MapScreenState.StopAndLineSelected -> copy(lineSelectedState = lineSelectedState.copy(otherStops = emptyList()))
 }
 
+private fun MapScreenState.genericStops(): List<Stop> = when (this) {
+    is MapScreenState.Initial -> emptyList()
+    is MapScreenState.Idle -> allStops
+    is MapScreenState.LinesOverview -> allStops
+    is MapScreenState.LineSelected -> otherStops
+    is MapScreenState.StopSelected -> otherStops
+    is MapScreenState.StopAndLineSelected -> lineSelectedState.otherStops
+}
+
+private val ZoomedOutLevels = listOf(ZoomLevel.Far, ZoomLevel.Medium)
+
+private val MapScreenState.genericStopsHiddenZooms: List<ZoomLevel>
+    get() = if (this is MapScreenState.Idle || this is MapScreenState.StopSelected) emptyList() else ZoomedOutLevels
+
+private val MapScreenState.hasLineSelected: Boolean
+    get() = this is MapScreenState.LineSelected || this is MapScreenState.StopAndLineSelected
+
 private fun MapScreenState.withoutBuses(): MapScreenState = when (this) {
     is MapScreenState.LineSelected -> copy(buses = null)
     is MapScreenState.StopSelected -> copy(buses = null)
@@ -49,14 +73,7 @@ private fun MapScreenState.withoutBuses(): MapScreenState = when (this) {
 
 @Composable
 @GoogleMapComposable
-private fun IdleMarkerLayers(state: MapScreenState.Idle, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
-    GenericStopsMakerLayer(state.allStops, zoomLevel, onStopClick, colored = true)
-}
-
-@Composable
-@GoogleMapComposable
 private fun LinesOverviewMarkerLayers(state: MapScreenState.LinesOverview, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
-    GenericStopsMakerLayer(state.allStops, zoomLevel, onStopClick, colored = true, hideOnZoom = listOf(ZoomLevel.Far, ZoomLevel.Medium))
     if (state.linePaths != null) {
         MultipleLinesLayer(state.linePaths, zoomLevel)
     }
@@ -66,7 +83,6 @@ private fun LinesOverviewMarkerLayers(state: MapScreenState.LinesOverview, zoomL
 @GoogleMapComposable
 private fun LineSelectedMarkerLayers(state: MapScreenState.LineSelected, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
     LineStopsMarkerLayer(state.lineStops, state.line, zoomLevel, onStopClick)
-    GenericStopsMakerLayer(state.otherStops, zoomLevel, onStopClick, colored = false, hideOnZoom = listOf(ZoomLevel.Far, ZoomLevel.Medium))
     if (state.path != null) SingleLineLayer(state.path, zoomLevel)
     if (state.buses != null) BusMarkersLayer(state.buses, showLineTooltip = false)
 }
@@ -75,7 +91,6 @@ private fun LineSelectedMarkerLayers(state: MapScreenState.LineSelected, zoomLev
 @GoogleMapComposable
 private fun StopSelectedMarkerLayers(state: MapScreenState.StopSelected, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
     SelectedStopLayer(state.selectedStop, zoomLevel, onStopClick)
-    GenericStopsMakerLayer(state.otherStops, zoomLevel, onStopClick, colored = true)
     if (state.linesPaths != null) MultipleLinesLayer(state.linesPaths, zoomLevel, splitPoint = state.selectedStop.position)
     if (state.buses != null) BusMarkersLayer(state.buses, showLineTooltip = true)
 }
@@ -85,7 +100,6 @@ private fun StopSelectedMarkerLayers(state: MapScreenState.StopSelected, zoomLev
 private fun StopAndLineSelectedMarkerLayers(state: MapScreenState.StopAndLineSelected, zoomLevel: ZoomLevel, onStopClick: (Stop) -> Unit) {
     SelectedStopLayer(state.selectedStop, zoomLevel, onStopClick, color = state.lineSelectedState.line.color)
     LineStopsMarkerLayer(state.lineSelectedState.lineStops - state.selectedStop, state.lineSelectedState.line, zoomLevel, onStopClick)
-    GenericStopsMakerLayer(state.lineSelectedState.otherStops, zoomLevel, onStopClick, colored = false, hideOnZoom = listOf(ZoomLevel.Far, ZoomLevel.Medium))
     if (state.lineSelectedState.path != null) SingleLineLayer(state.lineSelectedState.path, zoomLevel, splitPoint = state.selectedStop.position)
     if (state.lineSelectedState.buses != null) BusMarkersLayer(state.lineSelectedState.buses, showLineTooltip = false)
 }
