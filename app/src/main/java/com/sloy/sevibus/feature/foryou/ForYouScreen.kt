@@ -22,10 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.CardId
+import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.feature.foryou.alert.AlertWidget
 import com.sloy.sevibus.feature.foryou.favorites.FavoritesWidget
 import com.sloy.sevibus.feature.foryou.nearby.NearbyWidget
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
+import com.sloy.sevibus.navigation.StopDetailSource
 import com.sloy.sevibus.ui.components.SegmentedControl
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
@@ -36,7 +38,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ForYouScreen(
-    onStopClicked: (code: Int) -> Unit,
+    isShown: Boolean,
+    onStopClicked: (code: StopId, source: StopDetailSource) -> Unit,
     onEditFavoritesClicked: () -> Unit,
     onAlertClicked: (CardId) -> Unit
 ) {
@@ -44,16 +47,17 @@ fun ForYouScreen(
         val viewModel = koinViewModel<ForYouViewModel>()
         val selectedIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
 
-        ForYouScreen(selectedIndex, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = viewModel::onTabSelected)
+        ForYouScreen(selectedIndex, isShown, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = viewModel::onTabSelected)
     } else {
-        ForYouScreen(0, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = {})
+        ForYouScreen(0, isShown, onStopClicked, onEditFavoritesClicked, onAlertClicked, onTabSelected = {})
     }
 }
 
 @Composable
 private fun ForYouScreen(
     selectedIndex: Int,
-    onStopClicked: (code: Int) -> Unit,
+    isShown: Boolean,
+    onStopClicked: (code: StopId, source: StopDetailSource) -> Unit,
     onEditFavoritesClicked: () -> Unit,
     onAlertClicked: (CardId) -> Unit,
     onTabSelected: (Int) -> Unit
@@ -77,14 +81,15 @@ private fun ForYouScreen(
             }
         )
 
-        SlidingContent(selectedIndex, onStopClicked, onEditFavoritesClicked)
+        SlidingContent(selectedIndex, isShown, onStopClicked, onEditFavoritesClicked)
     }
 }
 
 @Composable
 private fun SlidingContent(
     selectedIndex: Int,
-    onStopClicked: (code: Int) -> Unit,
+    isShown: Boolean,
+    onStopClicked: (code: StopId, source: StopDetailSource) -> Unit,
     onEditFavoritesClicked: () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
@@ -97,7 +102,7 @@ private fun SlidingContent(
                 initialOffsetX = { -it },
             )
         ) {
-            FavoritesWidget(onStopClicked, onEditFavoritesClicked)
+            FavoritesWidget(isShown, { onStopClicked(it, StopDetailSource.FAVORITES) }, onEditFavoritesClicked)
         }
         AnimatedVisibility(
             visible = selectedIndex == 1,
@@ -108,7 +113,7 @@ private fun SlidingContent(
                 initialOffsetX = { it },
             )
         ) {
-            NearbyWidget(onStopClicked)
+            NearbyWidget(isShown) { onStopClicked(it, StopDetailSource.NEARBY) }
         }
     }
 }
@@ -119,6 +124,6 @@ private fun SlidingContent(
 @Composable
 internal fun ForYouScreenPreview() {
     ScreenPreview {
-        ForYouScreen(0, {}, {}, {}, {})
+        ForYouScreen(0, isShown = true, { _, _ -> }, {}, {}, {})
     }
 }

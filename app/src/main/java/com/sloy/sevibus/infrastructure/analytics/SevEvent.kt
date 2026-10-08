@@ -4,3 +4,5 @@ abstract class SevEvent(
     val name: String,
     vararg val properties: Pair<String, Any?>
 )
+
+val Enum<*>.analyticsValue: String get() = name.lowercase()

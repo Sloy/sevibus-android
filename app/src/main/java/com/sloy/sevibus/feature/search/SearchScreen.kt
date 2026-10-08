@@ -37,6 +37,7 @@ import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.navigation.NavigationDestination
+import com.sloy.sevibus.navigation.StopDetailSource
 import com.sloy.sevibus.ui.components.LineElement
 import com.sloy.sevibus.ui.icons.SevIcons
 import com.sloy.sevibus.ui.icons.Stop
@@ -56,7 +57,7 @@ fun SearchScreen(results: List<SearchResult>, onNavigate: (NavigationDestination
             }
 
             is SearchResult.StopResult -> {
-                onNavigate(NavigationDestination.StopDetail(searchResult.stop.code))
+                onNavigate(NavigationDestination.StopDetail(searchResult.stop.code, source = StopDetailSource.SEARCH))
                 analytics?.track(Clicks.SearchResultStopClicked(searchResult.stop.code))
             }
         }

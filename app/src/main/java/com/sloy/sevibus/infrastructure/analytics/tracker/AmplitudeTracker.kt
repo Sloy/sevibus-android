@@ -10,6 +10,7 @@ import com.sloy.sevibus.infrastructure.BuildVariant
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.analytics.events.UserProperty
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -55,11 +56,7 @@ class AmplitudeTracker(
         sessionService.observeCurrentUser()
             .distinctUntilChanged()
             .onEach { user ->
-                if (user != null) {
-                    amplitude.await().setUserId(user.id)
-                } else if (amplitude.await().getUserId() != null) {
-                    amplitude.await().reset()
-                }
+                amplitude.await().setUserId(user?.id)
             }
             .launchIn(scope)
     }
@@ -87,7 +84,13 @@ class AmplitudeTracker(
 
     override fun track(event: SevEvent) {
         scope.launch {
-            amplitude.await().track(event.name, event.properties.toMap())
+            amplitude.await().track(event.name, event.properties.filter { it.second != null }.toMap())
+        }
+    }
+
+    override fun setUserProperty(property: UserProperty) {
+        scope.launch {
+            amplitude.await().identify(mapOf(property.name to property.value))
         }
     }
 

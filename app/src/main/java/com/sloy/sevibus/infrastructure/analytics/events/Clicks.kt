@@ -22,9 +22,9 @@ interface Clicks {
         "Remove Favorite Clicked", "stopId" to stopId
     )
 
-    data class CardTopUpClicked(val type: String, val balance: Int?) : SevEvent(
+    data class CardTopUpClicked(val cardType: String, val balance: Int?) : SevEvent(
         "Card Top Up Clicked",
-        "type" to type,
+        "cardType" to cardType,
         "balance" to balance
     )
 
@@ -80,11 +80,31 @@ interface Clicks {
     )
 
     data class LineListClicked(val lineLabel: String) : SevEvent(
-        "Line List Clicked", "line" to lineLabel
+        "Line List Clicked", "lineLabel" to lineLabel
     )
 
     data object FeedbackClicked : SevEvent(
         "Feedback Clicked"
+    )
+
+    data class MapStopClicked(val stopId: StopId) : SevEvent(
+        "Map Stop Clicked", "stopId" to stopId
+    )
+
+    data class LineRouteStopClicked(val lineId: LineId, val stopId: StopId) : SevEvent(
+        "Line Route Stop Clicked",
+        "lineId" to lineId,
+        "stopId" to stopId,
+    )
+
+    data class ArrivalClicked(val lineId: LineId, val stopId: StopId) : SevEvent(
+        "Arrival Clicked",
+        "lineId" to lineId,
+        "stopId" to stopId,
+    )
+
+    data object LogoutClicked : SevEvent(
+        "Logout Clicked"
     )
 
 }

@@ -61,7 +61,10 @@ fun LineRouteScreen(
             viewModel.onRouteSelected(it)
             onRouteSelected(it)
         },
-        onStopClick = onStopClick,
+        onStopClick = {
+            viewModel.onStopClicked(it)
+            onStopClick(it)
+        },
     )
 }
 

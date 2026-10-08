@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import com.sloy.sevibus.feature.cards.NfcDecoder
 import com.sloy.sevibus.feature.debug.DebugLaunchArguments
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.nfc.ListenForNfcStateChanges
 import com.sloy.sevibus.infrastructure.nfc.NfcStateManager
 import com.sloy.sevibus.infrastructure.nightmode.NightModeDataSource
@@ -27,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val sevNavigator: SevNavigator by inject()
     private val nightModeDataSource: NightModeDataSource by inject()
     private val nfcStateManager: NfcStateManager by inject()
+    private val analytics: Analytics by inject()
     private val nfcAdapter: NfcAdapter? by lazy { NfcAdapter.getDefaultAdapter(this) }
 
 
@@ -34,7 +37,10 @@ class MainActivity : AppCompatActivity() {
         val nightMode = runBlocking { nightModeDataSource.obtainCurrentNightMode() }
         AppCompatDelegate.setDefaultNightMode(nightMode.systemUiMode)
         super.onCreate(savedInstanceState)
-        onNewIntent(intent)
+        if (savedInstanceState == null && intent.isNfcTagIntent()) {
+            analytics.track(Events.AppOpenedFromNfc(Events.AppOpenedFromNfc.LaunchType.COLD))
+        }
+        handleIntent(intent)
         enableEdgeToEdge()
         setContent {
             App()
@@ -44,8 +50,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (intent.isNfcTagIntent()) {
+            analytics.track(Events.AppOpenedFromNfc(Events.AppOpenedFromNfc.LaunchType.WARM))
+        }
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
         DebugLaunchArguments.apply(intent)
-        if ("android.nfc.action.TECH_DISCOVERED" == intent.action) {
+        if (intent.isNfcTagIntent()) {
             val cardId = NfcDecoder.readCard(intent)
             if (cardId != null) {
                 sevNavigator.navigate(NavigationDestination.Cards())
@@ -55,6 +68,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun Intent.isNfcTagIntent() = NfcAdapter.ACTION_TECH_DISCOVERED == action
 
     override fun onResume() {
         super.onResume()

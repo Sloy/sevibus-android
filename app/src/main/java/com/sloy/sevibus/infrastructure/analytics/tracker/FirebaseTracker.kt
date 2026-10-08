@@ -6,6 +6,7 @@ import com.google.firebase.ktx.Firebase
 import com.sloy.sevibus.infrastructure.analytics.AnalyticsSettingsDataSource
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.Tracker
+import com.sloy.sevibus.infrastructure.analytics.events.UserProperty
 import com.sloy.sevibus.infrastructure.session.SessionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,9 @@ class FirebaseTracker(
             .launchIn(scope)
     }
 
+    override fun setUserProperty(property: UserProperty) {
+        firebaseAnalytics.setUserProperty(property.name, property.value.toString())
+    }
 
     override fun track(event: SevEvent) {
         if (event.properties.isEmpty()) {
@@ -60,6 +64,8 @@ class FirebaseTracker(
                         is Long -> param(formattedKey, value)
                         is Double -> param(formattedKey, value)
                         is Float -> param(formattedKey, value.toDouble())
+                        is Boolean -> param(formattedKey, if (value) 1L else 0L)
+                        is List<*> -> param(formattedKey, value.joinToString(","))
                         null -> {}
                         else -> param(formattedKey, value.toString()) // Fallback
                     }

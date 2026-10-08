@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,11 +51,9 @@ import com.sloy.sevibus.feature.search.SearchViewModel
 import com.sloy.sevibus.feature.search.TopBarState
 import com.sloy.sevibus.feature.stopdetail.StopDetailScreen
 import com.sloy.sevibus.infrastructure.EventCollector
-import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.reviews.presentation.InAppReviewViewModel
-import com.sloy.sevibus.infrastructure.analytics.events.Events
-import com.sloy.sevibus.infrastructure.analytics.events.track
 import com.sloy.sevibus.navigation.NavigationDestination
+import com.sloy.sevibus.navigation.StopDetailSource
 import com.sloy.sevibus.navigation.rememberSevAppState
 import com.sloy.sevibus.ui.components.CircularIconButton
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -76,14 +73,6 @@ fun App() {
         val searchResults by searchViewModel.results.collectAsStateWithLifecycle()
         val reviewViewModel: InAppReviewViewModel = koinViewModel()
         val overlayLogger = koinInject<OverlayLogger>()
-        val analytics: Analytics = koinInject()
-
-        LaunchedEffect(Unit) {
-            analytics.track(Events.AppStarted)
-            appState.sevNavigator.destination.collect { destination ->
-                analytics.track(destination)
-            }
-        }
 
         BackHandler(enabled = !isLastDestination) {
             appState.sevNavigator.navigateBack()
@@ -114,7 +103,7 @@ fun App() {
                             onBack = { appState.sevNavigator.navigateBack() })
                     },
                     bottomSheetContent = { destination ->
-                        BottomSheetContent(destination, onNavigate)
+                        BottomSheetContent(destination, isShown = destination == currentDestination, onNavigate)
                     },
                     fullScreenContent = { destination, paddingValues ->
                         FullScreenContent(destination, searchResults, paddingValues, onNavigate)
@@ -175,14 +164,16 @@ private fun TopBar(
 @Composable
 private fun BottomSheetContent(
     destination: NavigationDestination,
+    isShown: Boolean,
     onNavigate: (NavigationDestination) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (destination) {
         is NavigationDestination.ForYou -> {
             ForYouScreen(
-                onStopClicked = { code ->
-                    onNavigate(NavigationDestination.StopDetail(code))
+                isShown = isShown,
+                onStopClicked = { code, source ->
+                    onNavigate(NavigationDestination.StopDetail(code, source = source))
                 },
                 onEditFavoritesClicked = { onNavigate(NavigationDestination.EditFavorites) },
                 onAlertClicked = { cardId ->
@@ -200,13 +191,15 @@ private fun BottomSheetContent(
                 destination.lineId,
                 initialRouteId = destination.routeId,
                 highlightedStopId = destination.highlightedStop,
-                onStopClick = { onNavigate(NavigationDestination.StopDetail(it.code, highlightedLine = destination.lineId)) },
+                onStopClick = {
+                    onNavigate(NavigationDestination.StopDetail(it.code, highlightedLine = destination.lineId, source = StopDetailSource.LINE_ROUTE))
+                },
                 onRouteSelected = { route -> onNavigate(destination.copy(routeId = route.id, highlightedStop = null)) },
             )
         }
 
         is NavigationDestination.StopDetail -> {
-            StopDetailScreen(destination.stopId, destination.highlightedLine, onArrivalClick = { arrival, stopId ->
+            StopDetailScreen(destination.stopId, destination.highlightedLine, isShown, onArrivalClick = { arrival, stopId ->
                 onNavigate(NavigationDestination.LineStops(arrival.line.id, arrival.route.id, stopId))
             })
         }
@@ -281,7 +274,7 @@ internal fun AppPreviewBottomSheet() {
             onNavigate = {},
             topBar = { TopBar(Stubs.userLaura, TopBarState.Search("", false), {}, {}, {}, {}) },
             bottomSheetContent = {
-                BottomSheetContent(it, {})
+                BottomSheetContent(it, isShown = true, {})
             },
             fullScreenContent = { destination, paddingValues ->
                 FullScreenContent(destination, Stubs.searchResults, paddingValues) {}
@@ -299,7 +292,7 @@ internal fun AppPreviewFullScreen() {
             onNavigate = {},
             topBar = { TopBar(Stubs.userLaura, TopBarState.Search("", true), {}, {}, {}, {}) },
             bottomSheetContent = {
-                BottomSheetContent(it, {})
+                BottomSheetContent(it, isShown = true, {})
             },
             fullScreenContent = { it, paddingValues ->
                 FullScreenContent(it, Stubs.searchResults, paddingValues) {}

@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,8 +65,12 @@ import com.sloy.sevibus.feature.debug.DebugLaunchArguments
 import com.sloy.sevibus.feature.debug.DebugMapMode
 import com.sloy.sevibus.feature.map.MapScreen
 import com.sloy.sevibus.infrastructure.FeatureFlags
+import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Events
+import com.sloy.sevibus.infrastructure.extensions.koinInjectOnUI
 import com.sloy.sevibus.navigation.NavigationDestination
 import com.sloy.sevibus.navigation.NavigationDestinationType
+import com.sloy.sevibus.navigation.StopDetailSource
 import com.sloy.sevibus.navigation.TopLevelDestination
 import com.sloy.sevibus.navigation.isBottomBarVisible
 import com.sloy.sevibus.navigation.isTopBarVisible
@@ -115,13 +120,40 @@ fun MapBottomSheetScaffold(
     )
     val updateState = rememberInAppUpdateState()
 
+    val pendingAppDetents = remember { mutableListOf<SheetDetent>() }
+    suspend fun animateSheetTo(detent: SheetDetent) {
+        if (sheetState.currentDetent != detent) pendingAppDetents += detent
+        sheetState.animateTo(detent)
+    }
+
+    val analytics: Analytics? = koinInjectOnUI()
+    LaunchedEffect(sheetState) {
+        fun SheetDetent.toTrackedState() = when (this) {
+            DetentCollapsed -> Events.BottomSheetChanged.SheetState.COLLAPSED
+            DetentExpanded -> Events.BottomSheetChanged.SheetState.EXPANDED
+            else -> Events.BottomSheetChanged.SheetState.PARTIAL
+        }
+
+        var previousState = sheetState.currentDetent.toTrackedState()
+        snapshotFlow { sheetState.currentDetent }.collect { detent ->
+            val state = detent.toTrackedState()
+            val appDetentIndex = pendingAppDetents.indexOf(detent)
+            val isMovedByApp = appDetentIndex >= 0
+            if (isMovedByApp) pendingAppDetents.subList(0, appDetentIndex + 1).clear()
+            if (!isMovedByApp && state != previousState) {
+                analytics?.track(Events.BottomSheetChanged(state))
+            }
+            previousState = state
+        }
+    }
+
     // Bottomsheet expanded state
     var previousSheetDestination by remember { mutableStateOf(currentDestination) }
     LaunchedEffect(currentDestination) {
         if (currentDestination.type == NavigationDestinationType.MAP_BOTTOM_SHEET) {
             if (currentDestination::class != previousSheetDestination::class) {
-                sheetState.animateTo(DetentCollapsed)
-                sheetState.animateTo(DetentPartiallyExpanded)
+                animateSheetTo(DetentCollapsed)
+                animateSheetTo(DetentPartiallyExpanded)
                 sheetState.invalidateDetents()
             }
             previousSheetDestination = currentDestination
@@ -145,7 +177,7 @@ fun MapBottomSheetScaffold(
                         },
                         onNavigateToDestination = {
                             onNavigate(it)
-                            coroutineScope.launch { sheetState.animateTo(DetentPartiallyExpanded) }
+                            coroutineScope.launch { animateSheetTo(DetentPartiallyExpanded) }
                         },
                         currentNavDestination = currentDestination,
                     )
@@ -163,7 +195,7 @@ fun MapBottomSheetScaffold(
 
             MapContainer(sheetState, scaffoldInnerPadding, onNavigate, onMapClick = {
                 if (currentDestination is TopLevelDestination) {
-                    coroutineScope.launch { sheetState.animateTo(DetentCollapsed) }
+                    coroutineScope.launch { animateSheetTo(DetentCollapsed) }
                 }
             })
             BottomSheet(
@@ -238,7 +270,7 @@ private fun MapContainer(sheetState: BottomSheetState, scaffoldInnerPadding: Pad
             sheetState,
             PaddingValues(bottom = bottomPadding, top = topPadding),
             onStopSelected = {
-                onNavigate(NavigationDestination.StopDetail(it.code))
+                onNavigate(NavigationDestination.StopDetail(it.code, source = StopDetailSource.MAP))
             },
             onMapClick,
         )

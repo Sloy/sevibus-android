@@ -62,6 +62,7 @@ fun SevMap(
     hasLocationPermission: Boolean,
     onStopSelected: (Stop) -> Unit,
     onMapClick: () -> Unit,
+    onMapExplored: () -> Unit,
     contentPadding: PaddingValues,
     sheetState: com.composables.core.BottomSheetState,
     locationButtonClickFlow: SharedFlow<Unit>,
@@ -85,6 +86,7 @@ fun SevMap(
     LaunchedEffect(cameraPositionState.isMoving, cameraPositionState.cameraMoveStartedReason) {
         if (cameraPositionState.isMoving && cameraPositionState.cameraMoveStartedReason == CameraMoveStartedReason.GESTURE) {
             onMapClick()
+            onMapExplored()
         }
     }
 
