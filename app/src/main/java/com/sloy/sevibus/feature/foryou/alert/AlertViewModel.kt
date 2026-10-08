@@ -11,7 +11,7 @@ import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
 import com.sloy.sevibus.infrastructure.analytics.events.Events
-import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
@@ -48,7 +48,7 @@ class AlertViewModel(
         }
         .stateIn(
             scope = viewModelScope,
-            started = WhileSubscribed(5000),
+            started = SharingStarted.Lazily,
             initialValue = AlertState.Hidden
         )
 

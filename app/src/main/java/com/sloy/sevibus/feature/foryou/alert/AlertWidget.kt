@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.foryou.alert
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -70,23 +74,45 @@ private fun AlertWidget(
     onDismissAlert: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (state) {
-        AlertState.Hidden -> return
-        is AlertState.LowBalance -> LowBalanceCard(
-            card = state.card,
-            title = R.string.foryou_card_alert_low_balance_title,
-            onClick = { onAlertClicked(state.card.serialNumber) },
-            onDismiss = onDismissAlert,
-            modifier = modifier,
-        )
+    val visibleState = state.takeUnless { it == AlertState.Hidden }
+    var lastVisibleState by remember { mutableStateOf(visibleState) }
+    if (visibleState != null) lastVisibleState = visibleState
+    val duration = SevTheme.motion.duration
+    AnimatedVisibility(
+        visible = visibleState != null,
+        modifier = modifier,
+        enter = SevTheme.motion.anim.fadeAndScaleIn(
+            expandDuration = duration.d400,
+            fadeDuration = duration.d200,
+            scaleDuration = duration.d400,
+            initialScale = 0.9f,
+            contentDelay = duration.d150,
+        ),
+        exit = SevTheme.motion.anim.fadeAndScaleOut(
+            fadeDuration = duration.d150,
+            scaleDuration = duration.d200,
+            shrinkDuration = duration.d300,
+            targetScale = 0.9f,
+            shrinkDelay = duration.d100,
+        ),
+    ) {
+        when (val displayedState = lastVisibleState) {
+            is AlertState.LowBalance -> LowBalanceCard(
+                card = displayedState.card,
+                title = R.string.foryou_card_alert_low_balance_title,
+                onClick = { onAlertClicked(displayedState.card.serialNumber) },
+                onDismiss = onDismissAlert,
+            )
 
-        is AlertState.NegativeBalance -> LowBalanceCard(
-            card = state.card,
-            title = R.string.foryou_card_alert_negative_balance_title,
-            onClick = { onAlertClicked(state.card.serialNumber) },
-            onDismiss = onDismissAlert,
-            modifier = modifier,
-        )
+            is AlertState.NegativeBalance -> LowBalanceCard(
+                card = displayedState.card,
+                title = R.string.foryou_card_alert_negative_balance_title,
+                onClick = { onAlertClicked(displayedState.card.serialNumber) },
+                onDismiss = onDismissAlert,
+            )
+
+            AlertState.Hidden, null -> Unit
+        }
     }
 }
 
