@@ -13,6 +13,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,9 +40,13 @@ fun RouteTabsSelector(
         }
     ){ index ->
         val name = if (index == 0) route1.destination else route2.destination
-        Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(
+            Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
             Icon(Icons.Default.ArrowForward, contentDescription = null)
-            Text(name)
+            Text(name, style = SevTheme.typography.bodySmallBold)
         }
     }
 }
@@ -80,7 +85,7 @@ internal fun RouteTabsSelectorPreview() {
             )
             RouteTabsSelector(
                 route1 = Stubs.routes[0],
-                route2 = Stubs.routes[1],
+                route2 = Stubs.routes[1].copy(destination = "Nombre largo que rompe línea"),
                 selected = Stubs.routes[1].id,
                 onRouteClicked = {},
                 modifier = Modifier.padding(16.dp),
