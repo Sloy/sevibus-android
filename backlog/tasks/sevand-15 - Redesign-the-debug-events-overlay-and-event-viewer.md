@@ -4,7 +4,7 @@ title: Redesign the debug events overlay and event viewer
 status: In Progress
 assignee: []
 created_date: '2026-10-09 13:17'
-updated_date: '2026-10-09 15:52'
+updated_date: '2026-10-09 16:30'
 labels: []
 dependencies: []
 priority: medium
@@ -3238,6 +3238,8 @@ Task 13 done: CLAUDE.md updated.
 Verification (Task 14): ./gradlew test PASS; validateDebugScreenshotTest PASS (app + debug-menu, 48 debug-menu screenshot tests, no orphans); -p build-logic test PASS; :app:compileReleaseKotlin PASS; assembleDebug PASS. ./gradlew lint FAILS on app/src/main/res/values/themes.xml:8 NewApi windowSplashScreenBackground (file identical to master, pre-existing, not touched). Device check NOT run: only a real phone is connected over wireless adb, no emulator, so nothing was installed. DebugOverlayBottomPadding stays at the untuned 100dp. Unchecked ACs (not proven without a device or UI test): #4 checkbox hidden/ clear drops chips, #7 touch/accessibility/anchor, #9 expansion survives config change, #10 and #11 tap-to-scroll, #12 clipboard and snackbar, #16 lint. Visual differences summary: intended = stock M3 theme/fonts, no map/blur, preview height; fixed = inline properties wrap, session icon spot; unresolved = lanes axis labels use padded window (design uses unpadded range), rail bands/links skip the 250ms push animation.
 
 Device feedback round 1: touches pass through the overlay (039c3fe); lanes screen bars cover resumed and open screens (78c9751); compact Events screen chrome, Timeline head pulse, top-anchored expand, session type rules (c362544); no overlap during bursts in both overlays, rail marker ring outside (98234ad). Not verified on a device yet.
+
+Device feedback round 2: rail layout is a pure function of the clock, no per-marker tweens, no ticks (5fb95ba); dialog system bar icons follow the surface (a9a0070); Journey lanes are a scrubbable strip synced with the list (see next commit). Not verified on a device.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
