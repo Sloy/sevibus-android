@@ -4,7 +4,7 @@ title: Redesign the debug events overlay and event viewer
 status: In Progress
 assignee: []
 created_date: '2026-10-09 13:17'
-updated_date: '2026-10-09 14:22'
+updated_date: '2026-10-09 14:30'
 labels: []
 dependencies: []
 priority: medium
@@ -20,28 +20,28 @@ The debug events overlay shows one small pill per event through the shared Overl
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 CapturedEvent has timestampMillis set by OverlayTracker from an injectable clock, unit tested
-- [ ] #2 Analytics delivers tracking calls to every tracker in call order, unit tested
-- [ ] #3 The events overlay no longer uses OverlayLogger; HTTP overlay items keep working and their tests pass
+- [x] #1 CapturedEvent has timestampMillis set by OverlayTracker from an injectable clock, unit tested
+- [x] #2 Analytics delivers tracking calls to every tracker in call order, unit tested
+- [x] #3 The events overlay no longer uses OverlayLogger; HTTP overlay items keep working and their tests pass
 - [ ] #4 EventsDebugModuleState.useTimelineRail is persisted and defaults to false; the "Use timeline rail" checkbox is only shown while "Show events on overlay" is on; View all (n) and Clear keep working; disabling the overlay removes every chip at once
-- [ ] #5 Spring stack: 5 s lifetime (full alpha 2 s, linear to 0.5), draining timer line, coalescing ×N within 3 s of the newest chip with lifetime restart and bump, 3/9 dp burst/normal gaps, 45 ms same-frame stagger, fold pile with "+N older", start ellipsis at 330 dp; layout unit tested
-- [ ] #6 Timeline rail: strip, centre line, 5 s ticks, pulsing now head, phone/diamond/circle markers with white ring, 31 dp/s drift, top fade, removal after window + 1.5 s, 9 s labels, push spacing 26/7 dp, burst links, screen bands; layout unit tested
+- [x] #5 Spring stack: 5 s lifetime (full alpha 2 s, linear to 0.5), draining timer line, coalescing ×N within 3 s of the newest chip with lifetime restart and bump, 3/9 dp burst/normal gaps, 45 ms same-frame stagger, fold pile with "+N older", start ellipsis at 330 dp; layout unit tested
+- [x] #6 Timeline rail: strip, centre line, 5 s ticks, pulsing now head, phone/diamond/circle markers with white ring, 31 dp/s drift, top fade, removal after window + 1.5 s, 9 s labels, push spacing 26/7 dp, burst links, screen bands; layout unit tested
 - [ ] #7 Both overlays ignore touches and accessibility, and are anchored by a bottom padding passed from App.kt
-- [ ] #8 Events screen: top bar Events (n) with back and Clear, Timeline/Journey segmented control, search field, pinned Copy session as JSON, empty state "No events yet"
+- [x] #8 Events screen: top bar Events (n) with back and Clear, Timeline/Journey segmented control, search field, pinned Copy session as JSON, empty state "No events yet"
 - [ ] #9 Event rows: time, delta, type marker, up to 3 inline properties + "+N more", expandable property box with full timestamp, rows without properties not expandable; expansion survives configuration changes
 - [ ] #10 Gap markers for gaps of 10 s or more labelled quiet or in background; Session Summary card collapsed/expanded with uppercase sessionType chip and formatted duration
 - [ ] #11 Journey: bands named after the view, newest first with the view as last row, duration chip or now, (resumed) band from lastScreen, loose rows before the first view; lanes card follows the scroll and tapping a mark scrolls to its row
 - [ ] #12 Search filters both views with the agreed semantics; Copy session as JSON copies the whole store oldest first with timestampMillis and confirms with a snackbar
-- [ ] #13 Viewer logic unit tested: formatting, gaps, timeline and journey items, search, lanes, JSON export
-- [ ] #14 Every visual component and screen has a @PreviewLightDark preview with the handoff data, generated as debug-menu screenshot tests that CI validates; each one is compared with its handoff reference and the differences are recorded
-- [ ] #15 Release build unaffected: debug-menu-noop mirrors the new DebugMenuHost parameters
+- [x] #13 Viewer logic unit tested: formatting, gaps, timeline and journey items, search, lanes, JSON export
+- [x] #14 Every visual component and screen has a @PreviewLightDark preview with the handoff data, generated as debug-menu screenshot tests that CI validates; each one is compared with its handoff reference and the differences are recorded
+- [x] #15 Release build unaffected: debug-menu-noop mirrors the new DebugMenuHost parameters
 - [ ] #16 ./gradlew test lint and validateDebugScreenshotTest pass
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
 - [ ] #1 Submitted to master, or to an open PR that will merge to master.
-- [ ] #2 (For changes affecting UI) Screenshot test pass
+- [x] #2 (For changes affecting UI) Screenshot test pass
 <!-- DOD:END -->
 
 ## Implementation Plan
@@ -3232,4 +3232,14 @@ Task 10 done: EventsOverlay, rail checkbox (hidden when overlay off), host slot 
 Task 11 done. Compared 11 component previews with handoff viewer-*.png. Fixed: inline properties lost 2nd line/+N more (FlowRow in IntrinsicSize.Min) -> single wrapping Text; session icon spot now neutral like reference. Intended: stock M3 colours/fonts, preview width (lane bar labels clip earlier), outline colours. Unresolved: lanes axis labels use the padded window (00s..15s) while the design labels the unpadded range (01s..15s); mine is geometrically aligned with the marks.
 
 Task 12 done. Timeline/Journey screens compared with viewer-*-light.png: same topbar, segmented control, search, rows, gap, session card, bands, pinned copy bar. Intended: stock theme/fonts, preview height cuts the list. Note: in Journey preview the lanes card spans 16:21:01-16:23:25 because the resumed band is visible at the top (follows scroll); the reference screenshot was scrolled.
+
+Task 13 done: CLAUDE.md updated.
+
+Verification (Task 14): ./gradlew test PASS; validateDebugScreenshotTest PASS (app + debug-menu, 48 debug-menu screenshot tests, no orphans); -p build-logic test PASS; :app:compileReleaseKotlin PASS; assembleDebug PASS. ./gradlew lint FAILS on app/src/main/res/values/themes.xml:8 NewApi windowSplashScreenBackground (file identical to master, pre-existing, not touched). Device check NOT run: only a real phone is connected over wireless adb, no emulator, so nothing was installed. DebugOverlayBottomPadding stays at the untuned 100dp. Unchecked ACs (not proven without a device or UI test): #4 checkbox hidden/ clear drops chips, #7 touch/accessibility/anchor, #9 expansion survives config change, #10 and #11 tap-to-scroll, #12 clipboard and snackbar, #16 lint. Visual differences summary: intended = stock M3 theme/fonts, no map/blur, preview height; fixed = inline properties wrap, session icon spot; unresolved = lanes axis labels use padded window (design uses unpadded range), rail bands/links skip the 250ms push animation.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented the spring stack and timeline rail overlays, the Timeline/Journey Events screen, JSON export, FIFO analytics delivery and debug-menu screenshot tests in CI. Verified with unit tests, validateDebugScreenshotTest for both modules, build-logic tests and the release compile. Not verified: lint (pre-existing themes.xml error) and on-device behaviour.
+<!-- SECTION:FINAL_SUMMARY:END -->
