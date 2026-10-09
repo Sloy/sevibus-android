@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -30,7 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +57,7 @@ private const val STRIP_WIDTH = 18f
 private const val CENTRE_END = STRIP_END + STRIP_WIDTH / 2
 private const val LABEL_END = CENTRE_END + 14f
 private const val TICK_END = STRIP_END + STRIP_WIDTH + 2f
+private const val MARKER_RING = 1.5f
 
 private fun Modifier.atRailY(y: Float, height: Float) = graphicsLayer { translationY = -(ORIGIN + y - height / 2).dp.toPx() }
 
@@ -119,15 +121,23 @@ private fun BoxScope.RailTickLabel(tick: RailTick, modifier: Modifier = Modifier
 @Composable
 private fun BoxScope.RailEvent(marker: RailMarker) {
     val isStatic = LocalInspectionMode.current
+    var popped by remember { mutableStateOf(isStatic) }
     val pop = remember { Animatable(if (isStatic) 1f else 0f) }
     LaunchedEffect(Unit) {
-        delay((marker.popAt - System.currentTimeMillis()).coerceAtLeast(0))
+        val composedAt = System.currentTimeMillis()
+        val popAt = maxOf(marker.popAt, composedAt + RailSpec.PUSH_MILLIS)
+        delay((popAt - System.currentTimeMillis()).coerceAtLeast(0))
+        popped = true
         pop.animateTo(1f, tween(420, easing = OverlayEasing.PopOut))
     }
-    val push by animateFloatAsState(marker.y - marker.trueY, tween(250, easing = LinearEasing), label = "push")
-    val y = marker.trueY + push
+    val pushTarget = marker.y - marker.trueY
+    val push = remember { Animatable(pushTarget) }
+    LaunchedEffect(pushTarget) {
+        if (popped) push.animateTo(pushTarget, tween(RailSpec.PUSH_MILLIS, easing = LinearEasing)) else push.snapTo(pushTarget)
+    }
+    val y = marker.trueY + push.value
 
-    if (marker.linkLength > 0f) {
+    if (marker.linkLength > 0f && popped) {
         Box(
             Modifier
                 .align(Alignment.BottomEnd)
@@ -139,17 +149,13 @@ private fun BoxScope.RailEvent(marker: RailMarker) {
         )
     }
 
-    val (width, height) = when (marker.type) {
-        EventType.VIEW -> 10f to 14f
-        EventType.CLICK -> 10f to 10f
-        EventType.OTHER -> 11f to 11f
-    }
+    val (width, height) = marker.type.markerSize()
     RailMarkerShape(
         type = marker.type,
         modifier = Modifier
             .align(Alignment.BottomEnd)
-            .padding(end = (CENTRE_END - width / 2).dp)
-            .atRailY(y, height)
+            .padding(end = (CENTRE_END - width / 2 - MARKER_RING).dp)
+            .atRailY(y, height + 2 * MARKER_RING)
             .graphicsLayer {
                 scaleX = pop.value
                 scaleY = pop.value
@@ -158,11 +164,12 @@ private fun BoxScope.RailEvent(marker: RailMarker) {
             },
     )
 
+    val labelVisible = marker.labelVisible && popped
     val shown = remember { Animatable(if (isStatic && marker.labelVisible) 1f else 0f) }
-    LaunchedEffect(marker.labelVisible) { shown.animateTo(if (marker.labelVisible) 1f else 0f, tween(360, easing = OverlayEasing.LabelOut)) }
+    LaunchedEffect(labelVisible) { shown.animateTo(if (labelVisible) 1f else 0f, tween(360, easing = OverlayEasing.LabelOut)) }
     val fade = remember { Animatable(if (isStatic && marker.labelVisible) 1f else 0f) }
-    LaunchedEffect(marker.labelVisible) { fade.animateTo(if (marker.labelVisible) 1f else 0f, tween(250, easing = LinearEasing)) }
-    if (marker.labelVisible || fade.value > 0f) {
+    LaunchedEffect(labelVisible) { fade.animateTo(if (labelVisible) 1f else 0f, tween(250, easing = LinearEasing)) }
+    if (labelVisible || fade.value > 0f) {
         RailLabel(
             marker,
             Modifier
@@ -181,36 +188,32 @@ private fun BoxScope.RailEvent(marker: RailMarker) {
     }
 }
 
+private fun EventType.markerSize(): Pair<Float, Float> = when (this) {
+    EventType.VIEW -> 10f to 14f
+    EventType.CLICK -> 10f to 10f
+    EventType.OTHER -> 11f to 11f
+}
+
 @Composable
 private fun RailMarkerShape(type: EventType, modifier: Modifier = Modifier) {
-    when (type) {
-        EventType.VIEW -> {
-            val shape = RoundedCornerShape(3.dp)
-            Box(
-                modifier
-                    .size(10.dp, 14.dp)
-                    .shadow(1.dp, shape, ambientColor = OverlayColors.MarkerShadow)
-                    .background(Color.White, shape)
-                    .border(2.dp, EventType.VIEW.color, shape)
-            )
+    val (width, height) = type.markerSize()
+    val (outer, inner) = when (type) {
+        EventType.VIEW -> RoundedCornerShape((3f + MARKER_RING).dp) to RoundedCornerShape(3.dp)
+        EventType.CLICK -> RoundedCornerShape((2f + MARKER_RING).dp) to RoundedCornerShape(2.dp)
+        EventType.OTHER -> CircleShape to CircleShape
+    }
+    Box(
+        modifier
+            .size((width + 2 * MARKER_RING).dp, (height + 2 * MARKER_RING).dp)
+            .shadow(1.dp, outer, ambientColor = OverlayColors.MarkerShadow)
+            .background(OverlayColors.MarkerRing, outer)
+            .padding(MARKER_RING.dp)
+    ) {
+        if (type == EventType.VIEW) {
+            Box(Modifier.size(width.dp, height.dp).background(Color.White, inner).border(2.dp, EventType.VIEW.color, inner))
+        } else {
+            Box(Modifier.size(width.dp, height.dp).background(type.color, inner))
         }
-        EventType.CLICK -> {
-            val shape = RoundedCornerShape(2.dp)
-            Box(
-                modifier
-                    .size(10.dp)
-                    .shadow(1.dp, shape, ambientColor = OverlayColors.MarkerShadow)
-                    .background(EventType.CLICK.color, shape)
-                    .border(1.5.dp, OverlayColors.MarkerRing, shape)
-            )
-        }
-        EventType.OTHER -> Box(
-            modifier
-                .size(11.dp)
-                .shadow(1.dp, CircleShape, ambientColor = OverlayColors.MarkerShadow)
-                .background(EventType.OTHER.color, CircleShape)
-                .border(1.5.dp, OverlayColors.MarkerRing, CircleShape)
-        )
     }
 }
 

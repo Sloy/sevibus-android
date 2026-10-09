@@ -1,6 +1,7 @@
 package com.sloy.debugmenu.events.overlay
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -45,6 +47,8 @@ import com.sloy.debugmenu.events.EventText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private const val ENTER_SHIFT = 12f
+
 @Composable
 internal fun EventsStackOverlay(
     events: List<CapturedEvent>,
@@ -52,21 +56,34 @@ internal fun EventsStackOverlay(
     modifier: Modifier = Modifier,
     lifetimeMillis: Long = StackSpec.LIFETIME_MILLIS,
 ) {
+    val isStatic = LocalInspectionMode.current
+    val offsets = remember { HashMap<String, Animatable<Float, AnimationVector1D>>() }
     BoxWithConstraints(modifier.fillMaxSize()) {
         val frame = stackFrame(events, nowMillis, maxHeight.value - StackSpec.TOP_RESERVE, lifetimeMillis)
+        val enterShift = enterShift(frame.chips, offsets)
         frame.chips.asReversed().forEach { chip ->
             key(chip.key) {
-                StackChipItem(chip, Modifier.align(Alignment.BottomEnd).padding(end = 12.dp))
+                val offsetY = offsets.getOrPut(chip.key) { Animatable(if (isStatic) chip.y else chip.y + enterShift) }
+                DisposableEffect(Unit) { onDispose { offsets.remove(chip.key) } }
+                StackChipItem(chip, offsetY, Modifier.align(Alignment.BottomEnd).padding(end = 12.dp))
             }
         }
         OlderPill(frame.olderCount, frame.olderY, Modifier.align(Alignment.BottomEnd).padding(end = 12.dp))
     }
 }
 
+/**
+ * How far below its slot a new chip starts: as far as the chips already shown still have to move up,
+ * so they all travel together and never overlap.
+ */
+private fun enterShift(chips: List<StackChip>, offsets: Map<String, Animatable<Float, AnimationVector1D>>): Float {
+    val shown = chips.firstOrNull { it.foldIndex == null && it.key in offsets } ?: return ENTER_SHIFT
+    return maxOf(offsets.getValue(shown.key).value - shown.y, ENTER_SHIFT)
+}
+
 @Composable
-private fun StackChipItem(chip: StackChip, modifier: Modifier) {
+private fun StackChipItem(chip: StackChip, offsetY: Animatable<Float, AnimationVector1D>, modifier: Modifier) {
     val isStatic = LocalInspectionMode.current
-    val offsetY = remember { Animatable(if (isStatic) chip.y else chip.y + 12f) }
     val scale = remember { Animatable(if (isStatic) chip.scale else 0.5f) }
     val alpha = remember { Animatable(if (isStatic) chip.alpha else 0f) }
     val exitX = remember { Animatable(0f) }

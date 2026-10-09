@@ -19,6 +19,7 @@ internal object RailSpec {
     const val REMOVE_AFTER_EXTRA_MILLIS = 1_500L
     const val POP_DELAY_MILLIS = 40L
     const val POP_STAGGER_MILLIS = 60L
+    const val PUSH_MILLIS = 250
     const val TICK_SECONDS = 5
     const val TICK_MARGIN = 10f
     val WINDOW_MILLIS: Long = (RAIL_HEIGHT / PX_PER_SECOND * 1000).toLong() + REMOVE_AFTER_EXTRA_MILLIS
