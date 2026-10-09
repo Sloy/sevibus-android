@@ -41,6 +41,25 @@ class LanesTest {
     }
 
     @Test
+    fun `screen resumed after a session summary has a bar from its first event`() {
+        val model = lanesModel(ViewerSampleData.events, start + 140_000, start + 145_300)
+        val resumed = model.screens.single()
+        expectThat(resumed.label).isEqualTo("For You (resumed)")
+        expectThat(resumed.key).isEqualTo(ViewerSampleData.id(19))
+        expectThat(resumed.start).isEqualTo(model.events.single { it.key == ViewerSampleData.id(19) }.x)
+    }
+
+    @Test
+    fun `screen still open runs to the end of the window`() {
+        val events = listOf(
+            CapturedEvent("For You Viewed", timestampMillis = 0, id = "view"),
+            CapturedEvent("Arrivals Displayed", timestampMillis = 10_000, id = "arrivals"),
+        )
+        val model = lanesModel(events, 0, 10_000)
+        expectThat(model.screens.single().end).isEqualTo(1f)
+    }
+
+    @Test
     fun `clicks and other events go to their lanes`() {
         val model = lanesModel(ViewerSampleData.events, start + 1_050, start + 15_000)
         expectThat(model.clicks.size).isEqualTo(2)

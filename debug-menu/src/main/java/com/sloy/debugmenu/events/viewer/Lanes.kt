@@ -39,10 +39,10 @@ internal fun lanesModel(events: List<CapturedEvent>, fromMillis: Long, toMillis:
     fun x(millis: Long): Float = ((millis - windowStart).toDouble() / (windowEnd - windowStart)).toFloat()
     fun inWindow(event: CapturedEvent) = event.timestampMillis in windowStart..windowEnd
 
-    val screens = all.withIndex().filter { it.value.type == EventType.VIEW }.mapNotNull { (index, view) ->
-        val end = all.drop(index + 1).firstOrNull { it.type == EventType.VIEW || it.isSessionSummary }?.timestampMillis ?: toMillis
-        if (end < windowStart || view.timestampMillis > windowEnd) return@mapNotNull null
-        LaneBar(view.id, x(view.timestampMillis).coerceIn(0f, 1f), x(end).coerceIn(0f, 1f), view.name.removeSuffix(" Viewed"))
+    val screens = screenSpans(all).mapNotNull { span ->
+        val end = span.endMillis ?: windowEnd
+        if (end < windowStart || span.startMillis > windowEnd) return@mapNotNull null
+        LaneBar(span.firstEventId, x(span.startMillis).coerceIn(0f, 1f), x(end).coerceIn(0f, 1f), span.screen)
     }
     val clicks = all.filter { it.type == EventType.CLICK && inWindow(it) }.map { LaneMark(it.id, x(it.timestampMillis)) }
     val others = all.filter { it.type == EventType.OTHER && inWindow(it) }.map { LaneMark(it.id, x(it.timestampMillis)) }

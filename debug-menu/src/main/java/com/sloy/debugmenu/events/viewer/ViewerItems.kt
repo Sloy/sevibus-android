@@ -96,6 +96,11 @@ internal fun journeyItems(events: List<CapturedEvent>, query: String = ""): List
     return items
 }
 
+internal data class ScreenSpan(val firstEventId: String, val screen: String, val startMillis: Long, val endMillis: Long?)
+
+internal fun screenSpans(events: List<CapturedEvent>): List<ScreenSpan> =
+    buildBlocks(events.chronological()).filterIsInstance<Band>().map { ScreenSpan(it.events.first().id, it.screen, it.startMillis, it.endMillis) }
+
 private fun buildBlocks(chronological: List<CapturedEvent>): List<Block> {
     val blocks = mutableListOf<Block>()
     var current: Band? = null
