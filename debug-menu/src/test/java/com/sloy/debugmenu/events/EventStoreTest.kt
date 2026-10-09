@@ -50,5 +50,5 @@ class EventStoreTest {
         expectThat(store.events.value).isEmpty()
     }
 
-    private fun event(name: String) = CapturedEvent(name = name, timestamp = "10:00:00")
+    private fun event(name: String) = CapturedEvent(name = name, timestampMillis = 0)
 }

@@ -45,7 +45,7 @@ data class EventOverlayLoggerItem(val event: CapturedEvent) : OverlayLoggerItem 
 private fun EventOverlayLoggerItemPreview() {
     Column(Modifier.background(Color.DarkGray), horizontalAlignment = Alignment.End) {
         listOf("Lines Viewed", "Add Favorite Clicked", "App Started").forEach { name ->
-            EventOverlayLoggerItem(CapturedEvent(name = name, timestamp = "10:00:00", id = name)).Content(Modifier)
+            EventOverlayLoggerItem(CapturedEvent(name = name, timestampMillis = 0, id = name)).Content(Modifier)
         }
     }
 }

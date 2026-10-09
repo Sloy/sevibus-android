@@ -25,7 +25,7 @@ object BuildVariantDI {
 
         single { EventStore() }
         single { EventsDebugModuleDataSource(androidContext()) }
-        single { OverlayTracker(get(), get(), get()) }.bind(Tracker::class)
+        single { OverlayTracker(get()) }.bind(Tracker::class)
 
         single<ChuckerCollector> {
             ChuckerCollector(

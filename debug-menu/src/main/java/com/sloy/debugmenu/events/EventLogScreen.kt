@@ -142,7 +142,7 @@ private fun shareEvent(context: Context, event: CapturedEvent) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_SUBJECT, "Event: ${event.name}")
-        putExtra(Intent.EXTRA_TEXT, event.toPrettyJson())
+        putExtra(Intent.EXTRA_TEXT, event.toJsonObject().toString())
     }
     context.startActivity(Intent.createChooser(intent, null))
 }
@@ -153,9 +153,9 @@ private fun EventLogScreenPreview() {
     DebugPreviewTheme {
         EventLogScreenContent(
             events = listOf(
-                CapturedEvent("Add Favorite Clicked", mapOf("stopId" to "42"), "10:15:30", id = "1"),
-                CapturedEvent("Stop Details Viewed", emptyMap(), "10:15:12", id = "2"),
-                CapturedEvent("App Started", emptyMap(), "10:15:00", id = "3"),
+                CapturedEvent("Add Favorite Clicked", mapOf("stopId" to "42"), timestampMillis = 0, id = "1"),
+                CapturedEvent("Stop Details Viewed", emptyMap(), timestampMillis = 0, id = "2"),
+                CapturedEvent("App Started", emptyMap(), timestampMillis = 0, id = "3"),
             ),
             onClose = {},
             onClear = {},
