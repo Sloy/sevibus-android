@@ -1,7 +1,5 @@
 package com.sloy.debugmenu.events.overlay
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -26,18 +24,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -49,14 +42,12 @@ import com.sloy.debugmenu.base.ScreenshotTest
 import com.sloy.debugmenu.events.CapturedEvent
 import com.sloy.debugmenu.events.EventText
 import com.sloy.debugmenu.events.EventType
-import kotlinx.coroutines.delay
 
 private const val ORIGIN = 6f
 private const val STRIP_END = 12f
 private const val STRIP_WIDTH = 18f
 private const val CENTRE_END = STRIP_END + STRIP_WIDTH / 2
 private const val LABEL_END = CENTRE_END + 14f
-private const val TICK_END = STRIP_END + STRIP_WIDTH + 2f
 private const val MARKER_RING = 1.5f
 
 private fun Modifier.atRailY(y: Float, height: Float) = graphicsLayer { translationY = -(ORIGIN + y - height / 2).dp.toPx() }
@@ -66,7 +57,6 @@ internal fun EventsRailOverlay(events: List<CapturedEvent>, nowMillis: Long, mod
     val frame = railFrame(events, nowMillis)
     Box(modifier.fillMaxSize().offset(y = 10.dp)) {
         RailStrip(Modifier.align(Alignment.BottomEnd).padding(end = STRIP_END.dp))
-        frame.ticks.forEach { tick -> RailTickLabel(tick, Modifier.align(Alignment.BottomEnd).padding(end = TICK_END.dp)) }
         frame.bands.forEach { band ->
             key(band.key) {
                 val height = band.top - band.bottom
@@ -106,38 +96,8 @@ private fun RailStrip(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun BoxScope.RailTickLabel(tick: RailTick, modifier: Modifier = Modifier) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.atRailY(tick.y, 12f)) {
-        Text(
-            tick.label,
-            style = EventText.Mono9Medium.copy(shadow = Shadow(Color.White, blurRadius = 6f)),
-            color = OverlayColors.RailTickText,
-        )
-        Spacer(Modifier.width(3.dp))
-        Box(Modifier.size(5.dp, 1.dp).background(OverlayColors.RailTick))
-    }
-}
-
-@Composable
 private fun BoxScope.RailEvent(marker: RailMarker) {
-    val isStatic = LocalInspectionMode.current
-    var popped by remember { mutableStateOf(isStatic) }
-    val pop = remember { Animatable(if (isStatic) 1f else 0f) }
-    LaunchedEffect(Unit) {
-        val composedAt = System.currentTimeMillis()
-        val popAt = maxOf(marker.popAt, composedAt + RailSpec.PUSH_MILLIS)
-        delay((popAt - System.currentTimeMillis()).coerceAtLeast(0))
-        popped = true
-        pop.animateTo(1f, tween(420, easing = OverlayEasing.PopOut))
-    }
-    val pushTarget = marker.y - marker.trueY
-    val push = remember { Animatable(pushTarget) }
-    LaunchedEffect(pushTarget) {
-        if (popped) push.animateTo(pushTarget, tween(RailSpec.PUSH_MILLIS, easing = LinearEasing)) else push.snapTo(pushTarget)
-    }
-    val y = marker.trueY + push.value
-
-    if (marker.linkLength > 0f && popped) {
+    if (marker.linkLength > 0f) {
         Box(
             Modifier
                 .align(Alignment.BottomEnd)
@@ -150,36 +110,33 @@ private fun BoxScope.RailEvent(marker: RailMarker) {
     }
 
     val (width, height) = marker.type.markerSize()
-    RailMarkerShape(
-        type = marker.type,
-        modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .padding(end = (CENTRE_END - width / 2 - MARKER_RING).dp)
-            .atRailY(y, height + 2 * MARKER_RING)
-            .graphicsLayer {
-                scaleX = pop.value
-                scaleY = pop.value
-                alpha = marker.markerAlpha
-                rotationZ = if (marker.type == EventType.CLICK) 45f else 0f
-            },
-    )
+    if (marker.markerScale > 0f) {
+        RailMarkerShape(
+            type = marker.type,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = (CENTRE_END - width / 2 - MARKER_RING).dp)
+                .atRailY(marker.y, height + 2 * MARKER_RING)
+                .graphicsLayer {
+                    scaleX = marker.markerScale
+                    scaleY = marker.markerScale
+                    alpha = marker.markerAlpha
+                    rotationZ = if (marker.type == EventType.CLICK) 45f else 0f
+                },
+        )
+    }
 
-    val labelVisible = marker.labelVisible && popped
-    val shown = remember { Animatable(if (isStatic && marker.labelVisible) 1f else 0f) }
-    LaunchedEffect(labelVisible) { shown.animateTo(if (labelVisible) 1f else 0f, tween(360, easing = OverlayEasing.LabelOut)) }
-    val fade = remember { Animatable(if (isStatic && marker.labelVisible) 1f else 0f) }
-    LaunchedEffect(labelVisible) { fade.animateTo(if (labelVisible) 1f else 0f, tween(250, easing = LinearEasing)) }
-    if (labelVisible || fade.value > 0f) {
+    if (marker.labelVisible) {
         RailLabel(
             marker,
             Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = LABEL_END.dp)
-                .atRailY(y, 24f)
+                .atRailY(marker.y, 24f)
                 .graphicsLayer {
-                    alpha = fade.value * marker.labelAlpha.coerceAtLeast(if (marker.labelVisible) 0f else 0.55f) * marker.markerAlpha
-                    translationX = (1f - shown.value) * 10.dp.toPx()
-                    val scale = 0.6f + 0.4f * shown.value
+                    alpha = marker.labelAlpha
+                    translationX = (1f - marker.labelProgress) * 10.dp.toPx()
+                    val scale = 0.6f + 0.4f * marker.labelProgress
                     scaleX = scale
                     scaleY = scale
                     transformOrigin = TransformOrigin(1f, 0.5f)
@@ -275,7 +232,7 @@ private fun NowHead(modifier: Modifier = Modifier) {
 @PreviewLightDark
 @Composable
 internal fun EventsRailOverlayDemoPreview() {
-    OverlayPreviewBackground { EventsRailOverlay(OverlayDemo.events(0), nowMillis = 10_600) }
+    OverlayPreviewBackground { EventsRailOverlay(OverlayDemo.events(0), nowMillis = 10_900) }
 }
 
 @ScreenshotTest(ScreenshotSuite.Screens)

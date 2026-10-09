@@ -6,6 +6,8 @@ import strikt.api.expectThat
 import strikt.assertions.containsExactly
 import strikt.assertions.isEmpty
 import strikt.assertions.isEqualTo
+import strikt.assertions.isFalse
+import strikt.assertions.isTrue
 
 class RailLayoutTest {
 
@@ -16,13 +18,21 @@ class RailLayoutTest {
     fun `markers drift up at 31dp per second`() {
         val marker = railFrame(events("A" to 0), 2_000).markers.single()
         expectThat(marker.y).isEqualTo(62f)
-        expectThat(marker.trueY).isEqualTo(62f)
     }
 
     @Test
-    fun `labelled neighbours are pushed 26dp apart`() {
-        val frame = railFrame(events("A" to 1_000, "B" to 1_000), 1_000)
-        expectThat(frame.markers.map { it.y }).containsExactly(0f, 26f)
+    fun `labelled neighbours end up 26dp apart once the newer one made room`() {
+        val frame = railFrame(events("A" to 0, "B" to 0), 400)
+        expectThat((frame.markers[1].y - frame.markers[0].y).toDouble()).isEqualTo(26.0, 0.001)
+    }
+
+    @Test
+    fun `a new event makes room gradually before it pops`() {
+        val half = railFrame(events("A" to 0, "B" to 0), 60 + 125).markers
+        val gap = half[1].y - half[0].y
+        expectThat(gap > 0f && gap < 26f).isTrue()
+        expectThat(half[0].markerScale).isEqualTo(0f)
+        expectThat(half[0].labelVisible).isFalse()
     }
 
     @Test
@@ -45,11 +55,16 @@ class RailLayoutTest {
     }
 
     @Test
-    fun `labels hold for 2s then fade to 0_55 until 9s`() {
+    fun `labels hold for 2s then fade to 0_55 at 9s`() {
         expectThat(railLabelAlpha(2f)).isEqualTo(1f)
-        expectThat(railLabelAlpha(9f)).isEqualTo(0f)
-        expectThat(railLabelAlpha(8.99f).toDouble()).isEqualTo(0.5506, 0.001)
+        expectThat(railLabelAlpha(9f).toDouble()).isEqualTo(0.55, 0.001)
         expectThat(railLabelAlpha(5.5f).toDouble()).isEqualTo(0.775, 0.001)
+    }
+
+    @Test
+    fun `labels hide after 9s`() {
+        expectThat(railFrame(events("A" to 0), 8_900).markers.single().labelVisible).isTrue()
+        expectThat(railFrame(events("A" to 0), 9_300).markers.single().labelVisible).isFalse()
     }
 
     @Test
@@ -66,9 +81,10 @@ class RailLayoutTest {
     }
 
     @Test
-    fun `markers of a burst pop 60ms apart after 40ms`() {
-        val frame = railFrame(events("A" to 1_000, "B" to 1_000, "C" to 5_000), 5_000)
-        expectThat(frame.markers.map { it.popAt }).containsExactly(5_040L, 1_100L, 1_040L)
+    fun `events of a burst make room 60ms apart and pop once their room is made`() {
+        expectThat(railFrame(events("A" to 1_000, "B" to 1_000), 1_249).markers.map { it.markerScale }).containsExactly(0f, 0f)
+        expectThat(railFrame(events("A" to 1_000, "B" to 1_000), 1_300).markers.map { it.markerScale > 0f }).containsExactly(false, true)
+        expectThat(railFrame(events("A" to 1_000, "B" to 1_000), 1_400).markers.map { it.markerScale > 0f }).containsExactly(true, true)
     }
 
     @Test
@@ -81,13 +97,8 @@ class RailLayoutTest {
     }
 
     @Test
-    fun `ticks every 5 seconds inside the rail`() {
-        expectThat(railFrame(emptyList(), 0).ticks).containsExactly(RailTick(155f, "5s"), RailTick(310f, "10s"), RailTick(465f, "15s"))
-    }
-
-    @Test
-    fun `demo at 10_6s labels the last 15 events`() {
-        val frame = railFrame(OverlayDemo.events(0), 10_600)
+    fun `demo at 10_9s labels the last 15 events`() {
+        val frame = railFrame(OverlayDemo.events(0), 10_900)
         expectThat(frame.markers.count { it.labelVisible }).isEqualTo(15)
         expectThat(frame.markers.size).isEqualTo(17)
     }
