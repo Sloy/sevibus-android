@@ -8,9 +8,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.withFrameMillis
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sloy.debugmenu.events.CapturedEvent
@@ -21,9 +19,8 @@ private const val CLOCK_IDLE_AFTER_MILLIS = 25_000L
 
 /**
  * Live events overlay: the spring stack, or the timeline rail when enabled in the Events module.
- * It ignores touches and accessibility, and only shows events tracked after it was turned on.
+ * It has no pointer input, so touches reach the app below. It is hidden from accessibility and only shows events tracked after it was turned on.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EventsOverlay(eventStore: EventStore, dataSource: EventsDebugModuleDataSource, modifier: Modifier = Modifier) {
     val state by dataSource.observeCurrentState().collectAsStateWithLifecycle()
@@ -35,8 +32,7 @@ fun EventsOverlay(eventStore: EventStore, dataSource: EventsDebugModuleDataSourc
         Box(
             modifier
                 .fillMaxSize()
-                .clearAndSetSemantics {}
-                .pointerInteropFilter { false },
+                .clearAndSetSemantics {},
         ) {
             if (state.useTimelineRail) EventsRailOverlay(recent, now) else EventsStackOverlay(recent, now)
         }
