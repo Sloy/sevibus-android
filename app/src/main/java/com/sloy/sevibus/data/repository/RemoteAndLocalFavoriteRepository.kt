@@ -16,8 +16,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -37,30 +39,35 @@ class RemoteAndLocalFavoriteRepository(
 
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutex = Mutex()
+    private val syncedUserId = MutableStateFlow<String?>(null)
 
     init {
         sessionService.observeCurrentUser()
-            .map { it != null }
-            .distinctUntilChanged()
-            .onEach { isLogged ->
-                if (isLogged) {
-                    syncWithServer()
+            .distinctUntilChangedBy { it != null }
+            .onEach { user ->
+                syncedUserId.value = null
+                if (user != null) {
+                    runCatching { syncWithServer() }
+                        .onFailure { SevLogger.logW(it, "Error syncing favorites") }
+                    syncedUserId.value = user.id
                 } else {
                     dao.deleteAllFavorites()
                 }
             }
-            .catch { SevLogger.logW(it, "Error syncing favorites") }
             .launchIn(backgroundScope)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeFavorites(): Flow<List<FavoriteStop>> {
         return sessionService.observeCurrentUser()
-            .flatMapLatest {
-                if (it == null) {
+            .flatMapLatest { user ->
+                if (user == null) {
                     flowOf(emptyList())
                 } else {
-                    dao.observeFavorites()
+                    combine(dao.observeFavorites(), syncedUserId) { entities, syncedUserId ->
+                        entities.takeIf { it.isNotEmpty() || syncedUserId == user.id }
+                    }
+                        .filterNotNull()
                         .map { entities ->
                             entities.map { entity ->
                                 entity.fromEntity(stopRepository.obtainStop(entity.stopId))

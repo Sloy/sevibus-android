@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -46,7 +47,8 @@ class StopDetailViewModel(
     private var latestArrivals: List<BusArrival>? = null
 
     private val favorite: Flow<FavoriteStop?> = favoriteRepository.observeFavorites()
-        .map { it.find { favorite -> favorite.stop.code == stopId } }
+        .map<_, FavoriteStop?> { it.find { favorite -> favorite.stop.code == stopId } }
+        .onStart { emit(null) }
 
     private val arrivals: Flow<Result<List<BusArrival>?>> = flow {
         latestArrivals = null
