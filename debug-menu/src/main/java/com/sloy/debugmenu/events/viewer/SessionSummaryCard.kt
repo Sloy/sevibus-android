@@ -3,10 +3,6 @@ package com.sloy.debugmenu.events.viewer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -87,12 +83,34 @@ internal fun SessionSummaryCard(event: CapturedEvent, expanded: Boolean, onToggl
         }
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(tween(200)) + fadeIn(tween(200)),
-            exit = shrinkVertically(tween(200)) + fadeOut(tween(200)),
+            enter = DetailsEnter,
+            exit = DetailsExit,
         ) {
-            PropertyBox(event.properties, timestampMillis = null, modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp))
+            Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp)) {
+                event.properties["sessionType"]?.let(::sessionTypeRule)?.let { rule ->
+                    Text(
+                        rule,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 4.dp, end = 4.dp, bottom = 8.dp),
+                    )
+                }
+                PropertyBox(event.properties, timestampMillis = null)
+            }
         }
     }
+}
+
+/**
+ * Why the app gave a session this type, mirroring the rules in the tracking plan.
+ */
+internal fun sessionTypeRule(sessionType: String): String? = when (sessionType) {
+    "card_checker" -> "Card checker: only visited Cards screens and viewed no stops."
+    "waiter" -> "Waiter: stayed over 3 min on one stop, or viewed the same stop again within 20 min of a previous session."
+    "explorer" -> "Explorer: tapped stops on the map, or used Lines or Search."
+    "glancer" -> "Glancer: under 60 s and saw arrivals, without map, Lines or Search."
+    "other" -> "Other: no rule matched, like a settings-only visit or no arrivals."
+    else -> null
 }
 
 @Composable

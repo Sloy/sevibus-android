@@ -1,12 +1,12 @@
 package com.sloy.debugmenu.events.viewer
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -47,7 +49,9 @@ import com.sloy.debugmenu.events.EventType
 import com.sloy.debugmenu.events.colors
 
 private const val INLINE_PROPERTIES = 3
-private const val ANIMATION_MILLIS = 200
+private const val CHEVRON_MILLIS = 200
+private const val PULSE_MILLIS = 1600
+private val MarkerCentre = 21.dp
 private const val NO_BREAK_SPACE = '\u00A0'
 private const val PROPERTY_SEPARATOR = "  "
 
@@ -59,11 +63,12 @@ internal fun EventRow(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
     inBand: Boolean = false,
+    isOldest: Boolean = false,
 ) {
     val hasProperties = event.properties.isNotEmpty()
     val isExpanded = expanded && hasProperties
     val rowBackground = if (isExpanded) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.025f) else Color.Transparent
-    val chevron by animateFloatAsState(if (isExpanded) 180f else 0f, tween(ANIMATION_MILLIS), label = "rowChevron")
+    val chevron by animateFloatAsState(if (isExpanded) 180f else 0f, tween(CHEVRON_MILLIS), label = "rowChevron")
     Row(
         modifier
             .fillMaxWidth()
@@ -80,7 +85,7 @@ internal fun EventRow(
             Text(event.timestamp, style = EventText.Mono12, color = MaterialTheme.colorScheme.onSurface)
             Text(delta, style = EventText.Mono10, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        TimelineMarker(event.type)
+        TimelineMarker(event.type, lineBelow = !isOldest)
         Column(Modifier.weight(1f).padding(top = 11.dp, bottom = 12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(event.name, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
@@ -95,15 +100,15 @@ internal fun EventRow(
             }
             AnimatedVisibility(
                 visible = hasProperties && !isExpanded,
-                enter = expandVertically(tween(ANIMATION_MILLIS)) + fadeIn(tween(ANIMATION_MILLIS)),
-                exit = shrinkVertically(tween(ANIMATION_MILLIS)) + fadeOut(tween(ANIMATION_MILLIS)),
+                enter = InlineEnter,
+                exit = InlineExit,
             ) {
                 InlineProperties(event.properties, Modifier.padding(top = 4.dp))
             }
             AnimatedVisibility(
                 visible = isExpanded,
-                enter = expandVertically(tween(ANIMATION_MILLIS)) + fadeIn(tween(ANIMATION_MILLIS)),
-                exit = shrinkVertically(tween(ANIMATION_MILLIS)) + fadeOut(tween(ANIMATION_MILLIS)),
+                enter = DetailsEnter,
+                exit = DetailsExit,
             ) {
                 PropertyBox(event.properties, event.timestampMillis, Modifier.padding(top = 8.dp))
             }
@@ -131,11 +136,12 @@ private fun InlineProperties(properties: Map<String, String>, modifier: Modifier
 }
 
 @Composable
-internal fun TimelineMarker(type: EventType, modifier: Modifier = Modifier) {
+internal fun TimelineMarker(type: EventType, modifier: Modifier = Modifier, lineBelow: Boolean = true) {
     val colors = type.colors()
-    val lineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    val lineColor = railLineColor()
     Box(modifier.width(24.dp).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
-        Box(Modifier.width(1.dp).fillMaxHeight().background(lineColor))
+        Box(Modifier.width(1.dp).height(MarkerCentre).background(lineColor))
+        if (lineBelow) Box(Modifier.padding(top = MarkerCentre).width(1.dp).fillMaxHeight().background(lineColor))
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -150,6 +156,53 @@ internal fun TimelineMarker(type: EventType, modifier: Modifier = Modifier) {
                 Box(Modifier.size(8.dp).background(colors.accent, CircleShape))
             }
         }
+    }
+}
+
+@Composable
+private fun railLineColor(): Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+
+/**
+ * Pulsing tip on top of the Timeline rail, where new events come in.
+ */
+@Composable
+internal fun TimelineHead(modifier: Modifier = Modifier) {
+    val progress = if (LocalInspectionMode.current) {
+        0f
+    } else {
+        val transition = rememberInfiniteTransition(label = "timelineHead")
+        val animated by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(PULSE_MILLIS), RepeatMode.Restart),
+            label = "timelineHeadProgress",
+        )
+        animated
+    }
+    val primary = MaterialTheme.colorScheme.primary
+    val lineColor = railLineColor()
+    Row(modifier.fillMaxWidth().height(24.dp)) {
+        Box(Modifier.width(76.dp))
+        Box(Modifier.width(24.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            Box(Modifier.padding(top = 12.dp).width(1.dp).fillMaxHeight().align(Alignment.BottomCenter).background(lineColor))
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .graphicsLayer {
+                        alpha = 0.55f * (1f - progress)
+                        scaleX = 1f + 1.6f * progress
+                        scaleY = 1f + 1.6f * progress
+                    }
+                    .background(primary, CircleShape)
+            )
+            Box(Modifier.size(8.dp).background(primary, CircleShape))
+        }
+        Text(
+            "Now",
+            style = EventText.Mono10,
+            color = primary,
+            modifier = Modifier.align(Alignment.CenterVertically).padding(start = 4.dp),
+        )
     }
 }
 

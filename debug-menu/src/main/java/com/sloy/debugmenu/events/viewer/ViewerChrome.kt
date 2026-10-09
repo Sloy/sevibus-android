@@ -16,10 +16,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,20 +65,25 @@ internal fun EventSearchField(query: String, onQueryChange: (String) -> Unit, mo
     )
 }
 
+internal val EventsActionBarHeight = 64.dp
+
 @Composable
-internal fun CopyJsonBar(onCopy: () -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().navigationBarsPadding()) {
+internal fun EventsActionBar(onCopy: () -> Unit, onClear: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).navigationBarsPadding()) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        FilledTonalButton(
-            onClick = onCopy,
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp)
-                .fillMaxWidth()
-                .height(40.dp),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.height(EventsActionBarHeight - 1.dp).padding(horizontal = 16.dp),
         ) {
-            Icon(Icons.Outlined.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
+            FilledTonalButton(onClick = onCopy, modifier = Modifier.weight(1f).height(40.dp)) {
+                Icon(Icons.Outlined.ContentCopy, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Copy session as JSON")
+            }
             Spacer(Modifier.width(8.dp))
-            Text("Copy session as JSON")
+            OutlinedIconButton(onClick = onClear, modifier = Modifier.size(40.dp)) {
+                Icon(Icons.Outlined.Delete, contentDescription = "Clear events", modifier = Modifier.size(20.dp))
+            }
         }
     }
 }
@@ -95,10 +102,10 @@ internal fun EventSearchFieldEmptyPreview() {
 @ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark
 @Composable
-internal fun CopyJsonBarPreview() {
+internal fun EventsActionBarPreview() {
     DebugPreviewTheme {
         Surface(color = MaterialTheme.colorScheme.surface) {
-            CopyJsonBar(onCopy = {})
+            EventsActionBar(onCopy = {}, onClear = {})
         }
     }
 }
