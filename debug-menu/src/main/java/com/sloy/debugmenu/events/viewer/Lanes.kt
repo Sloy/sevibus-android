@@ -16,6 +16,9 @@ internal object LanesSpec {
     const val BREAK_WIDTH = 72f
     const val BREAK_AFTER_MILLIS = 10_000L
     const val TICK_MILLIS = 5_000L
+    const val FULL_LABEL_WIDTH = 44f
+    const val TWO_LETTER_WIDTH = 24f
+    const val ONE_LETTER_WIDTH = 12f
 }
 
 private val TickFormat = DateTimeFormatter.ofPattern("mm:ss")
@@ -127,3 +130,17 @@ internal fun LanesStrip.markAt(lane: Lane, x: Float, tolerance: Float): String? 
 
 private fun List<LaneMark>.nearest(x: Float, tolerance: Float): String? =
     filter { abs(it.x - x) <= tolerance }.minByOrNull { abs(it.x - x) }?.key
+
+/**
+ * Text for a screen bar [widthDp] wide: the name, two letters (initials when it has several words) or one letter.
+ */
+internal fun barLabel(screen: String, widthDp: Float): String? {
+    val words = screen.split(' ').filter { it.isNotEmpty() && it.first().isLetter() }
+    val twoLetters = if (words.size > 1) "${words[0].first()}${words[1].first()}" else screen.take(2)
+    return when {
+        widthDp >= LanesSpec.FULL_LABEL_WIDTH -> screen
+        widthDp >= LanesSpec.TWO_LETTER_WIDTH -> twoLetters
+        widthDp >= LanesSpec.ONE_LETTER_WIDTH -> screen.take(1)
+        else -> null
+    }
+}

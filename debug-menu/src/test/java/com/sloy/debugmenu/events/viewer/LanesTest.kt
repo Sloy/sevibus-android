@@ -76,4 +76,13 @@ class LanesTest {
         val strip = LanesStrip(screens = listOf(LaneBar("v", 10f, 40f, "Lines")))
         expectThat(strip.markAt(Lane.SCREENS, 30f, 5f)).isEqualTo("v")
     }
+
+    @Test
+    fun `bar labels shrink to initials when the name does not fit`() {
+        expectThat(barLabel("Line Stops", 60f)).isEqualTo("Line Stops")
+        expectThat(barLabel("Line Stops", 30f)).isEqualTo("LS")
+        expectThat(barLabel("Lines", 30f)).isEqualTo("Li")
+        expectThat(barLabel("Line Stops", 16f)).isEqualTo("L")
+        expectThat(barLabel("Line Stops", 8f)).isNull()
+    }
 }

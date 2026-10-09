@@ -161,8 +161,8 @@ private fun LanesViewport(
                             .size(barWidth.dp, 22.dp)
                             .background(view.tint, RoundedCornerShape(6.dp)),
                     ) {
-                        if (barWidth >= 44f) {
-                            Text(bar.label, style = MaterialTheme.typography.labelMedium, color = view.ink, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 4.dp))
+                        barLabel(bar.label, barWidth)?.let { label ->
+                            Text(label, style = MaterialTheme.typography.labelMedium, color = view.ink, maxLines = 1, overflow = TextOverflow.Ellipsis, softWrap = false, modifier = Modifier.padding(horizontal = 2.dp))
                         }
                     }
                 }
