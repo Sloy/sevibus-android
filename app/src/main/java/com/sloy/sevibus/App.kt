@@ -40,6 +40,7 @@ import com.sloy.sevibus.domain.model.SearchResult
 import com.sloy.sevibus.feature.cards.CardsHelpScreen
 import com.sloy.sevibus.feature.cards.CardsScreen
 import com.sloy.sevibus.feature.debug.SevDebugMenu
+import com.sloy.sevibus.feature.debug.SevDebugOverlay
 import com.sloy.sevibus.feature.foryou.ForYouScreen
 import com.sloy.sevibus.feature.foryou.favorites.edit.EditFavoritesScreen
 import com.sloy.sevibus.feature.lines.LinesScreen
@@ -86,7 +87,12 @@ fun App() {
         val onNavigate: (NavigationDestination) -> Unit = { appState.navigate(it) }
 
         SevTheme {
-            DebugMenuHost(overlayLogger, menu = { SevDebugMenu() }) {
+            DebugMenuHost(
+                overlayLogger,
+                menu = { SevDebugMenu() },
+                overlayBottomPadding = DebugOverlayBottomPadding,
+                overlay = { SevDebugOverlay() },
+            ) {
                 MapBottomSheetScaffold(
                     currentDestination = currentDestination,
                     onNavigate = onNavigate,
@@ -300,3 +306,5 @@ internal fun AppPreviewFullScreen() {
         )
     }
 }
+
+private val DebugOverlayBottomPadding = 100.dp
