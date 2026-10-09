@@ -9,8 +9,8 @@ raw="https://raw.githubusercontent.com/$GITHUB_REPOSITORY"
 
 echo "| Screenshot | Before | After |"
 echo "|---|---|---|"
-git diff --no-renames --name-status "$base" "$head" -- app/src/screenshotTestDebug/reference | while read -r status file; do
-  name="$(basename "$(dirname "$file")")/$(basename "$file" .png)"
+git diff --no-renames --name-status "$base" "$head" -- app/src/screenshotTestDebug/reference debug-menu/src/screenshotTestDebug/reference | while read -r status file; do
+  name="${file%%/*}/$(basename "$(dirname "$file")")/$(basename "$file" .png)"
   case "$status" in
     A) before="New" ;;
     *) before="<img src=\"$raw/$base/$file\" width=\"250\">" ;;

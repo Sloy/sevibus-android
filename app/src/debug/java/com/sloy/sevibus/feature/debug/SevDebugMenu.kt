@@ -23,7 +23,7 @@ fun DebugMenuScope.SevDebugMenu() {
         httpCache = koinInject(),
         healthCheck = { adminApi.healthCheck().toDebugEntries() },
     )
-    EventsModule(koinInject(), koinInject(), koinInject())
+    EventsModule(koinInject(), koinInject())
     MapDebugModule()
     InAppReviewDebugModule()
     AuthDebugModule()
