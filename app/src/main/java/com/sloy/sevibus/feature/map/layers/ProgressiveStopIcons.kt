@@ -16,10 +16,15 @@ import com.sloy.sevibus.domain.model.manhattanDistance
 @Stable
 class ProgressiveStopIcons(private val markersPerFrame: Int) {
     private val icons = HashMap<StopId, MutableState<BitmapDescriptor?>>()
+    private var isFirstLoadDone = false
 
     fun iconOf(stop: Stop): State<BitmapDescriptor?> = stateOf(stop)
 
     suspend fun update(prioritizedStops: List<Stop>, icon: BitmapDescriptor?) {
+        if (isFirstLoadDone) {
+            prioritizedStops.forEach { stateOf(it).value = icon }
+            return
+        }
         var updatedInFrame = 0
         prioritizedStops.forEach { stop ->
             val state = stateOf(stop)
@@ -31,6 +36,7 @@ class ProgressiveStopIcons(private val markersPerFrame: Int) {
                 updatedInFrame = 0
             }
         }
+        isFirstLoadDone = prioritizedStops.isNotEmpty() && icon != null
     }
 
     private fun stateOf(stop: Stop) = icons.getOrPut(stop.code) { mutableStateOf(null) }

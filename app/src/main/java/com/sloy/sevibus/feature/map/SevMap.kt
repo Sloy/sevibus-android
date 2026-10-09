@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -117,19 +118,29 @@ fun SevMap(
         )
     )
 
-    fun fitCamera(bounds: PositionBounds): CameraUpdate {
-        val camera = CameraFit.fit(bounds, viewport, MIN_ZOOM, FIT_MAX_ZOOM)
-        return CameraUpdateFactory.newLatLngZoom(camera.target.toLatLng(), camera.zoom)
-    }
+    fun fitCamera(bounds: PositionBounds): CameraFit.Camera = CameraFit.fit(bounds, viewport, MIN_ZOOM, FIT_MAX_ZOOM)
 
     val fitBounds = state.cameraFitBounds()
+    var upcomingCameraZoom: MutableState<Float?>? = null
     if (state is MapScreenState.StopSelected) {
+        val upcomingZoom = remember(state.selectedStop) { mutableStateOf<Float?>(ZoomLevel.Close.minimumLevel.toFloat()) }
+        upcomingCameraZoom = upcomingZoom
         LaunchedEffect(state.selectedStop) {
-            centerMapOn { CameraUpdateFactory.newLatLngZoom(state.selectedStop.position.toLatLng(), ZoomLevel.Close.minimumLevel.toFloat()) }
+            try {
+                centerMapOn { CameraUpdateFactory.newLatLngZoom(state.selectedStop.position.toLatLng(), ZoomLevel.Close.minimumLevel.toFloat()) }
+            } finally {
+                upcomingZoom.value = null
+            }
         }
     } else if (fitBounds != null) {
+        val upcomingZoom = remember(fitBounds) { mutableStateOf(fitCamera(fitBounds).zoom.takeUnless { it.isNaN() }) }
+        upcomingCameraZoom = upcomingZoom
         LaunchedEffect(fitBounds) {
-            centerMapOn { fitCamera(fitBounds) }
+            try {
+                centerMapOn { fitCamera(fitBounds).let { CameraUpdateFactory.newLatLngZoom(it.target.toLatLng(), it.zoom) } }
+            } finally {
+                upcomingZoom.value = null
+            }
         }
     }
 
@@ -186,7 +197,8 @@ fun SevMap(
             onMapClick = { onMapClick() },
             locationSource = locationSource,
         ) {
-            val zoomLevel = ZoomLevel(cameraPositionState.position.zoom.toInt())
+            val markersZoom = minOf(cameraPositionState.position.zoom, upcomingCameraZoom?.value ?: Float.MAX_VALUE)
+            val zoomLevel = ZoomLevel(markersZoom.toInt())
             val showBuses = cameraPositionState.position.zoom >= BUS_MARKERS_MIN_ZOOM
             MarkerLayersByState(state, zoomLevel, onStopSelected, showBuses, debugOptions)
             if (debugOptions.showFitBounds && fitBounds != null) {

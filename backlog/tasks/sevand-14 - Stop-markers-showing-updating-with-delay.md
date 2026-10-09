@@ -1,9 +1,11 @@
 ---
 id: SEVAND-14
 title: Stop markers showing updating with delay
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@claude'
 created_date: '2026-10-08 14:47'
+updated_date: '2026-10-09 08:22'
 due_date: '2026-10-09'
 labels: []
 dependencies: []
@@ -36,7 +38,36 @@ Either revert the optimization, or apply it only on startup.
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 Submitted to master, or to an open PR that will merge to master.
-- [ ] #2 (For changes affecting UI) Screenshot test pass
-- [ ] #3 Manually tested on a real device by a human
+- [x] #1 Submitted to master, or to an open PR that will merge to master.
+- [x] #2 (For changes affecting UI) Screenshot test pass
+- [x] #3 Manually tested on a real device by a human
 <!-- DOD:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+1. Keep progressive (batched) icon updates only for the first load of the generic stops layer.
+2. After the first load, apply icon swaps and hides in a single pass, as before PR #27.
+3. Unit test ProgressiveStopIcons for both modes.
+4. Manual check on device by the user.
+
+5. Gray flash remained: the camera fit waits for the bottom sheet before animating, so the stops turned gray at close zoom first. Marker layers now use the lower of the current zoom and the zoom of the pending camera animation (line fit or stop focus), so stops hide as soon as the line is selected.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+ProgressiveStopIcons batches icon updates only until the first non-empty load with a visible icon completes. Later swaps (zoom, color) and hides apply in a single pass. Unit tests added. Pending manual check on device.
+
+First fix wasn't enough on device: gray stops still flashed. SevMap now anticipates the camera fit zoom for the marker layers.
+
+Checked the build before PR #27 on device: the grey flash already happened there. PR #27 only introduced the ripple (batched hiding), fixed by limiting batching to the first load. The grey flash is a pre-existing issue, addressed by anticipating the camera fit zoom in SevMap.
+
+Validation: unit tests and validateDebugScreenshotTest pass. Manually verified on device by the user: no ripple, no grey flash.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Ripple (regression from PR #27): ProgressiveStopIcons now batches icon updates only until the first load completes; later zoom/color swaps and hides apply in a single pass. Grey flash (pre-existing, confirmed on the build before PR #27): the camera fit waits for the bottom sheet, so marker layers now use the lower of the current zoom and the pending camera animation zoom, hiding stops as soon as a line is selected. Verified with unit tests, screenshot tests and a manual check on a real device.
+<!-- SECTION:FINAL_SUMMARY:END -->
