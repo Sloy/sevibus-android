@@ -15,6 +15,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -73,6 +74,16 @@ class StopDetailViewModelTest {
 
         expectThat(state()).isA<StopDetailScreenState.Loaded>().get { arrivalsState }
             .isEqualTo(ArrivalsState.Loading(stop.lines))
+    }
+
+    @Test
+    fun `shows the stop while the favorites are still loading`() = runTest {
+        whenever(stopRepository.obtainStop(stop.code)).thenReturn(stop)
+        whenever(favoriteRepository.observeFavorites()).thenReturn(emptyFlow())
+
+        val state = collectState()
+
+        expectThat(state()).isA<StopDetailScreenState.Loaded>()
     }
 
     @Test

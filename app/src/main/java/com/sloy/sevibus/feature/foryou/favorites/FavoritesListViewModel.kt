@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -37,7 +38,8 @@ class FavoritesListViewModel(
                 flowOf<FavoritesListState>(FavoritesListState.NotLogged)
             } else {
                 favoriteRepository.observeFavorites()
-                    .map { FavoritesListState.Content(it) }
+                    .map<_, FavoritesListState> { FavoritesListState.Content(it) }
+                    .onStart { emit(FavoritesListState.Loading) }
             }
         }
         .catch { SevLogger.logW(it, "Error obtaining favorites") }
