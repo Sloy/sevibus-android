@@ -9,78 +9,71 @@ import strikt.assertions.isNull
 
 class LanesTest {
     private val start = ViewerSampleData.startMillis
+    private val strip = lanesStrip(ViewerSampleData.events)
+
+    private fun event(name: String, at: Long, id: String = name) = CapturedEvent(name, timestampMillis = at, id = id)
 
     @Test
-    fun `range and span come from the visible items`() {
-        val model = lanesModel(ViewerSampleData.events, start + 1_050, start + 15_000)
-        expectThat(model.range).isEqualTo("16:21:01 → 16:21:15")
-        expectThat(model.span).isEqualTo("14s")
+    fun `time runs left to right at 24dp per second after the edge`() {
+        val strip = lanesStrip(listOf(event("B", 2_000), event("A", 0)))
+        expectThat(strip.xAt(0)).isEqualTo(LanesSpec.EDGE)
+        expectThat(strip.xAt(1_000)).isEqualTo(LanesSpec.EDGE + 24f)
+        expectThat(strip.width).isEqualTo(LanesSpec.EDGE + 48f + LanesSpec.EDGE)
     }
 
     @Test
-    fun `window is padded 5 percent on each side`() {
-        val events = listOf(CapturedEvent("A", timestampMillis = 10_000, id = "a"), CapturedEvent("B", timestampMillis = 0, id = "b"))
-        val model = lanesModel(events, 0, 10_000)
-        expectThat(model.events.map { it.key }).containsExactly("b", "a")
-        expectThat(model.events[0].x.toDouble()).isEqualTo(0.05 / 1.1, 0.0001)
-        expectThat(model.events[1].x.toDouble()).isEqualTo(1.05 / 1.1, 0.0001)
+    fun `gaps over 10s collapse to a fixed width break`() {
+        val strip = lanesStrip(listOf(event("B", 60_000), event("A", 0)))
+        expectThat(strip.xAt(60_000)).isEqualTo(LanesSpec.EDGE + LanesSpec.BREAK_WIDTH)
+        expectThat(strip.breaks.single().label).isEqualTo("1m 0s")
+        expectThat(strip.breaks.single().start).isEqualTo(LanesSpec.EDGE)
     }
 
     @Test
-    fun `window is at least 5 seconds`() {
-        val events = listOf(CapturedEvent("A", timestampMillis = 1_000, id = "a"))
-        val model = lanesModel(events, 1_000, 1_000)
-        expectThat(model.events.single().x.toDouble()).isEqualTo(0.5, 0.0001)
+    fun `time at a position inverts the position of a time`() {
+        listOf(start + 1_050, start + 4_254, start + 15_000, start + 80_000, start + 145_300).forEach { time ->
+            expectThat(strip.timeAt(strip.xAt(time))).isEqualTo(time)
+        }
     }
 
     @Test
     fun `screen bars run from a view to the next view or session summary`() {
-        val model = lanesModel(ViewerSampleData.events, start + 1_050, start + 15_000)
-        expectThat(model.screens.map { it.label }).containsExactly("For You", "Lines", "Stop Details", "For You", "Stop Details", "For You")
-        expectThat(model.screens.last().end).isEqualTo(model.events.first { it.key == ViewerSampleData.sessionSummaryId }.x)
-    }
-
-    @Test
-    fun `screen resumed after a session summary has a bar from its first event`() {
-        val model = lanesModel(ViewerSampleData.events, start + 140_000, start + 145_300)
-        val resumed = model.screens.single()
-        expectThat(resumed.label).isEqualTo("For You (resumed)")
-        expectThat(resumed.key).isEqualTo(ViewerSampleData.id(19))
-        expectThat(resumed.start).isEqualTo(model.events.single { it.key == ViewerSampleData.id(19) }.x)
-    }
-
-    @Test
-    fun `screen still open runs to the end of the window`() {
-        val events = listOf(
-            CapturedEvent("For You Viewed", timestampMillis = 0, id = "view"),
-            CapturedEvent("Arrivals Displayed", timestampMillis = 10_000, id = "arrivals"),
+        expectThat(strip.screens.map { it.label }).containsExactly(
+            "For You", "Lines", "Stop Details", "For You", "Stop Details", "For You", "For You (resumed)",
         )
-        val model = lanesModel(events, 0, 10_000)
-        expectThat(model.screens.single().end).isEqualTo(1f)
+        expectThat(strip.screens[5].end).isEqualTo(strip.xAt(start + 15_000))
+    }
+
+    @Test
+    fun `the open screen runs to the end of the strip`() {
+        val resumed = strip.screens.last()
+        expectThat(resumed.key).isEqualTo(ViewerSampleData.id(19))
+        expectThat(resumed.start).isEqualTo(strip.xAt(start + 145_300))
+        expectThat(resumed.end).isEqualTo(strip.width)
     }
 
     @Test
     fun `clicks and other events go to their lanes`() {
-        val model = lanesModel(ViewerSampleData.events, start + 1_050, start + 15_000)
-        expectThat(model.clicks.size).isEqualTo(2)
-        expectThat(model.events.size).isEqualTo(11)
+        expectThat(strip.clicks.size).isEqualTo(2)
+        expectThat(strip.events.size).isEqualTo(12)
     }
 
     @Test
-    fun `axis has five labels`() {
-        expectThat(lanesModel(ViewerSampleData.events, start + 1_050, start + 15_000).axis.size).isEqualTo(5)
+    fun `ticks every 5 seconds of clock time inside each stretch`() {
+        expectThat(strip.ticks.map { it.label }).containsExactly("21:05", "21:10", "21:15")
+        expectThat(strip.ticks.first().x).isEqualTo(strip.xAt(start + 5_000))
     }
 
     @Test
     fun `tap hits the nearest mark within tolerance`() {
-        val model = LanesModel("", "", emptyList(), listOf(LaneMark("a", 0.2f), LaneMark("b", 0.3f)), emptyList(), emptyList())
-        expectThat(model.markAt(Lane.CLICKS, 0.27f, 0.05f)).isEqualTo("b")
-        expectThat(model.markAt(Lane.CLICKS, 0.6f, 0.05f)).isNull()
+        val strip = LanesStrip(clicks = listOf(LaneMark("a", 20f), LaneMark("b", 30f)))
+        expectThat(strip.markAt(Lane.CLICKS, 27f, 5f)).isEqualTo("b")
+        expectThat(strip.markAt(Lane.CLICKS, 60f, 5f)).isNull()
     }
 
     @Test
-    fun `tap on a screen bar hits its view`() {
-        val model = LanesModel("", "", listOf(LaneBar("v", 0.1f, 0.4f, "Lines")), emptyList(), emptyList(), emptyList())
-        expectThat(model.markAt(Lane.SCREENS, 0.3f, 0.05f)).isEqualTo("v")
+    fun `tap on a screen bar hits its first event`() {
+        val strip = LanesStrip(screens = listOf(LaneBar("v", 10f, 40f, "Lines")))
+        expectThat(strip.markAt(Lane.SCREENS, 30f, 5f)).isEqualTo("v")
     }
 }

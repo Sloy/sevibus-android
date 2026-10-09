@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -50,6 +51,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -76,15 +78,19 @@ import com.sloy.debugmenu.events.viewer.SessionSummaryCard
 import com.sloy.debugmenu.events.viewer.TimelineHead
 import com.sloy.debugmenu.events.viewer.ViewerItem
 import com.sloy.debugmenu.events.viewer.ViewerSampleData
+import com.sloy.debugmenu.events.viewer.anchorPosition
+import com.sloy.debugmenu.events.viewer.anchorTime
 import com.sloy.debugmenu.events.viewer.journeyItems
-import com.sloy.debugmenu.events.viewer.lanesModel
+import com.sloy.debugmenu.events.viewer.lanesStrip
 import com.sloy.debugmenu.events.viewer.screenBandBackground
+import com.sloy.debugmenu.events.viewer.scrollAnchors
 import com.sloy.debugmenu.events.viewer.timelineItems
 import kotlinx.coroutines.launch
 
 private const val TIMELINE = 0
 private const val JOURNEY = 1
 private const val LANES_KEY = "lanes"
+private const val LANES_ITEMS = 1
 private const val SEARCH_KEY = "search"
 private const val HEAD_KEY = "head"
 private const val NO_MATCHES_KEY = "no-matches"
@@ -235,28 +241,42 @@ private fun EventList(
     header: LazyListScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val eventsById = remember(events) { events.associateBy { it.id } }
     val oldestEventKey = remember(items) { items.lastOrNull { it is EventItem }?.key }
-    val visibleRange by remember(items, eventsById) {
+    val strip = remember(events) { lanesStrip(events) }
+    val anchors = remember(items) { scrollAnchors(items) }
+    val density = LocalDensity.current
+    val bottomPadding = EventsActionBarHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val shownWindow by remember(anchors, density, bottomPadding) {
         derivedStateOf {
-            val visible = listState.layoutInfo.visibleItemsInfo
-            val lanesBottom = visible.firstOrNull { it.key == LANES_KEY }?.let { it.offset + it.size } ?: Int.MIN_VALUE
-            val timestamps = visible.filter { it.offset + it.size > lanesBottom }.mapNotNull { eventsById[it.key]?.timestampMillis }
-            if (timestamps.isEmpty()) null else timestamps.min() to timestamps.max()
+            val layout = listState.layoutInfo
+            val top = layout.timeAt(layout.lanesBottom(), anchors)
+            val bottom = layout.timeAt(layout.viewportEndOffset - with(density) { bottomPadding.roundToPx() }, anchors)
+            if (top == null || bottom == null) null else bottom to top
         }
     }
-    val bottomPadding = EventsActionBarHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     LazyColumn(state = listState, contentPadding = PaddingValues(bottom = bottomPadding), modifier = Modifier.fillMaxSize()) {
         header()
         if (isJourney) {
             stickyHeader(key = LANES_KEY) {
-                val (from, to) = visibleRange ?: (events.minOf { it.timestampMillis } to events.maxOf { it.timestampMillis })
+                val (from, to) = shownWindow ?: (events.minOf { it.timestampMillis } to events.maxOf { it.timestampMillis })
                 LanesCard(
-                    model = remember(events, from, to) { lanesModel(events, from, to) },
+                    strip = strip,
+                    fromMillis = from,
+                    toMillis = to,
+                    onScrub = { olderBy ->
+                        val target = strip.timeAt(strip.xAt(to) - olderBy)
+                        val (index, fraction) = anchorPosition(anchors, target)
+                        val layout = listState.layoutInfo
+                        val row = layout.visibleItemsInfo.firstOrNull { it.index == index + LANES_ITEMS }
+                        if (row != null) {
+                            listState.dispatchRawDelta(row.offset + fraction * row.size - layout.lanesBottom())
+                        } else {
+                            scope.launch { listState.scrollToItem(index + LANES_ITEMS) }
+                        }
+                    },
                     onMarkClick = { id ->
                         val index = items.indexOfFirst { it.key == id }
-                        val lanesHeight = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.key == LANES_KEY }?.size ?: 0
-                        if (index >= 0) scope.launch { listState.animateScrollToItem(index + 1, -lanesHeight) }
+                        if (index >= 0) scope.launch { listState.animateScrollToItem(index + LANES_ITEMS, -listState.layoutInfo.lanesBottom()) }
                     },
                     modifier = Modifier.background(MaterialTheme.colorScheme.surface),
                 )
@@ -323,4 +343,17 @@ internal fun EventLogScreenSessionExpandedPreview() {
 @Composable
 internal fun EventLogScreenEmptyPreview() {
     DebugPreviewTheme { EventLogScreenContent(emptyList(), {}, {}) }
+}
+
+private fun LazyListLayoutInfo.lanesBottom(): Int = visibleItemsInfo.firstOrNull { it.key == LANES_KEY }?.let { it.offset + it.size } ?: 0
+
+/**
+ * Time shown at [y] in the Journey list, interpolated inside the item at that height.
+ */
+private fun LazyListLayoutInfo.timeAt(y: Int, anchors: List<Long>): Long? {
+    val rows = visibleItemsInfo.filter { it.index >= LANES_ITEMS && it.index - LANES_ITEMS < anchors.size }
+    if (rows.isEmpty()) return null
+    val row = rows.firstOrNull { y < it.offset + it.size } ?: rows.last()
+    val fraction = ((y - row.offset).toFloat() / row.size).coerceIn(0f, 1f)
+    return anchorTime(anchors, row.index - LANES_ITEMS, fraction)
 }

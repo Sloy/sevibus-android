@@ -141,3 +141,44 @@ private fun backgroundGap(band: Band, previous: Block?, all: List<CapturedEvent>
     val lastBefore = all.lastOrNull { !it.isSessionSummary && it.timestampMillis < previous.event.timestampMillis } ?: return null
     return GapItem("gap-${band.key}", "· ${formatDuration(band.startMillis - lastBefore.timestampMillis)} in background ·")
 }
+
+/**
+ * The time each list item stands for, newest first. Rows use their event time and other items the time of the next row below,
+ * so the time at any scroll position can be interpolated between consecutive items.
+ */
+internal fun scrollAnchors(items: List<ViewerItem>): List<Long> {
+    val own = items.map { item ->
+        when (item) {
+            is EventItem -> item.event.timestampMillis
+            is SessionItem -> item.event.timestampMillis
+            else -> null
+        }
+    }
+    val anchors = MutableList<Long?>(items.size) { null }
+    var below: Long? = null
+    for (index in own.indices.reversed()) {
+        below = own[index] ?: below
+        anchors[index] = below
+    }
+    val oldestTime = own.lastOrNull { it != null } ?: 0L
+    return anchors.map { it ?: oldestTime }
+}
+
+internal fun anchorTime(anchors: List<Long>, index: Int, fraction: Float): Long {
+    val from = anchors[index]
+    val to = anchors.getOrElse(index + 1) { from }
+    return from + ((to - from) * fraction).toLong()
+}
+
+/**
+ * Item index and fraction of its height where [millis] shows, the inverse of [anchorTime].
+ */
+internal fun anchorPosition(anchors: List<Long>, millis: Long): Pair<Int, Float> {
+    if (anchors.isEmpty() || millis >= anchors.first()) return 0 to 0f
+    for (index in 0 until anchors.lastIndex) {
+        val from = anchors[index]
+        val to = anchors[index + 1]
+        if (millis in to..from && from != to) return index to (from - millis).toFloat() / (from - to)
+    }
+    return anchors.lastIndex to 0f
+}
