@@ -143,9 +143,9 @@ SeviBus follows Modern Android Development practices with Clean Architecture:
 Debug tooling lives in `:debug-menu` (debug builds) and `:debug-menu-noop` (release builds), wired with `debugImplementation` / `releaseImplementation`.
 
 - `:debug-menu` is self-contained: no `com.sloy.sevibus` imports, no app resources, no Koin. It only uses `MaterialTheme` tokens, so it follows `SevTheme` automatically.
-- `:debug-menu-noop` mirrors only the API used from `app/src/main`: `DebugMenuHost`, `DebugMenuScope`, `OverlayLogger`, `OverlayLoggerItem`.
-- `DebugMenuHost` wraps the app content in `App.kt`. It draws the overlay pills, a draggable floating button and the menu `ModalBottomSheet`. `DebugMenuScope.openScreen` shows full-screen debug screens.
-- Library sections: `NetworkModule` (HTTP overlay, forced failure, latency, API host override with QR scan) and `EventsModule` (event overlay and full-screen event log).
+- `:debug-menu-noop` mirrors only the API used from `app/src/main`: `DebugMenuHost` (with its `overlayBottomPadding` and `overlay` parameters), `DebugMenuScope`, `OverlayLogger`, `OverlayLoggerItem`.
+- `DebugMenuHost` wraps the app content in `App.kt`. It draws the `overlay` slot (`SevDebugOverlay`, anchored `overlayBottomPadding` above the safe drawing area's bottom), the `OverlayLogger` pills, a draggable floating button and the menu `ModalBottomSheet`. `DebugMenuScope.openScreen` shows full-screen debug screens.
+- Library sections: `NetworkModule` (HTTP overlay, forced failure, latency, API host override with QR scan) and `EventsModule` (live events overlay as a spring stack, or a timeline rail with "Use timeline rail", and a full-screen Events screen with Timeline and Journey views, search and copy as JSON).
 - App sections live in `app/src/debug/java/com/sloy/sevibus/feature/debug/` and are composed in `SevDebugMenu`. Release has an empty `SevDebugMenu`.
 
 ### Adding a section
@@ -429,7 +429,7 @@ The tracking plan in `backlog/docs/doc-2 - Analytics-tracking-plan.md` is the so
 - Single facade for all event tracking
 - Respects user opt-in/opt-out preference (defaults to enabled)
 - Uses Kotlin Coroutines with `Dispatchers.Default` for async, non-blocking tracking
-- Broadcasts events to all registered tracker implementations
+- Broadcasts events to all registered tracker implementations. Tracking calls go through one FIFO queue, so trackers receive events in call order
 - `setUserProperty(UserProperty)` sets user properties (`events/UserProperties.kt`): `identify()` in Amplitude, `setUserProperty` in Firebase. It isn't gated by the opt-out because both SDKs already drop data while opted out
 - Enum property values are sent lowercase with `Enum.analyticsValue` (e.g. `LINE_ROUTE` → `line_route`)
 - Null properties are not sent. Firebase receives booleans as `1`/`0` and lists as comma-separated strings

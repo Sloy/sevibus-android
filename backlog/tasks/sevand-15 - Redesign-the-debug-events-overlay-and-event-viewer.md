@@ -4,6 +4,7 @@ title: Redesign the debug events overlay and event viewer
 status: In Progress
 assignee: []
 created_date: '2026-10-09 13:17'
+updated_date: '2026-10-09 14:22'
 labels: []
 dependencies: []
 priority: medium
@@ -3202,3 +3203,33 @@ Remove the old private previews.
   If no device is available, say so in the notes.
 - [ ] **Step 6: Finalize the backlog task.** Follow `backlog instructions task-finalization`: check each AC with its evidence and write the final summary.
 <!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Task 1 done: debug-menu screenshot tests via plugin (library modules supported with HasHostTests), CI/report script multi-module. app+debug-menu validate pass.
+
+Task 2 done: CapturedEvent.timestampMillis, EventFormat, EventsJson, OverlayTracker clock; tests pass.
+
+Task 3 done: Analytics uses a FIFO channel with one consumer. Test uses advanceTimeBy+runCurrent instead of advanceUntilIdle because advanceUntilIdle skips backgroundScope tasks; expected values unchanged.
+
+Task 4 done: accent tokens, EventText, OverlayStyle; EventTypeTest extended.
+
+Task 5 done: StackLayout + OverlayDemo, 15 tests pass.
+
+Task 6 done: RailLayout, 12 tests pass.
+
+Decision (Opus): sample deltas 615ms/15ms conflicted with half-up formatDelta (design used JS float toFixed) -> shift ViewerSampleData Stop Details Viewed timestamps to 4_254 and 9_336, keep formatDelta and test expectations, because no integer-ms rounding rule satisfies both references.
+
+Tasks 7+8 done (one commit): timeline/journey items, search, lanes; 27 viewer tests pass.
+
+Task 9 done. Visual vs overlay-stack-t10.6s.png: same chip order, x2/x3 badges, 3/9dp gaps, fade, timers. Intended diffs: no map/blur, stock monospace font, 844dp preview.
+
+Task 9b done. Rail vs overlay-rail-push-t10.6s.png: same markers/labels/bands/links/ticks. Intended diffs: no map/blur, stock primary now head, font, strip uses raw frame values (no 250ms push animation for bands/links).
+
+Task 10 done: EventsOverlay, rail checkbox (hidden when overlay off), host slot + noop mirror, app wiring (DebugOverlayBottomPadding=100dp, to tune in Task 14). Unit tests, assembleDebug, compileReleaseKotlin pass.
+
+Task 11 done. Compared 11 component previews with handoff viewer-*.png. Fixed: inline properties lost 2nd line/+N more (FlowRow in IntrinsicSize.Min) -> single wrapping Text; session icon spot now neutral like reference. Intended: stock M3 colours/fonts, preview width (lane bar labels clip earlier), outline colours. Unresolved: lanes axis labels use the padded window (00s..15s) while the design labels the unpadded range (01s..15s); mine is geometrically aligned with the marks.
+
+Task 12 done. Timeline/Journey screens compared with viewer-*-light.png: same topbar, segmented control, search, rows, gap, session card, bands, pinned copy bar. Intended: stock theme/fonts, preview height cuts the list. Note: in Journey preview the lanes card spans 16:21:01-16:23:25 because the resumed band is visible at the top (follows scroll); the reference screenshot was scrolled.
+<!-- SECTION:NOTES:END -->
