@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,7 +52,6 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Contactless
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -104,7 +102,6 @@ import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.hasBalance
 import com.sloy.sevibus.infrastructure.EventCollector
-import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.extensions.performHapticGestureStart
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
@@ -372,9 +369,6 @@ private fun ExistingCardsDetail(
 ) {
     Column {
         CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
-        if (FeatureFlags.showCardUpdateWarning) {
-            InfoNote(Modifier.padding(top = 10.dp))
-        }
         Spacer(Modifier.size(24.dp))
         CardInfoElement(currentCard)
         Spacer(Modifier.size(32.dp))
@@ -620,31 +614,6 @@ private fun CardsLoadingShimmer() {
 @Composable
 private fun CardsEmptyState(nfcState: NfcState, newCardState: CardsScreenNewCardState, onNewCardNumber: (String) -> Unit) {
     NewCardDetail(nfcState, newCardState, onNewCardNumber)
-}
-
-@Composable
-private fun InfoNote(modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
-        Icon(
-            Icons.Outlined.Info,
-            contentDescription = null,
-            tint = SevTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(
-            stringResource(R.string.cards_operations_delay_note),
-            style = SevTheme.typography.bodySmall,
-            color = SevTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
 }
 
 @Composable
