@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,8 +35,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
+import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.ui.preview.ScreenshotSuite
+import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
 import kotlinx.coroutines.launch
 
@@ -127,3 +132,27 @@ private fun DetailRow(label: String, value: String, modifier: Modifier) {
         }
     }
 }
+
+@Composable
+private fun CardDetailsElementCasePreview(name: String) {
+    SevTheme {
+        Surface {
+            CardDetailsElement(cardDetailsUi(cardCase(name).card, Stubs.cardCasesToday), onCopySerial = {})
+        }
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@Preview
+@Composable
+internal fun CardDetailsElementBalancePreview() = CardDetailsElementCasePreview("BalanceNormal")
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@Preview
+@Composable
+internal fun CardDetailsElementPassPreview() = CardDetailsElementCasePreview("PassActive")
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@Preview
+@Composable
+internal fun CardDetailsElementNextPeriodPreview() = CardDetailsElementCasePreview("PassNextPeriod")

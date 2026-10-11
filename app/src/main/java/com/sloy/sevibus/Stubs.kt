@@ -11,7 +11,9 @@ import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
+import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.LoggedUser
+import com.sloy.sevibus.domain.model.NextPeriod
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteWithStops
@@ -21,6 +23,7 @@ import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.feature.foryou.nearby.NearbyStop
 import com.sloy.sevibus.feature.lines.LinesScreenState
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -483,6 +486,152 @@ object Stubs {
     val cardTripTransactions = listOf(
         CardTransaction(700000011, transactionsDate, CardTransactionKind.TRIP, line = lines[4].toSummary(), amount = 41, people = 1),
         CardTransaction(700000012, transactionsDate.minusDays(1), CardTransactionKind.TRIP, line = lines[2].toSummary(), amount = 41, people = 1),
+    )
+
+    data class CardCase(val name: String, val card: CardInfo, val transactions: List<CardTransaction>)
+
+    val cardCasesToday: LocalDate = LocalDate.of(2026, 10, 10)
+
+    private fun cardLine(label: String): LineSummary =
+        lines.find { it.label == label }?.toSummary() ?: LineSummary(-1, label, LineColor.Unknown)
+
+    private fun cardTx(
+        serialNumber: CardId,
+        date: LocalDateTime,
+        kind: CardTransactionKind,
+        line: LineSummary? = null,
+        amount: Int? = null,
+        balanceAfter: Int? = null,
+        people: Int = 1,
+        pending: Boolean = false,
+    ) = CardTransaction(serialNumber, date, kind, line, amount, balanceAfter, people, pending)
+
+    val cardCases: List<CardCase> = listOf(
+        CardCase(
+            name = "BalanceNormal",
+            card = CardInfo(900000101, 31, "Bonobús sin transbordo", CardStatus.Balance(869)),
+            transactions = listOf(
+                cardTx(900000101, LocalDateTime.of(2026, 10, 5, 17, 6, 28), CardTransactionKind.TRIP, line = cardLine("21"), amount = 41, balanceAfter = 869),
+                cardTx(900000101, LocalDateTime.of(2026, 10, 1, 10, 28, 59), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 910),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 30, 20, 24, 7), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 951),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 29, 10, 11, 5), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 992),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 28, 12, 46, 3), CardTransactionKind.TOP_UP, amount = 1000, balanceAfter = 1074),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 22, 10, 10, 18), CardTransactionKind.TRIP, line = cardLine("41"), balanceAfter = 74),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 21, 13, 18, 40), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 74),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 19, 21, 11, 36), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 115),
+                cardTx(900000101, LocalDateTime.of(2026, 9, 19, 20, 5, 12), CardTransactionKind.TRIP, line = cardLine("41"), amount = 41, balanceAfter = 156),
+            ),
+        ),
+        CardCase(
+            name = "BalanceGroup",
+            card = CardInfo(900000102, 30, "Bonobús con transbordo", CardStatus.Balance(452)),
+            transactions = listOf(
+                cardTx(900000102, LocalDateTime.of(2025, 10, 28, 11, 35, 3), CardTransactionKind.TRIP, line = cardLine("15"), amount = 46, balanceAfter = 452),
+                cardTx(900000102, LocalDateTime.of(2025, 8, 15, 16, 24, 41), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 498, people = 2),
+                cardTx(900000102, LocalDateTime.of(2025, 8, 15, 16, 24, 39), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 544),
+                cardTx(900000102, LocalDateTime.of(2025, 8, 15, 14, 14, 43), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 590, people = 2),
+                cardTx(900000102, LocalDateTime.of(2025, 8, 15, 14, 14, 40), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 636),
+                cardTx(900000102, LocalDateTime.of(2025, 7, 9, 20, 17, 32), CardTransactionKind.TRANSFER, line = cardLine("02"), balanceAfter = 682, people = 2),
+                cardTx(900000102, LocalDateTime.of(2025, 7, 9, 20, 17, 30), CardTransactionKind.TRANSFER, line = cardLine("02"), balanceAfter = 682, people = 2),
+                cardTx(900000102, LocalDateTime.of(2025, 7, 9, 20, 5, 34), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 682, people = 2),
+                cardTx(900000102, LocalDateTime.of(2025, 7, 9, 20, 5, 26), CardTransactionKind.TRIP, line = cardLine("12"), amount = 46, balanceAfter = 728),
+                cardTx(900000102, LocalDateTime.of(2025, 7, 9, 20, 4, 26), CardTransactionKind.TOP_UP, amount = 700, balanceAfter = 774),
+            ),
+        ),
+        CardCase(
+            name = "BalanceLow",
+            card = CardInfo(900000103, 30, "Bonobús con transbordo", CardStatus.Balance(10)),
+            transactions = listOf(
+                cardTx(900000103, LocalDateTime.of(2026, 5, 16, 13, 57, 16), CardTransactionKind.TRIP, line = cardLine("13"), amount = 46, balanceAfter = 10),
+                cardTx(900000103, LocalDateTime.of(2026, 5, 16, 13, 18, 18), CardTransactionKind.TRIP, line = cardLine("13"), amount = 46, balanceAfter = 56),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 28, 15, 57, 14), CardTransactionKind.TRIP, line = cardLine("27"), amount = 46, balanceAfter = 102),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 27, 16, 17, 25), CardTransactionKind.TRIP, line = cardLine("03"), amount = 46, balanceAfter = 148),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 27, 15, 47, 10), CardTransactionKind.TRIP, line = cardLine("03"), amount = 46, balanceAfter = 194),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 26, 16, 10, 23), CardTransactionKind.TRIP, line = cardLine("27"), amount = 46, balanceAfter = 240),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 25, 20, 9, 53), CardTransactionKind.TRIP, line = cardLine("03"), amount = 46, balanceAfter = 286),
+                cardTx(900000103, LocalDateTime.of(2026, 3, 25, 17, 26, 29), CardTransactionKind.TRIP, line = cardLine("03"), amount = 46, balanceAfter = 332),
+                cardTx(900000103, LocalDateTime.of(2026, 2, 20, 8, 46, 36), CardTransactionKind.TRIP, line = cardLine("02"), amount = 46, balanceAfter = 378),
+                cardTx(900000103, LocalDateTime.of(2026, 2, 19, 8, 50, 11), CardTransactionKind.TRIP, line = cardLine("02"), amount = 46, balanceAfter = 424),
+            ),
+        ),
+        CardCase(
+            name = "BalanceNegative",
+            card = CardInfo(900000104, 30, "Bonobús con transbordo", CardStatus.Balance(-44, alertCode = 2)),
+            transactions = listOf(
+                cardTx(900000104, LocalDateTime.of(2026, 10, 9, 21, 40, 0), CardTransactionKind.TOP_UP, amount = 1000, pending = true),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 8, 1, 13, 54), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = -44),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 7, 16, 11, 3), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 2),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 6, 16, 37, 36), CardTransactionKind.TRIP, line = cardLine("02"), amount = 46, balanceAfter = 48),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 6, 13, 58, 6), CardTransactionKind.TRANSFER, line = cardLine("02"), balanceAfter = 94),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 6, 13, 32, 50), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 94),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 4, 18, 26, 44), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 140),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 4, 9, 30, 8), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 186),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 3, 23, 15, 6), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 232),
+                cardTx(900000104, LocalDateTime.of(2026, 10, 3, 14, 27, 13), CardTransactionKind.TRIP, line = cardLine("29"), amount = 46, balanceAfter = 278),
+            ),
+        ),
+        CardCase(
+            name = "PassActive",
+            card = CardInfo(900000105, 150, "Tarjeta 30 días", CardStatus.Pass(LocalDate.of(2026, 10, 6), LocalDate.of(2026, 11, 4), null), cardExpiry = LocalDate.of(2040, 8, 12)),
+            transactions = listOf(
+                cardTx(900000105, LocalDateTime.of(2026, 10, 9, 19, 45, 25), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 9, 7, 38, 8), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 8, 19, 58, 47), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 8, 7, 51, 8), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 7, 19, 52, 48), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 7, 7, 45, 18), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 6, 19, 57, 26), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 6, 7, 35, 46), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000105, LocalDateTime.of(2026, 10, 5, 7, 48, 42), CardTransactionKind.PASS_PURCHASE, amount = 2120),
+            ),
+        ),
+        CardCase(
+            name = "PassNextPeriod",
+            card = CardInfo(900000106, 154, "Familia numerosa", CardStatus.Pass(LocalDate.of(2026, 9, 14), LocalDate.of(2026, 10, 13), NextPeriod(null, null, pendingFirstUse = true)), cardExpiry = LocalDate.of(2028, 5, 21)),
+            transactions = listOf(
+                cardTx(900000106, LocalDateTime.of(2026, 10, 9, 20, 16, 5), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 9, 15, 43, 20), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 9, 13, 41, 32), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 9, 8, 45, 42), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 9, 7, 35, 53), CardTransactionKind.TRIP, line = cardLine("12")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 8, 20, 14, 45), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 8, 15, 39, 33), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 8, 13, 40, 36), CardTransactionKind.TRIP, line = cardLine("32")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 8, 8, 41, 32), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000106, LocalDateTime.of(2026, 10, 8, 7, 38, 3), CardTransactionKind.PASS_RENEWAL, amount = 1690),
+            ),
+        ),
+        CardCase(
+            name = "PassExpired",
+            card = CardInfo(900000107, 103, "Bonobús solidario", CardStatus.Pass(LocalDate.of(2026, 1, 28), LocalDate.of(2026, 7, 26), null)),
+            transactions = listOf(
+                cardTx(900000107, LocalDateTime.of(2026, 7, 18, 23, 27, 31), CardTransactionKind.TRIP, line = cardLine("T1")),
+                cardTx(900000107, LocalDateTime.of(2026, 7, 18, 21, 13, 25), CardTransactionKind.TRIP, line = cardLine("T1")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 16, 9, 55, 27), CardTransactionKind.TRIP, line = cardLine("22")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 15, 13, 3, 15), CardTransactionKind.TRIP, line = cardLine("06")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 15, 11, 37, 50), CardTransactionKind.TRANSFER, line = cardLine("C1")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 15, 11, 9, 30), CardTransactionKind.TRIP, line = cardLine("05")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 11, 13, 2, 51), CardTransactionKind.TRANSFER, line = cardLine("03")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 11, 12, 43, 46), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 8, 9, 45, 9), CardTransactionKind.TRIP, line = cardLine("52")),
+                cardTx(900000107, LocalDateTime.of(2026, 6, 1, 10, 44, 39), CardTransactionKind.TRIP, line = cardLine("05")),
+            ),
+        ),
+        CardCase(
+            name = "CardExpired",
+            card = CardInfo(900000108, 116, "Estudiante mensual", CardStatus.ExpiredCard, cardExpiry = LocalDate.of(2026, 8, 1)),
+            transactions = listOf(
+                cardTx(900000108, LocalDateTime.of(2026, 4, 8, 12, 57, 48), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000108, LocalDateTime.of(2026, 4, 8, 10, 47, 30), CardTransactionKind.TRANSFER, line = cardLine("C4")),
+                cardTx(900000108, LocalDateTime.of(2026, 4, 8, 10, 29, 6), CardTransactionKind.TRIP, line = cardLine("37")),
+                cardTx(900000108, LocalDateTime.of(2026, 4, 7, 19, 29, 6), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000108, LocalDateTime.of(2026, 4, 6, 11, 2, 32), CardTransactionKind.PASS_PURCHASE, amount = 1140),
+                cardTx(900000108, LocalDateTime.of(2026, 3, 23, 20, 17, 27), CardTransactionKind.TRANSFER, line = cardLine("37")),
+                cardTx(900000108, LocalDateTime.of(2026, 3, 23, 19, 57, 39), CardTransactionKind.TRIP, line = cardLine("C3")),
+                cardTx(900000108, LocalDateTime.of(2026, 3, 23, 17, 1, 30), CardTransactionKind.TRIP, line = cardLine("02")),
+                cardTx(900000108, LocalDateTime.of(2026, 3, 17, 19, 46, 3), CardTransactionKind.TRIP, line = cardLine("01")),
+            ),
+        ),
     )
 
     @Deprecated("")

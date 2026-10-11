@@ -270,3 +270,19 @@ internal fun CardBalanceSectionNormalBalancePreview() {
         }
     }
 }
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@PreviewLightDark
+@Composable
+internal fun CardBalanceSectionNoBalancePreview() {
+    SevTheme {
+        Surface {
+            CardBalanceSection(
+                card = Stubs.cards[0].copy(status = CardStatus.Balance(0)),
+                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                previousCardHadBalance = true,
+                onTopUpClicked = {},
+            )
+        }
+    }
+}

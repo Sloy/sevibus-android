@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -217,5 +218,27 @@ private fun TitleSubtitleShimmer() {
 internal fun CardTransactionsElementLoadingPreview() {
     ScreenPreview {
         CardTransactionsShimmer()
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@Preview
+@Composable
+internal fun CardActivityElementBalancePreview() {
+    SevTheme {
+        Surface {
+            CardActivityElement(cardActivity(cardCase("BalanceGroup").transactions), isBalanceCard = true)
+        }
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@Preview
+@Composable
+internal fun CardActivityElementPassPreview() {
+    SevTheme {
+        Surface {
+            CardActivityElement(cardActivity(cardCase("PassNextPeriod").transactions), isBalanceCard = false)
+        }
     }
 }
