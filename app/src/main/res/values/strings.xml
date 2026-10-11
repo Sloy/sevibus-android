@@ -97,6 +97,46 @@
     <string name="cards_validation">Validación</string>
     <string name="cards_transfer">Transbordo</string>
     <string name="cards_top_up_transaction">Recarga</string>
+    <string name="cards_no_balance_left">Sin saldo para más viajes</string>
+    <string name="cards_valid_until">Válida hasta</string>
+    <string name="cards_current_period_until">Periodo actual hasta</string>
+    <string name="cards_period_since">Desde %s</string>
+    <plurals name="cards_days_left">
+        <item quantity="one">Queda %d día</item>
+        <item quantity="other">Quedan %d días</item>
+    </plurals>
+    <string name="cards_last_day">Último día</string>
+    <string name="cards_next_period_paid">Siguiente periodo pagado</string>
+    <string name="cards_expired_ago">Caducada hace %s</string>
+    <plurals name="cards_elapsed_days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="cards_elapsed_months">
+        <item quantity="one">%d mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="cards_elapsed_years">
+        <item quantity="one">%d año</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+    <string name="cards_more_info_button">Más información en Tussam</string>
+    <string name="cards_card_expired_title">Tarjeta caducada</string>
+    <string name="cards_card_expired_text">Caducó el %s.</string>
+    <string name="cards_copy_serial">Copiar número de serie</string>
+    <string name="cards_serial_copied">Número de serie copiado</string>
+    <string name="cards_validity_period_label">Periodo de validez</string>
+    <string name="cards_current_period_label">Periodo actual</string>
+    <string name="cards_physical_expiry_label">Caducidad de la tarjeta física</string>
+    <string name="cards_history_limit_note">Tussam solo informa de los últimos 10 movimientos</string>
+    <string name="cards_line_title">Línea %s</string>
+    <string name="cards_top_up_pending">Recarga online</string>
+    <string name="cards_pending_suffix">pendiente</string>
+    <string name="cards_pass_purchase">Compra del abono</string>
+    <string name="cards_pass_renewal">Renovación del abono</string>
+    <string name="cards_free_trip">Gratis</string>
+    <string name="cards_balance_after">Saldo %s</string>
+    <string name="cards_group_count">×%d</string>
     <string name="cards_error_not_found">Tarjeta no encontrada o número inválido</string>
     <string name="cards_error_search">Hubo un error al buscar la tarjeta, inténtalo más tarde</string>
     <string name="cards_error_already_saved">Ya tienes guardada esa tarjeta</string>
