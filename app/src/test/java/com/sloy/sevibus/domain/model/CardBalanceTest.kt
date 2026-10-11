@@ -1,7 +1,6 @@
 package com.sloy.sevibus.domain.model
 
 import com.sloy.sevibus.Stubs
-import com.sloy.sevibus.domain.model.CardStatus
 import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -17,7 +16,7 @@ class CardBalanceTest {
     private val later = LocalDateTime.of(2026, 3, 10, 8, 0)
 
     private fun validation(amount: Int, date: LocalDateTime = later) =
-        CardTransaction.Validation(1, date, amount, line, bus = 0, people = 1)
+        CardTransaction(1, date, CardTransactionKind.TRIP, line = line, amount = amount)
 
     private fun card(balance: Int?) = CardInfo(serialNumber = 1, code = 31, type = "Bonobús", status = balance?.let { CardStatus.Balance(it) } ?: CardStatus.Pass(null, null, null))
 
@@ -62,8 +61,8 @@ class CardBalanceTest {
     @Test
     fun `trips ignore transfers and top ups`() {
         val transactions = listOf(
-            CardTransaction.TopUp(1, later, 1000),
-            CardTransaction.Transfer(1, later, line, bus = 0, people = 1),
+            CardTransaction(1, later, CardTransactionKind.TOP_UP, amount = 1000),
+            CardTransaction(1, later, CardTransactionKind.TRANSFER, line = line),
         )
         expectThat(estimatedTrips(150, transactions)).isNull()
     }

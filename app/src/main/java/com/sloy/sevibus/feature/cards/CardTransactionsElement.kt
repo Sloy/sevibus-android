@@ -19,13 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardTransaction
+import com.sloy.sevibus.domain.model.CardTransactionKind
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.formatter.DateFormatter
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
@@ -43,10 +44,10 @@ fun CardTransactionsElement(cardInfoTransactions: List<CardTransaction>) {
             .fillMaxWidth()
     ) {
         cardInfoTransactions.forEachIndexed { index, transaction ->
-            when (transaction) {
-                is CardTransaction.TopUp -> TopUpItem(transaction)
-                is CardTransaction.Validation -> ValidationItem(transaction)
-                is CardTransaction.Transfer -> TransferItem(transaction)
+            when (transaction.kind) {
+                CardTransactionKind.TOP_UP, CardTransactionKind.PASS_PURCHASE, CardTransactionKind.PASS_RENEWAL -> TopUpItem(transaction)
+                CardTransactionKind.TRIP -> ValidationItem(transaction)
+                CardTransactionKind.TRANSFER -> TransferItem(transaction)
             }
             if (index != cardInfoTransactions.lastIndex) {
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp))
@@ -145,14 +146,14 @@ private fun TitleSubtitleShimmer() {
 
 
 @Composable
-private fun ValidationItem(transaction: CardTransaction.Validation) {
+private fun ValidationItem(transaction: CardTransaction) {
     TitleSubtitleItem(stringResource(R.string.cards_validation), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
-            LineIndicator(transaction.line)
+            transaction.line?.let { LineIndicator(it) }
         },
         endAccessory = {
             Text(
-                MoneyFormatter.fromCents(transaction.amount * -1, showPlusWhenPositive = true),
+                MoneyFormatter.fromCents((transaction.amount ?: 0) * -1, showPlusWhenPositive = true),
                 style = SevTheme.typography.bodySmallBold
             )
         }
@@ -160,23 +161,23 @@ private fun ValidationItem(transaction: CardTransaction.Validation) {
 }
 
 @Composable
-private fun TransferItem(transaction: CardTransaction.Transfer) {
+private fun TransferItem(transaction: CardTransaction) {
     TitleSubtitleItem(stringResource(R.string.cards_transfer), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
-            LineIndicator(transaction.line)
+            transaction.line?.let { LineIndicator(it) }
         }
     )
 }
 
 @Composable
-private fun TopUpItem(transaction: CardTransaction.TopUp) {
+private fun TopUpItem(transaction: CardTransaction) {
     TitleSubtitleItem(stringResource(R.string.cards_top_up_transaction), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
             Icon(Icons.Filled.Euro, contentDescription = "Euro")
         },
         endAccessory = {
             Text(
-                MoneyFormatter.fromCents(transaction.amount, showPlusWhenPositive = true),
+                MoneyFormatter.fromCents(transaction.amount ?: 0, showPlusWhenPositive = true),
                 style = SevTheme.typography.bodySmallBold
             )
         })

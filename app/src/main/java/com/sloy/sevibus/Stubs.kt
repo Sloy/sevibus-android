@@ -6,6 +6,7 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.CardTransaction
+import com.sloy.sevibus.domain.model.CardTransactionKind
 import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
@@ -471,17 +472,17 @@ object Stubs {
 
     @Deprecated("")
     val cardInfoTransactions = listOf(
-        CardTransaction.Validation(700000001, transactionsDate, 350, lines[4].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000002, transactionsDate, 350, lines[2].toSummary(), bus = 0, people = 0),
-        CardTransaction.TopUp(700000003, transactionsDate, 10000),
-        CardTransaction.Validation(700000004, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000005, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 0),
+        CardTransaction(700000001, transactionsDate, CardTransactionKind.TRIP, line = lines[4].toSummary(), amount = 350, people = 2),
+        CardTransaction(700000002, transactionsDate, CardTransactionKind.TRIP, line = lines[2].toSummary(), amount = 350, people = 1),
+        CardTransaction(700000003, transactionsDate, CardTransactionKind.TOP_UP, amount = 10000),
+        CardTransaction(700000004, transactionsDate, CardTransactionKind.TRIP, line = lines[34].toSummary(), amount = 350, people = 2),
+        CardTransaction(700000005, transactionsDate, CardTransactionKind.TRIP, line = lines[34].toSummary(), amount = 350, people = 1),
     )
 
     @Deprecated("")
     val cardTripTransactions = listOf(
-        CardTransaction.Validation(700000011, transactionsDate, 41, lines[4].toSummary(), bus = 0, people = 1),
-        CardTransaction.Validation(700000012, transactionsDate.minusDays(1), 41, lines[2].toSummary(), bus = 0, people = 1),
+        CardTransaction(700000011, transactionsDate, CardTransactionKind.TRIP, line = lines[4].toSummary(), amount = 41, people = 1),
+        CardTransaction(700000012, transactionsDate.minusDays(1), CardTransactionKind.TRIP, line = lines[2].toSummary(), amount = 41, people = 1),
     )
 
     @Deprecated("")

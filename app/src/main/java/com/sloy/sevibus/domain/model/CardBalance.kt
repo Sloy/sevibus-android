@@ -1,5 +1,6 @@
 package com.sloy.sevibus.domain.model
 
+import com.sloy.sevibus.domain.model.CardTransactionKind
 import kotlin.math.absoluteValue
 
 const val LOW_BALANCE_THRESHOLD = 100
@@ -21,8 +22,8 @@ val CardInfo.isLowBalance: Boolean
  */
 fun estimatedTrips(balance: Int, transactions: List<CardTransaction>): Int? {
     val tripCost = transactions
-        .filterIsInstance<CardTransaction.Validation>()
-        .filter { it.amount != 0 }
+        .filter { it.kind == CardTransactionKind.TRIP && !it.pending }
+        .filter { (it.amount ?: 0) != 0 }
         .maxByOrNull { it.date }
         ?.amount
         ?.absoluteValue

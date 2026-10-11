@@ -2,28 +2,15 @@ package com.sloy.sevibus.domain.model
 
 import java.time.LocalDateTime
 
-sealed class CardTransaction() {
-    data class Validation(
-         val serialNumber: CardId,
-         val date: LocalDateTime,
-        val amount: Int,
-        val line: LineSummary,
-        val bus: BusId,
-        val people: Int,
-    ) : CardTransaction()
+enum class CardTransactionKind { TRIP, TRANSFER, TOP_UP, PASS_PURCHASE, PASS_RENEWAL }
 
-    data class Transfer(
-         val serialNumber: CardId,
-         val date: LocalDateTime,
-        val line: LineSummary,
-        val bus: BusId,
-        val people: Int,
-    ) : CardTransaction()
-
-    data class TopUp(
-         val serialNumber: CardId,
-         val date: LocalDateTime,
-        val amount: Int,
-    ) : CardTransaction()
-
-}
+data class CardTransaction(
+    val serialNumber: CardId,
+    val date: LocalDateTime,
+    val kind: CardTransactionKind,
+    val line: LineSummary? = null,
+    val amount: Int? = null,
+    val balanceAfter: Int? = null,
+    val people: Int = 1,
+    val pending: Boolean = false,
+)
