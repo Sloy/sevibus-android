@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
@@ -20,12 +21,15 @@ import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import java.time.Clock
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModel(
     private val cardsRepository: CardsRepository,
     private val analytics: Analytics,
     initialCardId: CardId? = null,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
 
     val events = MutableSharedFlow<CardsScreenEvent>()
@@ -107,6 +111,24 @@ class CardViewModel(
             analytics.track(Clicks.CardTopUpClicked(card.type, card.balance))
         }
     }
+
+    fun onMoreInfoClicked(card: CardInfo) {
+        val reason = if (card.status is CardStatus.ExpiredCard) Clicks.MoreInfoReason.CARD_EXPIRED else Clicks.MoreInfoReason.PASS_EXPIRED
+        viewModelScope.launch {
+            events.emit(CardsScreenEvent.LaunchUri(TUSSAM_TITLES_URL))
+            analytics.track(Clicks.CardMoreInfoClicked(card.code, reason))
+        }
+    }
+
+    fun onSerialCopied() {
+        analytics.track(Clicks.CardSerialCopied)
+        viewModelScope.launch {
+            events.emit(CardsScreenEvent.ShowMessage("Número de serie copiado"))
+        }
+    }
+
+    fun today(): LocalDate = LocalDate.now(clock)
+
     fun onDeleteCard(cardId: CardId) {
         val cardType = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()?.find { it.serialNumber == cardId }?.type
         viewModelScope.launch {

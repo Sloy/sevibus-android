@@ -93,7 +93,6 @@
     <string name="cards_error_loading_recent_activity">Couldn\'t load recent activity, try again later</string>
     <string name="cards_data_section">Data</string>
     <string name="cards_serial_number_label">Serial number</string>
-    <string name="cards_type_label">Card type</string>
     <string name="cards_validation">Validation</string>
     <string name="cards_transfer">Transfer</string>
     <string name="cards_top_up_transaction">Top up</string>
@@ -124,7 +123,6 @@
     <string name="cards_card_expired_title">Card expired</string>
     <string name="cards_card_expired_text">Expired on %s.</string>
     <string name="cards_copy_serial">Copy serial number</string>
-    <string name="cards_serial_copied">Serial number copied</string>
     <string name="cards_validity_period_label">Validity period</string>
     <string name="cards_current_period_label">Current period</string>
     <string name="cards_physical_expiry_label">Physical card expiry</string>

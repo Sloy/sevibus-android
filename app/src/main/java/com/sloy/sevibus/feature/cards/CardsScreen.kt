@@ -169,6 +169,7 @@ fun CardsScreen(
         },
         viewModel::onDeleteCard,
         viewModel::onTopUpClicked,
+        viewModel::onSerialCopied,
         viewModel::onStartReordering,
         viewModel::onReorderingDone,
         onNavigateToHelp,
@@ -186,6 +187,7 @@ fun CardsScreen(
     onNewCardNumber: (String) -> Unit = {},
     onDeleteCard: (CardId) -> Unit = {},
     onTopUpClicked: (CardInfo) -> Unit = {},
+    onSerialCopied: () -> Unit = {},
     onStartReorder: () -> Unit = {},
     onReorderDone: (List<CardInfo>) -> Unit = {},
     onNavigateToHelp: () -> Unit = {},
@@ -263,6 +265,7 @@ fun CardsScreen(
                                 onNewCardNumber,
                                 onDeleteCard,
                                 onTopUpClicked,
+                                onSerialCopied,
                                 nfcAnimation,
                                 this@AnimatedContent,
                             )
@@ -286,6 +289,7 @@ private fun SharedTransitionScope.CardsScreenContent(
     onNewCardNumber: (String) -> Unit,
     onDeleteCard: (CardId) -> Unit,
     onTopUpClicked: (CardInfo) -> Unit,
+    onSerialCopied: () -> Unit,
     nfcAnimation: Animatable<Float, AnimationVector1D>,
     animatedContentScope: AnimatedContentScope,
 ) {
@@ -345,6 +349,7 @@ private fun SharedTransitionScope.CardsScreenContent(
                 currentCardAndTransactions.transactions,
                 committedPage.previousCardHadBalance,
                 onTopUpClicked,
+                onSerialCopied,
                 onDeleteCard = {
                     onDeleteCard(it)
                     scope.launch {
@@ -365,12 +370,13 @@ private fun ExistingCardsDetail(
     transactionsState: TransactionsState,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
+    onSerialCopied: () -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
     Column {
         CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
         Spacer(Modifier.size(24.dp))
-        CardInfoElement(currentCard)
+        CardDetailsElement(cardDetailsUi(currentCard, LocalToday.current), onSerialCopied)
         Spacer(Modifier.size(32.dp))
         Text(
             stringResource(R.string.cards_recent_activity),
