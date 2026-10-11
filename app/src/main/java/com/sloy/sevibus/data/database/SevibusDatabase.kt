@@ -10,13 +10,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [LineEntity::class, LineFtsEntity::class, StopEntity::class, StopFtsEntity::class, RouteEntity::class, PathEntity::class, FavoriteStopEntity::class, CardInfoEntity::class, DismissedAlertEntity::class],
-    version = 10,
+    version = 11,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6),
         AutoMigration(from = 7, to = 8, spec = PathMigration7To8::class),
         AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10)
+        AutoMigration(from = 9, to = 10),
+        AutoMigration(from = 10, to = 11)
     ]
 )
 @TypeConverters(LocalDateTimeConverter::class, StringListConverter::class, IntListConverter::class)

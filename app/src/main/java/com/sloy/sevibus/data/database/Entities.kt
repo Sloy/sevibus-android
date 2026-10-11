@@ -11,14 +11,18 @@ import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
 import com.sloy.sevibus.data.api.model.cardStatusOf
+import com.sloy.sevibus.data.api.model.toDomain
+import com.sloy.sevibus.data.api.model.toLocalDateOrNull
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.LineSummary
+import com.sloy.sevibus.domain.model.NextPeriod
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Polyline
@@ -104,6 +108,15 @@ data class CardInfoEntity(
     val balance: Int? = null,
     val customName: String? = null,
     val order: Int = 0,
+    val kind: String? = null,
+    val resultCode: Int? = null,
+    val alertCode: Int? = null,
+    val validFrom: String? = null,
+    val validTo: String? = null,
+    val nextPeriodFrom: String? = null,
+    val nextPeriodTo: String? = null,
+    val nextPeriodPendingFirstUse: Boolean? = null,
+    val cardExpiry: String? = null,
 )
 
 @Entity(tableName = "dismissed_alerts")
@@ -198,17 +211,28 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
     )
 }
 
-fun CardInfoEntity.fromEntity(): CardInfo {
-    return CardInfo(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        status = cardStatusOf(null, balance, null, null, null, null),
-        customName = customName,
-    )
+private fun CardStatus.kindValue(): String = when (this) {
+    is CardStatus.Balance -> "balance"
+    is CardStatus.Pass -> "pass"
+    CardStatus.ExpiredCard -> "expired_card"
 }
+
+private fun CardInfoEntity.nextPeriod(): NextPeriod? =
+    if (nextPeriodFrom == null && nextPeriodTo == null && nextPeriodPendingFirstUse != true) null
+    else NextPeriod(nextPeriodFrom.toLocalDateOrNull(), nextPeriodTo.toLocalDateOrNull(), nextPeriodPendingFirstUse == true)
+
+fun CardInfoEntity.fromEntity(): CardInfo = CardInfo(
+    serialNumber = serialNumber,
+    code = code,
+    type = type,
+    status = cardStatusOf(kind, balance, alertCode, validFrom, validTo, nextPeriod()),
+    customName = customName,
+    cardExpiry = cardExpiry.toLocalDateOrNull(),
+    resultCode = resultCode,
+)
 
 fun CardInfo.toEntity(order: Int): CardInfoEntity {
+    val pass = status as? CardStatus.Pass
     return CardInfoEntity(
         serialNumber = serialNumber,
         code = code,
@@ -216,27 +240,25 @@ fun CardInfo.toEntity(order: Int): CardInfoEntity {
         balance = balance,
         customName = customName,
         order = order,
+        kind = status.kindValue(),
+        resultCode = resultCode,
+        alertCode = (status as? CardStatus.Balance)?.alertCode,
+        validFrom = pass?.validFrom?.toString(),
+        validTo = pass?.validTo?.toString(),
+        nextPeriodFrom = pass?.nextPeriod?.from?.toString(),
+        nextPeriodTo = pass?.nextPeriod?.to?.toString(),
+        nextPeriodPendingFirstUse = pass?.nextPeriod?.pendingFirstUse,
+        cardExpiry = cardExpiry?.toString(),
     )
 }
 
-fun CardInfoEntity.toDto(): CardInfoDto {
-    return CardInfoDto(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-        order = order,
-    )
-}
+fun CardInfoEntity.toDto(): CardInfoDto = CardInfoDto(
+    serialNumber = serialNumber,
+    code = code,
+    type = type,
+    balance = balance,
+    customName = customName,
+    order = order,
+)
 
-fun CardInfoDto.toEntity(): CardInfoEntity {
-    return CardInfoEntity(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-        order = order,
-    )
-}
+fun CardInfoDto.toEntity(): CardInfoEntity = toDomain().toEntity(order)

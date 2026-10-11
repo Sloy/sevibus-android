@@ -148,9 +148,19 @@ class RemoteAndLocalCardsRepository(
         cards.forEach { card ->
             val remoteCard = checkCard(card.serialNumber)
             if (remoteCard != null) {
+                val remoteEntity = remoteCard.toEntity(order = card.order)
                 val updated = card.copy(
-                    balance = remoteCard.balance,
                     type = remoteCard.type,
+                    balance = remoteCard.balance,
+                    kind = remoteEntity.kind,
+                    resultCode = remoteEntity.resultCode,
+                    alertCode = remoteEntity.alertCode,
+                    validFrom = remoteEntity.validFrom,
+                    validTo = remoteEntity.validTo,
+                    nextPeriodFrom = remoteEntity.nextPeriodFrom,
+                    nextPeriodTo = remoteEntity.nextPeriodTo,
+                    nextPeriodPendingFirstUse = remoteEntity.nextPeriodPendingFirstUse,
+                    cardExpiry = remoteEntity.cardExpiry,
                 )
                 if (updated != card) {
                     // Check if balance changed from below threshold to above threshold
