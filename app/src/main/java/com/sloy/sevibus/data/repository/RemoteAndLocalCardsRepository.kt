@@ -4,6 +4,7 @@ import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
 import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.CardTransactionDto
+import com.sloy.sevibus.data.api.model.toDomain
 import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
@@ -85,7 +86,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
+            api.getCardInfo(initialCardId, addMethod?.toApiValue()).toDomain()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null
@@ -203,16 +204,6 @@ class RemoteAndLocalCardsRepository(
 private fun CardAddMethod.toApiValue(): String = when (this) {
     CardAddMethod.NFC -> "nfc"
     CardAddMethod.MANUAL -> "manual"
-}
-
-private fun CardInfoDto.fromDto(): CardInfo {
-    return CardInfo(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-    )
 }
 
 private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {

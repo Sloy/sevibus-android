@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.cards
 
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Events
@@ -29,8 +30,8 @@ import org.mockito.kotlin.verify
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModelTest {
 
-    private val savedCard = CardInfo(serialNumber = SAVED_SERIAL, code = 31, type = "Bonobús", balance = 1250)
-    private val newCard = CardInfo(serialNumber = NEW_SERIAL, code = 31, type = "Bonobús", balance = 500)
+    private val savedCard = CardInfo(serialNumber = SAVED_SERIAL, code = 31, type = "Bonobús", status = CardStatus.Balance(1250))
+    private val newCard = CardInfo(serialNumber = NEW_SERIAL, code = 31, type = "Bonobús", status = CardStatus.Balance(500))
     private val userCards = MutableStateFlow(listOf(savedCard))
     private val cardsRepository = mock<CardsRepository> {
         on { observeUserCards() } doReturn userCards

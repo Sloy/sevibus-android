@@ -34,6 +34,7 @@ import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.feature.cards.CardThumbnail
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
@@ -197,7 +198,7 @@ internal fun AlertWidgetLowBalancePreview() {
     SevTheme {
         Surface {
             AlertWidget(
-                state = AlertState.LowBalance(Stubs.cards[0].copy(balance = 164)),
+                state = AlertState.LowBalance(Stubs.cards[0].copy(status = CardStatus.Balance(164))),
                 onAlertClicked = {},
                 onDismissAlert = {},
             )

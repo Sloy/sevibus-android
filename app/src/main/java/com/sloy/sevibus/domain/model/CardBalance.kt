@@ -8,7 +8,7 @@ val CardInfo.hasBalance: Boolean
     get() = balance != null
 
 val CardInfo.isLowBalance: Boolean
-    get() = balance != null && balance < LOW_BALANCE_THRESHOLD
+    get() = balance?.let { it < LOW_BALANCE_THRESHOLD } ?: false
 
 /**
  * Estimates how many trips a card can still pay, using the cost of its most recent validation.

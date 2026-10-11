@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.foryou.alert
 
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Events
@@ -36,7 +37,7 @@ class AlertViewModelTest {
 
     private val analytics = mock<Analytics>()
 
-    private fun card(serial: CardId, balance: Int?) = CardInfo(serialNumber = serial, code = 31, type = "Bonobús", balance = balance)
+    private fun card(serial: CardId, balance: Int?) = CardInfo(serialNumber = serial, code = 31, type = "Bonobús", status = balance?.let { CardStatus.Balance(it) } ?: CardStatus.Pass(null, null, null))
 
     @Before
     fun setUp() {

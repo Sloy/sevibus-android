@@ -1,6 +1,7 @@
 package com.sloy.sevibus.domain.model
 
 import com.sloy.sevibus.feature.cards.CardSerialNumberUtils
+import java.time.LocalDate
 
 typealias CardId = Long
 
@@ -13,9 +14,14 @@ data class CardInfo(
     val serialNumber: CardId,
     val code: Int,
     val type: String,
-    val balance: Int? = null,
+    val status: CardStatus,
     val customName: String? = null,
+    val cardExpiry: LocalDate? = null,
+    val resultCode: Int? = null,
 ) {
+
+    val balance: Int?
+        get() = (status as? CardStatus.Balance)?.balance
 
     val fullSerialNumber: String by lazy {
         CardSerialNumberUtils.calculateVisibleSerialNumber(serialNumber)
@@ -25,6 +31,3 @@ data class CardInfo(
         get() = fullSerialNumber.chunked(4).joinToString(" ")
 
 }
-
-
-

@@ -101,6 +101,7 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.hasBalance
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
@@ -803,7 +804,7 @@ internal fun CardsScreenLoadedWithTransactionsPreview() {
 @Composable
 internal fun CardsScreenLowBalancePreview() {
     ScreenPreview {
-        val cards = listOf(Stubs.cards[0].copy(balance = 80), Stubs.cards[1])
+        val cards = listOf(Stubs.cards[0].copy(status = CardStatus.Balance(80)), Stubs.cards[1])
         val transactions = cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardTripTransactions) }
         CardsScreen(
             CardsScreenState.Content(cards.andTransactions(transactions)),

@@ -1,6 +1,7 @@
 package com.sloy.sevibus.domain.model
 
 import com.sloy.sevibus.Stubs
+import com.sloy.sevibus.domain.model.CardStatus
 import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -18,7 +19,7 @@ class CardBalanceTest {
     private fun validation(amount: Int, date: LocalDateTime = later) =
         CardTransaction.Validation(1, date, amount, line, bus = 0, people = 1)
 
-    private fun card(balance: Int?) = CardInfo(serialNumber = 1, code = 31, type = "Bonobús", balance = balance)
+    private fun card(balance: Int?) = CardInfo(serialNumber = 1, code = 31, type = "Bonobús", status = balance?.let { CardStatus.Balance(it) } ?: CardStatus.Pass(null, null, null))
 
     @Test
     fun `card without balance has no balance and is not low`() {

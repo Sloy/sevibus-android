@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.estimatedTrips
 import com.sloy.sevibus.domain.model.hasBalance
 import com.sloy.sevibus.domain.model.isLowBalance
@@ -231,7 +232,7 @@ internal fun CardBalanceSectionLowBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(balance = 80),
+                card = Stubs.cards[0].copy(status = CardStatus.Balance(80)),
                 transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
@@ -247,7 +248,7 @@ internal fun CardBalanceSectionLowBalanceWithoutTripsPreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(balance = 80),
+                card = Stubs.cards[0].copy(status = CardStatus.Balance(80)),
                 transactionsState = TransactionsState.Loading,
                 previousCardHadBalance = true,
                 onTopUpClicked = {},

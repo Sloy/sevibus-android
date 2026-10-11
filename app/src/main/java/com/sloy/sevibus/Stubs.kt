@@ -4,6 +4,7 @@ import com.sloy.sevibus.data.api.model.HealthCheckDto
 import com.sloy.sevibus.domain.model.BusArrival
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.CustomIcon
 import com.sloy.sevibus.domain.model.FavoriteStop
@@ -300,7 +301,7 @@ object Stubs {
         code = 30,
         type = "Full test",
         customName = "La de Laura",
-        balance = 8450,
+        status = CardStatus.Balance(8450),
         serialNumber = 794836666,
     )
 
@@ -310,18 +311,20 @@ object Stubs {
             code = 31,
             type = "Sin transbordo",
             customName = "Bono Laura",
-            balance = 845,
+            status = CardStatus.Balance(845),
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 70,
             type = "Hijo de empleado",
+            status = CardStatus.Pass(null, null, null),
             customName = "La de paco",
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 116,
             type = "Estudiante mensual",
+            status = CardStatus.Pass(null, null, null),
             customName = "Estudiante",
             serialNumber = nextCardSerial()
         ),
@@ -329,115 +332,132 @@ object Stubs {
             code = 30,
             type = "Saldo con transbordo",
             customName = "Números rojos",
-            balance = -45,
+            status = CardStatus.Balance(-45),
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 117,
             type = "Diversidad funcional",
             customName = null,
-            balance = -45,
+            status = CardStatus.Balance(-45),
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 71,
             type = "Familiar de empleado",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 101,
             type = "Joven",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 102,
             type = "Algo de Tussam",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 103,
             type = "Solidaria",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 104,
             type = "3ª edad",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 109,
             type = "Social",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 115,
             type = "Estudiante",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 116,
             type = "Estudiante mensual",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 117,
             type = "Diversidad funcional",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 118,
             type = "Infantil",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 150,
             type = "30 días",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 151,
             type = "Turística 1 día",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 152,
             type = "Turística 3 días",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 154,
             type = "Familia numerosa",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 155,
             type = "Familia numerosa especial",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 156,
             type = "Anual",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo(
             code = 201,
             type = "Pensionista",
+            status = CardStatus.Pass(null, null, null),
             customName = null,
             serialNumber = nextCardSerial()
         ),
