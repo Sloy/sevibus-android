@@ -1,34 +1,35 @@
 package com.sloy.sevibus.feature.cards
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Euro
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
-import com.sloy.sevibus.Stubs
-import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.CardTransactionKind
 import com.sloy.sevibus.ui.components.LineIndicator
-import com.sloy.sevibus.ui.formatter.DateFormatter
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenPreview
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
@@ -36,26 +37,133 @@ import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.theme.SevTheme
 
+internal const val FREE = "free"
+internal const val MINUS = "\u2212"
+
+data class AmountText(val text: String, val muted: Boolean)
+
+internal fun amountText(row: ActivityRow, isBalanceCard: Boolean): AmountText? = when (row.kind) {
+    CardTransactionKind.TRIP -> when {
+        !isBalanceCard -> null
+        row.amount == null || row.amount == 0 -> AmountText(FREE, muted = false)
+        else -> AmountText(MINUS + MoneyFormatter.fromCents(row.amount), muted = false)
+    }
+    CardTransactionKind.TRANSFER -> null
+    CardTransactionKind.TOP_UP -> row.amount?.let { AmountText("+" + MoneyFormatter.fromCents(it), muted = row.pending) }
+    CardTransactionKind.PASS_PURCHASE, CardTransactionKind.PASS_RENEWAL -> row.amount?.let { AmountText(MoneyFormatter.fromCents(it), muted = row.pending) }
+}
+
 @Composable
-fun CardTransactionsElement(cardInfoTransactions: List<CardTransaction>) {
-    Card(
-        Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-    ) {
-        cardInfoTransactions.forEachIndexed { index, transaction ->
-            when (transaction.kind) {
-                CardTransactionKind.TOP_UP, CardTransactionKind.PASS_PURCHASE, CardTransactionKind.PASS_RENEWAL -> TopUpItem(transaction)
-                CardTransactionKind.TRIP -> ValidationItem(transaction)
-                CardTransactionKind.TRANSFER -> TransferItem(transaction)
+fun CardActivityElement(months: List<ActivityMonth>, isBalanceCard: Boolean) {
+    Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+        months.forEach { month ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    CardDateFormatter.month(month.year, month.month),
+                    style = SevTheme.typography.bodySmallBold,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+                Card(Modifier.fillMaxWidth()) {
+                    month.rows.forEachIndexed { index, row ->
+                        ActivityRowItem(row, isBalanceCard)
+                        if (index != month.rows.lastIndex) HorizontalDivider(Modifier.padding(start = 64.dp))
+                    }
+                }
             }
-            if (index != cardInfoTransactions.lastIndex) {
-                HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+        }
+        Text(
+            stringResource(R.string.cards_history_limit_note),
+            style = SevTheme.typography.bodyExtraSmall,
+            color = SevTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun ActivityRowItem(row: ActivityRow, isBalanceCard: Boolean) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RowLeading(row)
+        Column(Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(rowTitle(row), style = SevTheme.typography.bodyStandardBold)
+                if (row.count > 1) CountChip(row.count)
+            }
+            val dateText = CardDateFormatter.dateTime(row.date)
+            val subtitle = if (row.pending) "$dateText · ${stringResource(R.string.cards_pending_suffix)}" else dateText
+            Text(subtitle, style = SevTheme.typography.bodySmall, color = SevTheme.colorScheme.onSurfaceVariant)
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            if (row.kind == CardTransactionKind.TRANSFER) {
+                Text(stringResource(R.string.cards_transfer), style = SevTheme.typography.bodySmallBold, color = SevTheme.colorScheme.onSurfaceVariant)
+            } else {
+                amountText(row, isBalanceCard)?.let { amount ->
+                    Text(
+                        if (amount.text == FREE) stringResource(R.string.cards_free_trip) else amount.text,
+                        style = SevTheme.typography.bodyStandardBold,
+                        color = if (amount.muted) SevTheme.colorScheme.onSurfaceVariant else SevTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+            val balanceAfter = row.balanceAfter
+            if (isBalanceCard && balanceAfter != null) {
+                Text(
+                    stringResource(R.string.cards_balance_after, signedMoney(balanceAfter)),
+                    style = SevTheme.typography.bodyExtraSmall,
+                    color = SevTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
 }
 
+private fun signedMoney(cents: Int): String = if (cents < 0) MINUS + MoneyFormatter.fromCents(-cents) else MoneyFormatter.fromCents(cents)
+
+@Composable
+fun rowTitle(row: ActivityRow): String = when (row.kind) {
+    CardTransactionKind.TRIP, CardTransactionKind.TRANSFER -> stringResource(R.string.cards_line_title, row.line?.label.orEmpty())
+    CardTransactionKind.TOP_UP -> stringResource(if (row.pending) R.string.cards_top_up_pending else R.string.cards_top_up_transaction)
+    CardTransactionKind.PASS_PURCHASE -> stringResource(R.string.cards_pass_purchase)
+    CardTransactionKind.PASS_RENEWAL -> stringResource(R.string.cards_pass_renewal)
+}
+
+@Composable
+private fun RowLeading(row: ActivityRow) {
+    val line = row.line
+    if (line != null && (row.kind == CardTransactionKind.TRIP || row.kind == CardTransactionKind.TRANSFER)) {
+        LineIndicator(line)
+    } else {
+        Box(
+            Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(SevTheme.colorScheme.outlineVariant),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(if (row.pending) Icons.Outlined.Schedule else Icons.Filled.Euro, contentDescription = null, modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
+private fun CountChip(count: Int) {
+    Text(
+        stringResource(R.string.cards_group_count, count),
+        style = SevTheme.typography.bodyExtraSmallBold,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(SevTheme.colorScheme.outlineVariant)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+    )
+}
 
 @Composable
 fun CardTransactionsShimmer() {
@@ -72,48 +180,6 @@ fun CardTransactionsShimmer() {
     }
 }
 
-
-@Composable
-private fun TitleSubtitleItem(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    startAccessory: @Composable (() -> Unit)? = null,
-    endAccessory: @Composable (() -> Unit)? = null,
-) {
-    val clickModifier = if (onClick != null) modifier.clickable(onClick = onClick, role = Role.Button) else modifier
-    Row(clickModifier, verticalAlignment = Alignment.CenterVertically) {
-        if (startAccessory != null) {
-            Box(Modifier.padding(start = 16.dp)) {
-                CompositionLocalProvider(LocalContentColor provides SevTheme.colorScheme.onSurfaceVariant) {
-                    startAccessory()
-                }
-            }
-
-        }
-        Column(
-            Modifier
-                .weight(1f)
-                .padding(16.dp)
-        ) {
-            Text(title, style = SevTheme.typography.bodySmallBold)
-            Text(
-                subtitle,
-                style = SevTheme.typography.bodyStandard,
-                color = SevTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        if (endAccessory != null) {
-            Box(Modifier.padding(horizontal = 16.dp)) {
-                CompositionLocalProvider(LocalContentColor provides SevTheme.colorScheme.onSurfaceVariant) {
-                    endAccessory()
-                }
-            }
-
-        }
-    }
-}
 
 @Composable
 private fun TitleSubtitleShimmer() {
@@ -144,54 +210,6 @@ private fun TitleSubtitleShimmer() {
     }
 }
 
-
-@Composable
-private fun ValidationItem(transaction: CardTransaction) {
-    TitleSubtitleItem(stringResource(R.string.cards_validation), DateFormatter.dayMonthTime(transaction.date),
-        startAccessory = {
-            transaction.line?.let { LineIndicator(it) }
-        },
-        endAccessory = {
-            Text(
-                MoneyFormatter.fromCents((transaction.amount ?: 0) * -1, showPlusWhenPositive = true),
-                style = SevTheme.typography.bodySmallBold
-            )
-        }
-    )
-}
-
-@Composable
-private fun TransferItem(transaction: CardTransaction) {
-    TitleSubtitleItem(stringResource(R.string.cards_transfer), DateFormatter.dayMonthTime(transaction.date),
-        startAccessory = {
-            transaction.line?.let { LineIndicator(it) }
-        }
-    )
-}
-
-@Composable
-private fun TopUpItem(transaction: CardTransaction) {
-    TitleSubtitleItem(stringResource(R.string.cards_top_up_transaction), DateFormatter.dayMonthTime(transaction.date),
-        startAccessory = {
-            Icon(Icons.Filled.Euro, contentDescription = "Euro")
-        },
-        endAccessory = {
-            Text(
-                MoneyFormatter.fromCents(transaction.amount ?: 0, showPlusWhenPositive = true),
-                style = SevTheme.typography.bodySmallBold
-            )
-        })
-}
-
-
-@ScreenshotTest(ScreenshotSuite.Components)
-@Preview
-@Composable
-internal fun CardTransactionsElementPreview() {
-    ScreenPreview {
-        CardTransactionsElement(Stubs.cardInfoTransactions)
-    }
-}
 
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview

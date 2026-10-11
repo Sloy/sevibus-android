@@ -49,8 +49,6 @@ import kotlin.math.absoluteValue
 
 private val ContentPivot = TransformOrigin(0.5f, 0.4f)
 
-private const val MINUS_SIGN = "\u2212"
-
 @Composable
 fun CardBalanceSection(
     card: CardInfo,
@@ -145,7 +143,7 @@ private fun BalanceContent(
 @Composable
 private fun FormattedBalance(balance: Int) {
     val textColor = if (balance <= 0) Color.Red else Color.Unspecified
-    val sign = if (balance < 0) MINUS_SIGN else ""
+    val sign = if (balance < 0) MINUS else ""
     val (integerPart, decimalPart) = MoneyFormatter.fromCents(balance.absoluteValue).split(",")
     Text(
         buildAnnotatedString {

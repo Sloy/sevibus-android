@@ -385,7 +385,7 @@ private fun ExistingCardsDetail(
         )
         when (transactionsState) {
             is TransactionsState.Loaded -> {
-                CardTransactionsElement(transactionsState.transactions)
+                CardActivityElement(cardActivity(transactionsState.transactions), isBalanceCard = currentCard.status is CardStatus.Balance)
             }
 
             is TransactionsState.Loading -> {

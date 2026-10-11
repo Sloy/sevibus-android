@@ -93,7 +93,6 @@
     <string name="cards_error_loading_recent_activity">Couldn\'t load recent activity, try again later</string>
     <string name="cards_data_section">Data</string>
     <string name="cards_serial_number_label">Serial number</string>
-    <string name="cards_validation">Validation</string>
     <string name="cards_transfer">Transfer</string>
     <string name="cards_top_up_transaction">Top up</string>
     <string name="cards_no_balance_left">No balance left for more trips</string>
