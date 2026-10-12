@@ -34,6 +34,13 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+      - name: Use the base branch version
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          git fetch --depth=1 origin "$BASE_REF"
+          git show FETCH_HEAD:version.properties > version.properties
+          cat version.properties
       - name: assemble debug
         run: ./gradlew :app:assembleDebug
       - name: Write release notes

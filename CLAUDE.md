@@ -92,7 +92,7 @@ If GitHub Actions is unavailable, deploy manually:
 
 ### Pull Request Builds (Firebase App Distribution)
 
-Add the `app-distribution` label to a pull request to build its debug APK and upload it to Firebase App Distribution (`testers-debug` group), so it can be installed before merging. `.github/workflows/pr-firebase-distribution.yml` builds the PR head commit, and the release notes show the PR number and title, its branch and the last commit. While the label stays, every new push uploads a new build. PRs from forks are skipped, since the workflow needs the repository secrets.
+Add the `app-distribution` label to a pull request to build its debug APK and upload it to Firebase App Distribution (`testers-debug` group), so it can be installed before merging. `.github/workflows/pr-firebase-distribution.yml` builds the PR head commit with the base branch `version.properties`, so its version code matches the latest master debug build and both install over each other. The release notes show the PR number and title, its branch and the last commit. While the label stays, every new push uploads a new build. PRs from forks are skipped, since the workflow needs the repository secrets.
 
 ## Architecture Overview
 
