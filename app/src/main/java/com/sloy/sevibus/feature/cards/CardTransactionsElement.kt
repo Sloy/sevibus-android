@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Euro
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -156,14 +157,17 @@ private fun RowLeading(row: ActivityRow) {
 
 @Composable
 private fun CountChip(count: Int) {
-    Text(
-        stringResource(R.string.cards_group_count, count),
-        style = SevTheme.typography.bodyExtraSmallBold,
-        modifier = Modifier
+    Row(
+        Modifier
             .clip(RoundedCornerShape(6.dp))
             .background(SevTheme.colorScheme.outlineVariant)
             .padding(horizontal = 6.dp, vertical = 2.dp),
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(stringResource(R.string.cards_group_count, count), style = SevTheme.typography.bodyExtraSmallBold)
+        Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(12.dp))
+    }
 }
 
 @Composable
