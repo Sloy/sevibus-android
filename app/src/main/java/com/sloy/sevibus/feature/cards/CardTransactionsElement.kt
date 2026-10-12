@@ -58,7 +58,7 @@ internal fun amountText(row: ActivityRow, isBalanceCard: Boolean, perPerson: Boo
     CardTransactionKind.TRIP -> when {
         !isBalanceCard -> null
         row.amount == null || row.amount == 0 -> AmountText(FREE, muted = false)
-        perPerson && row.count > 1 -> AmountText("${row.count}×" + MINUS + MoneyFormatter.fromCents(row.amount / row.count), muted = false)
+        perPerson && row.count > 1 -> AmountText(MINUS + MoneyFormatter.fromCents(row.amount / row.count) + " × ${row.count}", muted = false)
         else -> AmountText(MINUS + MoneyFormatter.fromCents(row.amount), muted = false)
     }
     CardTransactionKind.TRANSFER -> null
