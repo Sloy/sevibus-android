@@ -34,7 +34,7 @@ import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.CardStatus
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.feature.cards.CardThumbnail
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
@@ -119,7 +119,7 @@ private fun AlertWidget(
 
 @Composable
 private fun LowBalanceCard(
-    card: CardInfo,
+    card: CardInfo.BalanceCard,
     @StringRes title: Int,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
@@ -149,7 +149,7 @@ private fun LowBalanceCard(
                 ) {
                     CardThumbnail(card)
                     Text(
-                        text = MoneyFormatter.fromCents(card.balance ?: 0),
+                        text = MoneyFormatter.format(card.balance),
                         style = SevTheme.typography.bodySmallBold.copy(
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
@@ -198,7 +198,7 @@ internal fun AlertWidgetLowBalancePreview() {
     SevTheme {
         Surface {
             AlertWidget(
-                state = AlertState.LowBalance(Stubs.cards[0].copy(status = CardStatus.Balance(164))),
+                state = AlertState.LowBalance(Stubs.balanceCard.copy(balance = Money(164))),
                 onAlertClicked = {},
                 onDismissAlert = {},
             )
@@ -213,7 +213,7 @@ internal fun AlertWidgetNegativeBalancePreview() {
     SevTheme {
         Surface {
             AlertWidget(
-                state = AlertState.NegativeBalance(Stubs.cards[3]),
+                state = AlertState.NegativeBalance(Stubs.negativeBalanceCard),
                 onAlertClicked = {},
                 onDismissAlert = {},
             )

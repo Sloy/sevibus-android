@@ -40,12 +40,11 @@ import androidx.compose.ui.unit.sp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.CardStatus
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
-import kotlin.math.absoluteValue
 
 private val ContentPivot = TransformOrigin(0.5f, 0.4f)
 
@@ -57,7 +56,7 @@ fun CardBalanceSection(
     onTopUpClicked: (CardInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isBalanceCard = card.status is CardStatus.Balance
+    val isBalanceCard = card is CardInfo.BalanceCard
     val displayed = rememberLastNonNull(if (isBalanceCard) card to transactionsState else null)
     val duration = SevTheme.motion.duration
     val easing = SevTheme.motion.easing
@@ -141,10 +140,10 @@ private fun BalanceContent(
 }
 
 @Composable
-private fun FormattedBalance(balance: Int) {
-    val textColor = if (balance <= 0) Color.Red else Color.Unspecified
-    val sign = if (balance < 0) MINUS else ""
-    val (integerPart, decimalPart) = MoneyFormatter.fromCents(balance.absoluteValue).split(",")
+private fun FormattedBalance(balance: Money) {
+    val textColor = if (!balance.isPositive) Color.Red else Color.Unspecified
+    val sign = if (balance.isNegative) MINUS else ""
+    val (integerPart, decimalPart) = MoneyFormatter.format(if (balance.isNegative) -balance else balance).split(",")
     Text(
         buildAnnotatedString {
             withStyle(SevTheme.typography.bodyStandard.copy(fontSize = 45.sp).toSpanStyle()) {
@@ -230,7 +229,7 @@ internal fun CardBalanceSectionLowBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(status = CardStatus.Balance(80)),
+                card = Stubs.balanceCard.copy(balance = Money(80)),
                 transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
@@ -246,7 +245,7 @@ internal fun CardBalanceSectionLowBalanceWithoutTripsPreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(status = CardStatus.Balance(80)),
+                card = Stubs.balanceCard.copy(balance = Money(80)),
                 transactionsState = TransactionsState.Loading,
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
@@ -278,7 +277,7 @@ internal fun CardBalanceSectionNoBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0].copy(status = CardStatus.Balance(0)),
+                card = Stubs.balanceCard.copy(balance = Money(0)),
                 transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},

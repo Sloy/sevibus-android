@@ -98,19 +98,23 @@ data class CardInfoDto(
     val order: Int = -1,
     val addedVia: String? = null,
     val kind: String? = null,
-    val resultCode: Int? = null,
-    val alertCode: Int? = null,
-    val validFrom: String? = null,
-    val validTo: String? = null,
-    val nextPeriod: NextPeriodDto? = null,
-    val cardExpiry: String? = null,
+    val expired: Boolean = false,
+    val pass: CardPassDto? = null,
+    val expiresOn: String? = null,
 )
 
 @Serializable
-data class NextPeriodDto(
+data class CardPassDto(
+    val from: String,
+    val to: String,
+    val nextPeriod: CardNextPeriodDto? = null,
+)
+
+@Serializable
+data class CardNextPeriodDto(
+    val type: String,
     val from: String? = null,
     val to: String? = null,
-    val pendingFirstUse: Boolean = false,
 )
 
 @Serializable
@@ -122,9 +126,6 @@ data class CardTransactionDto(
     val lineLabel: String? = null,
     val busId: BusId? = null,
     val people: Int? = null,
-    val kind: String? = null,
-    val pending: Boolean = false,
-    val amountCents: Int? = null,
     val balanceAfter: Int? = null,
 )
 

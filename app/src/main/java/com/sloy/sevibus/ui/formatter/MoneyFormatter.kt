@@ -1,5 +1,6 @@
 package com.sloy.sevibus.ui.formatter
 
+import com.sloy.sevibus.domain.model.Money
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
@@ -7,6 +8,8 @@ import java.util.Currency
 import java.util.Locale
 
 object MoneyFormatter {
+
+    fun format(money: Money, showPlusWhenPositive: Boolean = false): String = fromCents(money.cents, showPlusWhenPositive)
 
     fun fromCents(cents: Int, showPlusWhenPositive: Boolean = false): String =
         formatter.format(cents / 100f)

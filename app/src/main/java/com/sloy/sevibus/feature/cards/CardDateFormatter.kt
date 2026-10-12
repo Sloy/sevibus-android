@@ -30,8 +30,10 @@ object CardDateFormatter {
 
     fun dateTime(dateTime: LocalDateTime): String {
         val day = dateTime.toLocalDate()
-        return "${shortWeekday(day)} ${dayMonth(day)} · %02d:%02d".format(Locale.ROOT, dateTime.hour, dateTime.minute)
+        return "${shortWeekday(day)} ${dayMonth(day)} · ${time(dateTime)}"
     }
+
+    fun time(dateTime: LocalDateTime): String = "%02d:%02d".format(Locale.ROOT, dateTime.hour, dateTime.minute)
 
     fun month(year: Int, month: Int): String =
         Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, spanish).replaceFirstChar { it.titlecase(spanish) } + " $year"

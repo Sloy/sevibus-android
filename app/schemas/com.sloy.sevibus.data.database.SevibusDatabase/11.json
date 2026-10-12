@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 11,
-    "identityHash": "14847f7807c50f7415d66043d8a797b0",
+    "identityHash": "4672dfcab7d648617f7c8324586b85ba",
     "entities": [
       {
         "tableName": "lines",
@@ -306,7 +306,7 @@
       },
       {
         "tableName": "cards",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serialNumber` INTEGER NOT NULL, `code` INTEGER NOT NULL, `type` TEXT NOT NULL, `balance` INTEGER, `customName` TEXT, `order` INTEGER NOT NULL, `kind` TEXT, `resultCode` INTEGER, `alertCode` INTEGER, `validFrom` TEXT, `validTo` TEXT, `nextPeriodFrom` TEXT, `nextPeriodTo` TEXT, `nextPeriodPendingFirstUse` INTEGER, `cardExpiry` TEXT, PRIMARY KEY(`serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serialNumber` INTEGER NOT NULL, `code` INTEGER NOT NULL, `type` TEXT NOT NULL, `balance` INTEGER, `customName` TEXT, `order` INTEGER NOT NULL, `kind` TEXT, `expired` INTEGER NOT NULL DEFAULT 0, `passFrom` TEXT, `passTo` TEXT, `nextPeriodType` TEXT, `nextPeriodFrom` TEXT, `nextPeriodTo` TEXT, `expiresOn` TEXT, PRIMARY KEY(`serialNumber`))",
         "fields": [
           {
             "fieldPath": "serialNumber",
@@ -348,23 +348,25 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "resultCode",
-            "columnName": "resultCode",
-            "affinity": "INTEGER"
+            "fieldPath": "expired",
+            "columnName": "expired",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
-            "fieldPath": "alertCode",
-            "columnName": "alertCode",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "validFrom",
-            "columnName": "validFrom",
+            "fieldPath": "passFrom",
+            "columnName": "passFrom",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "validTo",
-            "columnName": "validTo",
+            "fieldPath": "passTo",
+            "columnName": "passTo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nextPeriodType",
+            "columnName": "nextPeriodType",
             "affinity": "TEXT"
           },
           {
@@ -378,13 +380,8 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "nextPeriodPendingFirstUse",
-            "columnName": "nextPeriodPendingFirstUse",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "cardExpiry",
-            "columnName": "cardExpiry",
+            "fieldPath": "expiresOn",
+            "columnName": "expiresOn",
             "affinity": "TEXT"
           }
         ],
@@ -416,7 +413,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '14847f7807c50f7415d66043d8a797b0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4672dfcab7d648617f7c8324586b85ba')"
     ]
   }
 }

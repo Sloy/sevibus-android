@@ -73,3 +73,8 @@ internal fun CardsScreenPassExpiredPreview() = CardsScreenCase("PassExpired")
 @Preview
 @Composable
 internal fun CardsScreenCardExpiredPreview() = CardsScreenCase("CardExpired")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassTransfersPreview() = CardsScreenCase("PassTransfers")

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.CardStatus
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
@@ -108,12 +107,12 @@ class CardViewModel(
     fun onTopUpClicked(card: CardInfo) {
         viewModelScope.launch {
             events.emit(CardsScreenEvent.LaunchUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}"))
-            analytics.track(Clicks.CardTopUpClicked(card.type, card.balance))
+            analytics.track(Clicks.CardTopUpClicked(card.type, (card as? CardInfo.BalanceCard)?.balance?.cents))
         }
     }
 
     fun onMoreInfoClicked(card: CardInfo) {
-        val reason = if (card.status is CardStatus.ExpiredCard) Clicks.MoreInfoReason.CARD_EXPIRED else Clicks.MoreInfoReason.PASS_EXPIRED
+        val reason = if (card is CardInfo.ExpiredCard) Clicks.MoreInfoReason.CARD_EXPIRED else Clicks.MoreInfoReason.PASS_EXPIRED
         viewModelScope.launch {
             events.emit(CardsScreenEvent.LaunchUri(TUSSAM_TITLES_URL))
             analytics.track(Clicks.CardMoreInfoClicked(card.code, reason))

@@ -2,7 +2,9 @@ package com.sloy.sevibus.feature.cards
 
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.CardStatus
+import com.sloy.sevibus.domain.model.Money
+import com.sloy.sevibus.domain.model.PassPeriod
+import com.sloy.sevibus.domain.model.PassValidity
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Clicks
@@ -35,8 +37,8 @@ import java.time.LocalDate
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModelTest {
 
-    private val savedCard = CardInfo(serialNumber = SAVED_SERIAL, code = 31, type = "Bonobús", status = CardStatus.Balance(1250))
-    private val newCard = CardInfo(serialNumber = NEW_SERIAL, code = 31, type = "Bonobús", status = CardStatus.Balance(500))
+    private val savedCard = CardInfo.BalanceCard(serialNumber = SAVED_SERIAL, code = 31, type = "Bonobús", balance = Money(1250))
+    private val newCard = CardInfo.BalanceCard(serialNumber = NEW_SERIAL, code = 31, type = "Bonobús", balance = Money(500))
     private val userCards = MutableStateFlow(listOf(savedCard))
     private val cardsRepository = mock<CardsRepository> {
         on { observeUserCards() } doReturn userCards
@@ -94,7 +96,7 @@ class CardViewModelTest {
 
     @Test
     fun `more info opens the Tussam titles page and tracks the reason`() = runTest {
-        val expiredPass = CardInfo(900000010, 103, "Bonobús solidario", CardStatus.Pass(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 8, 1), null))
+        val expiredPass = CardInfo.PassCard(900000010, 103, "Bonobús solidario", PassValidity(PassPeriod(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 8, 1)), null))
         val viewModel = collectingViewModel()
         val events = mutableListOf<CardsScreenEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
@@ -107,7 +109,7 @@ class CardViewModelTest {
 
     @Test
     fun `more info on an expired card tracks card expired`() = runTest {
-        val expired = CardInfo(900000011, 116, "Estudiante mensual", CardStatus.ExpiredCard)
+        val expired = CardInfo.ExpiredCard(900000011, 116, "Estudiante mensual")
 
         collectingViewModel().onMoreInfoClicked(expired)
 
