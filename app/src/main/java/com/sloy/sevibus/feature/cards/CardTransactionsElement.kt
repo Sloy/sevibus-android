@@ -1,6 +1,7 @@
 package com.sloy.sevibus.feature.cards
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,15 +23,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.CardTransactionKind
+import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
 import com.sloy.sevibus.ui.components.LineIndicator
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenPreview
@@ -44,10 +51,14 @@ internal const val MINUS = "\u2212"
 
 data class AmountText(val text: String, val muted: Boolean)
 
-internal fun amountText(row: ActivityRow, isBalanceCard: Boolean): AmountText? = when (row.kind) {
+internal fun hasPerPersonAmount(row: ActivityRow, isBalanceCard: Boolean): Boolean =
+    isBalanceCard && row.kind == CardTransactionKind.TRIP && row.count > 1 && (row.amount ?: 0) > 0
+
+internal fun amountText(row: ActivityRow, isBalanceCard: Boolean, perPerson: Boolean = false): AmountText? = when (row.kind) {
     CardTransactionKind.TRIP -> when {
         !isBalanceCard -> null
         row.amount == null || row.amount == 0 -> AmountText(FREE, muted = false)
+        perPerson && row.count > 1 -> AmountText("${row.count}×" + MINUS + MoneyFormatter.fromCents(row.amount / row.count), muted = false)
         else -> AmountText(MINUS + MoneyFormatter.fromCents(row.amount), muted = false)
     }
     CardTransactionKind.TRANSFER -> null
@@ -85,9 +96,16 @@ fun CardActivityElement(months: List<ActivityMonth>, isBalanceCard: Boolean) {
 
 @Composable
 private fun ActivityRowItem(row: ActivityRow, isBalanceCard: Boolean) {
+    val view = LocalView.current
+    var showPerPerson by rememberSaveable(row) { mutableStateOf(false) }
+    val togglePerPerson = Modifier.clickable {
+        view.performHapticSegmentTick()
+        showPerPerson = !showPerPerson
+    }
     Row(
         Modifier
             .fillMaxWidth()
+            .then(if (hasPerPersonAmount(row, isBalanceCard)) togglePerPerson else Modifier)
             .heightIn(min = 48.dp)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -107,7 +125,7 @@ private fun ActivityRowItem(row: ActivityRow, isBalanceCard: Boolean) {
             if (row.kind == CardTransactionKind.TRANSFER) {
                 Text(stringResource(R.string.cards_transfer), style = SevTheme.typography.bodySmallBold, color = SevTheme.colorScheme.onSurfaceVariant)
             } else {
-                amountText(row, isBalanceCard)?.let { amount ->
+                amountText(row, isBalanceCard, showPerPerson)?.let { amount ->
                     Text(
                         if (amount.text == FREE) stringResource(R.string.cards_free_trip) else amount.text,
                         style = SevTheme.typography.bodyStandardBold,
