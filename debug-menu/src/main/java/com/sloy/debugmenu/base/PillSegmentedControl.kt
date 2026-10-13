@@ -96,10 +96,11 @@ fun PillSegmentedControl(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark
 @Composable
-private fun PillSegmentedControlPreview() {
+internal fun PillSegmentedControlTimelinePreview() {
     DebugPreviewTheme {
-        PillSegmentedControl(listOf("Off", "3G", "Slow 3G"), selectedIndex = 0, onSelected = {}, modifier = Modifier.padding(16.dp))
+        PillSegmentedControl(listOf("Timeline", "Journey"), selectedIndex = 0, onSelected = {}, modifier = Modifier.padding(16.dp))
     }
 }

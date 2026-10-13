@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Insights
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -27,24 +28,25 @@ import com.sloy.debugmenu.base.DebugMenu
 import com.sloy.debugmenu.base.DebugMenuScope
 import com.sloy.debugmenu.base.DebugModule
 import com.sloy.debugmenu.base.DebugPreviewTheme
-import com.sloy.debugmenu.overlay.OverlayLogger
+import com.sloy.debugmenu.base.ScreenshotSuite
+import com.sloy.debugmenu.base.ScreenshotTest
 
 /**
- * Events section: overlay toggle and access to the full-screen event log.
+ * Events section: overlay toggle, timeline rail choice and access to the full-screen event log.
  */
 @Composable
 fun DebugMenuScope.EventsModule(
     dataSource: EventsDebugModuleDataSource,
     eventStore: EventStore,
-    overlayLogger: OverlayLogger,
 ) {
-    val viewModel = viewModel { EventsDebugModuleViewModel(dataSource, eventStore, overlayLogger) }
+    val viewModel = viewModel { EventsDebugModuleViewModel(dataSource, eventStore) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     EventsModuleContent(
         state = state,
         eventCount = events.size,
         onOverlayToggled = viewModel::onOverlayToggled,
+        onTimelineRailToggled = viewModel::onTimelineRailToggled,
         onViewAll = { openScreen { onClose -> EventLogScreen(eventStore, onClose) } },
         onClear = viewModel::onClearEvents,
     )
@@ -55,6 +57,7 @@ private fun DebugMenuScope.EventsModuleContent(
     state: EventsDebugModuleState,
     eventCount: Int,
     onOverlayToggled: (Boolean) -> Unit = {},
+    onTimelineRailToggled: (Boolean) -> Unit = {},
     onViewAll: () -> Unit = {},
     onClear: () -> Unit = {},
 ) {
@@ -64,6 +67,14 @@ private fun DebugMenuScope.EventsModuleContent(
             onClick = { onOverlayToggled(!state.isOverlayEnabled) },
             end = { Switch(checked = state.isOverlayEnabled, onCheckedChange = onOverlayToggled) },
         )
+        if (state.isOverlayEnabled) {
+            DebugCell(
+                title = "Use timeline rail",
+                subtitle = "Show events on a vertical timeline instead of a stack",
+                onClick = { onTimelineRailToggled(!state.useTimelineRail) },
+                start = { Checkbox(checked = state.useTimelineRail, onCheckedChange = onTimelineRailToggled) },
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
             FilledTonalButton(onClick = onViewAll) {
                 Text("View all ($eventCount)")
@@ -79,9 +90,10 @@ private fun DebugMenuScope.EventsModuleContent(
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Components)
 @PreviewLightDark
 @Composable
-private fun EventsModulePreview() {
+internal fun EventsModuleOverlayEnabledPreview() {
     DebugPreviewTheme {
         DebugMenu {
             EventsModuleContent(EventsDebugModuleState(isOverlayEnabled = true), eventCount = 12)

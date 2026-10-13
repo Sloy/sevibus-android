@@ -1,7 +1,11 @@
+import com.android.compose.screenshot.tasks.PreviewScreenshotValidationTask
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.screenshot)
+    id("sevibus.screenshot-tests")
 }
 
 android {
@@ -25,6 +29,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+}
+
+tasks.withType<PreviewScreenshotValidationTask>().configureEach {
+    testEngineInput.threshold.set(0.01f)
 }
 
 dependencies {
@@ -45,6 +54,11 @@ dependencies {
     api(libs.okhttp)
 
     debugImplementation(libs.androidx.ui.tooling)
+
+    screenshotTestImplementation(libs.compose.screenshot.validation)
+    screenshotTestImplementation(libs.androidx.ui.tooling)
+    screenshotTestImplementation(platform(libs.androidx.compose.bom))
+    screenshotTestImplementation(libs.androidx.ui)
 
     testImplementation(libs.junit)
     testImplementation(libs.strikt)

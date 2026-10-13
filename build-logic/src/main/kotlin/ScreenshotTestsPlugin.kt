@@ -1,4 +1,5 @@
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.HasHostTests
 import com.android.build.api.variant.HostTestBuilder
 import com.android.build.api.variant.SourceDirectories
 import org.gradle.api.Plugin
@@ -10,15 +11,18 @@ import org.gradle.api.provider.Provider
  *
  * Only the screenshotTest compilation depends on the generator, so regular builds don't run it.
  * Reference images no test uses anymore fail validation and are deleted when updating the references.
- * The generated test classes go in the app namespace.
+ * The generated test classes go in the module namespace.
  */
 class ScreenshotTestsPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.pluginManager.withPlugin("com.android.application") {
-            project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java).onVariants { variant ->
-                val screenshotTest = variant.hostTests[HostTestBuilder.SCREENSHOT_TEST_TYPE] ?: return@onVariants
-                project.registerTasks(variant.name, variant.namespace, screenshotTest.sources.kotlin)
+        listOf("com.android.application", "com.android.library").forEach { androidPlugin ->
+            project.pluginManager.withPlugin(androidPlugin) {
+                project.extensions.getByType(AndroidComponentsExtension::class.java).onVariants { variant ->
+                    val screenshotTest = (variant as? HasHostTests)?.hostTests?.get(HostTestBuilder.SCREENSHOT_TEST_TYPE)
+                        ?: return@onVariants
+                    project.registerTasks(variant.name, variant.namespace, screenshotTest.sources.kotlin)
+                }
             }
         }
     }
