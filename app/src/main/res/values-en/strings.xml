@@ -93,10 +93,47 @@
     <string name="cards_error_loading_recent_activity">Couldn\'t load recent activity, try again later</string>
     <string name="cards_data_section">Data</string>
     <string name="cards_serial_number_label">Serial number</string>
-    <string name="cards_type_label">Card type</string>
-    <string name="cards_validation">Validation</string>
     <string name="cards_transfer">Transfer</string>
     <string name="cards_top_up_transaction">Top up</string>
+    <string name="cards_no_balance_left">No balance left for more trips</string>
+    <string name="cards_valid_until">Valid until</string>
+    <string name="cards_current_period_until">Current period until</string>
+    <string name="cards_period_since">From %s</string>
+    <plurals name="cards_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+    <string name="cards_last_day">Last day</string>
+    <string name="cards_next_period_paid">Next period paid</string>
+    <string name="cards_expired_ago">Expired %s ago</string>
+    <plurals name="cards_elapsed_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="cards_elapsed_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="cards_elapsed_years">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+    <string name="cards_more_info_button">More info on Tussam</string>
+    <string name="cards_card_expired_title">Card expired</string>
+    <string name="cards_card_expired_text">Expired on %s.</string>
+    <string name="cards_copy_serial">Copy serial number</string>
+    <string name="cards_validity_period_label">Validity period</string>
+    <string name="cards_current_period_label">Current period</string>
+    <string name="cards_physical_expiry_label">Physical card expiry</string>
+    <string name="cards_history_limit_note">Tussam only reports the last 10 operations</string>
+    <string name="cards_line_title">Line %s</string>
+    <string name="cards_top_up_pending">Online top-up</string>
+    <string name="cards_pending_suffix">pending</string>
+    <string name="cards_pass_purchase">Pass purchase</string>
+    <string name="cards_pass_renewal">Pass renewal</string>
+    <string name="cards_free_trip">Free</string>
+    <string name="cards_balance_after">Balance %s</string>
+    <string name="cards_group_count">×%d</string>
     <string name="cards_error_not_found">Card not found or invalid number</string>
     <string name="cards_error_search">There was an error searching for the card, try again later</string>
     <string name="cards_error_already_saved">You already have that card saved</string>
