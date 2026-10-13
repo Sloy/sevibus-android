@@ -1,5 +1,6 @@
 package com.sloy.sevibus.feature.cards
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.domain.model.CardTransaction
@@ -98,7 +100,10 @@ fun CardTransactionsElement(months: List<CardTransactionsMonth>, isBalanceCard: 
                 Card(Modifier.fillMaxWidth()) {
                     month.transactions.forEachIndexed { index, transaction ->
                         TransactionItem(transaction, isBalanceCard)
-                        if (index != month.transactions.lastIndex) HorizontalDivider(Modifier.padding(start = 64.dp))
+                        val next = month.transactions.getOrNull(index + 1)
+                        if (next != null && !transaction.isTripWithTransfers() && !next.isTripWithTransfers()) {
+                            HorizontalDivider(Modifier.padding(start = 64.dp))
+                        }
                     }
                 }
             }
@@ -113,10 +118,12 @@ fun CardTransactionsElement(months: List<CardTransactionsMonth>, isBalanceCard: 
     }
 }
 
+private fun CardTransaction.isTripWithTransfers(): Boolean = this is CardTransaction.Trip && transfers.isNotEmpty()
+
 @Composable
 private fun TransactionItem(transaction: CardTransaction, isBalanceCard: Boolean) {
     when (transaction) {
-        is CardTransaction.Trip -> TripItem(transaction)
+        is CardTransaction.Trip -> if (transaction.transfers.isEmpty()) TripItem(transaction) else TripWithTransfersItem(transaction)
         is CardTransaction.Transfer -> TransactionRow(
             leading = { LineIndicator(transaction.line) },
             title = lineTitle(transaction.line),
@@ -127,7 +134,33 @@ private fun TransactionItem(transaction: CardTransaction, isBalanceCard: Boolean
 }
 
 @Composable
-private fun TripItem(trip: CardTransaction.Trip) {
+private fun TripWithTransfersItem(trip: CardTransaction.Trip) {
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = SevTheme.colorScheme.background,
+        border = BorderStroke(1.dp, SevTheme.colorScheme.outlineVariant),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+    ) {
+        Column(Modifier.padding(vertical = 4.dp)) {
+            TripItem(trip, horizontalPadding = 8.dp)
+            trip.transfers.forEachIndexed { index, transfer ->
+                TransactionRow(
+                    leading = { LineIndicator(transfer.line) },
+                    title = lineTitle(transfer.line),
+                    subtitle = "${stringResource(R.string.cards_transfer)} · ${CardDateFormatter.time(transfer.date)}",
+                    connector = if (index == trip.transfers.lastIndex) Connector.ABOVE else Connector.ABOVE_AND_BELOW,
+                    horizontalPadding = 8.dp,
+                    verticalPadding = 8.dp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TripItem(trip: CardTransaction.Trip, horizontalPadding: Dp = 16.dp) {
     val view = LocalView.current
     var showPerPerson by rememberSaveable(trip) { mutableStateOf(false) }
     val fare = trip.fare
@@ -154,15 +187,9 @@ private fun TripItem(trip: CardTransaction.Trip) {
             null
         },
         connector = if (trip.transfers.isEmpty()) Connector.NONE else Connector.BELOW,
+        horizontalPadding = horizontalPadding,
+        verticalPadding = if (trip.transfers.isEmpty()) 14.dp else 8.dp,
     )
-    trip.transfers.forEachIndexed { index, transfer ->
-        TransactionRow(
-            leading = { LineIndicator(transfer.line) },
-            title = lineTitle(transfer.line),
-            subtitle = "${stringResource(R.string.cards_transfer)} · ${CardDateFormatter.time(transfer.date)}",
-            connector = if (index == trip.transfers.lastIndex) Connector.ABOVE else Connector.ABOVE_AND_BELOW,
-        )
-    }
 }
 
 @Composable
@@ -210,14 +237,16 @@ private fun TransactionRow(
     trailing: (@Composable () -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     connector: Connector = Connector.NONE,
+    horizontalPadding: Dp = 16.dp,
+    verticalPadding: Dp = 14.dp,
 ) {
-    val connectorColor = SevTheme.colorScheme.outlineVariant
+    val connectorColor = SevTheme.colorScheme.onSurface
     Row(
         Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = horizontalPadding),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -233,7 +262,7 @@ private fun TransactionRow(
         Column(
             Modifier
                 .weight(1f)
-                .padding(vertical = 14.dp)
+                .padding(vertical = verticalPadding)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(title, style = SevTheme.typography.bodyStandardBold)
@@ -242,7 +271,7 @@ private fun TransactionRow(
             Text(subtitle, style = SevTheme.typography.bodySmall, color = SevTheme.colorScheme.onSurfaceVariant)
         }
         if (trailing != null) {
-            Column(Modifier.padding(vertical = 14.dp), horizontalAlignment = Alignment.End) {
+            Column(Modifier.padding(vertical = verticalPadding), horizontalAlignment = Alignment.End) {
                 trailing()
             }
         }
@@ -251,7 +280,7 @@ private fun TransactionRow(
 
 private fun DrawScope.drawConnector(connector: Connector, color: Color) {
     val x = size.width / 2
-    val strokeWidth = 2.dp.toPx()
+    val strokeWidth = 4.dp.toPx()
     if (connector.above) drawLine(color, Offset(x, 0f), Offset(x, size.height / 2), strokeWidth)
     if (connector.below) drawLine(color, Offset(x, size.height / 2), Offset(x, size.height), strokeWidth)
 }
