@@ -5,4 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EventsDebugModuleState(
     val isOverlayEnabled: Boolean = false,
+    val useTimelineRail: Boolean = false,
 )

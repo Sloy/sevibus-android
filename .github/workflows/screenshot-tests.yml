@@ -68,14 +68,14 @@ jobs:
       - name: Validate screenshots
         id: validate
         continue-on-error: true
-        run: ./gradlew :app:validateDebugScreenshotTest
+        run: ./gradlew --continue :app:validateDebugScreenshotTest :debug-menu:validateDebugScreenshotTest
 
       - name: Publish test results
         if: ${{ !cancelled() }}
         uses: mikepenz/action-junit-report@v6
         with:
           check_name: Screenshot test results
-          report_paths: app/build/test-results/validateDebugScreenshotTest/*.xml
+          report_paths: '*/build/test-results/validateDebugScreenshotTest/*.xml'
           detailed_summary: true
           include_passed: false
 
@@ -83,7 +83,7 @@ jobs:
         id: report
         run: |
           python3 -I .github/scripts/screenshot_report.py \
-            --results-dir app/build/test-results/validateDebugScreenshotTest \
+            --module app --module debug-menu \
             --images-dir "$IMAGES_DIR" \
             --output-dir "$REPORT_DIR" \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -93,8 +93,11 @@ jobs:
         if: env.UPDATE == 'true' && steps.validate.outcome == 'failure' && github.event_name == 'pull_request'
         run: |
           set -f  # keep the --tests patterns from being expanded by the shell
-          ./gradlew :app:updateDebugScreenshotTest $(cat "$REPORT_DIR/update-filters.txt")
-          git add app/src/screenshotTestDebug/reference
+          for module in app debug-menu; do
+            filters="$REPORT_DIR/update-filters-$module.txt"
+            if [ -s "$filters" ]; then ./gradlew ":$module:updateDebugScreenshotTest" $(cat "$filters"); fi
+          done
+          git add app/src/screenshotTestDebug/reference debug-menu/src/screenshotTestDebug/reference
           if git diff --cached --quiet; then
             echo "No reference changed"
             exit 0
@@ -119,10 +122,13 @@ jobs:
           ACTOR: ${{ github.actor }}
         run: |
           set -f  # keep the --tests patterns from being expanded by the shell
-          ./gradlew :app:updateDebugScreenshotTest $(cat "$REPORT_DIR/update-filters.txt")
+          for module in app debug-menu; do
+            filters="$REPORT_DIR/update-filters-$module.txt"
+            if [ -s "$filters" ]; then ./gradlew ":$module:updateDebugScreenshotTest" $(cat "$filters"); fi
+          done
           base=$(git rev-parse HEAD)
           git switch -c "$MASTER_UPDATE_BRANCH"
-          git add app/src/screenshotTestDebug/reference
+          git add app/src/screenshotTestDebug/reference debug-menu/src/screenshotTestDebug/reference
           if git diff --cached --quiet; then
             echo "No reference changed, the failures aren't image differences"
             exit 0
@@ -202,6 +208,8 @@ jobs:
           path: |
             app/build/reports/screenshotTest/
             app/build/outputs/screenshotTest-results/
+            debug-menu/build/reports/screenshotTest/
+            debug-menu/build/outputs/screenshotTest-results/
           retention-days: 14
 
       - name: Fail on screenshot differences

@@ -7,8 +7,8 @@ new and diff images of every failing test into an output directory (to be pushed
 to a companion branch), and writes:
   - comment.md: markdown with an image table per failing test. Image URLs use the
     {IMAGES_URL} placeholder, replaced once the images are pushed.
-  - update-filters.txt: Gradle --tests filters for the failing tests, used to
-    regenerate only their references.
+  - update-filters-<module>.txt: Gradle --tests filters for the failing tests of each
+    module that has failures, used to regenerate only their references.
 """
 import argparse
 import glob
@@ -17,15 +17,22 @@ import re
 import shutil
 import xml.etree.ElementTree as ET
 
-REFERENCE_DIR = "app/src/screenshotTestDebug/reference/"
-RENDERED_DIR = "app/build/outputs/screenshotTest-results/preview/debug/rendered/"
 MARKER = "<!-- screenshot-tests-report -->"
 
 
-def parse_failures(results_dir):
+def reference_dir(module):
+    return f"{module}/src/screenshotTestDebug/reference/"
+
+
+def rendered_dir(module):
+    return f"{module}/build/outputs/screenshotTest-results/preview/debug/rendered/"
+
+
+def parse_failures(module):
+    results_dir = f"{module}/build/test-results/validateDebugScreenshotTest"
     results = sorted(glob.glob(os.path.join(results_dir, "*.xml")))
     if not results:
-        raise SystemExit(f"No test results in {results_dir}, the tests didn't run")
+        return None
     failures = []
     for path in results:
         for case in ET.parse(path).getroot().iter("testcase"):
@@ -36,6 +43,7 @@ def parse_failures(results_dir):
                 continue
             message = problem.get("message") or problem.text or ""
             failure = {
+                "module": module,
                 "test_class": case.get("classname").split(".")[-1],
                 "test_name": case.get("name").split(" ")[0],
                 "summary": message.splitlines()[0] if message else "Unknown error",
@@ -55,7 +63,7 @@ def parse_failures(results_dir):
                 failure["diff"] = diff.group(1)
             if missing:
                 failure["summary"] = "New screenshot, no reference image yet"
-                failure["actual"] = missing.group(1).replace(REFERENCE_DIR, RENDERED_DIR)
+                failure["actual"] = missing.group(1).replace(reference_dir(module), rendered_dir(module))
             failures.append(failure)
     return failures
 
@@ -88,7 +96,7 @@ def build_comment(failures, images_dir, run_url):
     )
     lines.append("")
     for failure in failures:
-        test_id = f"{failure['test_class']}.{failure['test_name']}"
+        test_id = f"{failure['module']}.{failure['test_class']}.{failure['test_name']}"
         reference = copy_image(failure["reference"], images_dir, f"{test_id}.reference.png")
         actual = copy_image(failure["actual"], images_dir, f"{test_id}.new.png")
         diff = copy_image(failure["diff"], images_dir, f"{test_id}.diff.png")
@@ -106,19 +114,33 @@ def build_comment(failures, images_dir, run_url):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--results-dir", required=True)
+    parser.add_argument("--module", action="append", required=True)
     parser.add_argument("--images-dir", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--run-url", required=True)
     args = parser.parse_args()
 
-    failures = parse_failures(args.results_dir)
+    failures = []
+    ran_any = False
+    for module in args.module:
+        module_failures = parse_failures(module)
+        if module_failures is None:
+            print(f"Warning: no test results for {module}, its tests didn't run")
+            continue
+        ran_any = True
+        failures.extend(module_failures)
+    if not ran_any:
+        raise SystemExit("No test results in any module, the tests didn't run")
     os.makedirs(args.output_dir, exist_ok=True)
     with open(os.path.join(args.output_dir, "comment.md"), "w") as f:
         f.write(build_comment(failures, args.images_dir, args.run_url))
-    with open(os.path.join(args.output_dir, "update-filters.txt"), "w") as f:
-        for failure in failures:
-            f.write(f"--tests *.{failure['test_class']}.{failure['test_name']}\n")
+    for module in args.module:
+        module_failures = [failure for failure in failures if failure["module"] == module]
+        if not module_failures:
+            continue
+        with open(os.path.join(args.output_dir, f"update-filters-{module}.txt"), "w") as f:
+            for failure in module_failures:
+                f.write(f"--tests *.{failure['test_class']}.{failure['test_name']}\n")
     print(f"{len(failures)} failing screenshot test(s)")
 
 

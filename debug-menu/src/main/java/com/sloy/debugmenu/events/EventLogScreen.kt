@@ -1,172 +1,359 @@
 package com.sloy.debugmenu.events
 
-import android.content.Context
-import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import android.content.ClipData
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sloy.debugmenu.base.DebugPreviewTheme
+import com.sloy.debugmenu.base.PillSegmentedControl
+import com.sloy.debugmenu.base.ScreenshotSuite
+import com.sloy.debugmenu.base.ScreenshotTest
+import com.sloy.debugmenu.events.viewer.BandEndItem
+import com.sloy.debugmenu.events.viewer.BandHeaderItem
+import com.sloy.debugmenu.events.viewer.EventItem
+import com.sloy.debugmenu.events.viewer.EventRow
+import com.sloy.debugmenu.events.viewer.EventSearchField
+import com.sloy.debugmenu.events.viewer.EventsActionBar
+import com.sloy.debugmenu.events.viewer.EventsActionBarHeight
+import com.sloy.debugmenu.events.viewer.GapItem
+import com.sloy.debugmenu.events.viewer.GapMarker
+import com.sloy.debugmenu.events.viewer.LanesCard
+import com.sloy.debugmenu.events.viewer.ScreenBandEnd
+import com.sloy.debugmenu.events.viewer.ScreenBandHeader
+import com.sloy.debugmenu.events.viewer.SessionItem
+import com.sloy.debugmenu.events.viewer.SessionSummaryCard
+import com.sloy.debugmenu.events.viewer.TimelineHead
+import com.sloy.debugmenu.events.viewer.ViewerItem
+import com.sloy.debugmenu.events.viewer.ViewerSampleData
+import com.sloy.debugmenu.events.viewer.anchorPosition
+import com.sloy.debugmenu.events.viewer.anchorTime
+import com.sloy.debugmenu.events.viewer.journeyItems
+import com.sloy.debugmenu.events.viewer.lanesStrip
+import com.sloy.debugmenu.events.viewer.screenBandBackground
+import com.sloy.debugmenu.events.viewer.scrollAnchors
+import com.sloy.debugmenu.events.viewer.timelineItems
+import kotlinx.coroutines.launch
+
+private const val TIMELINE = 0
+private const val JOURNEY = 1
+private const val LANES_KEY = "lanes"
+private const val LANES_ITEMS = 1
+private const val SEARCH_KEY = "search"
+private const val HEAD_KEY = "head"
+private const val NO_MATCHES_KEY = "no-matches"
+private const val SCROLL_SLOP = 2f
+private const val ACTION_BAR_MILLIS = 200
 
 /**
- * Full-screen list of captured events.
+ * Full-screen event viewer with a Timeline and a Journey view, search and JSON export.
  */
 @Composable
 fun EventLogScreen(eventStore: EventStore, onClose: () -> Unit) {
     val viewModel = viewModel { EventLogViewModel(eventStore) }
     val events by viewModel.events.collectAsStateWithLifecycle()
-    EventLogScreenContent(events = events, onClose = onClose, onClear = viewModel::onClearEvents)
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    EventLogScreenContent(
+        events = events,
+        onClose = onClose,
+        onClear = viewModel::onClearEvents,
+        onCopy = { json, _ -> scope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Events", json))) } },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EventLogScreenContent(events: List<CapturedEvent>, onClose: () -> Unit, onClear: () -> Unit) {
+internal fun EventLogScreenContent(
+    events: List<CapturedEvent>,
+    onClose: () -> Unit,
+    onClear: () -> Unit,
+    initialView: Int = TIMELINE,
+    initiallyExpanded: Set<String> = emptySet(),
+    onCopy: (json: String, count: Int) -> Unit = { _, _ -> },
+) {
+    var selectedView by rememberSaveable { mutableIntStateOf(initialView) }
+    var query by rememberSaveable { mutableStateOf("") }
+    val isJourney = selectedView == JOURNEY
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val items = remember(events, query, isJourney) {
+        if (isJourney) journeyItems(events) else timelineItems(events, query)
+    }
+    val listState = rememberLazyListState()
+    var actionBarVisible by remember { mutableStateOf(true) }
+    LaunchedEffect(selectedView) {
+        listState.scrollToItem(0)
+        actionBarVisible = true
+    }
+    val hideOnScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < -SCROLL_SLOP) actionBarVisible = false
+                if (available.y > SCROLL_SLOP) actionBarVisible = true
+                return Offset.Zero
+            }
+        }
+    }
+    val actionBarOffset by animateFloatAsState(if (actionBarVisible) 0f else 1f, tween(ACTION_BAR_MILLIS), label = "actionBarOffset")
+    val surface = MaterialTheme.colorScheme.surface
+
     Scaffold(
+        containerColor = surface,
         topBar = {
             TopAppBar(
-                title = { Text("Events (${events.size})") },
-                navigationIcon = {
-                    IconButton(onClick = onClose) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
+                title = { Text("Events (${events.size})", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 actions = {
-                    IconButton(onClick = onClear) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "Clear events")
-                    }
+                    PillSegmentedControl(
+                        options = listOf("Timeline", "Journey"),
+                        selectedIndex = selectedView,
+                        onSelected = { selectedView = it },
+                        modifier = Modifier.width(184.dp).padding(end = 12.dp),
+                    )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = surface, scrolledContainerColor = surface),
             )
         },
     ) { padding ->
-        if (events.isEmpty()) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-            ) {
-                Text("No events yet", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(
+            Modifier
+                .fillMaxSize()
+                .padding(top = padding.calculateTopPadding())
+                .nestedScroll(hideOnScroll)
+        ) {
+            if (events.isEmpty()) {
+                CenteredMessage("No events yet")
+            } else {
+                EventList(
+                    events = events,
+                    items = items,
+                    isJourney = isJourney,
+                    listState = listState,
+                    initiallyExpanded = initiallyExpanded,
+                    header = {
+                        if (!isJourney) {
+                            item(key = SEARCH_KEY) {
+                                EventSearchField(query, { query = it }, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                            }
+                            if (items.isEmpty()) {
+                                item(key = NO_MATCHES_KEY) {
+                                    Box(Modifier.fillParentMaxHeight(0.6f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                        EmptyText("No matching events")
+                                    }
+                                }
+                            } else {
+                                item(key = HEAD_KEY) { TimelineHead(Modifier.padding(top = 4.dp)) }
+                            }
+                        }
+                    },
+                )
             }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = padding) {
-                items(events, key = { it.id }) { event ->
-                    EventRow(event)
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                }
+            Column(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .graphicsLayer { translationY = actionBarOffset * size.height }
+            ) {
+                SnackbarHost(snackbar)
+                EventsActionBar(
+                    onCopy = {
+                        onCopy(events.toSessionJson(), events.size)
+                        scope.launch { snackbar.showSnackbar("Copied ${events.size} events") }
+                    },
+                    onClear = onClear,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun EventRow(event: CapturedEvent) {
-    var expanded by rememberSaveable(event.id) { mutableStateOf(false) }
-    val context = LocalContext.current
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .clickable { expanded = !expanded }
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            EventTypeIcon(EventType.of(event.name))
-            Spacer(Modifier.width(8.dp))
-            Text(event.name, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
-            Text(event.timestamp, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun CenteredMessage(text: String) {
+    Box(Modifier.fillMaxSize().padding(bottom = EventsActionBarHeight), contentAlignment = Alignment.Center) {
+        EmptyText(text)
+    }
+}
+
+@Composable
+private fun EmptyText(text: String) {
+    Text(text, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun EventList(
+    events: List<CapturedEvent>,
+    items: List<ViewerItem>,
+    isJourney: Boolean,
+    listState: LazyListState,
+    initiallyExpanded: Set<String>,
+    header: LazyListScope.() -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val oldestEventKey = remember(items) { items.lastOrNull { it is EventItem }?.key }
+    val strip = remember(events) { lanesStrip(events) }
+    val anchors = remember(items) { scrollAnchors(items) }
+    val density = LocalDensity.current
+    val bottomPadding = EventsActionBarHeight + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val shownWindow by remember(anchors, density, bottomPadding) {
+        derivedStateOf {
+            val layout = listState.layoutInfo
+            val top = layout.timeAt(layout.lanesBottom(), anchors)
+            val bottom = layout.timeAt(layout.viewportEndOffset - with(density) { bottomPadding.roundToPx() }, anchors)
+            if (top == null || bottom == null) null else bottom to top
         }
-        AnimatedVisibility(visible = expanded) {
-            Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (event.properties.isEmpty()) {
-                    Text("No properties", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                event.properties.forEach { (key, value) ->
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("$key: ") }
-                            append(value)
-                        },
-                        style = MaterialTheme.typography.bodySmall,
+    }
+    LazyColumn(state = listState, contentPadding = PaddingValues(bottom = bottomPadding), modifier = Modifier.fillMaxSize()) {
+        header()
+        if (isJourney) {
+            stickyHeader(key = LANES_KEY) {
+                val (from, to) = shownWindow ?: (events.minOf { it.timestampMillis } to events.maxOf { it.timestampMillis })
+                LanesCard(
+                    strip = strip,
+                    fromMillis = from,
+                    toMillis = to,
+                    onScrub = { olderBy ->
+                        val target = strip.timeAt(strip.xAt(to) - olderBy)
+                        val (index, fraction) = anchorPosition(anchors, target)
+                        val layout = listState.layoutInfo
+                        val row = layout.visibleItemsInfo.firstOrNull { it.index == index + LANES_ITEMS }
+                        if (row != null) {
+                            listState.dispatchRawDelta(row.offset + fraction * row.size - layout.lanesBottom())
+                        } else {
+                            scope.launch { listState.scrollToItem(index + LANES_ITEMS) }
+                        }
+                    },
+                    onMarkClick = { id ->
+                        val index = items.indexOfFirst { it.key == id }
+                        if (index >= 0) scope.launch { listState.animateScrollToItem(index + LANES_ITEMS, -listState.layoutInfo.lanesBottom()) }
+                    },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+                )
+            }
+        }
+        items(items, key = { it.key }) { item ->
+            when (item) {
+                is EventItem -> {
+                    var expanded by rememberSaveable(item.key) { mutableStateOf(item.key in initiallyExpanded) }
+                    EventRow(
+                        event = item.event,
+                        delta = item.delta,
+                        expanded = expanded,
+                        onToggle = { expanded = !expanded },
+                        inBand = item.inBand,
+                        isOldest = item.key == oldestEventKey,
+                        modifier = if (item.inBand) Modifier.screenBandBackground() else Modifier,
                     )
                 }
-                FilledTonalButton(
-                    onClick = { shareEvent(context, event) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp),
-                ) {
-                    Text("Share")
+                is SessionItem -> {
+                    var expanded by rememberSaveable(item.key) { mutableStateOf(item.key in initiallyExpanded) }
+                    SessionSummaryCard(item.event, expanded, onToggle = { expanded = !expanded })
                 }
+                is GapItem -> GapMarker(item.label)
+                is BandHeaderItem -> ScreenBandHeader(item)
+                is BandEndItem -> ScreenBandEnd()
             }
         }
     }
 }
 
-private fun shareEvent(context: Context, event: CapturedEvent) {
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, "Event: ${event.name}")
-        putExtra(Intent.EXTRA_TEXT, event.toPrettyJson())
-    }
-    context.startActivity(Intent.createChooser(intent, null))
-}
-
+@ScreenshotTest(ScreenshotSuite.Screens)
 @PreviewLightDark
 @Composable
-private fun EventLogScreenPreview() {
+internal fun EventLogScreenTimelinePreview() {
+    DebugPreviewTheme {
+        EventLogScreenContent(ViewerSampleData.events, {}, {}, initiallyExpanded = setOf(ViewerSampleData.expandedEventId))
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@PreviewLightDark
+@Composable
+internal fun EventLogScreenJourneyPreview() {
+    DebugPreviewTheme {
+        EventLogScreenContent(ViewerSampleData.events, {}, {}, initialView = 1, initiallyExpanded = setOf(ViewerSampleData.expandedEventId))
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@PreviewLightDark
+@Composable
+internal fun EventLogScreenSessionExpandedPreview() {
     DebugPreviewTheme {
         EventLogScreenContent(
-            events = listOf(
-                CapturedEvent("Add Favorite Clicked", mapOf("stopId" to "42"), "10:15:30", id = "1"),
-                CapturedEvent("Stop Details Viewed", emptyMap(), "10:15:12", id = "2"),
-                CapturedEvent("App Started", emptyMap(), "10:15:00", id = "3"),
-            ),
-            onClose = {},
-            onClear = {},
+            ViewerSampleData.events, {}, {},
+            initiallyExpanded = setOf(ViewerSampleData.expandedEventId, ViewerSampleData.sessionSummaryId),
         )
     }
 }
 
+@ScreenshotTest(ScreenshotSuite.Screens)
 @PreviewLightDark
 @Composable
-private fun EventLogScreenEmptyPreview() {
-    DebugPreviewTheme {
-        EventLogScreenContent(events = emptyList(), onClose = {}, onClear = {})
-    }
+internal fun EventLogScreenEmptyPreview() {
+    DebugPreviewTheme { EventLogScreenContent(emptyList(), {}, {}) }
+}
+
+private fun LazyListLayoutInfo.lanesBottom(): Int = visibleItemsInfo.firstOrNull { it.key == LANES_KEY }?.let { it.offset + it.size } ?: 0
+
+/**
+ * Time shown at [y] in the Journey list, interpolated inside the item at that height.
+ */
+private fun LazyListLayoutInfo.timeAt(y: Int, anchors: List<Long>): Long? {
+    val rows = visibleItemsInfo.filter { it.index >= LANES_ITEMS && it.index - LANES_ITEMS < anchors.size }
+    if (rows.isEmpty()) return null
+    val row = rows.firstOrNull { y < it.offset + it.size } ?: rows.last()
+    val fraction = ((y - row.offset).toFloat() / row.size).coerceIn(0f, 1f)
+    return anchorTime(anchors, row.index - LANES_ITEMS, fraction)
 }
