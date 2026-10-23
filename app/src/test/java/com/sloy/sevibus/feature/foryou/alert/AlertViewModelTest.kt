@@ -2,6 +2,7 @@ package com.sloy.sevibus.feature.foryou.alert
 
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.analytics.Analytics
 import com.sloy.sevibus.infrastructure.analytics.events.Events
@@ -36,7 +37,8 @@ class AlertViewModelTest {
 
     private val analytics = mock<Analytics>()
 
-    private fun card(serial: CardId, balance: Int?) = CardInfo(serialNumber = serial, code = 31, type = "Bonobús", balance = balance)
+    private fun card(serial: CardId, balance: Int) = CardInfo.BalanceCard(serialNumber = serial, code = 31, type = "Bonobús", balance = Money(balance))
+    private fun pass(serial: CardId) = CardInfo.PassCard(serialNumber = serial, code = 150, type = "Tarjeta 30 días", validity = null)
 
     @Before
     fun setUp() {
@@ -50,7 +52,7 @@ class AlertViewModelTest {
 
     @Test
     fun `hidden when no card has low balance`() = runTest {
-        cards.value = listOf(card(1, 1250), card(2, null))
+        cards.value = listOf(card(1, 1250), pass(2))
 
         val state = collectState()
 

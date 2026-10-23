@@ -3,6 +3,7 @@ package com.sloy.sevibus.infrastructure.analytics.events
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.StopId
 import com.sloy.sevibus.infrastructure.analytics.SevEvent
+import com.sloy.sevibus.infrastructure.analytics.analyticsValue
 
 interface Clicks {
 
@@ -26,6 +27,16 @@ interface Clicks {
         "Card Top Up Clicked",
         "cardType" to cardType,
         "balance" to balance
+    )
+
+    data object CardSerialCopied : SevEvent("Card Serial Copied")
+
+    enum class MoreInfoReason { PASS_EXPIRED, CARD_EXPIRED }
+
+    data class CardMoreInfoClicked(val cardType: Int, val reason: MoreInfoReason) : SevEvent(
+        "Card More Info Clicked",
+        "cardType" to cardType,
+        "reason" to reason.analyticsValue,
     )
 
     data class LocationButtonClicked(val state: String) : SevEvent(

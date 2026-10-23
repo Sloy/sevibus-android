@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.hasBalance
-import com.sloy.sevibus.domain.model.isLowBalance
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.analytics.Analytics
@@ -33,11 +31,12 @@ class AlertViewModel(
         clearDismissedAlertsWithHighBalance(cards, dismissedCardIds)
 
         cards
+            .filterIsInstance<CardInfo.BalanceCard>()
             .filter { it.isLowBalance }
             .filterNot { it.serialNumber in dismissedCardIds }
             .firstOrNull()
             ?.let { card ->
-                if (card.balance!! < 0) AlertState.NegativeBalance(card) else AlertState.LowBalance(card)
+                if (card.balance.isNegative) AlertState.NegativeBalance(card) else AlertState.LowBalance(card)
             } ?: AlertState.Hidden
     }
         .distinctUntilChanged()
@@ -69,7 +68,7 @@ class AlertViewModel(
     fun onDismissAlert() {
         viewModelScope.launch {
             runCatching {
-                val lowBalanceCardIds = cardsRepository.obtainUserCards().filter { it.isLowBalance }
+                val lowBalanceCardIds = cardsRepository.obtainUserCards().filterIsInstance<CardInfo.BalanceCard>().filter { it.isLowBalance }
                 if (lowBalanceCardIds.isNotEmpty()) {
                     cardsRepository.dismissAlertForCards(lowBalanceCardIds.map { it.serialNumber })
                 }
@@ -88,7 +87,8 @@ class AlertViewModel(
         dismissedCardIds: List<CardId>
     ) {
         cards
-            .filter { it.hasBalance && !it.isLowBalance }
+            .filterIsInstance<CardInfo.BalanceCard>()
+            .filter { !it.isLowBalance }
             .filter { it.serialNumber in dismissedCardIds }
             .forEach {
                 SevLogger.logD("Clearing dismissed alerts for: $it")

@@ -3,7 +3,7 @@ package com.sloy.sevibus.data.repository
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
 import com.sloy.sevibus.data.api.model.CardInfoDto
-import com.sloy.sevibus.data.api.model.CardTransactionDto
+import com.sloy.sevibus.data.api.model.toDomain
 import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
@@ -14,8 +14,6 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.LOW_BALANCE_THRESHOLD
 import com.sloy.sevibus.domain.model.CardTransaction
-import com.sloy.sevibus.domain.model.Line
-import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.domain.repository.LineRepository
 import com.sloy.sevibus.infrastructure.SevLogger
@@ -34,7 +32,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
-import java.time.LocalDateTime
 
 class RemoteAndLocalCardsRepository(
     private val sevibusDao: SevibusDao,
@@ -85,7 +82,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
+            api.getCardInfo(initialCardId, addMethod?.toApiValue()).toDomain()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null
@@ -120,7 +117,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun obtainTransactions(cardId: CardId): List<CardTransaction> {
         val lines = lineRepository.obtainLines()
-        return api.getCardTransactions(cardId).mapNotNull { it.fromDto(lines) }
+        return api.getCardTransactions(cardId).toDomain(lines)
     }
 
     override suspend fun dismissAlertForCards(cardIds: List<CardId>) {
@@ -151,15 +148,12 @@ class RemoteAndLocalCardsRepository(
         cards.forEach { card ->
             val remoteCard = checkCard(card.serialNumber)
             if (remoteCard != null) {
-                val updated = card.copy(
-                    balance = remoteCard.balance,
-                    type = remoteCard.type,
-                )
+                val updated = remoteCard.toEntity(order = card.order).copy(customName = card.customName)
                 if (updated != card) {
                     // Check if balance changed from below threshold to above threshold
                     val oldBalance = card.balance ?: 0
                     val newBalance = updated.balance ?: 0
-                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD.cents && newBalance >= LOW_BALANCE_THRESHOLD.cents) {
                         sevibusDao.clearDismissedAlert(card.serialNumber)
                     }
                     sevibusDao.putCard(updated)
@@ -188,7 +182,7 @@ class RemoteAndLocalCardsRepository(
                 if (localCard != null) {
                     val oldBalance = localCard.balance ?: 0
                     val newBalance = remoteCard.balance ?: 0
-                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD.cents && newBalance >= LOW_BALANCE_THRESHOLD.cents) {
                         sevibusDao.clearDismissedAlert(remoteCard.serialNumber)
                     }
                 }
@@ -204,64 +198,3 @@ private fun CardAddMethod.toApiValue(): String = when (this) {
     CardAddMethod.NFC -> "nfc"
     CardAddMethod.MANUAL -> "manual"
 }
-
-private fun CardInfoDto.fromDto(): CardInfo {
-    return CardInfo(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-    )
-}
-
-private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
-    return when (operation) {
-        "validation" -> CardTransaction.Validation(
-            serialNumber = serialNumber,
-            amount = amount ?: error("Amount is required for validation in card $this"),
-            date = runCatching { LocalDateTime.parse(date) }.getOrElse {
-                throw IllegalStateException(
-                    "Error formatting date $date for card $this",
-                    it
-                )
-            },
-            line = lines.find { it.label == lineLabel }?.toSummary()
-                ?: error("Line $lineLabel not found for transaction in card $this"),
-            bus = busId ?: error("Bus ID is required for validation in card $this"),
-            people = people ?: 1,
-        )
-
-        "topup" -> CardTransaction.TopUp(
-            serialNumber = serialNumber,
-            amount = amount ?: error("Amount is required for top-up in card $this"),
-            date = runCatching { LocalDateTime.parse(date) }.getOrElse {
-                throw IllegalStateException(
-                    "Error formatting date $date for card $this",
-                    it
-                )
-            },
-        )
-
-        "transfer" -> CardTransaction.Transfer(
-            serialNumber = serialNumber,
-            date = runCatching { LocalDateTime.parse(date) }.getOrElse {
-                throw IllegalStateException(
-                    "Error formatting date $date for card $this",
-                    it
-                )
-            },
-            line = lines.find { it.label == lineLabel }?.toSummary()
-                ?: error("Line $lineLabel not found for transaction in card $this"),
-            bus = busId ?: error("Bus ID is required for validation in card $this"),
-            people = people ?: 1,
-        )
-
-        else -> {
-            SevLogger.logW(msg = "Unknown operation $operation in card $this")
-            null
-        }
-    }
-}
-
-
