@@ -37,6 +37,26 @@ private fun CardsScreenCase(name: String) {
 @ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
+internal fun CardsScreenBalanceNormalPreview() = CardsScreenCase("BalanceNormal")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceGroupPreview() = CardsScreenCase("BalanceGroup")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceLowPreview() = CardsScreenCase("BalanceLow")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceNegativePreview() = CardsScreenCase("BalanceNegative")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
 internal fun CardsScreenPassActivePreview() = CardsScreenCase("PassActive")
 
 @ScreenshotTest(ScreenshotSuite.Screens)
@@ -53,3 +73,8 @@ internal fun CardsScreenPassExpiredPreview() = CardsScreenCase("PassExpired")
 @Preview
 @Composable
 internal fun CardsScreenCardExpiredPreview() = CardsScreenCase("CardExpired")
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassTransfersPreview() = CardsScreenCase("PassTransfers")
