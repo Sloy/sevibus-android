@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,7 +52,6 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Contactless
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -62,6 +60,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -103,7 +102,6 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.infrastructure.EventCollector
-import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.extensions.performHapticGestureStart
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
@@ -142,6 +140,7 @@ fun CardsScreen(
     val uriHandler = LocalUriHandler.current
 
     val nfcAnimation = remember { Animatable(1f) }
+    val today = remember { viewModel.today() }
 
     EventCollector(nfcStateManager.events) { nfcReadEvent ->
         viewModel.onNewCardNumber(
@@ -162,20 +161,23 @@ fun CardsScreen(
         }
     }
 
-    CardsScreen(
-        state,
-        newCardState,
-        nfcState,
-        onNewCardNumber = { serialNumber ->
-            viewModel.onNewCardNumber(serialNumber, CardAddMethod.MANUAL)
-        },
-        viewModel::onDeleteCard,
-        viewModel::onTopUpClicked,
-        viewModel::onStartReordering,
-        viewModel::onReorderingDone,
-        onNavigateToHelp,
-        nfcAnimation,
-    )
+    CompositionLocalProvider(LocalToday provides today) {
+        CardsScreen(
+            state,
+            newCardState,
+            nfcState,
+            onNewCardNumber = { serialNumber ->
+                viewModel.onNewCardNumber(serialNumber, CardAddMethod.MANUAL)
+            },
+            viewModel::onDeleteCard,
+            viewModel::onTopUpClicked,
+            viewModel::onMoreInfoClicked,
+            viewModel::onStartReordering,
+            viewModel::onReorderingDone,
+            onNavigateToHelp,
+            nfcAnimation,
+        )
+    }
 }
 
 
@@ -188,6 +190,7 @@ fun CardsScreen(
     onNewCardNumber: (String) -> Unit = {},
     onDeleteCard: (CardId) -> Unit = {},
     onTopUpClicked: (CardInfo) -> Unit = {},
+    onMoreInfoClicked: (CardInfo) -> Unit = {},
     onStartReorder: () -> Unit = {},
     onReorderDone: (List<CardInfo>) -> Unit = {},
     onNavigateToHelp: () -> Unit = {},
@@ -265,6 +268,7 @@ fun CardsScreen(
                                 onNewCardNumber,
                                 onDeleteCard,
                                 onTopUpClicked,
+                                onMoreInfoClicked,
                                 nfcAnimation,
                                 this@AnimatedContent,
                             )
@@ -288,6 +292,7 @@ private fun SharedTransitionScope.CardsScreenContent(
     onNewCardNumber: (String) -> Unit,
     onDeleteCard: (CardId) -> Unit,
     onTopUpClicked: (CardInfo) -> Unit,
+    onMoreInfoClicked: (CardInfo) -> Unit,
     nfcAnimation: Animatable<Float, AnimationVector1D>,
     animatedContentScope: AnimatedContentScope,
 ) {
@@ -355,6 +360,7 @@ private fun SharedTransitionScope.CardsScreenContent(
                 currentCardAndTransactions.transactions,
                 committedPage.previousCardHadBalance,
                 onTopUpClicked,
+                onMoreInfoClicked,
                 onDeleteCard = {
                     onDeleteCard(it)
                     scope.launch {
@@ -375,12 +381,17 @@ private fun ExistingCardsDetail(
     transactionsState: TransactionsState,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
+    onMoreInfoClicked: (CardInfo) -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
+    val transactions = (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty()
+    val status = cardStatusUi(currentCard, transactions, LocalToday.current)
     Column {
         CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
-        if (FeatureFlags.showCardUpdateWarning) {
-            InfoNote(Modifier.padding(top = 10.dp))
+        when (status) {
+            is CardStatusUi.Pass -> CardPassSection(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
+            is CardStatusUi.ExpiredCard -> CardExpiredNotice(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
+            is CardStatusUi.Balance, CardStatusUi.None -> Unit
         }
         Spacer(Modifier.size(24.dp))
         CardInfoElement(currentCard)
@@ -627,31 +638,6 @@ private fun CardsLoadingShimmer() {
 @Composable
 private fun CardsEmptyState(nfcState: NfcState, newCardState: CardsScreenNewCardState, onNewCardNumber: (String) -> Unit) {
     NewCardDetail(nfcState, newCardState, onNewCardNumber)
-}
-
-@Composable
-private fun InfoNote(modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
-        Icon(
-            Icons.Outlined.Info,
-            contentDescription = null,
-            tint = SevTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(
-            stringResource(R.string.cards_operations_delay_note),
-            style = SevTheme.typography.bodySmall,
-            color = SevTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
 }
 
 @Composable

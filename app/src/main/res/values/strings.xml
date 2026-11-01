@@ -97,6 +97,10 @@
     <string name="cards_validation">Validación</string>
     <string name="cards_transfer">Transbordo</string>
     <string name="cards_top_up_transaction">Recarga</string>
+    <string name="cards_no_balance_left">Sin saldo para más viajes</string>
+    <string name="cards_valid_until">Válida hasta</string>
+    <string name="cards_current_period_until">Periodo actual hasta</string>
+    <string name="cards_period_since">Desde %s</string>
     <string name="cards_error_not_found">Tarjeta no encontrada o número inválido</string>
     <string name="cards_error_search">Hubo un error al buscar la tarjeta, inténtalo más tarde</string>
     <string name="cards_error_already_saved">Ya tienes guardada esa tarjeta</string>
@@ -220,6 +224,8 @@
         <item quantity="other">Quedan %d días</item>
     </plurals>
     <string name="cards_last_day">Último día</string>
+    <string name="cards_next_period_paid">Siguiente periodo pagado</string>
+    <string name="cards_expired_ago">Caducada hace %s</string>
     <plurals name="cards_elapsed_days">
         <item quantity="one">%d día</item>
         <item quantity="other">%d días</item>
@@ -233,4 +239,6 @@
         <item quantity="other">%d años</item>
     </plurals>
     <string name="cards_more_info_button">Más información en Tussam</string>
+    <string name="cards_card_expired_title">Tarjeta caducada</string>
+    <string name="cards_card_expired_text">Caducó el %s.</string>
 </resources>

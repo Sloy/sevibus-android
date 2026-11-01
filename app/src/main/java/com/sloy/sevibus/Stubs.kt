@@ -6,6 +6,10 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.CustomIcon
+import com.sloy.sevibus.domain.model.PassValidity
+import com.sloy.sevibus.domain.model.PassPeriod
+import com.sloy.sevibus.domain.model.NextPeriod
+import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Fare
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
@@ -21,6 +25,7 @@ import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.feature.foryou.nearby.NearbyStop
 import com.sloy.sevibus.feature.lines.LinesScreenState
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -489,6 +494,106 @@ object Stubs {
     val cardTripTransactions: List<CardTransaction> = listOf(
         CardTransaction.Trip(700000011, transactionsDate, lines[4].toSummary(), people = 1, fare = Fare(Money(41))),
         CardTransaction.Trip(700000012, transactionsDate.minusDays(1), lines[2].toSummary(), people = 1, fare = Fare(Money(41))),
+    )
+
+    data class CardCase(val name: String, val card: CardInfo, val transactions: List<CardTransaction>)
+
+    val cardCasesToday: LocalDate = LocalDate.of(2026, 10, 10)
+
+    private fun cardLine(label: String): LineSummary =
+        lines.find { it.label == label }?.toSummary() ?: LineSummary(-1, label, LineColor.Unknown)
+
+    private fun cardTrip(
+        serialNumber: CardId,
+        date: LocalDateTime,
+        line: String,
+        fare: Int? = null,
+        people: Int = 1,
+        transfers: List<CardTransaction.Transfer> = emptyList(),
+    ) = CardTransaction.Trip(serialNumber, date, cardLine(line), people, fare?.let { Fare(Money(it)) }, transfers)
+
+    private fun cardTransfer(serialNumber: CardId, date: LocalDateTime, line: String) =
+        CardTransaction.Transfer(serialNumber, date, cardLine(line))
+
+    private fun passValidity(from: LocalDate, to: LocalDate, nextPeriod: NextPeriod? = null) =
+        PassValidity(PassPeriod(from, to), nextPeriod)
+
+    val cardCases: List<CardCase> = listOf(
+        CardCase(
+            name = "PassActive",
+            card = CardInfo.PassCard(
+                900000105, 150, "Tarjeta 30 días",
+                passValidity(LocalDate.of(2026, 10, 6), LocalDate.of(2026, 11, 4)),
+                expiresOn = LocalDate.of(2040, 8, 12),
+            ),
+            transactions = listOf(
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 9, 19, 45, 25), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 9, 7, 38, 8), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 8, 19, 58, 47), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 8, 7, 51, 8), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 7, 19, 52, 48), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 7, 7, 45, 18), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 6, 19, 57, 26), "02"),
+                cardTrip(900000105, LocalDateTime.of(2026, 10, 6, 7, 35, 46), "02"),
+            ),
+        ),
+        CardCase(
+            name = "PassNextPeriod",
+            card = CardInfo.PassCard(
+                900000106, 154, "Familia numerosa",
+                passValidity(LocalDate.of(2026, 9, 14), LocalDate.of(2026, 10, 13), NextPeriod.OnFirstUse),
+                expiresOn = LocalDate.of(2028, 5, 21),
+            ),
+            transactions = listOf(
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 9, 20, 16, 5), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 9, 15, 43, 20), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 9, 13, 41, 32), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 9, 8, 45, 42), "02"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 9, 7, 35, 53), "12"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 8, 20, 14, 45), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 8, 15, 39, 33), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 8, 13, 40, 36), "32"),
+                cardTrip(900000106, LocalDateTime.of(2026, 10, 8, 8, 41, 32), "02"),
+            ),
+        ),
+        CardCase(
+            name = "PassExpired",
+            card = CardInfo.PassCard(900000107, 103, "Bonobús solidario", passValidity(LocalDate.of(2026, 1, 28), LocalDate.of(2026, 7, 26))),
+            transactions = listOf(
+                cardTrip(900000107, LocalDateTime.of(2026, 7, 18, 23, 27, 31), "T1"),
+                cardTrip(900000107, LocalDateTime.of(2026, 7, 18, 21, 13, 25), "T1"),
+                cardTrip(900000107, LocalDateTime.of(2026, 6, 16, 9, 55, 27), "22"),
+                cardTrip(900000107, LocalDateTime.of(2026, 6, 15, 13, 3, 15), "06"),
+                cardTrip(
+                    900000107, LocalDateTime.of(2026, 6, 15, 11, 9, 30), "05",
+                    transfers = listOf(cardTransfer(900000107, LocalDateTime.of(2026, 6, 15, 11, 37, 50), "C1")),
+                ),
+                cardTrip(
+                    900000107, LocalDateTime.of(2026, 6, 11, 12, 43, 46), "02",
+                    transfers = listOf(cardTransfer(900000107, LocalDateTime.of(2026, 6, 11, 13, 2, 51), "03")),
+                ),
+                cardTrip(900000107, LocalDateTime.of(2026, 6, 8, 9, 45, 9), "52"),
+                cardTrip(900000107, LocalDateTime.of(2026, 6, 1, 10, 44, 39), "05"),
+            ),
+        ),
+        CardCase(
+            name = "CardExpired",
+            card = CardInfo.ExpiredCard(900000108, 116, "Estudiante mensual", expiresOn = LocalDate.of(2026, 8, 1)),
+            transactions = listOf(
+                cardTrip(900000108, LocalDateTime.of(2026, 4, 8, 12, 57, 48), "02"),
+                cardTrip(
+                    900000108, LocalDateTime.of(2026, 4, 8, 10, 29, 6), "37",
+                    transfers = listOf(cardTransfer(900000108, LocalDateTime.of(2026, 4, 8, 10, 47, 30), "C4")),
+                ),
+                cardTrip(900000108, LocalDateTime.of(2026, 4, 7, 19, 29, 6), "02"),
+                cardTrip(
+                    900000108, LocalDateTime.of(2026, 3, 23, 19, 57, 39), "C3",
+                    transfers = listOf(cardTransfer(900000108, LocalDateTime.of(2026, 3, 23, 20, 17, 27), "37")),
+                ),
+                cardTrip(900000108, LocalDateTime.of(2026, 3, 23, 17, 1, 30), "02"),
+                cardTrip(900000108, LocalDateTime.of(2026, 3, 17, 19, 46, 3), "01"),
+            ),
+        ),
     )
 
     @Deprecated("")

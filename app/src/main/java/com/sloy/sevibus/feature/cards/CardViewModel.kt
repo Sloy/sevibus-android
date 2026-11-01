@@ -20,12 +20,15 @@ import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import java.time.Clock
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModel(
     private val cardsRepository: CardsRepository,
     private val analytics: Analytics,
     initialCardId: CardId? = null,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
 
     val events = MutableSharedFlow<CardsScreenEvent>()
@@ -121,6 +124,8 @@ class CardViewModel(
             events.emit(CardsScreenEvent.ShowMessage("Número de serie copiado"))
         }
     }
+
+    fun today(): LocalDate = LocalDate.now(clock)
 
     fun onDeleteCard(cardId: CardId) {
         val cardType = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()?.find { it.serialNumber == cardId }?.type
