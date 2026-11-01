@@ -81,10 +81,13 @@ private fun CardTransactionDto.toDomain(lines: List<Line>): CardTransaction? {
     }
     val line = lineOf(lines)
     val money = amount?.let(::Money)
+    val balance = balanceAfter?.let(::Money)
     val transaction = when (operation) {
-        "validation" -> line?.let { CardTransaction.Trip(serialNumber, parsedDate, it, people ?: 1, money?.let(::Fare)) }
+        "validation" -> line?.let {
+            CardTransaction.Trip(serialNumber, parsedDate, it, people ?: 1, balance?.let { after -> Fare(money ?: Money(0), after) })
+        }
         "transfer" -> line?.let { CardTransaction.Transfer(serialNumber, parsedDate, it) }
-        "topup" -> money?.let { CardTransaction.TopUp(serialNumber, parsedDate, it) }
+        "topup" -> if (money != null && balance != null) CardTransaction.TopUp(serialNumber, parsedDate, money, balance) else null
         else -> null
     }
     if (transaction == null) SevLogger.logW(msg = "Unsupported card transaction $this")

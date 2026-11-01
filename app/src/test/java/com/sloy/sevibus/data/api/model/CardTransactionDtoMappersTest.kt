@@ -19,23 +19,36 @@ class CardTransactionDtoMappersTest {
     private val summary02 = LineSummary(2, "02", LineColor.Red)
     private val serial = 900000001L
 
-    private fun dto(date: String, operation: String, amount: Int? = null, lineLabel: String? = null, people: Int? = null) =
-        CardTransactionDto(serial, date, operation, amount, lineLabel, busId = 1, people = people)
+    private fun dto(date: String, operation: String, amount: Int? = null, lineLabel: String? = null, people: Int? = null, balanceAfter: Int? = null) =
+        CardTransactionDto(serial, date, operation, amount, lineLabel, busId = 1, people = people, balanceAfter = balanceAfter)
 
     private fun at(day: Int, hour: Int, minute: Int) = LocalDateTime.of(2026, 10, day, hour, minute)
 
     @Test
     fun `maps a balance card trip with its fare`() {
-        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 92, lineLabel = "02", people = 2)).toDomain(lines)
+        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 92, lineLabel = "02", people = 2, balanceAfter = 452)).toDomain(lines)
 
-        expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), summary02, 2, Fare(Money(92))))
+        expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), summary02, 2, Fare(Money(92), Money(452))))
+    }
+
+    @Test
+    fun `maps a free trip on a balance card and a trip on a pass`() {
+        val transactions = listOf(
+            dto("2026-10-09T20:16:00", "validation", amount = 0, lineLabel = "02", balanceAfter = 452),
+            dto("2026-10-08T20:16:00", "validation", amount = 0, lineLabel = "02"),
+        ).toDomain(lines)
+
+        expectThat(transactions).containsExactly(
+            CardTransaction.Trip(serial, at(9, 20, 16), summary02, 1, Fare(Money(0), Money(452))),
+            CardTransaction.Trip(serial, at(8, 20, 16), summary02, 1, fare = null),
+        )
     }
 
     @Test
     fun `falls back to an unknown line badge`() {
         val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 0, lineLabel = "N9")).toDomain(lines)
 
-        expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), LineSummary(-1, "N9", LineColor.Unknown), 1, Fare(Money(0))))
+        expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), LineSummary(-1, "N9", LineColor.Unknown), 1, null))
     }
 
     @Test
@@ -58,7 +71,7 @@ class CardTransactionDtoMappersTest {
 
         expectThat(transactions).containsExactly(
             CardTransaction.Trip(
-                serial, at(5, 12, 56).plusSeconds(17), summary02, 1, Fare(Money(0)),
+                serial, at(5, 12, 56).plusSeconds(17), summary02, 1, null,
                 transfers = listOf(
                     CardTransaction.Transfer(serial, at(5, 13, 18).plusSeconds(19), LineSummary(-1, "B4", LineColor.Unknown)),
                     CardTransaction.Transfer(serial, at(5, 13, 45).plusSeconds(39), LineSummary(-1, "28", LineColor.Unknown)),
@@ -83,15 +96,15 @@ class CardTransactionDtoMappersTest {
         val transactions = listOf(
             dto("2026-10-08T14:31:27", "transfer", lineLabel = "02"),
             dto("2026-10-08T08:15:57", "transfer", lineLabel = "02"),
-            dto("2026-10-07T20:00:00", "topup", amount = 1000),
-            dto("2026-10-07T19:50:00", "validation", amount = 46, lineLabel = "02"),
+            dto("2026-10-07T20:00:00", "topup", amount = 1000, balanceAfter = 1074),
+            dto("2026-10-07T19:50:00", "validation", amount = 46, lineLabel = "02", balanceAfter = 74),
         ).toDomain(lines)
 
         expectThat(transactions).containsExactly(
             CardTransaction.Transfer(serial, at(8, 14, 31).plusSeconds(27), summary02),
             CardTransaction.Transfer(serial, at(8, 8, 15).plusSeconds(57), summary02),
-            CardTransaction.TopUp(serial, at(7, 20, 0), Money(1000)),
-            CardTransaction.Trip(serial, at(7, 19, 50), summary02, 1, Fare(Money(46))),
+            CardTransaction.TopUp(serial, at(7, 20, 0), Money(1000), Money(1074)),
+            CardTransaction.Trip(serial, at(7, 19, 50), summary02, 1, Fare(Money(46), Money(74))),
         )
     }
 }

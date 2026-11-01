@@ -25,9 +25,11 @@ sealed interface CardTransaction {
         override val serialNumber: CardId,
         override val date: LocalDateTime,
         val amount: Money,
+        val balanceAfter: Money,
     ) : CardTransaction
 }
 
-data class Fare(val total: Money) {
+data class Fare(val total: Money, val balanceAfter: Money) {
     val isFree: Boolean get() = !total.isPositive
+    fun perPerson(people: Int): Money = total / people
 }

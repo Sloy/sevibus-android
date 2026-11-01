@@ -16,7 +16,7 @@ class CardBalanceTest {
     private val later = LocalDateTime.of(2026, 3, 10, 8, 0)
 
     private fun trip(fare: Int, date: LocalDateTime = later, people: Int = 1) =
-        CardTransaction.Trip(1, date, line, people, Fare(Money(fare)))
+        CardTransaction.Trip(1, date, line, people, Fare(Money(fare), Money(500)))
 
     private fun card(balance: Int) = CardInfo.BalanceCard(serialNumber = 1, code = 31, type = "Bonobús", balance = Money(balance))
 
@@ -55,9 +55,14 @@ class CardBalanceTest {
     }
 
     @Test
+    fun `trips use the fare per person of a group trip`() {
+        expectThat(estimatedTrips(Money(150), listOf(trip(100, people = 2)))).isEqualTo(3)
+    }
+
+    @Test
     fun `trips ignore pass trips, transfers and top ups`() {
         val transactions = listOf(
-            CardTransaction.TopUp(1, later, Money(1000)),
+            CardTransaction.TopUp(1, later, Money(1000), Money(1150)),
             CardTransaction.Transfer(1, later, line),
             CardTransaction.Trip(1, later, line, 1, fare = null),
         )
