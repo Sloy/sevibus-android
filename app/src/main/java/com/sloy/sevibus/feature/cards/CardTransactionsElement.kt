@@ -35,6 +35,8 @@ import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.theme.SevTheme
 
+internal const val MINUS = "−"
+
 @Composable
 fun CardTransactionsElement(cardInfoTransactions: List<CardTransaction>) {
     val rows = cardInfoTransactions.flatMap { if (it is CardTransaction.Trip) listOf(it) + it.transfers else listOf(it) }
