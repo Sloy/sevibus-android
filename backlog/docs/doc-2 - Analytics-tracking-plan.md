@@ -7,7 +7,7 @@ updated_date: '2026-10-08 12:14'
 ---
 Source of truth for Amplitude (and Firebase Analytics) events in the Android app. Implemented by SEVAND-12. Discussion and dashboards live in the "SeviBus — Amplitude analytics plan" doc (Tracking plan tab). Keep this file, the code in `infrastructure/analytics/events/` and the Amplitude tracking plan (project SeviBus Prod) in sync.
 
-61 events: 24 new, 13 changed, 24 unchanged. All ship in one release. Amplitude's tracking plan (SeviBus Prod) mirrors this list; new events are added there as planned, so anything that arrives off-plan shows as unexpected.
+63 events: 26 new, 13 changed, 24 unchanged. All ship in one release. Amplitude's tracking plan (SeviBus Prod) mirrors this list; new events are added there as planned, so anything that arrives off-plan shows as unexpected.
 
 ## Conventions
 
@@ -138,6 +138,8 @@ Computed in the app for `Session Summary.sessionType`. Thresholds are first gues
 | Card Alert Displayed | Existing | Low or negative balance alert shown in For You. | `balanceType` enum (low, negative) |
 | Card Alert View Clicked | Existing | Alert tapped. | — |
 | Card Alert Dismiss Clicked | Existing | Alert dismissed. | — |
+| Card More Info Clicked | New | "Más información en Tussam" tapped on an expired pass or an expired card. | `cardType` number (card code); `reason` enum (pass_expired, card_expired) |
+| Card Serial Copied | New | Serial number copied from the card details. | — |
 
 ### Settings and app
 

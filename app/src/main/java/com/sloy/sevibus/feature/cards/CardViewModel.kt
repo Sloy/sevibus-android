@@ -107,6 +107,21 @@ class CardViewModel(
             analytics.track(Clicks.CardTopUpClicked(card.type, (card as? CardInfo.BalanceCard)?.balance?.cents))
         }
     }
+    fun onMoreInfoClicked(card: CardInfo) {
+        val reason = if (card is CardInfo.ExpiredCard) Clicks.MoreInfoReason.CARD_EXPIRED else Clicks.MoreInfoReason.PASS_EXPIRED
+        viewModelScope.launch {
+            events.emit(CardsScreenEvent.LaunchUri(TUSSAM_TITLES_URL))
+            analytics.track(Clicks.CardMoreInfoClicked(card.code, reason))
+        }
+    }
+
+    fun onSerialCopied() {
+        analytics.track(Clicks.CardSerialCopied)
+        viewModelScope.launch {
+            events.emit(CardsScreenEvent.ShowMessage("Número de serie copiado"))
+        }
+    }
+
     fun onDeleteCard(cardId: CardId) {
         val cardType = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()?.find { it.serialNumber == cardId }?.type
         viewModelScope.launch {
