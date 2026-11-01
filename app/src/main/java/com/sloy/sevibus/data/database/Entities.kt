@@ -6,6 +6,8 @@ import androidx.room.Entity
 import androidx.room.Fts4
 import androidx.room.PrimaryKey
 import com.sloy.sevibus.data.api.model.CardInfoDto
+import com.sloy.sevibus.data.api.model.CardNextPeriodDto
+import com.sloy.sevibus.data.api.model.CardPassDto
 import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
@@ -19,6 +21,7 @@ import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.LineSummary
+import com.sloy.sevibus.domain.model.NextPeriod
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Polyline
@@ -104,6 +107,14 @@ data class CardInfoEntity(
     val balance: Int? = null,
     val customName: String? = null,
     val order: Int = 0,
+    val kind: String? = null,
+    @ColumnInfo(defaultValue = "0") val expired: Boolean = false,
+    val passFrom: String? = null,
+    val passTo: String? = null,
+    val nextPeriodType: String? = null,
+    val nextPeriodFrom: String? = null,
+    val nextPeriodTo: String? = null,
+    val expiresOn: String? = null,
 )
 
 @Entity(tableName = "dismissed_alerts")
@@ -201,6 +212,8 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
 fun CardInfoEntity.fromEntity(): CardInfo = toDto().toDomain()
 
 fun CardInfo.toEntity(order: Int): CardInfoEntity {
+    val validity = (this as? CardInfo.PassCard)?.validity
+    val nextPeriod = validity?.nextPeriod
     return CardInfoEntity(
         serialNumber = serialNumber,
         code = code,
@@ -208,18 +221,36 @@ fun CardInfo.toEntity(order: Int): CardInfoEntity {
         balance = (this as? CardInfo.BalanceCard)?.balance?.cents,
         customName = customName,
         order = order,
+        kind = if (this is CardInfo.BalanceCard) "balance" else "pass",
+        expired = this is CardInfo.ExpiredCard,
+        passFrom = validity?.period?.from?.toString(),
+        passTo = validity?.period?.to?.toString(),
+        nextPeriodType = when (nextPeriod) {
+            is NextPeriod.Scheduled -> "scheduled"
+            NextPeriod.OnFirstUse -> "on_first_use"
+            null -> null
+        },
+        nextPeriodFrom = (nextPeriod as? NextPeriod.Scheduled)?.period?.from?.toString(),
+        nextPeriodTo = (nextPeriod as? NextPeriod.Scheduled)?.period?.to?.toString(),
+        expiresOn = expiresOn?.toString(),
     )
 }
 
-fun CardInfoEntity.toDto(): CardInfoDto {
-    return CardInfoDto(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-        order = order,
-    )
-}
+fun CardInfoEntity.toDto(): CardInfoDto = CardInfoDto(
+    serialNumber = serialNumber,
+    code = code,
+    type = type,
+    balance = balance,
+    customName = customName,
+    order = order,
+    kind = kind,
+    expired = expired,
+    pass = if (passFrom != null && passTo != null) {
+        CardPassDto(passFrom, passTo, nextPeriodType?.let { CardNextPeriodDto(it, nextPeriodFrom, nextPeriodTo) })
+    } else {
+        null
+    },
+    expiresOn = expiresOn,
+)
 
 fun CardInfoDto.toEntity(): CardInfoEntity = toDomain().toEntity(order)
