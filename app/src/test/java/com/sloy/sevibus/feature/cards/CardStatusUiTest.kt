@@ -23,7 +23,7 @@ class CardStatusUiTest {
     private fun passCard(from: LocalDate, to: LocalDate, nextPeriod: NextPeriod? = null, expiresOn: LocalDate? = null) =
         CardInfo.PassCard(900000001, 150, "Tarjeta 30 días", PassValidity(PassPeriod(from, to), nextPeriod), expiresOn = expiresOn)
     private fun expiredCard(expiresOn: LocalDate) = CardInfo.ExpiredCard(900000001, 116, "Estudiante mensual", expiresOn = expiresOn)
-    private val trip = CardTransaction.Trip(900000001, LocalDateTime.of(2026, 10, 9, 8, 0), Stubs.lines[0].toSummary(), 1, Fare(Money(46)))
+    private val trip = CardTransaction.Trip(900000001, LocalDateTime.of(2026, 10, 9, 8, 0), Stubs.lines[0].toSummary(), 1, Fare(Money(46), Money(1074)))
 
     @Test
     fun `normal balance`() {

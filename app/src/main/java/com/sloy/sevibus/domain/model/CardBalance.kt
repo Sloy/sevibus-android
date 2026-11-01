@@ -3,7 +3,7 @@ package com.sloy.sevibus.domain.model
 val LOW_BALANCE_THRESHOLD = Money(100)
 
 /**
- * Estimates how many trips a card can still pay, using the cost of its most recent paid trip.
+ * Estimates how many trips a card can still pay, using the fare per person of its most recent paid trip.
  *
  * The balance may go negative, but a card with a negative or zero balance cannot be used. Any positive
  * balance allows one more trip even if it does not cover the full fare, so the result is rounded up:
@@ -16,7 +16,7 @@ fun estimatedTrips(balance: Money, transactions: List<CardTransaction>): Int? {
         .filterIsInstance<CardTransaction.Trip>()
         .filter { it.fare?.isFree == false }
         .maxByOrNull { it.date }
-        ?.fare?.total?.cents
+        ?.let { it.fare!!.perPerson(it.people).cents }
         ?: return null
     return if (balance.isPositive) (balance.cents + tripCost - 1) / tripCost else null
 }

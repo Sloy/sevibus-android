@@ -483,17 +483,17 @@ object Stubs {
 
     @Deprecated("")
     val cardInfoTransactions: List<CardTransaction> = listOf(
-        CardTransaction.Trip(700000001, transactionsDate, lines[4].toSummary(), people = 2, fare = Fare(Money(350))),
-        CardTransaction.Trip(700000002, transactionsDate, lines[2].toSummary(), people = 1, fare = Fare(Money(350))),
-        CardTransaction.TopUp(700000003, transactionsDate, Money(10000)),
-        CardTransaction.Trip(700000004, transactionsDate, lines[34].toSummary(), people = 2, fare = Fare(Money(350))),
-        CardTransaction.Trip(700000005, transactionsDate, lines[34].toSummary(), people = 1, fare = Fare(Money(350))),
+        cardTrip(700000001, transactionsDate, lines[4].label, fare = 700, balanceAfter = 9300, people = 2),
+        cardTrip(700000002, transactionsDate, lines[2].label, fare = 350, balanceAfter = 10000),
+        CardTransaction.TopUp(700000003, transactionsDate, Money(10000), Money(10350)),
+        cardTrip(700000004, transactionsDate, lines[34].label, fare = 700, balanceAfter = 350, people = 2),
+        cardTrip(700000005, transactionsDate, lines[34].label, fare = 350, balanceAfter = 1050),
     )
 
     @Deprecated("")
     val cardTripTransactions: List<CardTransaction> = listOf(
-        CardTransaction.Trip(700000011, transactionsDate, lines[4].toSummary(), people = 1, fare = Fare(Money(41))),
-        CardTransaction.Trip(700000012, transactionsDate.minusDays(1), lines[2].toSummary(), people = 1, fare = Fare(Money(41))),
+        cardTrip(700000011, transactionsDate, lines[4].label, fare = 41, balanceAfter = 804),
+        cardTrip(700000012, transactionsDate.minusDays(1), lines[2].label, fare = 41, balanceAfter = 845),
     )
 
     data class CardCase(val name: String, val card: CardInfo, val transactions: List<CardTransaction>)
@@ -508,9 +508,10 @@ object Stubs {
         date: LocalDateTime,
         line: String,
         fare: Int? = null,
+        balanceAfter: Int? = null,
         people: Int = 1,
         transfers: List<CardTransaction.Transfer> = emptyList(),
-    ) = CardTransaction.Trip(serialNumber, date, cardLine(line), people, fare?.let { Fare(Money(it)) }, transfers)
+    ) = CardTransaction.Trip(serialNumber, date, cardLine(line), people, balanceAfter?.let { Fare(Money(fare ?: 0), Money(it)) }, transfers)
 
     private fun cardTransfer(serialNumber: CardId, date: LocalDateTime, line: String) =
         CardTransaction.Transfer(serialNumber, date, cardLine(line))
@@ -523,14 +524,15 @@ object Stubs {
             name = "BalanceNormal",
             card = CardInfo.BalanceCard(900000101, 31, "Bonobús sin transbordo", Money(869)),
             transactions = listOf(
-                cardTrip(900000101, LocalDateTime.of(2026, 10, 5, 17, 6, 28), "21", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 10, 1, 10, 28, 59), "41", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 30, 20, 24, 7), "41", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 29, 10, 11, 5), "41", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 22, 10, 10, 18), "41"),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 21, 13, 18, 40), "41", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 21, 11, 36), "41", fare = 41),
-                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 20, 5, 12), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 10, 5, 17, 6, 28), "21", fare = 41, balanceAfter = 869),
+                cardTrip(900000101, LocalDateTime.of(2026, 10, 1, 10, 28, 59), "41", fare = 41, balanceAfter = 910),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 30, 20, 24, 7), "41", fare = 41, balanceAfter = 951),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 29, 10, 11, 5), "41", fare = 41, balanceAfter = 992),
+                CardTransaction.TopUp(900000101, LocalDateTime.of(2026, 9, 28, 12, 46, 3), Money(1000), Money(1074)),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 22, 10, 10, 18), "41", balanceAfter = 74),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 21, 13, 18, 40), "41", fare = 41, balanceAfter = 74),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 21, 11, 36), "41", fare = 41, balanceAfter = 115),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 20, 5, 12), "41", fare = 41, balanceAfter = 156),
             ),
         ),
         CardCase(

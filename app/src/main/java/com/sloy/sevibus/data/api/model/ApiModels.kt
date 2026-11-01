@@ -126,6 +126,7 @@ data class CardTransactionDto(
     val lineLabel: String? = null,
     val busId: BusId? = null,
     val people: Int? = null,
+    val balanceAfter: Int? = null,
 )
 
 @Serializable
