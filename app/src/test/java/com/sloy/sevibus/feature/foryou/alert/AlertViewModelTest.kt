@@ -38,7 +38,7 @@ class AlertViewModelTest {
     private val analytics = mock<Analytics>()
 
     private fun card(serial: CardId, balance: Int) = CardInfo.BalanceCard(serialNumber = serial, code = 31, type = "Bonobús", balance = Money(balance))
-    private fun pass(serial: CardId) = CardInfo.PassCard(serialNumber = serial, code = 150, type = "Tarjeta 30 días")
+    private fun pass(serial: CardId) = CardInfo.PassCard(serialNumber = serial, code = 150, type = "Tarjeta 30 días", validity = null)
 
     @Before
     fun setUp() {
