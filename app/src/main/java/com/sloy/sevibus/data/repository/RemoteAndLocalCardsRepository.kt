@@ -2,7 +2,7 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
-import com.sloy.sevibus.data.api.model.CardTransactionDto
+import com.sloy.sevibus.data.api.model.CardInfoDto
 import com.sloy.sevibus.data.api.model.fromDto
 import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
@@ -198,5 +198,3 @@ private fun CardAddMethod.toApiValue(): String = when (this) {
     CardAddMethod.NFC -> "nfc"
     CardAddMethod.MANUAL -> "manual"
 }
-
-
