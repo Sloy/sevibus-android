@@ -37,18 +37,19 @@ import com.sloy.sevibus.ui.theme.SevTheme
 
 @Composable
 fun CardTransactionsElement(cardInfoTransactions: List<CardTransaction>) {
+    val rows = cardInfoTransactions.flatMap { if (it is CardTransaction.Trip) listOf(it) + it.transfers else listOf(it) }
     Card(
         Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
     ) {
-        cardInfoTransactions.forEachIndexed { index, transaction ->
+        rows.forEachIndexed { index, transaction ->
             when (transaction) {
                 is CardTransaction.TopUp -> TopUpItem(transaction)
-                is CardTransaction.Validation -> ValidationItem(transaction)
+                is CardTransaction.Trip -> TripItem(transaction)
                 is CardTransaction.Transfer -> TransferItem(transaction)
             }
-            if (index != cardInfoTransactions.lastIndex) {
+            if (index != rows.lastIndex) {
                 HorizontalDivider(Modifier.padding(horizontal = 16.dp))
             }
         }
@@ -145,16 +146,18 @@ private fun TitleSubtitleShimmer() {
 
 
 @Composable
-private fun ValidationItem(transaction: CardTransaction.Validation) {
+private fun TripItem(transaction: CardTransaction.Trip) {
     TitleSubtitleItem(stringResource(R.string.cards_validation), DateFormatter.dayMonthTime(transaction.date),
         startAccessory = {
             LineIndicator(transaction.line)
         },
         endAccessory = {
-            Text(
-                MoneyFormatter.fromCents(transaction.amount * -1, showPlusWhenPositive = true),
-                style = SevTheme.typography.bodySmallBold
-            )
+            transaction.fare?.let { fare ->
+                Text(
+                    MoneyFormatter.format(-fare.total, showPlusWhenPositive = true),
+                    style = SevTheme.typography.bodySmallBold
+                )
+            }
         }
     )
 }
@@ -176,7 +179,7 @@ private fun TopUpItem(transaction: CardTransaction.TopUp) {
         },
         endAccessory = {
             Text(
-                MoneyFormatter.fromCents(transaction.amount, showPlusWhenPositive = true),
+                MoneyFormatter.format(transaction.amount, showPlusWhenPositive = true),
                 style = SevTheme.typography.bodySmallBold
             )
         })
