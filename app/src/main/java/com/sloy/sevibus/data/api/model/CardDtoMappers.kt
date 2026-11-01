@@ -7,14 +7,44 @@ import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineSummary
 import com.sloy.sevibus.domain.model.Money
+import com.sloy.sevibus.domain.model.NextPeriod
+import com.sloy.sevibus.domain.model.PassPeriod
+import com.sloy.sevibus.domain.model.PassValidity
 import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.infrastructure.SevLogger
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 
-fun CardInfoDto.toDomain(): CardInfo = when (balance) {
-    null -> CardInfo.PassCard(serialNumber, code, type, customName)
-    else -> CardInfo.BalanceCard(serialNumber, code, type, Money(balance), customName)
+fun String?.toLocalDateOrNull(): LocalDate? = this?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+
+private fun periodOf(from: String?, to: String?): PassPeriod? {
+    val start = from.toLocalDateOrNull() ?: return null
+    val end = to.toLocalDateOrNull() ?: return null
+    return PassPeriod(start, end)
+}
+
+private fun CardNextPeriodDto.toDomain(): NextPeriod? = when (type) {
+    "scheduled" -> periodOf(from, to)?.let { NextPeriod.Scheduled(it) }
+    "on_first_use" -> NextPeriod.OnFirstUse
+    else -> null
+}
+
+fun CardPassDto.toDomain(): PassValidity? {
+    val period = periodOf(from, to) ?: run {
+        SevLogger.logW(msg = "Unparseable pass period $from - $to")
+        return null
+    }
+    return PassValidity(period, nextPeriod?.toDomain())
+}
+
+fun CardInfoDto.toDomain(): CardInfo {
+    val expiresOn = expiresOn.toLocalDateOrNull()
+    return when {
+        expired -> CardInfo.ExpiredCard(serialNumber, code, type, customName, expiresOn)
+        kind != "pass" && balance != null -> CardInfo.BalanceCard(serialNumber, code, type, Money(balance), customName, expiresOn)
+        else -> CardInfo.PassCard(serialNumber, code, type, pass?.toDomain(), customName, expiresOn)
+    }
 }
 
 private const val UNKNOWN_LINE_ID = -1
