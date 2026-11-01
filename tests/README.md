@@ -11,7 +11,7 @@ Prerequisites:
 - An Android emulator with Google Play services, or a real device. The device language must be **Spanish (Spain, `es-ES`)**, the app's default language. `run.sh` refuses to run with any other locale. See [Emulator](#emulator) for the recommended setup.
 - A real device must be awake and unlocked when the run starts.
 - The build under test installed (`com.sloy.sevibus.debug` by default).
-- Maestro CLI 2.x (`maestro --version`).
+- Maestro CLI 2.x (`maestro --version`), or [Speedrun](#running-with-speedrun) to run the same flows faster.
 - JDK 21 on `PATH`. WireMock is a jar downloaded on first use into `build/` (SHA-256 checked) and started by `run.sh` for integration flows.
 - Optional: [fzf](https://github.com/junegunn/fzf) for the interactive flow picker. Without it, `run.sh` shows a numbered list.
 - No Maestro MCP server connected. It holds host port 7001 and the CLI hangs (`DEADLINE_EXCEEDED`). Disconnect it in `/mcp` first.
@@ -82,6 +82,21 @@ Environment variables:
 | `MOCK_PORT` | `8089` | WireMock port for integration flows. An existing WireMock on it is reused, any other listener makes `run.sh` pick the next free port |
 | `MAP_MODE` | `disabled` | `debugMapMode` launch argument. `disabled` keeps the home map out of the composition, `full` shows it |
 | `REPORT_DIR` | `build/reports` | JUnit report (`junit.xml`), failure screenshots, `wiremock.log` and `wiremock-requests.json` |
+| `RUNNER` | `maestro` | `maestro` or `speedrun`. The `--speedrun` argument is the same as `RUNNER=speedrun` |
+
+### Running with Speedrun
+
+[Speedrun](https://github.com/hubastard/speedrun) reads the Maestro flow format, so the same flows run with it. It is optional and experimental here:
+
+```bash
+./scripts/run.sh --speedrun integration           # same selection, arguments and reports as with Maestro
+./scripts/run.sh --speedrun integration/search/search-01-find-line.yaml
+```
+
+- Install it with `brew install hubastard/tap/speedrun` (see its README for other ways). Nothing else changes: `run.sh` prepares the device and WireMock the same way, and `speedrun test` writes the same JUnit report and `retry` config.
+- Run `adb unroot` first if the device was rooted to set the language: with `adb root` active every `launchApp` fails with `No launcher intent found`.
+- Use the recommended emulator. Speedrun types fast and sometimes left characters out of order in our search field (`sebastian` as `sbastiane`): once in two full runs on the recommended emulator, and much more often on a Play Store image with background load. Retry a flow that fails at the search subflow before looking for another cause.
+- The Maestro MCP server check and the live `▶ [n/total]` progress lines only apply to Maestro. The log goes to `build/reports/debug/speedrun.log`.
 
 ### E2E: the dev backend
 
