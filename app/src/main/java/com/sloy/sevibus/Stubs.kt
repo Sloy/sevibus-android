@@ -10,6 +10,7 @@ import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LoggedUser
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.domain.model.Position
 import com.sloy.sevibus.domain.model.Route
 import com.sloy.sevibus.domain.model.RouteWithStops
@@ -296,152 +297,158 @@ object Stubs {
     }
 
     @Deprecated("")
-    val cardWithAllFields = CardInfo(
+    val cardWithAllFields = CardInfo.BalanceCard(
         code = 30,
         type = "Full test",
         customName = "La de Laura",
-        balance = 8450,
+        balance = Money(8450),
         serialNumber = 794836666,
     )
 
     @Deprecated("")
-    val cards = listOf(
-        CardInfo(
+    val cards: List<CardInfo> = listOf(
+        CardInfo.BalanceCard(
             code = 31,
             type = "Sin transbordo",
             customName = "Bono Laura",
-            balance = 845,
+            balance = Money(845),
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 70,
             type = "Hijo de empleado",
             customName = "La de paco",
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 116,
             type = "Estudiante mensual",
             customName = "Estudiante",
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.BalanceCard(
             code = 30,
             type = "Saldo con transbordo",
             customName = "Números rojos",
-            balance = -45,
+            balance = Money(-45),
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.BalanceCard(
             code = 117,
             type = "Diversidad funcional",
             customName = null,
-            balance = -45,
+            balance = Money(-45),
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 71,
             type = "Familiar de empleado",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 101,
             type = "Joven",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 102,
             type = "Algo de Tussam",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 103,
             type = "Solidaria",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 104,
             type = "3ª edad",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 109,
             type = "Social",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 115,
             type = "Estudiante",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 116,
             type = "Estudiante mensual",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 117,
             type = "Diversidad funcional",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 118,
             type = "Infantil",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 150,
             type = "30 días",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 151,
             type = "Turística 1 día",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 152,
             type = "Turística 3 días",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 154,
             type = "Familia numerosa",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 155,
             type = "Familia numerosa especial",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 156,
             type = "Anual",
             customName = null,
             serialNumber = nextCardSerial()
         ),
-        CardInfo(
+        CardInfo.PassCard(
             code = 201,
             type = "Pensionista",
             customName = null,
             serialNumber = nextCardSerial()
         ),
     )
+
+    val balanceCard: CardInfo.BalanceCard
+        get() = cards[0] as CardInfo.BalanceCard
+
+    val negativeBalanceCard: CardInfo.BalanceCard
+        get() = cards[3] as CardInfo.BalanceCard
 
     private var cardSerialCounter = 100000000L
     private fun nextCardSerial(): CardId = cardSerialCounter++

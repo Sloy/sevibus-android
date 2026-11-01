@@ -10,6 +10,7 @@ import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
+import com.sloy.sevibus.data.api.model.toDomain
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CustomIcon
@@ -197,22 +198,14 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
     )
 }
 
-fun CardInfoEntity.fromEntity(): CardInfo {
-    return CardInfo(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-    )
-}
+fun CardInfoEntity.fromEntity(): CardInfo = toDto().toDomain()
 
 fun CardInfo.toEntity(order: Int): CardInfoEntity {
     return CardInfoEntity(
         serialNumber = serialNumber,
         code = code,
         type = type,
-        balance = balance,
+        balance = (this as? CardInfo.BalanceCard)?.balance?.cents,
         customName = customName,
         order = order,
     )
@@ -229,13 +222,4 @@ fun CardInfoEntity.toDto(): CardInfoDto {
     )
 }
 
-fun CardInfoDto.toEntity(): CardInfoEntity {
-    return CardInfoEntity(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-        order = order,
-    )
-}
+fun CardInfoDto.toEntity(): CardInfoEntity = toDomain().toEntity(order)

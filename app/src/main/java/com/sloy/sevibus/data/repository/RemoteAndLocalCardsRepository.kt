@@ -2,7 +2,7 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
-import com.sloy.sevibus.data.api.model.CardInfoDto
+import com.sloy.sevibus.data.api.model.toDomain
 import com.sloy.sevibus.data.api.model.CardTransactionDto
 import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
@@ -85,7 +85,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
+            api.getCardInfo(initialCardId, addMethod?.toApiValue()).toDomain()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null
@@ -152,14 +152,14 @@ class RemoteAndLocalCardsRepository(
             val remoteCard = checkCard(card.serialNumber)
             if (remoteCard != null) {
                 val updated = card.copy(
-                    balance = remoteCard.balance,
+                    balance = (remoteCard as? CardInfo.BalanceCard)?.balance?.cents,
                     type = remoteCard.type,
                 )
                 if (updated != card) {
                     // Check if balance changed from below threshold to above threshold
                     val oldBalance = card.balance ?: 0
                     val newBalance = updated.balance ?: 0
-                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD.cents && newBalance >= LOW_BALANCE_THRESHOLD.cents) {
                         sevibusDao.clearDismissedAlert(card.serialNumber)
                     }
                     sevibusDao.putCard(updated)
@@ -188,7 +188,7 @@ class RemoteAndLocalCardsRepository(
                 if (localCard != null) {
                     val oldBalance = localCard.balance ?: 0
                     val newBalance = remoteCard.balance ?: 0
-                    if (oldBalance < LOW_BALANCE_THRESHOLD && newBalance >= LOW_BALANCE_THRESHOLD) {
+                    if (oldBalance < LOW_BALANCE_THRESHOLD.cents && newBalance >= LOW_BALANCE_THRESHOLD.cents) {
                         sevibusDao.clearDismissedAlert(remoteCard.serialNumber)
                     }
                 }
@@ -205,15 +205,6 @@ private fun CardAddMethod.toApiValue(): String = when (this) {
     CardAddMethod.MANUAL -> "manual"
 }
 
-private fun CardInfoDto.fromDto(): CardInfo {
-    return CardInfo(
-        serialNumber = serialNumber,
-        code = code,
-        type = type,
-        balance = balance,
-        customName = customName,
-    )
-}
 
 private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
     return when (operation) {

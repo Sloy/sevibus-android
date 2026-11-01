@@ -101,7 +101,7 @@ import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
-import com.sloy.sevibus.domain.model.hasBalance
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.infrastructure.EventCollector
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
@@ -312,7 +312,7 @@ private fun SharedTransitionScope.CardsScreenContent(
             snapshotFlow { pagerState.targetPage to isDragged }
                 .collect { (targetPage, dragged) ->
                     if (!dragged && targetPage != committedPage.page) {
-                        val committedCardHadBalance = latestCards.getOrNull(committedPage.page)?.hasBalance ?: true
+                        val committedCardHadBalance = latestCards.getOrNull(committedPage.page)?.let { it is CardInfo.BalanceCard } ?: true
                         committedPage = CommittedPage(targetPage, committedCardHadBalance)
                     }
                 }
@@ -803,7 +803,7 @@ internal fun CardsScreenLoadedWithTransactionsPreview() {
 @Composable
 internal fun CardsScreenLowBalancePreview() {
     ScreenPreview {
-        val cards = listOf(Stubs.cards[0].copy(balance = 80), Stubs.cards[1])
+        val cards = listOf(Stubs.balanceCard.copy(balance = Money(80)), Stubs.cards[1])
         val transactions = cards.associate { it.serialNumber to TransactionsState.Loaded(Stubs.cardTripTransactions) }
         CardsScreen(
             CardsScreenState.Content(cards.andTransactions(transactions)),
