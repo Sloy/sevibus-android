@@ -390,8 +390,9 @@ private fun ExistingCardsDetail(
     onSerialCopied: () -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
+    val today = LocalToday.current
     val transactions = (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty()
-    val status = cardStatusUi(currentCard, transactions, LocalToday.current)
+    val status = cardStatusUi(currentCard, transactions, today)
     Column {
         CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
         when (status) {
@@ -400,7 +401,7 @@ private fun ExistingCardsDetail(
             is CardStatusUi.Balance, CardStatusUi.None -> Unit
         }
         Spacer(Modifier.size(24.dp))
-        CardDetailsElement(cardDetailsUi(currentCard, LocalToday.current), onCopySerial = onSerialCopied)
+        CardDetailsElement(cardDetailsUi(currentCard, today), onCopySerial = onSerialCopied)
         Spacer(Modifier.size(32.dp))
         Text(
             stringResource(R.string.cards_recent_activity),
@@ -409,7 +410,7 @@ private fun ExistingCardsDetail(
         )
         when (transactionsState) {
             is TransactionsState.Loaded -> {
-                CardTransactionsElement(transactionsState.transactions)
+                CardTransactionsElement(transactionsState.transactions.byMonth(), isBalanceCard = currentCard is CardInfo.BalanceCard)
             }
 
             is TransactionsState.Loading -> {
