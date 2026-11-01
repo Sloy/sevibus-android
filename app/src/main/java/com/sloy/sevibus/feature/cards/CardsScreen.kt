@@ -320,7 +320,7 @@ private fun SharedTransitionScope.CardsScreenContent(
 
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(horizontal = 48.dp, vertical = 36.dp),
+            contentPadding = PaddingValues(start = 48.dp, end = 48.dp, top = 36.dp, bottom = 16.dp),
             pageSpacing = 16.dp,
             modifier = Modifier
                 .scale(nfcAnimation.value)
@@ -339,6 +339,14 @@ private fun SharedTransitionScope.CardsScreenContent(
                 CardAddMoreItem(newCardState)
             }
         }
+
+        CardPageDots(
+            count = cards.size,
+            selected = pagerState.currentPage.takeIf { it <= cards.lastIndex },
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 20.dp),
+        )
 
         val currentCardAndTransactions = cardsTransactions.getOrNull(committedPage.page)
         if (currentCardAndTransactions != null) {
