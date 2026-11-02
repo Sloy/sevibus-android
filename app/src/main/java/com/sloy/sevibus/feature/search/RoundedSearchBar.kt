@@ -23,7 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -31,7 +34,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -60,6 +65,26 @@ fun RoundedSearchBar(
         is TopBarState.Search -> state.term
         is TopBarState.LineSelected -> state.line.description
         is TopBarState.StopSelected -> state.stop.description
+    }
+
+    var fieldValue by remember { mutableStateOf(TextFieldValue(searchTerm)) }
+    val typedTermsAwaitingEcho = remember { ArrayDeque<String>() }
+
+    fun typeTerm(newValue: TextFieldValue) {
+        if (newValue.text != fieldValue.text) {
+            typedTermsAwaitingEcho.addLast(newValue.text)
+            onSearchTermChanged(newValue.text)
+        }
+        fieldValue = newValue
+    }
+
+    LaunchedEffect(searchTerm) {
+        val echoIndex = typedTermsAwaitingEcho.indexOf(searchTerm)
+        if (echoIndex >= 0) {
+            repeat(echoIndex + 1) { typedTermsAwaitingEcho.removeFirst() }
+        } else if (searchTerm != fieldValue.text) {
+            fieldValue = TextFieldValue(searchTerm, selection = TextRange(searchTerm.length))
+        }
     }
 
     val elevation = animateDpAsState(if (isSearchActive) 0.dp else 8.dp).value
@@ -97,8 +122,8 @@ fun RoundedSearchBar(
             }
             Spacer(Modifier.width(16.dp))
             BasicTextField(
-                value = searchTerm,
-                onValueChange = { onSearchTermChanged(it) },
+                value = fieldValue,
+                onValueChange = ::typeTerm,
                 singleLine = true,
                 textStyle = SevTheme.typography.bodyStandard.copy(color = SevTheme.colorScheme.onSurface),
                 modifier = Modifier
@@ -120,15 +145,15 @@ fun RoundedSearchBar(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                             innerTextField()
-                            if (searchTerm.isEmpty()) {
+                            if (fieldValue.text.isEmpty()) {
                                 Text(stringResource(R.string.search_placeholder), color = SevTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
-                        if (searchTerm.isNotEmpty()) {
+                        if (fieldValue.text.isNotEmpty()) {
                             IconButton(onClick = {
                                 if (state is TopBarState.Search) {
-                                    onSearchTermChanged("")
+                                    typeTerm(TextFieldValue(""))
                                 } else {
                                     onCancelClicked()
                                 }
