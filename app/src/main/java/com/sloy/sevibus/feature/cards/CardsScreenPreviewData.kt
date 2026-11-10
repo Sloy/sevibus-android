@@ -12,6 +12,8 @@ internal object CardsScreenPreviewData {
     fun balanceCardUi(card: CardInfo = Stubs.balanceCard, transactions: TransactionsState = TransactionsState.Empty): CardUi =
         cardUi(card, transactions)
 
+    fun balanceNormal(): CardUi = fromCase("BalanceNormal")
+
     fun passActive(): CardUi = fromCase("PassActive")
 
     fun passLastDay(): CardUi = fromCase("PassActive", today = LocalDate.of(2026, 11, 4))
@@ -26,7 +28,7 @@ internal object CardsScreenPreviewData {
 
     fun cardUi(card: CardInfo, transactions: TransactionsState, today: LocalDate = this.today): CardUi {
         val loadedTransactions = (transactions as? TransactionsState.Loaded)?.transactions.orEmpty()
-        return CardUi(card, transactions, cardStatusUi(card, loadedTransactions, today))
+        return CardUi(card, transactions, cardStatusUi(card, loadedTransactions, today), cardDetailsUi(card, today))
     }
 
     private fun fromCase(name: String, today: LocalDate = this.today): CardUi {

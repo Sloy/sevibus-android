@@ -166,7 +166,8 @@ class CardViewModel(
 
     private fun cardUi(card: CardInfo, transactionsState: TransactionsState): CardUi {
         val loadedTransactions = (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty()
-        return CardUi(card, transactionsState, cardStatusUi(card, loadedTransactions, LocalDate.now(clock)))
+        val today = LocalDate.now(clock)
+        return CardUi(card, transactionsState, cardStatusUi(card, loadedTransactions, today), cardDetailsUi(card, today))
     }
 }
 

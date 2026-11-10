@@ -33,6 +33,7 @@ data class CardUi(
     val card: CardInfo,
     val transactions: TransactionsState,
     val status: CardStatusUi,
+    val details: CardDetailsUi,
 )
 
 fun List<CardUi>.cards(): List<CardInfo> = this.map { it.card }

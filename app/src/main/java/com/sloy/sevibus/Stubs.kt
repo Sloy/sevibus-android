@@ -520,6 +520,20 @@ object Stubs {
 
     val cardCases: List<CardCase> = listOf(
         CardCase(
+            name = "BalanceNormal",
+            card = CardInfo.BalanceCard(900000101, 31, "Bonobús sin transbordo", Money(869)),
+            transactions = listOf(
+                cardTrip(900000101, LocalDateTime.of(2026, 10, 5, 17, 6, 28), "21", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 10, 1, 10, 28, 59), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 30, 20, 24, 7), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 29, 10, 11, 5), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 22, 10, 10, 18), "41"),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 21, 13, 18, 40), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 21, 11, 36), "41", fare = 41),
+                cardTrip(900000101, LocalDateTime.of(2026, 9, 19, 20, 5, 12), "41", fare = 41),
+            ),
+        ),
+        CardCase(
             name = "PassActive",
             card = CardInfo.PassCard(
                 900000105, 150, "Tarjeta 30 días",
