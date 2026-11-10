@@ -2,8 +2,8 @@ package com.sloy.sevibus.data.repository
 
 import com.sloy.sevibus.data.api.SevibusApi
 import com.sloy.sevibus.data.api.SevibusUserApi
-import com.sloy.sevibus.data.api.model.toDomain
 import com.sloy.sevibus.data.api.model.CardTransactionDto
+import com.sloy.sevibus.data.api.model.fromDto
 import com.sloy.sevibus.data.database.DismissedAlertEntity
 import com.sloy.sevibus.data.database.SevibusDao
 import com.sloy.sevibus.data.database.fromEntity
@@ -85,7 +85,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun checkCard(initialCardId: CardId, addMethod: CardAddMethod?): CardInfo? {
         return try {
-            api.getCardInfo(initialCardId, addMethod?.toApiValue()).toDomain()
+            api.getCardInfo(initialCardId, addMethod?.toApiValue()).fromDto()
         } catch (httpError: HttpException) {
             if (httpError.code() == 404) {
                 null

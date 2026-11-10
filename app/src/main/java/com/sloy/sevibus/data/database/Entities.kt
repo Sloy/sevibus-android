@@ -10,7 +10,7 @@ import com.sloy.sevibus.data.api.model.FavoriteStopDto
 import com.sloy.sevibus.data.api.model.LineDto
 import com.sloy.sevibus.data.api.model.PathDto
 import com.sloy.sevibus.data.api.model.RouteDto
-import com.sloy.sevibus.data.api.model.toDomain
+import com.sloy.sevibus.data.api.model.fromDto
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CustomIcon
@@ -19,6 +19,7 @@ import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
 import com.sloy.sevibus.domain.model.LineId
 import com.sloy.sevibus.domain.model.LineSummary
+import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.domain.model.Path
 import com.sloy.sevibus.domain.model.PathChecksum
 import com.sloy.sevibus.domain.model.Polyline
@@ -198,7 +199,10 @@ fun FavoriteStopEntity.toDto(): FavoriteStopDto {
     )
 }
 
-fun CardInfoEntity.fromEntity(): CardInfo = toDto().toDomain()
+fun CardInfoEntity.fromEntity(): CardInfo = when (balance) {
+    null -> CardInfo.PassCard(serialNumber, code, type, customName)
+    else -> CardInfo.BalanceCard(serialNumber, code, type, Money(balance), customName)
+}
 
 fun CardInfo.toEntity(order: Int): CardInfoEntity {
     return CardInfoEntity(
@@ -222,4 +226,4 @@ fun CardInfoEntity.toDto(): CardInfoDto {
     )
 }
 
-fun CardInfoDto.toEntity(): CardInfoEntity = toDomain().toEntity(order)
+fun CardInfoDto.toEntity(): CardInfoEntity = fromDto().toEntity(order)
