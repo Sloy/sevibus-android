@@ -104,7 +104,7 @@ class CardViewModel(
     fun onTopUpClicked(card: CardInfo) {
         viewModelScope.launch {
             events.emit(CardsScreenEvent.LaunchUri("https://recargas.tussam.es/TPW/Common/index.do?client_id=APPTUSSAM&id_tarjeta=${card.fullSerialNumber}"))
-            analytics.track(Clicks.CardTopUpClicked(card.type, card.balance))
+            analytics.track(Clicks.CardTopUpClicked(card.type, (card as? CardInfo.BalanceCard)?.balance?.cents))
         }
     }
     fun onDeleteCard(cardId: CardId) {
