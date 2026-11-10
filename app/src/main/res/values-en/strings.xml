@@ -214,4 +214,22 @@
     <string name="app_update_available">Update available</string>
     <string name="app_update_downloading">Downloading… %1$d%%</string>
     <string name="app_update_ready">Tap to install</string>
+    <plurals name="cards_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+    <string name="cards_last_day">Last day</string>
+    <plurals name="cards_elapsed_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="cards_elapsed_months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="cards_elapsed_years">
+        <item quantity="one">%d year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+    <string name="cards_more_info_button">More info on Tussam</string>
 </resources>
