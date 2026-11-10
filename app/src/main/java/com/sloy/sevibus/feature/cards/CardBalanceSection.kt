@@ -50,14 +50,13 @@ private val ContentPivot = TransformOrigin(0.5f, 0.4f)
 
 @Composable
 fun CardBalanceSection(
-    card: CardInfo,
-    transactionsState: TransactionsState,
+    cardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isBalanceCard = card is CardInfo.BalanceCard
-    val displayed = rememberLastNonNull(if (isBalanceCard) card to transactionsState else null)
+    val isBalanceCard = cardUi.status is CardStatusUi.Balance
+    val displayed = rememberLastNonNull(cardUi.takeIf { isBalanceCard })
     val duration = SevTheme.motion.duration
     val easing = SevTheme.motion.easing
     val anim = SevTheme.motion.anim
@@ -83,21 +82,19 @@ fun CardBalanceSection(
             transformOrigin = ContentPivot,
         ),
     ) {
-        displayed?.let { (displayedCard, displayedTransactions) ->
-            BalanceContent(displayedCard, displayedTransactions, previousCardHadBalance, onTopUpClicked)
-        }
+        displayed?.let { BalanceContent(it, previousCardHadBalance, onTopUpClicked) }
     }
 }
 
 @Composable
 private fun BalanceContent(
-    card: CardInfo,
-    transactionsState: TransactionsState,
+    cardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
 ) {
-    val statusUi = cardStatusUi(card, (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty(), LocalToday.current)
-        as? CardStatusUi.Balance ?: return
+    val card = cardUi.card
+    val transactionsState = cardUi.transactions
+    val statusUi = cardUi.status as? CardStatusUi.Balance ?: return
     val needsTopUp = statusUi.isEmpty || statusUi.isLow
     val tripsMemory = remember(card.serialNumber) { TripsMemory() }
     val trips = when (transactionsState) {
@@ -229,8 +226,7 @@ internal fun CardBalanceSectionLowBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard.copy(balance = Money(80)),
-                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(80)), TransactionsState.Loaded(Stubs.cardTripTransactions)),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )
@@ -245,8 +241,7 @@ internal fun CardBalanceSectionLowBalanceWithoutTripsPreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard.copy(balance = Money(80)),
-                transactionsState = TransactionsState.Loading,
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(80)), TransactionsState.Loading),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )
@@ -261,8 +256,7 @@ internal fun CardBalanceSectionNormalBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.cards[0],
-                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.cards[0], TransactionsState.Loaded(Stubs.cardTripTransactions)),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )
@@ -277,8 +271,7 @@ internal fun CardBalanceSectionNoBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard.copy(balance = Money(0)),
-                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(0)), TransactionsState.Loaded(Stubs.cardTripTransactions)),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )

@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sloy.sevibus.R
-import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
@@ -61,7 +60,7 @@ fun CardExpiredNotice(status: CardStatusUi.ExpiredCard, onMoreInfoClicked: () ->
 @Preview
 @Composable
 internal fun CardExpiredNoticePreview() {
-    val status = cardStatusUi(cardCase("CardExpired").card, emptyList(), Stubs.cardCasesToday) as CardStatusUi.ExpiredCard
+    val status = CardsScreenPreviewData.cardExpired().status as CardStatusUi.ExpiredCard
     SevTheme {
         Surface {
             CardExpiredNotice(status, onMoreInfoClicked = {})

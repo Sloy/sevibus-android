@@ -32,14 +32,18 @@ import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
 import strikt.api.expectThat
 import strikt.assertions.contains
+import strikt.assertions.isEqualTo
+import java.time.Clock
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModelTest {
 
     private val savedCard = CardInfo.BalanceCard(serialNumber = SAVED_SERIAL, code = 31, type = "Bonobús", balance = Money(1250))
     private val newCard = CardInfo.BalanceCard(serialNumber = NEW_SERIAL, code = 31, type = "Bonobús", balance = Money(500))
-    private val userCards = MutableStateFlow(listOf(savedCard))
+    private val userCards = MutableStateFlow<List<CardInfo>>(listOf(savedCard))
     private val cardsRepository = mock<CardsRepository> {
         on { observeUserCards() } doReturn userCards
         onBlocking { obtainTransactions(any()) } doReturn emptyList()
@@ -123,14 +127,28 @@ class CardViewModelTest {
         verify(analytics).track(Clicks.CardSerialCopied)
     }
 
+    @Test
+    fun `state carries the status of each card computed with the clock date`() = runTest {
+        val pass = CardInfo.PassCard(900000012, 150, "Tarjeta 30 días", PassValidity(PassPeriod(LocalDate.of(2026, 10, 6), LocalDate.of(2026, 11, 4)), null))
+        userCards.value = listOf(pass)
+        val clock = Clock.fixed(Instant.parse("2026-10-10T12:00:00Z"), ZoneOffset.UTC)
+        val viewModel = collectingViewModel(clock)
+
+        val content = viewModel.state.value as CardsScreenState.Content
+
+        val expectedProgress = CardStatusUi.Pass.Progress(validFrom = LocalDate.of(2026, 10, 6), fraction = 5f / 30f, daysLeft = 25)
+        expectThat(content.cardsUi.single().status)
+            .isEqualTo(CardStatusUi.Pass(validTo = LocalDate.of(2026, 11, 4), hasNextPeriod = false, progress = expectedProgress, expiredAgo = null))
+    }
+
     private fun stubCheckCard(returns: CardInfo?) {
         cardsRepository.stub {
             onBlocking { checkCard(any(), any()) } doReturn returns
         }
     }
 
-    private fun TestScope.collectingViewModel(): CardViewModel {
-        val viewModel = CardViewModel(cardsRepository, analytics)
+    private fun TestScope.collectingViewModel(clock: Clock = Clock.systemDefaultZone()): CardViewModel {
+        val viewModel = CardViewModel(cardsRepository, analytics, clock = clock)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.state.collect {} }
         return viewModel
     }

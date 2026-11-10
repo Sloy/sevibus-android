@@ -25,11 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sloy.sevibus.R
-import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.theme.SevTheme
-import java.time.LocalDate
 
 @Composable
 fun CardPassSection(status: CardStatusUi.Pass, onMoreInfoClicked: () -> Unit, modifier: Modifier = Modifier) {
@@ -57,7 +55,7 @@ fun CardPassSection(status: CardStatusUi.Pass, onMoreInfoClicked: () -> Unit, mo
 }
 
 @Composable
-private fun SingleBar(progress: PassProgress) {
+private fun SingleBar(progress: CardStatusUi.Pass.Progress) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         ProgressTrack(progress.fraction, Modifier.fillMaxWidth())
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -72,7 +70,7 @@ private fun SingleBar(progress: PassProgress) {
 }
 
 @Composable
-private fun TwoSegmentBar(progress: PassProgress) {
+private fun TwoSegmentBar(progress: CardStatusUi.Pass.Progress) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             ProgressTrack(progress.fraction, Modifier.fillMaxWidth())
@@ -113,11 +111,10 @@ private fun ProgressTrack(fraction: Float, modifier: Modifier) {
 }
 
 @Composable
-private fun CardPassSectionCasePreview(name: String, today: LocalDate = Stubs.cardCasesToday) {
-    val status = cardStatusUi(cardCase(name).card, emptyList(), today) as CardStatusUi.Pass
+private fun CardPassSectionCasePreview(card: CardUi) {
     SevTheme {
         Surface {
-            CardPassSection(status, onMoreInfoClicked = {})
+            CardPassSection(card.status as CardStatusUi.Pass, onMoreInfoClicked = {})
         }
     }
 }
@@ -125,19 +122,19 @@ private fun CardPassSectionCasePreview(name: String, today: LocalDate = Stubs.ca
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-internal fun CardPassSectionActivePreview() = CardPassSectionCasePreview("PassActive")
+internal fun CardPassSectionActivePreview() = CardPassSectionCasePreview(CardsScreenPreviewData.passActive())
 
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-internal fun CardPassSectionNextPeriodPreview() = CardPassSectionCasePreview("PassNextPeriod")
+internal fun CardPassSectionNextPeriodPreview() = CardPassSectionCasePreview(CardsScreenPreviewData.passNextPeriod())
 
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-internal fun CardPassSectionExpiredPreview() = CardPassSectionCasePreview("PassExpired")
+internal fun CardPassSectionExpiredPreview() = CardPassSectionCasePreview(CardsScreenPreviewData.passExpired())
 
 @ScreenshotTest(ScreenshotSuite.Components)
 @Preview
 @Composable
-internal fun CardPassSectionLastDayPreview() = CardPassSectionCasePreview("PassActive", today = LocalDate.of(2026, 11, 4))
+internal fun CardPassSectionLastDayPreview() = CardPassSectionCasePreview(CardsScreenPreviewData.passLastDay())

@@ -60,7 +60,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -140,7 +139,6 @@ fun CardsScreen(
     val uriHandler = LocalUriHandler.current
 
     val nfcAnimation = remember { Animatable(1f) }
-    val today = remember { viewModel.today() }
 
     EventCollector(nfcStateManager.events) { nfcReadEvent ->
         viewModel.onNewCardNumber(
@@ -161,23 +159,21 @@ fun CardsScreen(
         }
     }
 
-    CompositionLocalProvider(LocalToday provides today) {
-        CardsScreen(
-            state,
-            newCardState,
-            nfcState,
-            onNewCardNumber = { serialNumber ->
-                viewModel.onNewCardNumber(serialNumber, CardAddMethod.MANUAL)
-            },
-            viewModel::onDeleteCard,
-            viewModel::onTopUpClicked,
-            viewModel::onMoreInfoClicked,
-            viewModel::onStartReordering,
-            viewModel::onReorderingDone,
-            onNavigateToHelp,
-            nfcAnimation,
-        )
-    }
+    CardsScreen(
+        state,
+        newCardState,
+        nfcState,
+        onNewCardNumber = { serialNumber ->
+            viewModel.onNewCardNumber(serialNumber, CardAddMethod.MANUAL)
+        },
+        viewModel::onDeleteCard,
+        viewModel::onTopUpClicked,
+        viewModel::onMoreInfoClicked,
+        viewModel::onStartReordering,
+        viewModel::onReorderingDone,
+        onNavigateToHelp,
+        nfcAnimation,
+    )
 }
 
 
@@ -197,7 +193,7 @@ fun CardsScreen(
     nfcAnimation: Animatable<Float, AnimationVector1D> = remember { Animatable(1f) },
 ) {
     val isReordering = state is CardsScreenState.Content && state.isReordering
-    val cardsFromState = (state as? CardsScreenState.Content)?.cardsAndTransactions?.cards()
+    val cardsFromState = (state as? CardsScreenState.Content)?.cardsUi?.cards()
     var reorderedCards: List<CardInfo> by remember(cardsFromState) { mutableStateOf(cardsFromState ?: emptyList()) }
 
     BackHandler(isReordering) {
@@ -298,10 +294,10 @@ private fun SharedTransitionScope.CardsScreenContent(
 ) {
     val scope = rememberCoroutineScope()
     Column(Modifier.verticalScroll(scrollState)) {
-        val cardsTransactions = state.cardsAndTransactions
-        val cards = cardsTransactions.cards()
+        val cardsUi = state.cardsUi
+        val cards = cardsUi.cards()
 
-        val pagerState = rememberPagerState { cardsTransactions.size + 1 }
+        val pagerState = rememberPagerState { cardsUi.size + 1 }
         if (state.scrollToCard != null) {
             cards.find { it.serialNumber == state.scrollToCard }?.let { card ->
                 LaunchedEffect(card) {
@@ -353,11 +349,10 @@ private fun SharedTransitionScope.CardsScreenContent(
                 .padding(bottom = 20.dp),
         )
 
-        val currentCardAndTransactions = cardsTransactions.getOrNull(committedPage.page)
-        if (currentCardAndTransactions != null) {
+        val currentCardUi = cardsUi.getOrNull(committedPage.page)
+        if (currentCardUi != null) {
             ExistingCardsDetail(
-                currentCardAndTransactions.card,
-                currentCardAndTransactions.transactions,
+                currentCardUi,
                 committedPage.previousCardHadBalance,
                 onTopUpClicked,
                 onMoreInfoClicked,
@@ -377,18 +372,17 @@ private fun SharedTransitionScope.CardsScreenContent(
 
 @Composable
 private fun ExistingCardsDetail(
-    currentCard: CardInfo,
-    transactionsState: TransactionsState,
+    currentCardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
     onMoreInfoClicked: (CardInfo) -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
-    val transactions = (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty()
-    val status = cardStatusUi(currentCard, transactions, LocalToday.current)
+    val currentCard = currentCardUi.card
+    val transactionsState = currentCardUi.transactions
     Column {
-        CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
-        when (status) {
+        CardBalanceSection(currentCardUi, previousCardHadBalance, onTopUpClicked)
+        when (val status = currentCardUi.status) {
             is CardStatusUi.Pass -> CardPassSection(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
             is CardStatusUi.ExpiredCard -> CardExpiredNotice(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
             is CardStatusUi.Balance, CardStatusUi.None -> Unit
@@ -932,5 +926,32 @@ internal fun CardsScreenErrorPreview() {
 
             NfcState.ENABLED,
         )
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassActivePreview() = CardsScreenCasePreview(CardsScreenPreviewData.passActive())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassNextPeriodPreview() = CardsScreenCasePreview(CardsScreenPreviewData.passNextPeriod())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassExpiredPreview() = CardsScreenCasePreview(CardsScreenPreviewData.passExpired())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenCardExpiredPreview() = CardsScreenCasePreview(CardsScreenPreviewData.cardExpired())
+
+@Composable
+private fun CardsScreenCasePreview(card: CardUi) {
+    ScreenPreview {
+        CardsScreen(CardsScreenPreviewData.content(card), CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
 }

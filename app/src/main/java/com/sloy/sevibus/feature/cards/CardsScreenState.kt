@@ -8,7 +8,7 @@ sealed interface CardsScreenState {
     data object Empty : CardsScreenState
     data object Loading : CardsScreenState
     data class Content(
-        val cardsAndTransactions: List<CardAndTransactions>,
+        val cardsUi: List<CardUi>,
         val isReordering: Boolean = false,
         val scrollToCard: CardId? = null,
     ) : CardsScreenState
@@ -29,11 +29,10 @@ sealed class CardsScreenNewCardState(open val serialNumber: String) {
     data class CheckingCard(override val serialNumber: String) : CardsScreenNewCardState(serialNumber)
 }
 
-data class CardAndTransactions(
+data class CardUi(
     val card: CardInfo,
-    val transactions: TransactionsState = TransactionsState.Loading,
+    val transactions: TransactionsState,
+    val status: CardStatusUi,
 )
 
-fun List<CardAndTransactions>.cards(): List<CardInfo> = this.map { it.card }
-fun List<CardInfo>.andTransactions(transactions: Map<CardId, TransactionsState> = emptyMap()): List<CardAndTransactions> =
-    this.map { CardAndTransactions(it, transactions.getOrElse(it.serialNumber) { TransactionsState.Empty }) }
+fun List<CardUi>.cards(): List<CardInfo> = this.map { it.card }
