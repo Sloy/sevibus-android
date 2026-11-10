@@ -58,35 +58,6 @@ import com.sloy.sevibus.ui.preview.ScreenshotTest
 import com.sloy.sevibus.ui.shimmer.Shimmer
 import com.sloy.sevibus.ui.theme.SevTheme
 
-internal const val MINUS = "−"
-
-data class CardTransactionsMonth(val year: Int, val month: Int, val transactions: List<CardTransaction>)
-
-fun List<CardTransaction>.byMonth(): List<CardTransactionsMonth> =
-    groupBy { it.date.year to it.date.monthValue }
-        .map { (yearMonth, transactions) -> CardTransactionsMonth(yearMonth.first, yearMonth.second, transactions) }
-
-data class AmountText(val text: String, val muted: Boolean)
-
-internal fun signedMoney(money: Money): String =
-    if (money.isNegative) MINUS + MoneyFormatter.format(-money) else MoneyFormatter.format(money)
-
-internal fun CardTransaction.Trip.hasPerPersonFare(): Boolean = people > 1 && fare?.isFree == false
-
-internal fun fareText(fare: Fare, people: Int, perPerson: Boolean): String? = when {
-    fare.isFree -> null
-    perPerson && people > 1 -> MINUS + MoneyFormatter.format(fare.perPerson(people)) + " × $people"
-    else -> MINUS + MoneyFormatter.format(fare.total)
-}
-
-internal fun purchaseAmountText(transaction: CardTransaction, isBalanceCard: Boolean): AmountText? = when (transaction) {
-    is CardTransaction.TopUp -> AmountText(MoneyFormatter.format(transaction.amount, showPlusWhenPositive = true), muted = false)
-    is CardTransaction.PendingPurchase -> AmountText(MoneyFormatter.format(transaction.amount, showPlusWhenPositive = isBalanceCard), muted = true)
-    is CardTransaction.PassPurchase -> AmountText(MoneyFormatter.format(transaction.amount), muted = false)
-    is CardTransaction.PassRenewal -> transaction.amount?.let { AmountText(MoneyFormatter.format(it), muted = false) }
-    is CardTransaction.Trip, is CardTransaction.Transfer -> null
-}
-
 @Composable
 fun CardTransactionsElement(months: List<CardTransactionsMonth>, isBalanceCard: Boolean) {
     Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
@@ -116,6 +87,50 @@ fun CardTransactionsElement(months: List<CardTransactionsMonth>, isBalanceCard: 
             modifier = Modifier.fillMaxWidth(),
         )
     }
+}
+
+data class CardTransactionsMonth(val year: Int, val month: Int, val transactions: List<CardTransaction>)
+
+fun List<CardTransaction>.byMonth(): List<CardTransactionsMonth> =
+    groupBy { it.date.year to it.date.monthValue }
+        .map { (yearMonth, transactions) -> CardTransactionsMonth(yearMonth.first, yearMonth.second, transactions) }
+
+@Composable
+fun CardTransactionsShimmer() {
+    Card(
+        Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+    ) {
+        TitleSubtitleShimmer()
+        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+        TitleSubtitleShimmer()
+        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+        TitleSubtitleShimmer()
+    }
+}
+
+internal const val MINUS = "−"
+
+data class AmountText(val text: String, val muted: Boolean)
+
+internal fun signedMoney(money: Money): String =
+    if (money.isNegative) MINUS + MoneyFormatter.format(-money) else MoneyFormatter.format(money)
+
+internal fun CardTransaction.Trip.hasPerPersonFare(): Boolean = people > 1 && fare?.isFree == false
+
+internal fun fareText(fare: Fare, people: Int, perPerson: Boolean): String? = when {
+    fare.isFree -> null
+    perPerson && people > 1 -> MINUS + MoneyFormatter.format(fare.perPerson(people)) + " × $people"
+    else -> MINUS + MoneyFormatter.format(fare.total)
+}
+
+internal fun purchaseAmountText(transaction: CardTransaction, isBalanceCard: Boolean): AmountText? = when (transaction) {
+    is CardTransaction.TopUp -> AmountText(MoneyFormatter.format(transaction.amount, showPlusWhenPositive = true), muted = false)
+    is CardTransaction.PendingPurchase -> AmountText(MoneyFormatter.format(transaction.amount, showPlusWhenPositive = isBalanceCard), muted = true)
+    is CardTransaction.PassPurchase -> AmountText(MoneyFormatter.format(transaction.amount), muted = false)
+    is CardTransaction.PassRenewal -> transaction.amount?.let { AmountText(MoneyFormatter.format(it), muted = false) }
+    is CardTransaction.Trip, is CardTransaction.Transfer -> null
 }
 
 private fun CardTransaction.isTripWithTransfers(): Boolean = this is CardTransaction.Trip && transfers.isNotEmpty()
@@ -322,21 +337,6 @@ private fun PeopleChip(people: Int) {
     ) {
         Text(stringResource(R.string.cards_group_count, people), style = SevTheme.typography.bodyExtraSmallBold)
         Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(12.dp))
-    }
-}
-
-@Composable
-fun CardTransactionsShimmer() {
-    Card(
-        Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-    ) {
-        TitleSubtitleShimmer()
-        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-        TitleSubtitleShimmer()
-        HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-        TitleSubtitleShimmer()
     }
 }
 
