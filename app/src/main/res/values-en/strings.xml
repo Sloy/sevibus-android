@@ -97,6 +97,10 @@
     <string name="cards_validation">Validation</string>
     <string name="cards_transfer">Transfer</string>
     <string name="cards_top_up_transaction">Top up</string>
+    <string name="cards_no_balance_left">No balance left for more trips</string>
+    <string name="cards_valid_until">Valid until</string>
+    <string name="cards_current_period_until">Current period until</string>
+    <string name="cards_period_since">From %s</string>
     <string name="cards_error_not_found">Card not found or invalid number</string>
     <string name="cards_error_search">There was an error searching for the card, try again later</string>
     <string name="cards_error_already_saved">You already have that card saved</string>
@@ -219,6 +223,8 @@
         <item quantity="other">%d days left</item>
     </plurals>
     <string name="cards_last_day">Last day</string>
+    <string name="cards_next_period_paid">Next period paid</string>
+    <string name="cards_expired_ago">Expired %s ago</string>
     <plurals name="cards_elapsed_days">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
@@ -232,4 +238,6 @@
         <item quantity="other">%d years</item>
     </plurals>
     <string name="cards_more_info_button">More info on Tussam</string>
+    <string name="cards_card_expired_title">Card expired</string>
+    <string name="cards_card_expired_text">Expired on %s.</string>
 </resources>

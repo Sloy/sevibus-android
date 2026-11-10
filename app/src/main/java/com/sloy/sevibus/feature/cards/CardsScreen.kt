@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,7 +52,6 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Contactless
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -103,7 +101,6 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.Money
 import com.sloy.sevibus.infrastructure.EventCollector
-import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.infrastructure.SevLogger
 import com.sloy.sevibus.infrastructure.extensions.performHapticGestureStart
 import com.sloy.sevibus.infrastructure.extensions.performHapticSegmentTick
@@ -171,6 +168,7 @@ fun CardsScreen(
         },
         viewModel::onDeleteCard,
         viewModel::onTopUpClicked,
+        viewModel::onMoreInfoClicked,
         viewModel::onStartReordering,
         viewModel::onReorderingDone,
         onNavigateToHelp,
@@ -188,13 +186,14 @@ fun CardsScreen(
     onNewCardNumber: (String) -> Unit = {},
     onDeleteCard: (CardId) -> Unit = {},
     onTopUpClicked: (CardInfo) -> Unit = {},
+    onMoreInfoClicked: (CardInfo) -> Unit = {},
     onStartReorder: () -> Unit = {},
     onReorderDone: (List<CardInfo>) -> Unit = {},
     onNavigateToHelp: () -> Unit = {},
     nfcAnimation: Animatable<Float, AnimationVector1D> = remember { Animatable(1f) },
 ) {
     val isReordering = state is CardsScreenState.Content && state.isReordering
-    val cardsFromState = (state as? CardsScreenState.Content)?.cardsAndTransactions?.cards()
+    val cardsFromState = (state as? CardsScreenState.Content)?.cardsUi?.cards()
     var reorderedCards: List<CardInfo> by remember(cardsFromState) { mutableStateOf(cardsFromState ?: emptyList()) }
 
     BackHandler(isReordering) {
@@ -265,6 +264,7 @@ fun CardsScreen(
                                 onNewCardNumber,
                                 onDeleteCard,
                                 onTopUpClicked,
+                                onMoreInfoClicked,
                                 nfcAnimation,
                                 this@AnimatedContent,
                             )
@@ -288,15 +288,16 @@ private fun SharedTransitionScope.CardsScreenContent(
     onNewCardNumber: (String) -> Unit,
     onDeleteCard: (CardId) -> Unit,
     onTopUpClicked: (CardInfo) -> Unit,
+    onMoreInfoClicked: (CardInfo) -> Unit,
     nfcAnimation: Animatable<Float, AnimationVector1D>,
     animatedContentScope: AnimatedContentScope,
 ) {
     val scope = rememberCoroutineScope()
     Column(Modifier.verticalScroll(scrollState)) {
-        val cardsTransactions = state.cardsAndTransactions
-        val cards = cardsTransactions.cards()
+        val cardsUi = state.cardsUi
+        val cards = cardsUi.cards()
 
-        val pagerState = rememberPagerState { cardsTransactions.size + 1 }
+        val pagerState = rememberPagerState { cardsUi.size + 1 }
         if (state.scrollToCard != null) {
             cards.find { it.serialNumber == state.scrollToCard }?.let { card ->
                 LaunchedEffect(card) {
@@ -348,13 +349,13 @@ private fun SharedTransitionScope.CardsScreenContent(
                 .padding(bottom = 20.dp),
         )
 
-        val currentCardAndTransactions = cardsTransactions.getOrNull(committedPage.page)
-        if (currentCardAndTransactions != null) {
+        val currentCardUi = cardsUi.getOrNull(committedPage.page)
+        if (currentCardUi != null) {
             ExistingCardsDetail(
-                currentCardAndTransactions.card,
-                currentCardAndTransactions.transactions,
+                currentCardUi,
                 committedPage.previousCardHadBalance,
                 onTopUpClicked,
+                onMoreInfoClicked,
                 onDeleteCard = {
                     onDeleteCard(it)
                     scope.launch {
@@ -371,16 +372,20 @@ private fun SharedTransitionScope.CardsScreenContent(
 
 @Composable
 private fun ExistingCardsDetail(
-    currentCard: CardInfo,
-    transactionsState: TransactionsState,
+    currentCardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
+    onMoreInfoClicked: (CardInfo) -> Unit,
     onDeleteCard: (CardId) -> Unit,
 ) {
+    val currentCard = currentCardUi.card
+    val transactionsState = currentCardUi.transactions
     Column {
-        CardBalanceSection(currentCard, transactionsState, previousCardHadBalance, onTopUpClicked)
-        if (FeatureFlags.showCardUpdateWarning) {
-            InfoNote(Modifier.padding(top = 10.dp))
+        CardBalanceSection(currentCardUi, previousCardHadBalance, onTopUpClicked)
+        when (val status = currentCardUi.status) {
+            is CardStatusUi.Pass -> CardPassSection(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
+            is CardStatusUi.ExpiredCard -> CardExpiredNotice(status, onMoreInfoClicked = { onMoreInfoClicked(currentCard) })
+            is CardStatusUi.Balance, CardStatusUi.None -> Unit
         }
         Spacer(Modifier.size(24.dp))
         CardInfoElement(currentCard)
@@ -627,31 +632,6 @@ private fun CardsLoadingShimmer() {
 @Composable
 private fun CardsEmptyState(nfcState: NfcState, newCardState: CardsScreenNewCardState, onNewCardNumber: (String) -> Unit) {
     NewCardDetail(nfcState, newCardState, onNewCardNumber)
-}
-
-@Composable
-private fun InfoNote(modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-    ) {
-        Icon(
-            Icons.Outlined.Info,
-            contentDescription = null,
-            tint = SevTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(
-            stringResource(R.string.cards_operations_delay_note),
-            style = SevTheme.typography.bodySmall,
-            color = SevTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
 }
 
 @Composable
@@ -946,5 +926,32 @@ internal fun CardsScreenErrorPreview() {
 
             NfcState.ENABLED,
         )
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassActivePreview() = CardsScreenCasePreview(CardsScreenPreviewData.passActive())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassNextPeriodPreview() = CardsScreenCasePreview(CardsScreenPreviewData.passNextPeriod())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassExpiredPreview() = CardsScreenCasePreview(CardsScreenPreviewData.passExpired())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenCardExpiredPreview() = CardsScreenCasePreview(CardsScreenPreviewData.cardExpired())
+
+@Composable
+private fun CardsScreenCasePreview(card: CardUi) {
+    ScreenPreview {
+        CardsScreen(CardsScreenPreviewData.content(card), CardsScreenNewCardState.InputForm(), NfcState.ENABLED)
     }
 }

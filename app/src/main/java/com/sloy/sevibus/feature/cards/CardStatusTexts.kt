@@ -18,7 +18,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -30,9 +29,6 @@ import androidx.compose.ui.unit.sp
 import com.sloy.sevibus.R
 import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.ui.theme.SevTheme
-import java.time.LocalDate
-
-val LocalToday = staticCompositionLocalOf<LocalDate> { LocalDate.now() }
 
 @Composable
 fun elapsedText(elapsed: Elapsed): String = when (elapsed.unit) {

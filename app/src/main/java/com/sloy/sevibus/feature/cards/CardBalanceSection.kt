@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +41,6 @@ import com.sloy.sevibus.R
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.Money
-import com.sloy.sevibus.domain.model.estimatedTrips
 import com.sloy.sevibus.ui.formatter.MoneyFormatter
 import com.sloy.sevibus.ui.preview.ScreenshotSuite
 import com.sloy.sevibus.ui.preview.ScreenshotTest
@@ -52,18 +50,18 @@ private val ContentPivot = TransformOrigin(0.5f, 0.4f)
 
 @Composable
 fun CardBalanceSection(
-    card: CardInfo,
-    transactionsState: TransactionsState,
+    cardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val displayed = rememberLastNonNull(if (card is CardInfo.BalanceCard) card to transactionsState else null)
+    val isBalanceCard = cardUi.status is CardStatusUi.Balance
+    val displayed = rememberLastNonNull(cardUi.takeIf { isBalanceCard })
     val duration = SevTheme.motion.duration
     val easing = SevTheme.motion.easing
     val anim = SevTheme.motion.anim
     AnimatedVisibility(
-        visible = card is CardInfo.BalanceCard,
+        visible = isBalanceCard,
         modifier = modifier.fillMaxWidth(),
         enter = anim.fadeAndScaleIn(
             expandDuration = duration.d400,
@@ -84,63 +82,69 @@ fun CardBalanceSection(
             transformOrigin = ContentPivot,
         ),
     ) {
-        displayed?.let { (displayedCard, displayedTransactions) ->
-            BalanceContent(displayedCard, displayedTransactions, previousCardHadBalance, onTopUpClicked)
-        }
+        displayed?.let { BalanceContent(it, previousCardHadBalance, onTopUpClicked) }
     }
 }
 
 @Composable
 private fun BalanceContent(
-    card: CardInfo,
-    transactionsState: TransactionsState,
+    cardUi: CardUi,
     previousCardHadBalance: Boolean,
     onTopUpClicked: (CardInfo) -> Unit,
 ) {
-    if (card !is CardInfo.BalanceCard) return
-    val balance = card.balance
-    val isLow = card.isLowBalance
+    val card = cardUi.card
+    val transactionsState = cardUi.transactions
+    val statusUi = cardUi.status as? CardStatusUi.Balance ?: return
+    val needsTopUp = statusUi.isEmpty || statusUi.isLow
     val tripsMemory = remember(card.serialNumber) { TripsMemory() }
     val trips = when (transactionsState) {
         is TransactionsState.Loading -> tripsMemory.lastKnownTrips
-        is TransactionsState.Loaded -> estimatedTrips(balance, transactionsState.transactions)
+        is TransactionsState.Loaded -> statusUi.tripsLeft
         else -> null
     }
     tripsMemory.lastKnownTrips = trips
-    val showChip = isLow && trips != null
+    val pillText = when {
+        statusUi.isEmpty -> stringResource(R.string.cards_no_balance_left)
+        statusUi.isLow && trips != null -> pluralStringResource(R.plurals.cards_trips_left, trips, trips)
+        else -> null
+    }
+    val showPill = pillText != null
     val revealDelay = if (previousCardHadBalance) 0 else SevTheme.motion.duration.d250
 
-    val chipVisibility = remember { MutableTransitionState(showChip && previousCardHadBalance) }
-    chipVisibility.targetState = showChip
+    val pillVisibility = remember { MutableTransitionState(showPill && previousCardHadBalance) }
+    pillVisibility.targetState = showPill
 
-    val lowBalanceProgress = remember { Animatable(if (isLow && previousCardHadBalance) 1f else 0f) }
-    LaunchedEffect(isLow) {
+    val lowBalanceProgress = remember { Animatable(if (needsTopUp && previousCardHadBalance) 1f else 0f) }
+    LaunchedEffect(needsTopUp) {
         if (!previousCardHadBalance) lowBalanceProgress.snapTo(0f)
         lowBalanceProgress.animateTo(
-            if (isLow) 1f else 0f,
+            if (needsTopUp) 1f else 0f,
             tween(SevTheme.motion.duration.d200, delayMillis = revealDelay, easing = SevTheme.motion.easing.ease),
         )
     }
 
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.cards_available_balance), style = SevTheme.typography.bodySmallBold)
-        FormattedBalance(balance)
-        TripsChip(chipVisibility, rememberLastNonNull(trips.takeIf { showChip }) ?: 0, revealDelay)
+        FormattedBalance(statusUi.balance)
+        BalancePill(pillVisibility, rememberLastNonNull(pillText).orEmpty(), revealDelay)
         TopUpButton(
             lowBalanceProgress = lowBalanceProgress.value,
             onClick = { onTopUpClicked(card) },
             modifier = Modifier.padding(top = 10.dp, bottom = 8.dp),
         )
+        OperationsDelayNote(Modifier.padding(horizontal = 16.dp))
     }
 }
 
 @Composable
 private fun FormattedBalance(balance: Money) {
     val textColor = if (!balance.isPositive) Color.Red else Color.Unspecified
-    val (integerPart, decimalPart) = MoneyFormatter.format(balance).split(",")
+    val sign = if (balance.isNegative) MINUS else ""
+    val (integerPart, decimalPart) = MoneyFormatter.format(if (balance.isNegative) -balance else balance).split(",")
     Text(
         buildAnnotatedString {
             withStyle(SevTheme.typography.bodyStandard.copy(fontSize = 45.sp).toSpanStyle()) {
+                append(sign)
                 append(integerPart)
             }
             withStyle(SevTheme.typography.bodyStandard.copy(fontSize = 36.sp).toSpanStyle()) {
@@ -153,8 +157,7 @@ private fun FormattedBalance(balance: Money) {
 }
 
 @Composable
-private fun TripsChip(visibility: MutableTransitionState<Boolean>, trips: Int, revealDelay: Int) {
-    val colors = SevTheme.extendedColors
+private fun BalancePill(visibility: MutableTransitionState<Boolean>, text: String, revealDelay: Int) {
     val duration = SevTheme.motion.duration
     val anim = SevTheme.motion.anim
     AnimatedVisibility(
@@ -175,15 +178,7 @@ private fun TripsChip(visibility: MutableTransitionState<Boolean>, trips: Int, r
             shrinkDelay = duration.d100,
         ),
     ) {
-        Text(
-            text = pluralStringResource(R.plurals.cards_trips_left, trips, trips),
-            style = SevTheme.typography.bodySmallBold.copy(fontSize = 13.sp, fontWeight = FontWeight.Bold),
-            color = colors.onWarningContainer,
-            modifier = Modifier
-                .padding(top = 2.dp, bottom = 6.dp)
-                .background(colors.warningContainer, CircleShape)
-                .padding(vertical = 3.dp, horizontal = 10.dp),
-        )
+        WarningPill(text, Modifier.padding(top = 2.dp, bottom = 6.dp))
     }
 }
 
@@ -231,8 +226,7 @@ internal fun CardBalanceSectionLowBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard.copy(balance = Money(80)),
-                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(80)), TransactionsState.Loaded(Stubs.cardTripTransactions)),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )
@@ -247,8 +241,7 @@ internal fun CardBalanceSectionLowBalanceWithoutTripsPreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard.copy(balance = Money(80)),
-                transactionsState = TransactionsState.Loading,
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(80)), TransactionsState.Loading),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )
@@ -263,8 +256,22 @@ internal fun CardBalanceSectionNormalBalancePreview() {
     SevTheme {
         Surface {
             CardBalanceSection(
-                card = Stubs.balanceCard,
-                transactionsState = TransactionsState.Loaded(Stubs.cardTripTransactions),
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.cards[0], TransactionsState.Loaded(Stubs.cardTripTransactions)),
+                previousCardHadBalance = true,
+                onTopUpClicked = {},
+            )
+        }
+    }
+}
+
+@ScreenshotTest(ScreenshotSuite.Components)
+@PreviewLightDark
+@Composable
+internal fun CardBalanceSectionNoBalancePreview() {
+    SevTheme {
+        Surface {
+            CardBalanceSection(
+                cardUi = CardsScreenPreviewData.balanceCardUi(Stubs.balanceCard.copy(balance = Money(0)), TransactionsState.Loaded(Stubs.cardTripTransactions)),
                 previousCardHadBalance = true,
                 onTopUpClicked = {},
             )

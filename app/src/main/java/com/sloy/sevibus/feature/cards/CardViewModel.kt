@@ -20,12 +20,15 @@ import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import java.time.Clock
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModel(
     private val cardsRepository: CardsRepository,
     private val analytics: Analytics,
     initialCardId: CardId? = null,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
 
     val events = MutableSharedFlow<CardsScreenEvent>()
@@ -35,22 +38,22 @@ class CardViewModel(
     private val scrollToCard = MutableStateFlow<CardId?>(initialCardId)
 
 
-    private val cardsFlow: Flow<List<CardAndTransactions>> = cardsRepository.observeUserCards().transformLatest { userCards ->
-        emit(userCards.map { CardAndTransactions(it, TransactionsState.Loading) })
+    private val cardsFlow: Flow<List<CardUi>> = cardsRepository.observeUserCards().transformLatest { userCards ->
+        emit(userCards.map { cardUi(it, TransactionsState.Loading) })
         userCards.map { card ->
             val transactionsState = runCatching { cardsRepository.obtainTransactions(card.serialNumber) }
                 .map { if (it.isEmpty()) TransactionsState.Empty else TransactionsState.Loaded(it) }
                 .onFailure { SevLogger.logE(it, "Error obtaining transactions for card ${card.serialNumber}") }
                 .getOrElse { TransactionsState.Error(it) }
-            CardAndTransactions(card, transactionsState)
+            cardUi(card, transactionsState)
         }.let { emit(it) }
     }
 
-    val state = combineTransform(cardsFlow, isReordering, scrollToCard) { cardAndTransactions, isReordering, scrollTo ->
-        if (cardAndTransactions.isEmpty()) {
+    val state = combineTransform(cardsFlow, isReordering, scrollToCard) { cardsUi, isReordering, scrollTo ->
+        if (cardsUi.isEmpty()) {
             emit(CardsScreenState.Empty)
         } else {
-            emit(CardsScreenState.Content(cardAndTransactions, isReordering, scrollTo))
+            emit(CardsScreenState.Content(cardsUi, isReordering, scrollTo))
         }
     }.catch { error ->
         SevLogger.logE(error, "Error obtaining user cards")
@@ -86,7 +89,7 @@ class CardViewModel(
     }
 
     private suspend fun onNewCardReceived(card: CardInfo, addMethod: CardAddMethod) {
-        val existingCards = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()
+        val existingCards = (state.value as? CardsScreenState.Content)?.cardsUi?.cards()
         val existingCard = existingCards?.find { it.serialNumber == card.serialNumber }
         if (existingCard != null) {
             trackCardCheck(addMethod, Events.CardCheckCompleted.Result.ALREADY_SAVED)
@@ -123,7 +126,7 @@ class CardViewModel(
     }
 
     fun onDeleteCard(cardId: CardId) {
-        val cardType = (state.value as? CardsScreenState.Content)?.cardsAndTransactions?.cards()?.find { it.serialNumber == cardId }?.type
+        val cardType = (state.value as? CardsScreenState.Content)?.cardsUi?.cards()?.find { it.serialNumber == cardId }?.type
         viewModelScope.launch {
             runCatching { cardsRepository.deleteUserCard(cardId) }
                 .onSuccess {
@@ -159,6 +162,11 @@ class CardViewModel(
 
     private fun trackCardCheck(addMethod: CardAddMethod, result: Events.CardCheckCompleted.Result) {
         analytics.track(Events.CardCheckCompleted(addMethod.toScanMethod(), result))
+    }
+
+    private fun cardUi(card: CardInfo, transactionsState: TransactionsState): CardUi {
+        val loadedTransactions = (transactionsState as? TransactionsState.Loaded)?.transactions.orEmpty()
+        return CardUi(card, transactionsState, cardStatusUi(card, loadedTransactions, LocalDate.now(clock)))
     }
 }
 
