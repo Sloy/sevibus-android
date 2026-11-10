@@ -3,8 +3,12 @@ package com.sloy.sevibus.feature.cards
 import com.sloy.sevibus.domain.model.CardAddMethod
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.Money
+import com.sloy.sevibus.domain.model.PassPeriod
+import com.sloy.sevibus.domain.model.PassValidity
 import com.sloy.sevibus.domain.repository.CardsRepository
 import com.sloy.sevibus.infrastructure.analytics.Analytics
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks
+import com.sloy.sevibus.infrastructure.analytics.events.Clicks.MoreInfoReason
 import com.sloy.sevibus.infrastructure.analytics.events.Events
 import com.sloy.sevibus.infrastructure.analytics.events.Events.CardCheckCompleted.Result
 import com.sloy.sevibus.infrastructure.analytics.events.Events.CardScanned.ScanMethod
@@ -26,6 +30,9 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.stub
 import org.mockito.kotlin.verify
+import strikt.api.expectThat
+import strikt.assertions.contains
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardViewModelTest {
@@ -85,6 +92,35 @@ class CardViewModelTest {
         collectingViewModel().onNewCardNumber(NEW_SERIAL.toString(), CardAddMethod.NFC)
 
         verify(analytics).track(Events.CardCheckCompleted(ScanMethod.NFC, Result.ERROR))
+    }
+
+    @Test
+    fun `more info opens the Tussam titles page and tracks the reason`() = runTest {
+        val expiredPass = CardInfo.PassCard(900000010, 103, "Bonobús solidario", PassValidity(PassPeriod(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 8, 1)), null))
+        val viewModel = collectingViewModel()
+        val events = mutableListOf<CardsScreenEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.events.collect { events += it } }
+
+        viewModel.onMoreInfoClicked(expiredPass)
+
+        expectThat(events).contains(CardsScreenEvent.LaunchUri(TUSSAM_TITLES_URL))
+        verify(analytics).track(Clicks.CardMoreInfoClicked(103, MoreInfoReason.PASS_EXPIRED))
+    }
+
+    @Test
+    fun `more info on an expired card tracks card expired`() = runTest {
+        val expired = CardInfo.ExpiredCard(900000011, 116, "Estudiante mensual")
+
+        collectingViewModel().onMoreInfoClicked(expired)
+
+        verify(analytics).track(Clicks.CardMoreInfoClicked(116, MoreInfoReason.CARD_EXPIRED))
+    }
+
+    @Test
+    fun `copying the serial is tracked`() = runTest {
+        collectingViewModel().onSerialCopied()
+
+        verify(analytics).track(Clicks.CardSerialCopied)
     }
 
     private fun stubCheckCard(returns: CardInfo?) {
