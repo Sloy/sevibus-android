@@ -318,12 +318,14 @@ object Stubs {
         CardInfo.PassCard(
             code = 70,
             type = "Hijo de empleado",
+            validity = null,
             customName = "La de paco",
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 116,
             type = "Estudiante mensual",
+            validity = null,
             customName = "Estudiante",
             serialNumber = nextCardSerial()
         ),
@@ -344,102 +346,119 @@ object Stubs {
         CardInfo.PassCard(
             code = 71,
             type = "Familiar de empleado",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 101,
             type = "Joven",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 102,
             type = "Algo de Tussam",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 103,
             type = "Solidaria",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 104,
             type = "3ª edad",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 109,
             type = "Social",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 115,
             type = "Estudiante",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 116,
             type = "Estudiante mensual",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 117,
             type = "Diversidad funcional",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 118,
             type = "Infantil",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 150,
             type = "30 días",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 151,
             type = "Turística 1 día",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 152,
             type = "Turística 3 días",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 154,
             type = "Familia numerosa",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 155,
             type = "Familia numerosa especial",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 156,
             type = "Anual",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),
         CardInfo.PassCard(
             code = 201,
             type = "Pensionista",
+            validity = null,
             customName = null,
             serialNumber = nextCardSerial()
         ),

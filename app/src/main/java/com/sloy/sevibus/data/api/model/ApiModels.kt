@@ -97,6 +97,24 @@ data class CardInfoDto(
     val customName: String? = null,
     val order: Int = -1,
     val addedVia: String? = null,
+    val kind: String? = null,
+    val expired: Boolean = false,
+    val pass: CardPassDto? = null,
+    val expiresOn: String? = null,
+)
+
+@Serializable
+data class CardPassDto(
+    val from: String,
+    val to: String,
+    val nextPeriod: CardNextPeriodDto? = null,
+)
+
+@Serializable
+data class CardNextPeriodDto(
+    val type: String,
+    val from: String? = null,
+    val to: String? = null,
 )
 
 @Serializable
