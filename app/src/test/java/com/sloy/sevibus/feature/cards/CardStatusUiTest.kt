@@ -5,10 +5,10 @@ import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.Fare
 import com.sloy.sevibus.domain.model.Money
-import com.sloy.sevibus.domain.model.toSummary
 import com.sloy.sevibus.domain.model.NextPeriod
 import com.sloy.sevibus.domain.model.PassPeriod
 import com.sloy.sevibus.domain.model.PassValidity
+import com.sloy.sevibus.domain.model.toSummary
 import org.junit.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
@@ -27,75 +27,144 @@ class CardStatusUiTest {
 
     @Test
     fun `normal balance`() {
-        expectThat(cardStatusUi(balanceCard(1074), listOf(trip), today)).isEqualTo(CardStatusUi.Balance(Money(1074), isEmpty = false, isLow = false, tripsLeft = 24))
+        val card = balanceCard(1074)
+        val transactions = listOf(trip)
+
+        val status = cardStatusUi(card, transactions, today)
+
+        expectThat(status).isEqualTo(CardStatusUi.Balance(Money(1074), isEmpty = false, isLow = false, tripsLeft = 24))
     }
 
     @Test
     fun `low balance shows trips left`() {
-        expectThat(cardStatusUi(balanceCard(10), listOf(trip), today)).isEqualTo(CardStatusUi.Balance(Money(10), isEmpty = false, isLow = true, tripsLeft = 1))
+        val card = balanceCard(10)
+        val transactions = listOf(trip)
+
+        val status = cardStatusUi(card, transactions, today)
+
+        expectThat(status).isEqualTo(CardStatusUi.Balance(Money(10), isEmpty = false, isLow = true, tripsLeft = 1))
     }
 
     @Test
-    fun `zero and negative balances are empty`() {
-        expectThat(cardStatusUi(balanceCard(0), listOf(trip), today)).isEqualTo(CardStatusUi.Balance(Money(0), isEmpty = true, isLow = false, tripsLeft = null))
-        expectThat(cardStatusUi(balanceCard(-44), listOf(trip), today)).isEqualTo(CardStatusUi.Balance(Money(-44), isEmpty = true, isLow = false, tripsLeft = null))
+    fun `zero balance is empty`() {
+        val card = balanceCard(0)
+        val transactions = listOf(trip)
+
+        val status = cardStatusUi(card, transactions, today)
+
+        expectThat(status).isEqualTo(CardStatusUi.Balance(Money(0), isEmpty = true, isLow = false, tripsLeft = null))
+    }
+
+    @Test
+    fun `negative balance is empty`() {
+        val card = balanceCard(-44)
+        val transactions = listOf(trip)
+
+        val status = cardStatusUi(card, transactions, today)
+
+        expectThat(status).isEqualTo(CardStatusUi.Balance(Money(-44), isEmpty = true, isLow = false, tripsLeft = null))
     }
 
     @Test
     fun `active pass`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 10, 6), LocalDate.of(2026, 11, 4)), emptyList(), today)
-        expectThat(status).isEqualTo(CardStatusUi.Pass(LocalDate.of(2026, 11, 4), hasNextPeriod = false, progress = PassProgress(LocalDate.of(2026, 10, 6), 5f / 30f, 25), expiredAgo = null))
+        val card = passCard(from = LocalDate.of(2026, 10, 6), to = LocalDate.of(2026, 11, 4))
+
+        val status = cardStatusUi(card, emptyList(), today)
+
+        val expectedProgress = CardStatusUi.Pass.Progress(validFrom = LocalDate.of(2026, 10, 6), fraction = 5f / 30f, daysLeft = 25)
+        expectThat(status).isEqualTo(
+            CardStatusUi.Pass(validTo = LocalDate.of(2026, 11, 4), hasNextPeriod = false, progress = expectedProgress, expiredAgo = null)
+        )
     }
 
     @Test
     fun `pass on its last day`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 9, 11), today), emptyList(), today) as CardStatusUi.Pass
+        val card = passCard(from = LocalDate.of(2026, 9, 11), to = today)
+
+        val status = cardStatusUi(card, emptyList(), today) as CardStatusUi.Pass
+
         expectThat(status.progress?.daysLeft).isEqualTo(0)
     }
 
     @Test
     fun `pass with next period paid`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 9, 14), LocalDate.of(2026, 10, 13), NextPeriod.OnFirstUse), emptyList(), today) as CardStatusUi.Pass
+        val card = passCard(from = LocalDate.of(2026, 9, 14), to = LocalDate.of(2026, 10, 13), nextPeriod = NextPeriod.OnFirstUse)
+
+        val status = cardStatusUi(card, emptyList(), today) as CardStatusUi.Pass
+
         expectThat(status.hasNextPeriod).isEqualTo(true)
         expectThat(status.progress?.daysLeft).isEqualTo(3)
     }
 
     @Test
     fun `expired pass`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 8, 1)), emptyList(), today)
-        expectThat(status).isEqualTo(CardStatusUi.Pass(LocalDate.of(2026, 8, 1), hasNextPeriod = false, progress = null, expiredAgo = Elapsed(2, ElapsedUnit.MONTHS)))
+        val card = passCard(from = LocalDate.of(2026, 2, 1), to = LocalDate.of(2026, 8, 1))
+
+        val status = cardStatusUi(card, emptyList(), today)
+
+        expectThat(status).isEqualTo(
+            CardStatusUi.Pass(validTo = LocalDate.of(2026, 8, 1), hasNextPeriod = false, progress = null, expiredAgo = Elapsed(2, ElapsedUnit.MONTHS))
+        )
     }
 
     @Test
     fun `expired pass with a stale next period is just expired`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 8, 1), NextPeriod.OnFirstUse), emptyList(), today) as CardStatusUi.Pass
+        val card = passCard(from = LocalDate.of(2026, 2, 1), to = LocalDate.of(2026, 8, 1), nextPeriod = NextPeriod.OnFirstUse)
+
+        val status = cardStatusUi(card, emptyList(), today) as CardStatusUi.Pass
+
         expectThat(status.hasNextPeriod).isEqualTo(false)
     }
 
     @Test
     fun `pass not started yet has no bar`() {
-        val status = cardStatusUi(passCard(LocalDate.of(2026, 10, 20), LocalDate.of(2026, 11, 18)), emptyList(), today) as CardStatusUi.Pass
+        val card = passCard(from = LocalDate.of(2026, 10, 20), to = LocalDate.of(2026, 11, 18))
+
+        val status = cardStatusUi(card, emptyList(), today) as CardStatusUi.Pass
+
         expectThat(status.progress).isNull()
         expectThat(status.expiredAgo).isNull()
     }
 
     @Test
     fun `pass not refreshed yet shows no status block`() {
-        expectThat(cardStatusUi(CardInfo.PassCard(900000001, 150, "Tarjeta 30 días", validity = null), emptyList(), today)).isEqualTo(CardStatusUi.None)
+        val card = CardInfo.PassCard(900000001, 150, "Tarjeta 30 días", validity = null)
+
+        val status = cardStatusUi(card, emptyList(), today)
+
+        expectThat(status).isEqualTo(CardStatusUi.None)
     }
 
     @Test
     fun `expired card`() {
-        expectThat(cardStatusUi(expiredCard(LocalDate.of(2025, 9, 30)), emptyList(), today))
-            .isEqualTo(CardStatusUi.ExpiredCard(LocalDate.of(2025, 9, 30)))
+        val card = expiredCard(expiresOn = LocalDate.of(2025, 9, 30))
+
+        val status = cardStatusUi(card, emptyList(), today)
+
+        expectThat(status).isEqualTo(CardStatusUi.ExpiredCard(expiredOn = LocalDate.of(2025, 9, 30)))
     }
 
     @Test
-    fun `details rows`() {
-        val pass = passCard(LocalDate.of(2026, 9, 14), LocalDate.of(2026, 10, 13), NextPeriod.OnFirstUse, expiresOn = LocalDate.of(2028, 5, 21))
-        expectThat(cardDetailsUi(pass, today)).isEqualTo(CardDetailsUi(pass.formattedSerialNumber, PeriodRow(LocalDate.of(2026, 9, 14), LocalDate.of(2026, 10, 13), isCurrentPeriod = true), LocalDate.of(2028, 5, 21)))
+    fun `details of a pass show its period and physical expiry`() {
+        val pass = passCard(
+            from = LocalDate.of(2026, 9, 14),
+            to = LocalDate.of(2026, 10, 13),
+            nextPeriod = NextPeriod.OnFirstUse,
+            expiresOn = LocalDate.of(2028, 5, 21),
+        )
 
-        val expired = expiredCard(LocalDate.of(2025, 9, 30))
-        expectThat(cardDetailsUi(expired, today)).isEqualTo(CardDetailsUi(expired.formattedSerialNumber, null, null))
+        val details = cardDetailsUi(pass, today)
+
+        val expectedPeriod = CardDetailsUi.Period(from = LocalDate.of(2026, 9, 14), to = LocalDate.of(2026, 10, 13), isCurrentPeriod = true)
+        expectThat(details).isEqualTo(CardDetailsUi(pass.formattedSerialNumber, expectedPeriod, physicalExpiry = LocalDate.of(2028, 5, 21)))
+    }
+
+    @Test
+    fun `details of an expired card have no period nor physical expiry`() {
+        val expired = expiredCard(expiresOn = LocalDate.of(2025, 9, 30))
+
+        val details = cardDetailsUi(expired, today)
+
+        expectThat(details).isEqualTo(CardDetailsUi(expired.formattedSerialNumber, period = null, physicalExpiry = null))
     }
 }

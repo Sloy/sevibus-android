@@ -32,8 +32,6 @@ import com.sloy.sevibus.infrastructure.FeatureFlags
 import com.sloy.sevibus.ui.theme.SevTheme
 import java.time.LocalDate
 
-const val TUSSAM_TITLES_URL = "https://www.tussam.es/es/titulos-de-viajes"
-
 val LocalToday = staticCompositionLocalOf<LocalDate> { LocalDate.now() }
 
 @Composable

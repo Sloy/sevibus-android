@@ -10,16 +10,16 @@ import java.time.temporal.ChronoUnit
 
 sealed interface CardStatusUi {
     data class Balance(val balance: Money, val isEmpty: Boolean, val isLow: Boolean, val tripsLeft: Int?) : CardStatusUi
-    data class Pass(val validTo: LocalDate, val hasNextPeriod: Boolean, val progress: PassProgress?, val expiredAgo: Elapsed?) : CardStatusUi
+    data class Pass(val validTo: LocalDate, val hasNextPeriod: Boolean, val progress: Progress?, val expiredAgo: Elapsed?) : CardStatusUi {
+        data class Progress(val validFrom: LocalDate, val fraction: Float, val daysLeft: Int)
+    }
     data class ExpiredCard(val expiredOn: LocalDate?) : CardStatusUi
     data object None : CardStatusUi
 }
 
-data class PassProgress(val validFrom: LocalDate, val fraction: Float, val daysLeft: Int)
-
-data class CardDetailsUi(val serial: String, val period: PeriodRow?, val physicalExpiry: LocalDate?)
-
-data class PeriodRow(val from: LocalDate, val to: LocalDate, val isCurrentPeriod: Boolean)
+data class CardDetailsUi(val serial: String, val period: Period?, val physicalExpiry: LocalDate?) {
+    data class Period(val from: LocalDate, val to: LocalDate, val isCurrentPeriod: Boolean)
+}
 
 fun cardStatusUi(card: CardInfo, transactions: List<CardTransaction>, today: LocalDate): CardStatusUi = when (card) {
     is CardInfo.BalanceCard -> CardStatusUi.Balance(
@@ -44,12 +44,12 @@ private fun passStatusUi(validity: PassValidity, today: LocalDate): CardStatusUi
     val totalDays = ChronoUnit.DAYS.between(validFrom, validTo) + 1
     val daysLeft = ChronoUnit.DAYS.between(today, validTo)
     val fraction = ((totalDays - daysLeft).toFloat() / totalDays).coerceIn(0f, 1f)
-    return CardStatusUi.Pass(validTo, hasNextPeriod, PassProgress(validFrom, fraction, daysLeft.toInt()), expiredAgo = null)
+    return CardStatusUi.Pass(validTo, hasNextPeriod, CardStatusUi.Pass.Progress(validFrom, fraction, daysLeft.toInt()), expiredAgo = null)
 }
 
 fun cardDetailsUi(card: CardInfo, today: LocalDate): CardDetailsUi {
     val validity = (card as? CardInfo.PassCard)?.validity
-    val period = validity?.let { PeriodRow(it.period.from, it.period.to, isCurrentPeriod = it.nextPeriod != null && !today.isAfter(it.period.to)) }
+    val period = validity?.let { CardDetailsUi.Period(it.period.from, it.period.to, isCurrentPeriod = it.nextPeriod != null && !today.isAfter(it.period.to)) }
     val physicalExpiry = card.expiresOn.takeIf { card !is CardInfo.ExpiredCard }
     return CardDetailsUi(card.formattedSerialNumber, period, physicalExpiry)
 }
