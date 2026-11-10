@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs the Maestro suites against the installed debug build.
+# Runs the Maestro suites against the installed debug build, with Maestro or Speedrun.
 #
 # Usage:
 #   run.sh                               pick what to run interactively (in a terminal)
@@ -7,8 +7,9 @@
 #   run.sh retry                         run again the flows that failed in the last run
 #   run.sh <flow file or folder>...      run some flows, e.g. run.sh integration/search e2e
 #   run.sh --config <config.yaml>        run the flows listed in a Maestro workspace config
+#   run.sh --speedrun ...                run with Speedrun instead of Maestro (same as RUNNER=speedrun)
 #
-# Arguments after -- go to maestro test.
+# Arguments after -- go to maestro test (or speedrun test).
 set -euo pipefail
 
 TESTS_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,11 +19,12 @@ REPORT_DIR="${REPORT_DIR:-$TESTS_DIR/build/reports}"
 # The map is disabled by default: drawing its markers keeps the device busy and makes flows slow and flaky.
 # No flow uses it. MAP_MODE=full brings it back.
 MAP_MODE="${MAP_MODE:-disabled}"
+RUNNER="${RUNNER:-maestro}"
 SUITES=(integration e2e)
 FAILED_CONFIG="$REPORT_DIR/failed-config.yaml"
 RUN_CONFIG="$REPORT_DIR/run-config.yaml"
 usage() {
-  sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' >&2
+  sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//' >&2
   exit 1
 }
 
@@ -136,6 +138,7 @@ while (( $# > 0 )); do
   case "$1" in
     -h|--help) usage ;;
     --config) [[ $# -ge 2 ]] || usage; CONFIG="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"; shift 2 ;;
+    --speedrun) RUNNER=speedrun; shift ;;
     --) shift; MAESTRO_ARGS=("$@"); break ;;
     *) add_selection "$1"; shift ;;
   esac
@@ -150,6 +153,12 @@ if [[ -z "$CONFIG" && ${#SELECTION[@]} -eq 0 ]]; then
   for line in "${picked[@]}"; do [[ "$line" == integration/ ]] && picked=(integration/); done
   for line in "${picked[@]}"; do add_selection "$line"; done
 fi
+
+case "$RUNNER" in
+  maestro|speedrun) ;;
+  *) echo "Unknown runner '$RUNNER'. Use maestro or speedrun." >&2; exit 1 ;;
+esac
+command -v "$RUNNER" >/dev/null || { echo "$RUNNER is not installed" >&2; exit 1; }
 
 mkdir -p "$REPORT_DIR"
 
@@ -256,7 +265,7 @@ echo "Animations disabled for the run. If the run is killed, restore them in Dev
 # Restore the device if the script exits before the full cleanup trap below is set
 trap 'restore_screen_timeout; restore_animations' EXIT
 
-if lsof -nP -iTCP:7001 -sTCP:LISTEN >/dev/null 2>&1 && ps -o command= -p "$(lsof -nP -iTCP:7001 -sTCP:LISTEN -t | head -1)" | grep -q "maestro.cli.AppKt mcp"; then
+if [[ "$RUNNER" == maestro ]] && lsof -nP -iTCP:7001 -sTCP:LISTEN >/dev/null 2>&1 && ps -o command= -p "$(lsof -nP -iTCP:7001 -sTCP:LISTEN -t | head -1)" | grep -q "maestro.cli.AppKt mcp"; then
   echo "A Maestro MCP server is holding port 7001. Stop it (or disconnect it in /mcp) before running the CLI." >&2
   exit 1
 fi
@@ -311,11 +320,11 @@ fi
 
 # Maestro only prints a flow when it finishes. Its log says when each flow starts, so follow it to show
 # which flow is running and how many are left. Not needed for a single file, which shows every step.
-DEBUG_LOG="$REPORT_DIR/debug/maestro.log"
+DEBUG_LOG="$REPORT_DIR/debug/$RUNNER.log"
 mkdir -p "$(dirname "$DEBUG_LOG")"
 mv -f "$DEBUG_LOG" "$DEBUG_LOG.previous" 2>/dev/null || true
 PROGRESS_PID=""
-if (( ${#report_args[@]} > 0 )); then
+if [[ "$RUNNER" == maestro ]] && (( ${#report_args[@]} > 0 )); then
   (
     started=0
     while sleep 1; do
@@ -334,7 +343,7 @@ fi
 
 echo "Running $TOTAL_FLOWS flow(s)..."
 status=0
-maestro --device "$DEVICE" test \
+"$RUNNER" --device "$DEVICE" test \
   -e APP_ID="$APP_ID" \
   -e EXPECTED_HOST="$EXPECTED_HOST" \
   -e MOCK_PORT="$MOCK_PORT" \
