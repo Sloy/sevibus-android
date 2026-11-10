@@ -95,7 +95,7 @@ Environment variables:
 
 - Install it with `brew install hubastard/tap/speedrun` (see its README for other ways). Nothing else changes: `run.sh` prepares the device and WireMock the same way, and `speedrun test` writes the same JUnit report and `retry` config.
 - Run `adb unroot` first if the device was rooted to set the language: with `adb root` active every `launchApp` fails with `No launcher intent found`.
-- Use the recommended emulator. Speedrun types fast and sometimes left characters out of order in our search field (`sebastian` as `sbastiane`): once in two full runs on the recommended emulator, and much more often on a Play Store image with background load. Retry a flow that fails at the search subflow before looking for another cause.
+- Turn off Gboard's stylus handwriting on the emulator with `adb shell settings put secure stylus_handwriting_enabled 0`. Its tutorial can pop up in the middle of a run and swallow the typed text, with either runner.
 - The Maestro MCP server check and the live `▶ [n/total]` progress lines only apply to Maestro. The log goes to `build/reports/debug/speedrun.log`.
 
 ### E2E: the dev backend
