@@ -166,3 +166,5 @@ private fun CardAddMethod.toScanMethod(): Events.CardScanned.ScanMethod = when (
     CardAddMethod.NFC -> Events.CardScanned.ScanMethod.NFC
     CardAddMethod.MANUAL -> Events.CardScanned.ScanMethod.MANUAL
 }
+
+const val TUSSAM_TITLES_URL = "https://www.tussam.es/es/titulos-de-viajes"
