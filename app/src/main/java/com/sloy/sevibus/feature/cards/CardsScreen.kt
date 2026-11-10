@@ -403,7 +403,7 @@ private fun ExistingCardsDetail(
         )
         when (transactionsState) {
             is TransactionsState.Loaded -> {
-                CardTransactionsElement(transactionsState.transactions)
+                CardTransactionsElement(transactionsState.transactions.byMonth(), isBalanceCard = currentCard is CardInfo.BalanceCard)
             }
 
             is TransactionsState.Loading -> {
@@ -938,6 +938,26 @@ internal fun CardsScreenErrorPreview() {
 @ScreenshotTest(ScreenshotSuite.Screens)
 @Preview
 @Composable
+internal fun CardsScreenBalanceNormalPreview() = CardsScreenCasePreview(CardsScreenPreviewData.balanceNormal())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceGroupPreview() = CardsScreenCasePreview(CardsScreenPreviewData.balanceGroup())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceLowPreview() = CardsScreenCasePreview(CardsScreenPreviewData.balanceLow())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenBalanceNegativePreview() = CardsScreenCasePreview(CardsScreenPreviewData.balanceNegative())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
 internal fun CardsScreenPassActivePreview() = CardsScreenCasePreview(CardsScreenPreviewData.passActive())
 
 @ScreenshotTest(ScreenshotSuite.Screens)
@@ -954,6 +974,11 @@ internal fun CardsScreenPassExpiredPreview() = CardsScreenCasePreview(CardsScree
 @Preview
 @Composable
 internal fun CardsScreenCardExpiredPreview() = CardsScreenCasePreview(CardsScreenPreviewData.cardExpired())
+
+@ScreenshotTest(ScreenshotSuite.Screens)
+@Preview
+@Composable
+internal fun CardsScreenPassTransfersPreview() = CardsScreenCasePreview(CardsScreenPreviewData.passTransfers())
 
 @Composable
 private fun CardsScreenCasePreview(card: CardUi) {

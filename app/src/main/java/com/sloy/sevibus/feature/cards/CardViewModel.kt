@@ -110,6 +110,7 @@ class CardViewModel(
             analytics.track(Clicks.CardTopUpClicked(card.type, (card as? CardInfo.BalanceCard)?.balance?.cents))
         }
     }
+
     fun onMoreInfoClicked(card: CardInfo) {
         val reason = if (card is CardInfo.ExpiredCard) Clicks.MoreInfoReason.CARD_EXPIRED else Clicks.MoreInfoReason.PASS_EXPIRED
         viewModelScope.launch {

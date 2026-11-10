@@ -45,6 +45,25 @@ class CardTransactionDtoMappersTest {
     }
 
     @Test
+    fun `maps purchases`() {
+        val transactions = listOf(
+            dto("2026-10-09T21:00:00", "pending_purchase", amount = 1000),
+            dto("2026-10-09T20:00:00", "topup", amount = 1000, balanceAfter = 1074),
+            dto("2026-10-08T20:00:00", "pass_purchase", amount = 2120),
+            dto("2026-10-07T20:00:00", "pass_renewal", amount = 1690),
+            dto("2026-10-06T20:00:00", "pass_renewal", amount = 0),
+        ).fromDto(lines)
+
+        expectThat(transactions).containsExactly(
+            CardTransaction.PendingPurchase(serial, at(9, 21, 0), Money(1000)),
+            CardTransaction.TopUp(serial, at(9, 20, 0), Money(1000), Money(1074)),
+            CardTransaction.PassPurchase(serial, at(8, 20, 0), Money(2120)),
+            CardTransaction.PassRenewal(serial, at(7, 20, 0), Money(1690)),
+            CardTransaction.PassRenewal(serial, at(6, 20, 0), amount = null),
+        )
+    }
+
+    @Test
     fun `falls back to an unknown line badge`() {
         val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 0, lineLabel = "N9")).fromDto(lines)
 

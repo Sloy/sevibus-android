@@ -23,6 +23,12 @@ sealed interface CardInfo {
     val formattedSerialNumber: String
         get() = fullSerialNumber.chunked(4).joinToString(" ")
 
+    fun withCustomName(customName: String?): CardInfo = when (this) {
+        is BalanceCard -> copy(customName = customName)
+        is PassCard -> copy(customName = customName)
+        is ExpiredCard -> copy(customName = customName)
+    }
+
     data class BalanceCard(
         override val serialNumber: CardId,
         override val code: Int,

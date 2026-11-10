@@ -88,6 +88,9 @@ private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
         }
         "transfer" -> line?.let { CardTransaction.Transfer(serialNumber, parsedDate, it) }
         "topup" -> if (money != null && balance != null) CardTransaction.TopUp(serialNumber, parsedDate, money, balance) else null
+        "pending_purchase" -> money?.let { CardTransaction.PendingPurchase(serialNumber, parsedDate, it) }
+        "pass_purchase" -> money?.let { CardTransaction.PassPurchase(serialNumber, parsedDate, it) }
+        "pass_renewal" -> CardTransaction.PassRenewal(serialNumber, parsedDate, money?.takeIf { it.isPositive })
         else -> null
     }
     if (transaction == null) SevLogger.logW(msg = "Unsupported card transaction $this")

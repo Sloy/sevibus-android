@@ -3,6 +3,7 @@ package com.sloy.sevibus.feature.cards
 import com.sloy.sevibus.Stubs
 import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
+import com.sloy.sevibus.domain.model.CardTransaction
 import java.time.LocalDate
 
 internal object CardsScreenPreviewData {
@@ -14,6 +15,12 @@ internal object CardsScreenPreviewData {
 
     fun balanceNormal(): CardUi = fromCase("BalanceNormal")
 
+    fun balanceGroup(): CardUi = fromCase("BalanceGroup")
+
+    fun balanceLow(): CardUi = fromCase("BalanceLow")
+
+    fun balanceNegative(): CardUi = fromCase("BalanceNegative")
+
     fun passActive(): CardUi = fromCase("PassActive")
 
     fun passLastDay(): CardUi = fromCase("PassActive", today = LocalDate.of(2026, 11, 4))
@@ -24,7 +31,11 @@ internal object CardsScreenPreviewData {
 
     fun cardExpired(): CardUi = fromCase("CardExpired")
 
+    fun passTransfers(): CardUi = fromCase("PassTransfers")
+
     fun content(card: CardUi): CardsScreenState.Content = CardsScreenState.Content(listOf(card))
+
+    fun loadedTransactions(card: CardUi): List<CardTransaction> = (card.transactions as TransactionsState.Loaded).transactions
 
     fun cardUi(card: CardInfo, transactions: TransactionsState, today: LocalDate = this.today): CardUi {
         val loadedTransactions = (transactions as? TransactionsState.Loaded)?.transactions.orEmpty()
