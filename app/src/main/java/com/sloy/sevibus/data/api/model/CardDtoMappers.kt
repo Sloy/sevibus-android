@@ -20,17 +20,22 @@ fun CardInfoDto.fromDto(): CardInfo = when (balance) {
 private const val UNKNOWN_LINE_ID = -1
 private val TRANSFER_WINDOW: Duration = Duration.ofMinutes(60)
 
-fun List<CardTransactionDto>.toDomain(lines: List<Line>): List<CardTransaction> {
-    val oldestFirst = mutableListOf<CardTransaction>()
-    for (transaction in asReversed().mapNotNull { it.toDomain(lines) }) {
-        val previous = oldestFirst.lastOrNull()
-        if (transaction is CardTransaction.Transfer && previous is CardTransaction.Trip && previous.continuesWith(transaction)) {
-            oldestFirst[oldestFirst.lastIndex] = previous.copy(transfers = previous.transfers + transaction)
+fun List<CardTransactionDto>.fromDto(lines: List<Line>): List<CardTransaction> {
+    val oldestFirst = asReversed().mapNotNull { it.fromDto(lines) }
+    return oldestFirst.mergeTransfersIntoTheirTrip().asReversed()
+}
+
+private fun List<CardTransaction>.mergeTransfersIntoTheirTrip(): List<CardTransaction> {
+    val merged = mutableListOf<CardTransaction>()
+    for (transaction in this) {
+        val previousTrip = merged.lastOrNull() as? CardTransaction.Trip
+        if (transaction is CardTransaction.Transfer && previousTrip != null && previousTrip.continuesWith(transaction)) {
+            merged[merged.lastIndex] = previousTrip.copy(transfers = previousTrip.transfers + transaction)
         } else {
-            oldestFirst += transaction
+            merged += transaction
         }
     }
-    return oldestFirst.asReversed()
+    return merged
 }
 
 private fun CardTransaction.Trip.continuesWith(transfer: CardTransaction.Transfer): Boolean {
@@ -44,7 +49,7 @@ private fun CardTransactionDto.lineOf(lines: List<Line>): LineSummary? = lineLab
     lines.find { it.label == label }?.toSummary() ?: LineSummary(UNKNOWN_LINE_ID, label, LineColor.Unknown)
 }
 
-private fun CardTransactionDto.toDomain(lines: List<Line>): CardTransaction? {
+private fun CardTransactionDto.fromDto(lines: List<Line>): CardTransaction? {
     val parsedDate = runCatching { LocalDateTime.parse(date) }.getOrElse {
         SevLogger.logW(it, "Unparseable card transaction date $date")
         return null

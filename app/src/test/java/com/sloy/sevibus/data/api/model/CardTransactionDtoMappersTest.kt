@@ -26,14 +26,14 @@ class CardTransactionDtoMappersTest {
 
     @Test
     fun `maps a balance card trip with its fare`() {
-        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 92, lineLabel = "02", people = 2)).toDomain(lines)
+        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 92, lineLabel = "02", people = 2)).fromDto(lines)
 
         expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), summary02, 2, Fare(Money(92))))
     }
 
     @Test
     fun `falls back to an unknown line badge`() {
-        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 0, lineLabel = "N9")).toDomain(lines)
+        val transactions = listOf(dto("2026-10-09T20:16:00", "validation", amount = 0, lineLabel = "N9")).fromDto(lines)
 
         expectThat(transactions).containsExactly(CardTransaction.Trip(serial, at(9, 20, 16), LineSummary(-1, "N9", LineColor.Unknown), 1, Fare(Money(0))))
     }
@@ -43,7 +43,7 @@ class CardTransactionDtoMappersTest {
         val transactions = listOf(
             dto("2026-10-09T20:16:00", "something_new", amount = 100),
             dto("9/10/2026", "validation", amount = 0, lineLabel = "02"),
-        ).toDomain(lines)
+        ).fromDto(lines)
 
         expectThat(transactions).isEmpty()
     }
@@ -54,7 +54,7 @@ class CardTransactionDtoMappersTest {
             dto("2026-10-05T13:45:39", "transfer", lineLabel = "28"),
             dto("2026-10-05T13:18:19", "transfer", lineLabel = "B4"),
             dto("2026-10-05T12:56:17", "validation", amount = 0, lineLabel = "02"),
-        ).toDomain(lines)
+        ).fromDto(lines)
 
         expectThat(transactions).containsExactly(
             CardTransaction.Trip(
@@ -73,7 +73,7 @@ class CardTransactionDtoMappersTest {
             dto("2026-10-08T12:29:54", "transfer", lineLabel = "02"),
             dto("2026-10-08T11:52:37", "transfer", lineLabel = "02"),
             dto("2026-10-08T11:00:02", "validation", amount = 0, lineLabel = "02"),
-        ).toDomain(lines)
+        ).fromDto(lines)
 
         expectThat(transactions.map { (it as CardTransaction.Trip).transfers.size }).containsExactly(2)
     }
@@ -85,7 +85,7 @@ class CardTransactionDtoMappersTest {
             dto("2026-10-08T08:15:57", "transfer", lineLabel = "02"),
             dto("2026-10-07T20:00:00", "topup", amount = 1000),
             dto("2026-10-07T19:50:00", "validation", amount = 46, lineLabel = "02"),
-        ).toDomain(lines)
+        ).fromDto(lines)
 
         expectThat(transactions).containsExactly(
             CardTransaction.Transfer(serial, at(8, 14, 31).plusSeconds(27), summary02),

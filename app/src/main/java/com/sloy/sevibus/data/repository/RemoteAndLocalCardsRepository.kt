@@ -117,7 +117,7 @@ class RemoteAndLocalCardsRepository(
 
     override suspend fun obtainTransactions(cardId: CardId): List<CardTransaction> {
         val lines = lineRepository.obtainLines()
-        return api.getCardTransactions(cardId).toDomain(lines)
+        return api.getCardTransactions(cardId).fromDto(lines)
     }
 
     override suspend fun dismissAlertForCards(cardIds: List<CardId>) {
