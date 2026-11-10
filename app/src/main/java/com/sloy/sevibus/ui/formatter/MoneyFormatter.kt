@@ -9,11 +9,9 @@ import java.util.Locale
 
 object MoneyFormatter {
 
-    fun format(money: Money, showPlusWhenPositive: Boolean = false): String = fromCents(money.cents, showPlusWhenPositive)
-
-    fun fromCents(cents: Int, showPlusWhenPositive: Boolean = false): String =
-        formatter.format(cents / 100f)
-            .apply { if (showPlusWhenPositive and (cents > 0)) return "+$this" }
+    fun format(money: Money, showPlusWhenPositive: Boolean = false): String =
+        formatter.format(money.cents / 100f)
+            .apply { if (showPlusWhenPositive and (money.cents > 0)) return "+$this" }
 
 
     private val locale = Locale("es")

@@ -6,6 +6,7 @@ import com.sloy.sevibus.domain.model.CardId
 import com.sloy.sevibus.domain.model.CardInfo
 import com.sloy.sevibus.domain.model.CardTransaction
 import com.sloy.sevibus.domain.model.CustomIcon
+import com.sloy.sevibus.domain.model.Fare
 import com.sloy.sevibus.domain.model.FavoriteStop
 import com.sloy.sevibus.domain.model.Line
 import com.sloy.sevibus.domain.model.LineColor
@@ -457,18 +458,18 @@ object Stubs {
     private val transactionsDate = LocalDateTime.of(2025, 12, 31, 14, 46)
 
     @Deprecated("")
-    val cardInfoTransactions = listOf(
-        CardTransaction.Validation(700000001, transactionsDate, 350, lines[4].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000002, transactionsDate, 350, lines[2].toSummary(), bus = 0, people = 0),
-        CardTransaction.TopUp(700000003, transactionsDate, 10000),
-        CardTransaction.Validation(700000004, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 2),
-        CardTransaction.Validation(700000005, transactionsDate, 350, lines[34].toSummary(), bus = 0, people = 0),
+    val cardInfoTransactions: List<CardTransaction> = listOf(
+        CardTransaction.Trip(700000001, transactionsDate, lines[4].toSummary(), people = 2, fare = Fare(Money(350))),
+        CardTransaction.Trip(700000002, transactionsDate, lines[2].toSummary(), people = 1, fare = Fare(Money(350))),
+        CardTransaction.TopUp(700000003, transactionsDate, Money(10000)),
+        CardTransaction.Trip(700000004, transactionsDate, lines[34].toSummary(), people = 2, fare = Fare(Money(350))),
+        CardTransaction.Trip(700000005, transactionsDate, lines[34].toSummary(), people = 1, fare = Fare(Money(350))),
     )
 
     @Deprecated("")
-    val cardTripTransactions = listOf(
-        CardTransaction.Validation(700000011, transactionsDate, 41, lines[4].toSummary(), bus = 0, people = 1),
-        CardTransaction.Validation(700000012, transactionsDate.minusDays(1), 41, lines[2].toSummary(), bus = 0, people = 1),
+    val cardTripTransactions: List<CardTransaction> = listOf(
+        CardTransaction.Trip(700000011, transactionsDate, lines[4].toSummary(), people = 1, fare = Fare(Money(41))),
+        CardTransaction.Trip(700000012, transactionsDate.minusDays(1), lines[2].toSummary(), people = 1, fare = Fare(Money(41))),
     )
 
     @Deprecated("")
